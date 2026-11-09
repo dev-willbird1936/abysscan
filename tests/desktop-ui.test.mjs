@@ -18,6 +18,8 @@ const DEPTHS = ['sunlight', 'twilight', 'midnight', 'abyss', 'trench'];
 
 test('desktop page is only the creature stage: safety gate, one slim control, the OS iframes, the hint, the debrief and one attack overlay', () => {
   assert.match(html, /<title>Creature desktop · Training only<\/title>/);
+  assert.match(html, /<meta name="description" content="A fictional Windows or macOS training desktop/);
+  assert.match(html, /og:image" content="https:\/\/demo.abysscan.com\/og.png"/);
   assert.match(html, /href="\.\/desktop\.css"/);
   assert.match(html, /aria-live="polite"/);
   const stage = html.slice(html.indexOf('id="ocean-stage"'), html.indexOf('id="screen-reader-announcer"'));
