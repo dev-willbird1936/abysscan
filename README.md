@@ -105,7 +105,7 @@ Without `PARALLEL_API_KEY` and a Vultr inference key (see [`deploy/vultr-vm/env.
 
 ## Status and limits
 
-- **Test results:** `node --test "tests/*.test.mjs"` in a fresh copy of this repository (Windows, Node 24, no Docker, no browser): 1148 tests, 1143 pass, 0 fail, 5 skipped. Tests that need Docker, gVisor or Playwright skip on a bare machine, so that is not full coverage. The wallpaper-exists checks are not enforced for the withheld Win11React artwork (`tests/fixtures/withheld-artwork.mjs`).
+- **Test results:** `node --test "tests/*.test.mjs"` in a fresh copy of this repository (Windows, Node 24, no Docker, no browser): 1154 tests, 1148 pass, 0 fail, 6 skipped. Tests that need Docker, gVisor or Playwright skip on a bare machine, so that is not full coverage. The wallpaper-exists checks are not enforced for the withheld Win11React artwork (`tests/fixtures/withheld-artwork.mjs`). One wording check skips because bulk art-generation material is withheld.
 - **The live site is not an exact copy of this checkout.** It has had selective file deploys, so file versions on the VM can differ from this repository.
 - **Quests:** 59 historical quests compile and pass the quest rules. About half have had an independent review pass; every one replayed so far plays through on both desktops with every hard flag placed. Known gaps: macOS Safari has no favourites bar, and a mailbox forwarding rule cannot be shown yet ([`docs/QUEST-GAME.md`](docs/QUEST-GAME.md)).
 - **Sandbox limits:** gVisor is a strong boundary, not a proof. The service user is in the `docker` group, so the VM holds nothing but this app. The Wine step is off. A file that is only inspected can reach Twilight at most. See [`docs/FILE-COVERAGE.md`](docs/FILE-COVERAGE.md).
