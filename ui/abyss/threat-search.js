@@ -73,11 +73,27 @@
     try { data = await response.json(); } catch { /* an old server without these routes */ }
     return { status: response.status, body: data };
   }
+  // Results and messages can land below the fold on a short screen. Scroll just far enough to show the action (never past the
+  // form's own top), instantly under reduced motion.
+  function revealOut() {
+    requestAnimationFrame(() => {
+      const target = out.querySelector('.ts-open, .ts-create') ?? out.lastElementChild;
+      if (!target) return;
+      const over = target.getBoundingClientRect().bottom + 24 - innerHeight;
+      const room = form.getBoundingClientRect().top + scrollY - 84;
+      const to = Math.round(Math.min(scrollY + over, room));
+      if (over <= 0 || to <= scrollY) return;
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (window.__lenis) window.__lenis.scrollTo(to, reduced ? { immediate: true, force: true } : { duration: 0.6 });
+      else window.scrollTo({ top: to, behavior: reduced ? 'instant' : 'smooth' });
+    });
+  }
   const say = (text, bad = false) => {
     if (!text) { out.replaceChildren(); return; }
     const line = el('p', 'ts-status mono', text);
     line.classList.toggle('bad', bad);
     out.replaceChildren(line);
+    revealOut();
   };
 
   function sourcesList(sources) {
@@ -132,7 +148,6 @@
       badge.classList.toggle('ts-in', Boolean(candidate.onSite));
       head.append(badge);
       card.append(head, el('p', 'ts-meta mono', facts(result)));
-      if (candidate.summary) card.append(el('p', 'ts-sum', candidate.summary));
       if (candidate.onSite) {
         const open = el('a', 'drop-go ts-open', 'Play it on Windows');
         open.href = `/desktop.html?job=${encodeURIComponent(candidate.onSite.run)}&os=windows`;
@@ -143,11 +158,17 @@
         build.addEventListener('click', () => pick(result, candidate, build));
         card.append(build);
       }
+      if (candidate.summary) {
+        const sum = el('p', 'ts-sum', candidate.summary);
+        if (candidate.summary.length > 220) sum.title = candidate.summary;
+        card.append(sum);
+      }
       list.append(card);
     }
     const nodes = [list];
     if (result.specific === 'several') nodes.unshift(el('p', 'ts-status mono', 'More than one match. Pick the one you meant.'));
     out.replaceChildren(...nodes);
+    revealOut();
   }
 
   async function pick(result, candidate, button) {
