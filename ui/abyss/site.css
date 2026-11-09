@@ -229,3 +229,8 @@ body[data-site="chamber"] .rung { min-height: 44px; }
   body[data-site] { scroll-behavior: auto; }
   body[data-site] :is(.brand-mark, .hint-dot, .rays, .bubbles i) { animation: none !important; }
 }
+
+/* Training-desktop entry gate: the long explanation scrolls, but the consent tick and the Start button stay on screen (they sit flush
+   above the bottom edge; the bar reaches into the gate's 20px padding so nothing shows through beneath it). */
+body[data-site="desktop"] #ocean-gate .ocean-tick { position: sticky; bottom: 70px; z-index: 1; margin-bottom: 0; background: #0b2133; }
+body[data-site="desktop"] #ocean-gate .ocean-card-actions { position: sticky; bottom: -20px; z-index: 1; margin-top: 0; padding: 12px 0 28px; background: #0b2133; }
