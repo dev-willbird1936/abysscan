@@ -1,4 +1,4 @@
-// Actual UI and synthetic failure-state regression checks. No real upload, execution, cloud or remote request.
+// Actual UI and synthetic failure-state regression checks. File upload is retired; no POST to /api/jobs, no cloud or remote request.
 import assert from 'node:assert/strict';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -17,7 +17,7 @@ const ready = async () => { await page.evaluate(() => document.fonts.ready); if 
 try {
   for (const width of [1440, 768, 390, 320]) {
     await page.setViewportSize({ width, height: width <= 390 ? 844 : 900 });
-    for (const [name, path] of [['home', '/#upload'], ['about', '/about'], ['bestiary', '/bestiary'], ['report-recovery', '/job/j-missing'], ['studio', '/scene-studio'], ['guide', '/scene-studio/help'], ['catalogue', '/ocean-profiles.html'], ['entry', '/ocean-entry.html?profile=network-abuse-abyss'], ['desktop-gate', '/desktop.html?profile=network-abuse-abyss'], ['archive', '/chamber.html']]) {
+    for (const [name, path] of [['home', '/#threat-search'], ['about', '/about'], ['bestiary', '/bestiary'], ['report-recovery', '/job/j-missing'], ['studio', '/scene-studio'], ['guide', '/scene-studio/help'], ['catalogue', '/ocean-profiles.html'], ['entry', '/ocean-entry.html?profile=network-abuse-abyss'], ['desktop-gate', '/desktop.html?profile=network-abuse-abyss'], ['archive', '/chamber.html']]) {
       await page.goto(PARENT + path); await ready();
       if (name === 'bestiary') await page.waitForSelector('#creatures .card');
       if (name === 'catalogue') await page.waitForSelector('.profile-button');
@@ -34,34 +34,22 @@ try {
     }
   }
   await page.setViewportSize({ width: 390, height: 844 });
-  let health = false, healthFailure = false, posts = 0;
-  await page.route('**/api/health', route => healthFailure ? route.abort() : route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, acceptingJobs: health }) }));
-  await page.route('**/api/jobs', route => { posts++; return route.fulfill({ status: 503, body: '{}' }); });
-  await page.goto(PARENT + '/#upload'); await ready();
-  await page.waitForSelector('.drop-availability[data-state="unavailable"]');
-  await page.locator('.drop-file').setInputFiles({ name: 'harmless-review.txt', mimeType: 'text/plain', buffer: Buffer.from('A harmless UX check; never submitted.') });
-  await page.locator('#drop-consent').check();
-  assert.equal(await page.locator('.drop-go').isDisabled(), true);
-  assert.equal(posts, 0); await screenshot('390-upload-paused');
-  health = true;
-  await page.locator('.drop-recheck').click();
-  await page.waitForSelector('.drop-availability[data-state="ready"]');
-  assert.equal(await page.locator('.drop-go').isEnabled(), true);
-  assert.equal(await page.locator('#drop-consent').isChecked(), true);
-  assert.match(await page.locator('.drop-name').innerText(), /harmless-review/);
-  pass('availability blocks POST and manual recovery preserves file/consent');
-  health = false; await page.locator('.drop-recheck').click();
-  await page.waitForSelector('.drop-availability[data-state="unavailable"]');
-  healthFailure = true; await page.locator('.drop-recheck').click();
-  await page.waitForFunction(() => document.querySelector('.drop-availability').textContent.includes('remain paused'));
-  assert.equal(await page.locator('.drop-go').isDisabled(), true);
-  assert.equal(posts, 0); pass('failed health refresh never silently reopens known paused uploads');
+  let posts = 0;
+  await page.route('**/api/health', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, acceptingJobs: false }) }));
+  await page.route('**/api/jobs', route => { if (route.request().method() === 'POST') posts++; return route.fulfill({ status: 410, body: '{}' }); });
+  await page.goto(PARENT + '/#threat-search'); await ready();
+  await page.waitForSelector('#threat-search input[type=search]');
+  assert.equal(await page.locator('#upload, .drop-file, #drop-consent').count(), 0);
+  assert.equal(await page.locator('#threat-search input[type=search]').isVisible(), true);
+  assert.equal(posts, 0); await screenshot('390-search');
+  pass('retired upload panel is gone and the search form is on the surface');
   await page.locator('.site-nav-toggle').click();
   assert.equal(await page.locator('nav a').first().evaluate(n => n === document.activeElement), true);
   await page.keyboard.press('Escape');
   assert.equal(await page.locator('.site-nav-toggle').getAttribute('aria-expanded'), 'false');
   assert.equal(await page.locator('.site-nav-toggle').evaluate(n => n === document.activeElement), true);
   pass('mobile menu keyboard focus and Escape recovery');
+  assert.equal(posts, 0); pass('the main menu never posts to the retired upload route');
   await page.unroute('**/api/health'); await page.unroute('**/api/jobs');
   const fixture = JSON.parse(readFileSync(join(PROJECT, 'tests/fixtures/detonation/events/clean-chart.json'), 'utf8'));
   for (const event of fixture.events) {
@@ -87,14 +75,14 @@ try {
   await page.unroute('**/tests/fixtures/detonation/events/clean-chart.json');
   await page.route('**/ui/abyss/assets/index-retro.js', route => route.abort());
   await page.goto(PARENT + '/');
-  await page.locator('.loader-upload').click();
+  await page.locator('.loader-search').click();
   assert.equal(await page.locator('.loader').isVisible(), false);
-  assert.equal(await page.locator('.drop-file').evaluate(n => n === document.activeElement), true);
-  assert.equal(await page.locator('#upload').isVisible(), true);
-  pass('upload remains reachable when the optional ocean renderer cannot load');
-  await screenshot('390-renderer-unavailable-upload');
+  assert.equal(await page.locator('#threat-search input[type=search]').evaluate(n => n === document.activeElement), true);
+  assert.equal(await page.locator('#threat-search').isVisible(), true);
+  pass('search remains reachable when the optional ocean renderer cannot load');
+  await screenshot('390-renderer-unavailable-search');
   assert.deepEqual(errors, []); assert.deepEqual(external, []);
-  writeFileSync(join(out, 'results.json'), JSON.stringify({ results, errors, external, synthetic_states: true, real_uploads: posts }, null, 2));
+  writeFileSync(join(out, 'results.json'), JSON.stringify({ results, errors, external, synthetic_states: true, job_posts: posts }, null, 2));
 } catch (error) {
   await screenshot('failure').catch(() => {});
   writeFileSync(join(out, 'failure.json'), JSON.stringify({ message: error.message, results, errors, external }, null, 2));

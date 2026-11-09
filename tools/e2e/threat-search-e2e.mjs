@@ -62,7 +62,7 @@ try {
   const box = page.locator('#ts-q');
   await box.waitFor({ state: 'visible', timeout: 30_000 });
   await page.waitForTimeout(5000);
-  check(await page.locator('#upload').isHidden(), 'the Drop a file panel is off');
+  check(await page.locator('#upload, .drop-file, #drop-consent').count() === 0, 'the retired upload panel is not on the page');
   await page.screenshot({ path: join(OUT, '1-menu.png') });
 
   // Already in the ocean.

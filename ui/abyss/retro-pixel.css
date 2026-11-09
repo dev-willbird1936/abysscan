@@ -310,7 +310,7 @@ html, body { background: #0a3a4a; }
   button:active, .bar nav a:active, .row:active { translate: none; }
 }
 
-/* ---------- Detonation Ocean additions (main menu: nav, depth gauge, Drop a file; shared content-page chrome) ---------- */
+/* ---------- Detonation Ocean additions (main menu: nav, depth gauge, threat search; shared content-page chrome) ---------- */
 [hidden] { display: none !important; }
 .nav-dev { display: contents; }
 
@@ -323,7 +323,7 @@ html, body { background: #0a3a4a; }
 .gauge-sub { font-size: calc(var(--t) * .8); letter-spacing: .02em; color: var(--dim); } /* --dim, not --faint: it must read over sunlit water */
 .gauge-sun { display: inline-block; width: calc(var(--u) * 4); height: calc(var(--u) * 4); margin-right: calc(var(--u) * 2); background: var(--gold); clip-path: polygon(40% 0, 60% 0, 60% 20%, 80% 20%, 80% 40%, 100% 40%, 100% 60%, 80% 60%, 80% 80%, 60% 80%, 60% 100%, 40% 100%, 40% 80%, 20% 80%, 20% 60%, 0 60%, 0 40%, 20% 40%, 20% 20%, 40% 20%); }
 
-/* Drop a file panel (hero). */
+/* Hero panel. Threat search reuses .drop / .drop-go / .drop-title; the file picker is retired. */
 .past-hero .hero > * { opacity: var(--hero, 1); }
 .drop { background: #07162af5; pointer-events: auto; align-self: flex-start; width: min(100%, calc(var(--t) * 38)); box-sizing: border-box; margin-top: calc(var(--u) * 7); padding: calc(var(--u) * 4) calc(var(--u) * 5); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: calc(var(--u) * 3) calc(var(--u) * 5); --bd: var(--p5); --hi: var(--p3); }
 .drop-title { grid-column: 1 / -1; margin: 0; font: 400 calc(var(--t) * 1.5)/1 var(--serif); color: var(--p8); }
