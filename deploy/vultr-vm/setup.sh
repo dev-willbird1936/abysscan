@@ -161,6 +161,13 @@ sed -e "s|__PUBLIC_HOST__|$host|" -e "s|__TLS__|$tls_directive|" -e "s|__GLOBAL_
 caddy validate --adapter caddyfile --config "$caddyfile" >/dev/null 2>&1 || { caddy validate --adapter caddyfile --config "$caddyfile"; die "rendered Caddyfile is invalid"; }
 caddy_changed=0
 install_if_different "$caddyfile" /etc/caddy/Caddyfile 0644 && caddy_changed=1
+install -d -m 0755 /var/www/abysscan
+if [ -d "$vm/www" ]; then
+  for f in "$vm/www"/*; do
+    [ -f "$f" ] || continue
+    install_if_different "$f" "/var/www/abysscan/$(basename "$f")" 0644 && caddy_changed=1
+  done
+fi
 rm -f "$journald_conf" "$caddyfile"
 
 step "Host firewall (ufw): 80 and 443 from anywhere, 22 from ${operator_ip:-nowhere} only"

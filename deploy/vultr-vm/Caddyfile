@@ -35,15 +35,49 @@ __PUBLIC_HOST__ {
 	# Plain text, not the controller's JSON 404. Allows the public demo to be indexed.
 	handle /robots.txt {
 		header Content-Type "text/plain; charset=utf-8"
-		respond "User-agent: *\nAllow: /\nSitemap: https://demo.abysscan.com/\n" 200
+		respond "User-agent: *\nAllow: /\nSitemap: https://demo.abysscan.com/sitemap.xml\n" 200
 	}
 
-	# Open Graph image (docs/demo-video/cover-16x9.png copied to /var/www/abysscan/og.png).
+	# Static files in /var/www/abysscan (setup.sh copies deploy/vultr-vm/www/*).
 	handle /og.png {
 		root * /var/www/abysscan
 		header Content-Type image/png
 		header Cache-Control "public, max-age=86400"
 		file_server
+	}
+	handle /favicon.ico {
+		root * /var/www/abysscan
+		header Content-Type image/x-icon
+		header Cache-Control "public, max-age=86400"
+		file_server
+	}
+	handle /favicon.svg {
+		root * /var/www/abysscan
+		header Content-Type "image/svg+xml"
+		header Cache-Control "public, max-age=86400"
+		file_server
+	}
+	handle /apple-touch-icon.png {
+		root * /var/www/abysscan
+		header Content-Type image/png
+		header Cache-Control "public, max-age=86400"
+		file_server
+	}
+	handle /sitemap.xml {
+		root * /var/www/abysscan
+		header Content-Type "application/xml; charset=utf-8"
+		header Cache-Control "public, max-age=3600"
+		file_server
+	}
+	handle /.well-known/security.txt {
+		rewrite * /security.txt
+		root * /var/www/abysscan
+		header Content-Type "text/plain; charset=utf-8"
+		header Cache-Control "public, max-age=86400"
+		file_server
+	}
+	handle /security.txt {
+		redir * /.well-known/security.txt permanent
 	}
 
 	reverse_proxy 127.0.0.1:4173 {

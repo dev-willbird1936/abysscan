@@ -7,7 +7,8 @@ systemd as user `detonation`, and Caddy for TLS in front of it. Design: `docs/SP
 |---|---|
 | `setup.sh` | Idempotent installer, run as root on the VM |
 | `detonation-ocean.service` | systemd unit (`User=detonation`, `EnvironmentFile=/etc/detonation-ocean/env`, `Restart=on-failure`) |
-| `Caddyfile` | Template for `/etc/caddy/Caddyfile`: HTTPS, HSTS, reverse proxy to `127.0.0.1:4173` |
+| `Caddyfile` | Template for `/etc/caddy/Caddyfile`: HTTPS, HSTS, reverse proxy to `127.0.0.1:4173`, plus `/robots.txt`, `/og.png`, `/favicon.ico`, `/sitemap.xml` and `/.well-known/security.txt` |
+| `www/` | Files Caddy serves from `/var/www/abysscan` (Open Graph image is copied separately; favicon, apple-touch icon, sitemap, security.txt) |
 | `env.example` | Every variable of SPEC section 10 with comments; secrets empty |
 | `daemon.json` | Docker runtimes `runsc` and `runsc-trace` (shared with the local WSL set-up) |
 | `firewall.md` | Vultr firewall group rules |
