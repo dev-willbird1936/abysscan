@@ -4,7 +4,7 @@
 
 ## What it does
 
-- **Analyses suspicious files** in disposable sandboxes where supported.
+- **Searches a known threat** and plays it as a short training quest on a simulated Windows or macOS desktop.
 - **Collects evidence:** file changes, launched programs and attempted network connections.
 - **Uses Vultr AI** to write analysis code and explain findings.
 - **Uses fixed rules—not AI opinions—to determine the verdict.**
@@ -26,7 +26,7 @@
 - **The Bestiary:** explanations of creatures, behaviours and historical examples.
 - **Reports:** findings, evidence, analysis coverage, recommended actions and cleanup receipts.
 - **Desktop simulations:** Windows and macOS versions of the same fictional computer, with **21 app categories**.
-- **Scenarios:** a 30-cell framework, 60 authored interactive scenarios and 42 historical fish-scene scripts.
+- **Quests:** 59 historical `.scene` scripts play as training games (story card, flags, grade). File upload is retired on the public site.
 
 Switching desktops preserves the shared files, messages, windows and scenario progress.
 
@@ -62,9 +62,9 @@ Studio uses the same pixel theme as the main app. It currently supports guided s
 
 ## Current status
 
-**Live:** an earlier version at [demo.abysscan.com](https://demo.abysscan.com), behind a login.
+**Live** at [demo.abysscan.com](https://demo.abysscan.com), public, no login. Threat search is on; public file upload is retired (`POST /api/jobs` 410). All 59 historical quests are deployed.
 
-**Built and tested locally:** the improved desktop forks, Scene Studio, main-app Studio integration and recent hardening. **These latest changes are not deployed yet.**
+The live VM is a selective deploy, not an exact copy of this repository. Scene Studio stays local unless enabled.
 
 ### Local links
 
