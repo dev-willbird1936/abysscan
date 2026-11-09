@@ -32,6 +32,15 @@ __PUBLIC_HOST__ {
 		-Server
 	}
 
+	# Plain text, not the controller's JSON 404. Allows the public demo to be indexed.
+	handle /robots.txt {
+		header Content-Type "text/plain; charset=utf-8"
+		respond "User-agent: *
+Allow: /
+Sitemap: https://demo.abysscan.com/
+" 200
+	}
+
 	reverse_proxy 127.0.0.1:4173 {
 		# Caddy replaces any client-supplied X-Forwarded-For with the address it saw (no trusted_proxies are set); the
 		# controller rate-limits on the last entry.
