@@ -118,4 +118,4 @@ More documents: [`docs/VISION.md`](docs/VISION.md), [`docs/DETONATION-DESIGN.md`
 
 The project's own code and the macOS desktop shell are under the [MIT licence](LICENSE). Third-party code, tools, fonts and art keep their own terms, recorded in [`THIRD-PARTY.md`](THIRD-PARTY.md): Win11React code is CC0, and its artwork is withheld from this repository.
 
-Security reports: [`SECURITY.md`](SECURITY.md). How to send a change: [`CONTRIBUTING.md`](CONTRIBUTING.md).
+Security reports: [`SECURITY.md`](SECURITY.md). How to send a change: [`CONTRIBUTING.md`](CONTRIBUTING.md). Conduct: [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
