@@ -14,15 +14,13 @@ Built for the Vultr Agent Rush hackathon, track **Blast Radius Zero**. The produ
 The project was first called Detonation Ocean; that name survives in the page header, some paths and some documents.
 
 <p>
-<img src="docs/images/home-search.png" alt="The Abyss home page: a pixel-art ocean with a search box, Search a threat" width="49%">
-<img src="docs/images/search-result.png" alt="Search result for Zeus (2007): documented banking trojan, with a Create simulated environment button" width="49%">
-<img src="docs/images/scenario-ready.png" alt="The scenario for Zeus is built: the generated scene script and an Open the Zeus scenario button" width="49%">
+<img src="docs/images/search-result.png" alt="The live search for Zeus: Zeus (2007), In the ocean, with a Play it on Windows button" width="49%">
 <img src="docs/images/quest-briefing.png" alt="Briefing before the Zeus quest: what happens, flag what looks wrong, you stay in control" width="49%">
 </p>
 
 ## What works today, and what does not
 
-- **Live at https://demo.abysscan.com:** the ocean, the quests deployed so far (two batches of the 59 in this repository) playing on both desktops, the guide, flags and grade card, and the **threat search**: the live `/api/threats/config` reports search and create switched on, so a new threat is checked, researched and written into a scene from public reporting. The screenshots below show the earlier Zeus-only preview, which had a "Preview" badge and scripted build steps.
+- **Live at https://demo.abysscan.com:** the ocean, the quests deployed so far (two batches of the 59 in this repository) playing on both desktops, the guide, flags and grade card, and the **threat search**. Searching a threat that is already in the ocean (Zeus) shows "In the ocean" and a "Play it on Windows" button. A threat that is not there is checked by Parallel Decisions, researched by Parallel Search and written into a scene by DeepSeek V4.1 Flash on Vultr Serverless Inference, with uncited steps cut. Every scenario is an illustration based on public reporting, not observed malware.
 - **Threat search code** (Parallel Decisions, Parallel Search, DeepSeek V4.1 Flash on Vultr Serverless Inference, a checker that cuts uncited steps): the automated tests are 29 unit tests and 18 browser checks, all on mocked services, so they do not exercise the live services. How it was put on the VM: [`docs/threat-search/DEPLOY.md`](docs/threat-search/DEPLOY.md).
 - **Retired:** file upload. `POST /api/jobs` answers 410 unless `DETONATION_UPLOADS=true`, and `/api/health` reports `acceptingJobs:false`. The gVisor sandbox pipeline that analysed uploads is still in the code and is the basis of the containment story below. The public site no longer lets anyone run it.
 - **Withheld from this repository:** the upstream Win11React artwork (icons and wallpapers; no recorded licence), bulk art-generation material and recordings. A Windows desktop built from a clone therefore shows missing icons and wallpapers. See [`THIRD-PARTY.md`](THIRD-PARTY.md).
