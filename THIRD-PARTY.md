@@ -13,20 +13,33 @@ The table includes both approved candidates and tools named in current image rec
 | Speakeasy 1.6.1 (pinned) | MIT | Keep the MIT notice. Its repository holds four decoy PE files of unverified provenance; check them before shipping. |
 | Unicorn (Speakeasy dependency) | GPL-2.0 (COPYING); bindings reported as BSD | GPL-2.0 text and source offer. The engine and binding split is not verified. |
 | capa, capa-rules | Apache-2.0 | Apache-2.0 notice |
+| file / libmagic 5.44 (`libmagic1`) | BSD-2-Clause | Identification of every uploaded file, description and MIME type. |
+| python-magic 0.4.27 (`python3-magic`) | MIT | Calls libmagic from the runner (`runnerlib.libmagic`). |
 | oletools (olevba, rtfobj) | BSD-2-Clause; MIT for officeparser code in olevba | Keep `LICENSE.md` and per-file headers |
 | pdfid, pdf-parser | Public domain (author statement); pdf-parser includes an MIT-style notice | Keep the notice in `pdf-parser.py` |
 | pefile | MIT | MIT notice |
 | LIEF | Apache-2.0 | Apache-2.0 notice |
 | LnkParse3 | MIT | MIT notice |
-| extract-msg | GPL-3.0 | GPL-3.0 text and source offer |
+| olefile | BSD-2-Clause | Reads the OLE container of an Outlook `.msg` (oletools uses it too). `extract-msg` (GPL-3.0) was removed from the image: the attachment streams are read directly with olefile instead, which keeps GPL code out of the runtime. |
 | Playwright and Chromium | Apache-2.0 (Playwright); Chromium BSD-style and others | Apache-2.0 notice; pin both versions. Chromium's third-party notice list has not been read. |
 | PowerShell 7 | MIT | MIT notice |
-| OpenJDK (planned; absent from current recipes) | GPL-2.0 with Classpath exception | GPL-2.0 text and source offer if shipped |
+| OpenJDK 17 (`default-jre-headless`) | GPL-2.0 with Classpath exception | Shipped: a `.class` upload or a class unpacked from a jar runs on the JVM. GPL-2.0 text and source offer. |
+| QEMU user-mode (`qemu-user-static`) | GPL-2.0 | Runs i386, ARM, AArch64, MIPS, PowerPC and SPARC binaries the sandbox kernel cannot execute (gVisor has no 32-bit compatibility). GPL-2.0 text and source offer required. |
+| PHP CLI 8.2 (`php-cli`) | PHP-3.01 | Runs `.php` uploads. Keep the PHP licence notice. |
+| Ruby 3.1 (`ruby`) | Ruby licence (BSD-2-Clause style) or GPL-2.0, chosen by the distributor | Runs `.rb` uploads. Keep the Ruby licence file. |
+| Lua 5.4 (`lua5.4`) | MIT | Runs `.lua` uploads. MIT notice. |
+| bzip2 (`bzip2`) | bzip2-1.0.6 (BSD-like) | Decompresses `.bz2` members and streams. Keep the licence text. |
+| zstd (`zstd`) | BSD-3-Clause for the CLI and library; GPL-2.0 for some bundled programs | Decompresses `.zst` members and streams. Keep the BSD notice. |
+| xz-utils | Public domain (xz, xzdec, lzmainfo); LGPL-2.1 for liblzma | Decompresses `.xz` members and streams. LGPL notice for liblzma. |
+| glibc 32-bit runtime (`libc6:i386`) | LGPL-2.1 | Needed for a 32-bit sample run under qemu-i386. LGPL notice and source offer. |
+| libstdc++ 32-bit (`libstdc++6:i386`) | GPL-3.0 with GCC Runtime Library Exception | Same reason. Keep the exception notice. |
+| zlib 32-bit (`zlib1g:i386`) | Zlib | Same reason. Keep the notice. |
 | 7-Zip | LGPL with unRAR restriction; BSD-3-Clause for some files | LGPL source offer. The unRAR restriction bars using the code to rebuild a RAR encoder. |
 | Xvfb (X.Org xserver) | MIT/X11 and other notices in COPYING | Keep COPYING |
 | Wine | LGPL-2.1 | LGPL source offer. Wine's own DLLs only; no Microsoft redistributables (decision 4). |
 | Wine Mono (planned; not installed by the current Wine recipe) | Mixed: MIT X11, LGPL, GPL with exception, MSPL (FNA parts) | Ship COPYING if included. Package-specific obligations remain to be checked. |
 | LibreOffice | MPL-2.0 | MPL notices and source for MPL files. Third-party components are not listed. |
+| Mono runtime (`mono-runtime`) | LGPL-2.1 for the runtime libraries, MIT for the compiler and class libraries it ships | Confirmation on 2026-10-23: Debian 12 `mono-runtime` 6.8.0.105. The runtime is used only to execute managed .NET assemblies inside the detonation container; no Mono source is modified or linked into our code. Notices: `/usr/share/doc/mono-runtime/copyright` in the image. |
 | Node.js | MIT | Full LICENSE file |
 | Python 3 | PSF-2.0 (some parts 0BSD) | PSF notice |
 | innoextract | zlib | zlib notice. Upstream unmaintained since 2025-02-06; ships with a stale-upstream note (decision 2). |
@@ -70,9 +83,11 @@ No tests, downloads, builds or runtime checks were performed for the current sou
 | Component | Licence | Status |
 |---|---|---|
 | Win11React code (`desktop-comparison/win11-final/`) | CC0 1.0 Universal (`desktop-comparison/win11-final/LICENSE`) | Code is cleared. |
-| Win11React artwork (`public/img`: icons, wallpapers, logos) | No licence in the upstream repo | **Not cleared.** It includes icons named after Microsoft products and Windows-style wallpapers. Replace or withhold before public deployment (SPEC §14 item 13; decision 6). Until then production serves the project desktop. |
+| Win11React artwork (`public/img`: icons, wallpapers, logos) | No licence in the upstream repo | **Not cleared, and withheld from this repository** (`desktop-comparison/win11-final/public/img/` and the built copy `desktop-comparison/previews/win11-final/img/`). It includes icons named after Microsoft products and Windows-style wallpapers; CC0 on the code does not cover it. Without it the Windows desktop built from a clone shows missing icons and wallpapers. The live demo site serves its own copy. |
 | Font Awesome 6.6.0 (`@fortawesome/*` in the Windows shell) | Icons CC BY 4.0; fonts SIL OFL 1.1 | Attribution required. The 6.x licence was read; the 7.x licence was not, and 7.x is not used. |
-| macOS shell (`desktop-comparison/make-macos-final.mjs`, `previews/macos-final/`) | Unlicensed mirror | **Not cleared.** Replace before public deployment (SPEC §14 item 7). |
+| macOS shell (`desktop-comparison/make-macos-final.mjs`, `previews/macos-final/`) | Owned by the project owner | Published with this repository under its MIT licence. Its build input (`desktop-comparison/sources/kimi-macos27/`) is not in this repository, so the built result in `previews/macos-final/` is included but `make-macos-final.mjs` cannot be re-run from a clone. |
+
+Public source availability and AI-assisted creation do not establish a licence for third-party material, which is why the Win11React artwork is withheld until its status is settled.
 
 Other npm dependencies of the desktop shells are not audited in this file.
 

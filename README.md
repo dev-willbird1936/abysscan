@@ -1,159 +1,121 @@
-# The Detonation Ocean
+# Abysscan
 
-A file detonation sandbox for the Vultr Agent Rush hackathon. A visitor uploads one file. A controller on a Vultr VM runs it, emulates it or inspects it in a disposable gVisor sandbox, and an AI model writes analysis code that runs in a second sandbox. The effects replay on a fictional Windows or macOS desktop. The result is a creature in a pixel-art ocean: each creature is a kind of behaviour, and each depth is how harmful the file proved to be.
+Abysscan turns famous malware into short training games. A visitor searches for a threat by name, such as Zeus or WannaCry, and plays it as a **quest** on a simulated Windows or macOS desktop. They do an ordinary job, the attack arrives as part of it, the desktop reacts the way a real one would, and they flag the signs they spot. A grade card shows which real signs they found and how to stay safe. Everything on the desktop is fictional: no malware file is downloaded, uploaded or run.
 
-**Status: live on Vultr (2026-10-21), behind a login.** One Cloud Compute VM (`vc2-2c-4gb`, Los Angeles) runs Caddy, the controller and Docker with gVisor at https://149-28-93-208.sslip.io. Uploads run end to end: a job on the live site detonated a harmless sample in network-less gVisor containers, Vultr Serverless Inference wrote and explained the analysis, and the receipt confirmed every container removed. The site sits behind a Caddy login for judges; the login is given in the submission, not in this repository. Submission material: [`docs/SUBMISSION.md`](docs/SUBMISSION.md). Remaining items are listed under [Status](#status).
+Built for the Vultr Agent Rush hackathon, track **Blast Radius Zero**. The product runs on one Vultr Cloud Compute VM. The scene writer is DeepSeek V4.1 Flash on Vultr Serverless Inference.
 
-![Architecture: browser, Caddy, controller, Vultr Serverless Inference, gVisor containers, Wine step, data directory](docs/architecture.svg)
-
-Source: [`docs/architecture.svg`](docs/architecture.svg) (PNG: [`docs/architecture.png`](docs/architecture.png)). Detail and trust boundaries: [`docs/SPEC.md`](docs/SPEC.md) section 3. Product design: [`docs/DETONATION-DESIGN.md`](docs/DETONATION-DESIGN.md).
-
-> **Public checkout note.** The Windows 11 and macOS desktop shells (`desktop-comparison/`) are withheld from this repository because their artwork and shell code have unresolved redistribution rights. The detonation pipeline, the ocean, the job pages and the project's own desktop data, world model and scenes are included. `docs/desktop-parity/` and the shell run instructions below describe a private full checkout.
-
-## How a job runs
-
-1. The controller detects the file type from its content (magic bytes), not its extension.
-2. The **detonate** container runs, emulates or inspects the file. A **collect** container diffs the seeded home directory.
-3. The model (Vultr Serverless Inference) writes Python. The **analyse** container runs it. On an error, stderr goes back to the model (3 tries at most).
-4. A rule engine turns the evidence into findings, a depth and a family. The model never sets the verdict.
-5. Every container, volume and the upload are removed and confirmed absent. The receipt records the proof.
-
-## Run the ocean locally (no Docker)
-
-Double-click `start-hackathon-demo.bat`, or run `node tools/start-desktops.mjs`. It serves the app on <http://127.0.0.1:4173> and the Windows 11 and macOS shells on port 4189, loopback only, with Node built-ins. Ports, troubleshooting and shell rebuilds: [`docs/desktop-parity/RUNNING.md`](docs/desktop-parity/RUNNING.md).
-
-| Page | URL |
+| | |
 |---|---|
-| Ocean (main) | `/` |
-| 30-cell matrix | `/ocean-profiles.html` |
-| One scene | `/desktop.html?profile=<family>-<depth>`, for example `network-abuse-abyss` |
+| **Live demo** | https://demo.abysscan.com (public, no login) |
+| **Demo video** | [`detonation-ocean-demo.mp4`, release v1.0-hackathon](https://github.com/dev-willbird1936/abysscan/releases/tag/v1.0-hackathon) (39 MB) |
+| **Slides** | [`docs/demo-video/detonation-ocean-slides.pdf`](docs/demo-video/detonation-ocean-slides.pdf) |
+| **Licence** | [MIT](LICENSE); third-party notices in [`THIRD-PARTY.md`](THIRD-PARTY.md) |
 
-## Local setup: Docker, gVisor and the sandbox images
+The project was first called Detonation Ocean; that name survives in the page header, some paths and some documents.
 
-The controller must run where `/usr/bin/docker` and `/var/log/runsc` are both reachable, because it reads the `runsc-trace` log of each detonate container. On Windows that means a WSL2 distro; on Linux, any Ubuntu 24.04 host. Details: [`deploy/local-wsl/README.md`](deploy/local-wsl/README.md).
+<p>
+<img src="docs/images/home-search.png" alt="The Abyss home page: a pixel-art ocean with a search box, Search a threat" width="49%">
+<img src="docs/images/search-result.png" alt="Search result for Zeus (2007): documented banking trojan, with a Create simulated environment button" width="49%">
+<img src="docs/images/scenario-ready.png" alt="The scenario for Zeus is built: the generated scene script and an Open the Zeus scenario button" width="49%">
+<img src="docs/images/quest-briefing.png" alt="Briefing before the Zeus quest: what happens, flag what looks wrong, you stay in control" width="49%">
+</p>
 
-```sh
-git clone <this repository> detonation-ocean && cd detonation-ocean
+## What works today, and what does not
+
+- **Live at https://demo.abysscan.com:** the ocean, the quests deployed so far (two batches of the 59 in this repository) playing on both desktops, the guide, flags and grade card, and a search box that is a **staged preview**: only Zeus is indexed, and its "build" steps are scripted. It makes no live web or model call.
+- **In this repository, tested, not deployed:** the real threat search (Parallel Decisions, Parallel Search, DeepSeek V4.1 Flash on Vultr Serverless Inference, a checker that cuts uncited steps). It is covered by 29 unit tests and 18 browser checks, all on mocked services. It has not run against the live services end to end on the public site. Deploying it needs the steps in [`docs/threat-search/DEPLOY.md`](docs/threat-search/DEPLOY.md).
+- **Retired:** file upload. `POST /api/jobs` answers 410 unless `DETONATION_UPLOADS=true`, and `/api/health` reports `acceptingJobs:false`. The gVisor sandbox pipeline that analysed uploads is still in the code and is the basis of the containment story below. The public site no longer lets anyone run it.
+- **Withheld from this repository:** the upstream Win11React artwork (icons and wallpapers; no recorded licence), bulk art-generation material and recordings. A Windows desktop built from a clone therefore shows missing icons and wallpapers. See [`THIRD-PARTY.md`](THIRD-PARTY.md).
+
+## How a quest plays
+
+Details: [`docs/QUEST-GAME.md`](docs/QUEST-GAME.md).
+
+1. **Search** a malware family, exploit or incident from the main menu.
+2. **Story card:** who you are and what you were doing when the attack struck ("You have matched 9 of 10 supplier statements").
+3. **One safe round:** an ordinary task (a colleague's mail, a site you know, a signed program), so you see what normal looks like.
+4. **The lure** arrives as the next task: an invoice, a video, an update prompt.
+5. **What the desktop really shows**, in the OS's own windows: the unknown-publisher warning, antivirus alert, Task Manager or Activity Monitor rows, start-up items, locked files, a ransom window, a hijacked home page.
+6. **Flag the signs.** Hover anything and click its flag. Hard flags are the real signs of the attack and are graded. Soft flags are training shortcuts and earn a bonus.
+7. **Reveal and grade card:** every hard sign, found or missed, why it mattered, and how to stay safe.
+
+A **guide** follows the trainee: it says what to do next, plays the next step when the trainee does the move themselves, explains safe choices taken off the path (cancelling a warning, pressing "No thanks"), and counts the damage so far. One quest plays on both desktops; guide text such as `{Task Manager|Activity Monitor}` shows each OS its own word.
+
+Every quest is a plain-text `.scene` script ([`data/fish-scenes/`](data/fish-scenes/), 59 of them), compiled into desktop changes and checked by the same world model that both desktops use (`node tools/check-quest.mjs <file.scene>`, `node tools/check-fish-scenes.mjs`). Writing rules: [`docs/desktop-parity/QUESTS.md`](docs/desktop-parity/QUESTS.md).
+
+## How threat search works
+
+Contract: [`docs/threat-search/CONTRACT.md`](docs/threat-search/CONTRACT.md). Code: [`backend/threats/`](backend/threats/), [`ui/abyss/threat-search.js`](ui/abyss/threat-search.js).
+
+```
+visitor query
+  -> Parallel Decisions   is this a real, specific threat? does it ask for build instructions? (refused if so)
+  -> already in the ocean?  open its quest
+  -> Parallel Search      research brief: how it got in, what ran, what changed, how it was stopped (each entry has a source URL)
+  -> DeepSeek V4.1 Flash  writes the .scene (Vultr Serverless Inference, deepseek-v4.1-flash-1017)
+  -> checker              steps without a citation to a brief entry are cut; compile + quest rules; up to 3 repair rounds
+  -> quest plays on the Windows desktop, with the sources listed in the debrief
 ```
 
-Run these as root inside the WSL distro `detonation-ocean` (Ubuntu 24.04, systemd on) or on the Linux host:
+Rules enforced in code and tests: web text reaches the model only inside `<untrusted>` tags; real URLs, hashes and working commands are blocked from scenes; the debrief says "Illustration based on public reporting, not observed malware."; per-address and daily caps bound spend; keys come from the server's environment only (`PARALLEL_API_KEY`, `VULTR_INFERENCE_API_KEY`). Tests: [`tests/threat-search.test.mjs`](tests/threat-search.test.mjs), [`tests/threat-search-panel.test.mjs`](tests/threat-search-panel.test.mjs), browser run `npm run e2e:threats` (needs Playwright).
+
+## Architecture and Vultr services
+
+![Architecture: browser, Caddy, controller, Vultr Serverless Inference, gVisor containers, data directory](docs/architecture.svg)
+
+Source: [`docs/architecture.svg`](docs/architecture.svg). Trust boundaries: [`docs/SPEC.md`](docs/SPEC.md) section 3. The diagram shows the sandbox pipeline; the search path (above) runs in the same controller process.
+
+| Vultr service | Used for | Where |
+|---|---|---|
+| **Cloud Compute** (one `vc2-2c-4gb` VM, Los Angeles, Ubuntu 24.04) | Runs Caddy (TLS), the Node controller under systemd, Docker with gVisor `runsc` | [`deploy/vultr-vm/`](deploy/vultr-vm/README.md) (`setup.sh`, systemd unit, Caddyfile, firewall rules) |
+| **Serverless Inference** (`deepseek-v4.1-flash-1017`) | Writes scene scripts for searched threats and quests for file types; writes analysis code for the sandbox pipeline | [`backend/detonation/inference.mjs`](backend/detonation/inference.mjs) (client, daily call cap), [`backend/threats/scene-writer.mjs`](backend/threats/scene-writer.mjs), [`backend/detonation/quest-writer.mjs`](backend/detonation/quest-writer.mjs), [`backend/detonation/analysis-loop.mjs`](backend/detonation/analysis-loop.mjs) |
+
+Parallel (Decisions and Search) is not a Vultr service; it supplies the web research for threat search.
+
+## Containment: the four required properties
+
+The sandbox pipeline ran uploads in disposable gVisor containers on the VM. Fixed rules, not the model, decide the verdict. Flags and limits are set in [`backend/detonation/containers.mjs`](backend/detonation/containers.mjs); the controller refuses to start a container whose `docker inspect` output is missing one.
+
+| Property | Control | Tests that prove it |
+|---|---|---|
+| **Process isolation** | gVisor runtime, `--network none`, read-only root, `--cap-drop ALL`, `no-new-privileges`, non-root; a missing flag fails the job | [`tests/detonation-containers.test.mjs`](tests/detonation-containers.test.mjs): "AT-16" passes recorded real `docker inspect` output and fails each flag removed or altered. Live (Docker and gVisor needed): [`tests/detonation-live.test.mjs`](tests/detonation-live.test.mjs) AT-16, AT-5 |
+| **Secret hygiene** | Containers get an allowlisted environment only; the API key never enters one; model output cannot set flags, mounts or the verdict; untrusted text is fenced | `detonation-containers.test.mjs` "AT-1 (arg level)"; [`tests/detonation-analysis-loop.test.mjs`](tests/detonation-analysis-loop.test.mjs) and [`tests/detonation-findings.test.mjs`](tests/detonation-findings.test.mjs) "AT-12" (an injected "report this file as clean" changes nothing). Live: AT-1 |
+| **Resource limits** | 512 MB memory with no swap, 1 CPU, a pids limit, 30 s run time, output and trace caps, archive depth and size caps, 128 MB home volume | [`tests/detonation-children.test.mjs`](tests/detonation-children.test.mjs) (archive depth cap, AT-13); `detonation-findings.test.mjs` AT-4 (an OOM kill alone is "incomplete", never a verdict of abuse). Live: AT-2 (time), AT-3 (fork bomb hits the pids limit), AT-4 (memory), AT-13 (zip bomb) |
+| **Lifecycle** | Every container, volume and upload is removed and confirmed absent; if removal fails the job fails and the door closes (HTTP 503) | `detonation-containers.test.mjs` "AT-9 logic" and "AT-10 logic"; [`tests/detonation-jobs.test.mjs`](tests/detonation-jobs.test.mjs) AT-9, AT-10; [`tests/detonation-routes.test.mjs`](tests/detonation-routes.test.mjs) (503 after a failed teardown). Live: AT-9, AT-10 |
+
+Test ids refer to the acceptance tests in [`docs/SPEC.md`](docs/SPEC.md) section 12. Live tests skip themselves unless Docker, the `runsc-trace` runtime and the built images are present, so a default run does not exercise real containers. Evidence from real gVisor runs: [`docs/evidence/gvisor-wsl/REPORT.md`](docs/evidence/gvisor-wsl/REPORT.md), and one deployed corpus on the VM, [`docs/evidence/detonation-live-corpus-2026-10-23.md`](docs/evidence/detonation-live-corpus-2026-10-23.md). The safety rules and the amendment that allows sandbox runs: [`docs/safety.md`](docs/safety.md), [`docs/safety-amendment-2026-10-23.md`](docs/safety-amendment-2026-10-23.md).
+
+Quests themselves execute nothing: they are scripts played by a browser-side desktop simulation. People and companies use `.example` and `.invalid` domains, addresses use documentation ranges, and no real payload, attacker domain or hash appears in a scene.
+
+## Quick start
+
+Needs Node 22 or newer. There are no npm dependencies, so there is no `npm ci` step.
 
 ```sh
-bash deploy/local-wsl/setup.sh          # Docker Engine 29.8.2, gVisor runsc 20261012.0, runtimes runsc and runsc-trace
-curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && apt-get install -y nodejs   # the project needs Node 22 or newer
-bash deploy/detonation/build-images.sh  # builds detonation-ocean/{detonate,collect,analyse}, rewrites images.lock.json
+git clone https://github.com/dev-willbird1936/abysscan.git && cd abysscan
+node server.mjs                   # ocean at http://127.0.0.1:4173 (PORT overrides), desktops on 4189; no Docker, uploads off
+node --test "tests/*.test.mjs"    # full Node suite; tests needing Docker, gVisor or a browser skip
+node tools/check-fish-scenes.mjs  # all 59 quests compile into valid desktop worlds
 ```
 
-Containers run with `--pull never`, so build the images before the first job. From Windows, run any command in the distro with `wsl -d detonation-ocean -u root -- bash -lc '<command>'` (set `MSYS_NO_PATHCONV=1` under Git Bash).
+Without `PARALLEL_API_KEY` and a Vultr inference key (see [`deploy/vultr-vm/env.example`](deploy/vultr-vm/env.example)) the search box reports that search is switched off. Ports and troubleshooting: [`docs/desktop-parity/RUNNING.md`](docs/desktop-parity/RUNNING.md). Browser checks (`npm run e2e:*`) need `playwright-core` and Chromium: [`tools/CHECKS.md`](tools/CHECKS.md). The sandbox pipeline needs Docker and gVisor: [`deploy/local-wsl/README.md`](deploy/local-wsl/README.md).
 
-Line endings: `.gitattributes` keeps text files LF on every OS. The asset integrity manifest (`ui/abyss/manifest.json`) hashes those bytes, so a Linux clone and a Windows checkout agree.
+## Deployment
 
-### Run the tests
+- VM install, firewall, kill switch and teardown: [`deploy/vultr-vm/README.md`](deploy/vultr-vm/README.md).
+- Putting the real threat search on the VM: [`docs/threat-search/DEPLOY.md`](docs/threat-search/DEPLOY.md).
 
-| Where | Command | Covers |
-|---|---|---|
-| Windows or Linux | `node --test tests/*.test.mjs` | Everything that needs no Docker; the live file skips itself |
-| Distro `detonation-ocean` | `node --test tests/detonation-live.test.mjs` | The real stages with harmless commands only: AT-1, AT-9, AT-10, AT-13, AT-14 (type mismatch), AT-16, the analysis artifacts, the M4 runner kinds, the home-volume quota |
-| Either | `node build.mjs`, `node tools/validate-attacks.mjs`, `node tools/e2e/desktops-e2e.mjs` | Build, scene validation, desktop shells (AT-29) |
+## Status and limits
 
-The live file skips itself unless `docker info` works, the `runsc-trace` runtime is registered, `/var/log/runsc` exists and the three images are built.
+- **Test results:** `node --test "tests/*.test.mjs"` in a fresh copy of this repository (Windows, Node 24, no Docker, no browser): 1148 tests, 1143 pass, 0 fail, 5 skipped. Tests that need Docker, gVisor or Playwright skip on a bare machine, so that is not full coverage. The wallpaper-exists checks are not enforced for the withheld Win11React artwork (`tests/fixtures/withheld-artwork.mjs`).
+- **The live site is not this checkout.** It runs the same code base with the Zeus-only search preview and has had selective file deploys; the real search is the main gap.
+- **Quests:** 59 historical quests compile and pass the quest rules. About half have had an independent review pass; every one replayed so far plays through on both desktops with every hard flag placed. Known gaps: macOS Safari has no favourites bar, and a mailbox forwarding rule cannot be shown yet ([`docs/QUEST-GAME.md`](docs/QUEST-GAME.md)).
+- **Sandbox limits:** gVisor is a strong boundary, not a proof. The service user is in the `docker` group, so the VM holds nothing but this app. The Wine step is off. A file that is only inspected can reach Twilight at most. See [`docs/FILE-COVERAGE.md`](docs/FILE-COVERAGE.md).
+- **Search spend:** the public site has no login. The deployed search would be bounded by per-address hourly limits, daily caps and caching ([`docs/threat-search/DEPLOY.md`](docs/threat-search/DEPLOY.md)).
+- **Every scenario is a fictional illustration based on public reporting, not observed malware.**
 
-**The gated sample block.** The last block of `tests/detonation-live.test.mjs` (AT-2 to AT-8, plus the `invoice.pdf.html` verdict) executes the files in `samples/` inside the sandbox. It stays skipped unless `DETONATION_LIVE_SAMPLES=1` is set. It is gated because [`docs/safety.md`](docs/safety.md) forbids running uploads, and the amendment that allows it is still a draft ([`docs/safety-amendment-DRAFT.md`](docs/safety-amendment-DRAFT.md)). The samples are project-written demonstrations, not harmless programs: some perform destructive or resource-exhausting operations. They must never run outside approved isolation. Do not set the variable before the amendment is approved. None of the samples has been run so far.
-
-## Deploy to Vultr
-
-One Cloud Compute VM (Ubuntu 24.04) holds Caddy, the controller and Docker. The full, console-driven procedure, cost warnings, kill switch and teardown are in [`deploy/vultr-vm/README.md`](deploy/vultr-vm/README.md).
-
-**Spend needs the user's approval first.** Creating the VM, DNS records and the Serverless Inference key costs money or goes public. Nothing in this repository calls the Vultr API, and `setup.sh` creates no cloud resource. The kit was dry-run on a throwaway WSL2 distro, then used on the live VM recorded in [`docs/USER-DECISIONS.md`](docs/USER-DECISIONS.md).
-
-## Environment variables
-
-Set these in `/etc/detonation-ocean/env` (mode 0600, loaded by systemd). The template with comments is [`deploy/vultr-vm/env.example`](deploy/vultr-vm/env.example). Secrets stay out of the repository, logs and containers.
-
-| Variable | Purpose |
-|---|---|
-| `APP_PUBLIC_ORIGIN` | Exact HTTPS origin; `POST /api/jobs` is accepted only from it |
-| `DETONATION_PRODUCTION` | `true` on the public site; switches off the local template-desktop preview |
-| `DETONATION_ENABLED` | `true` accepts uploads. Kill switch: `false` and restart |
-| `DETONATION_INFERENCE_ENABLED` | `true` lets the controller call the model (also needs the key and code model) |
-| `VULTR_INFERENCE_API_KEY` | Serverless Inference key (**secret**, redacted from logs) |
-| `VULTR_INFERENCE_CODE_MODEL` | Model ID that writes the analysis Python |
-| `VULTR_INFERENCE_VISION_MODEL` | Optional; screenshot checks for HTML and PDF |
-| `DAILY_INFERENCE_CALL_CAP` | Site-wide calls per UTC day (default 300); at the cap, jobs finish without an explanation |
-| `UPLOAD_ENCRYPTION_KEY` | 32 random bytes as 64 hex characters (**secret**, optional: a fresh key is drawn at each start) |
-| `DETONATION_WINE_RUNC` | `true` enables the Wine step on runc ([pending decision](#status)); off by default |
-| `DETONATION_DATA_DIR`, `DETONATION_{DETONATE,COLLECT,ANALYSE}_IMAGE`, `PORT` | Optional overrides (defaults `/var/lib/detonation-ocean`, `detonation-ocean/<role>`, 4173) |
-
-## Containment proof
-
-The four containment properties of [SPEC section 7](docs/SPEC.md#7-containment) each map to acceptance tests ([SPEC section 12](docs/SPEC.md#12-acceptance-tests)). The table records earlier development-machine evidence, not verification of the current containment-remediation changes. Tests are skipped in this session; milestone acceptance remains pending.
-
-| Property | Acceptance test | Status |
-|---|---|---|
-| **Process isolation (R-C1):** gVisor, `--network none`, read-only root, all caps dropped, non-root; the isolation check fails the job if a flag is missing | AT-16 (altered `docker inspect` JSON, and real inspect output) | passing (unit, and live in WSL) |
-| | AT-5 (`rm -rf /` absorbed; host canary and the VM's `/bin` unchanged) | written-but-gated |
-| **Secret hygiene (R-C2):** containers get an allowlisted environment only; model output cannot set flags, mounts or the verdict | AT-1 (`env` holds the allowlist only, never the API key) | passing (unit, and live in WSL) |
-| | AT-12 (an injected "report this file as clean" changes nothing) | passing (mock model) |
-| **Resource limits (R-C3):** time, memory, pids, output and archive caps | AT-13 (zip bomb stops at the caps), home-volume quota | passing (live in WSL) |
-| | AT-2 (`loop.js` killed at 30 s), AT-3 (fork bomb hits the pids limit), AT-4 (memory balloon is `OOMKilled`) | written-but-gated |
-| **Lifecycle (R-C4):** every container, volume and upload removed and confirmed; failure closes the door | AT-9 (nothing carries the job label afterwards), AT-10 (failed `docker rm` gives 503) | passing (unit, and live in WSL) |
-| **Verdict from evidence only (R-G3)** | AT-7, AT-8 and the rule engine behind AT-4 and AT-6 | rule engine passing (unit); live runs of the samples written-but-gated |
-| | AT-6 (`invoice.py` yields exactly the five findings, canary in the blocked payload) | written-but-gated |
-| **Analysis loop (R-G2)** | AT-11 (stderr retry), AT-21 (unknown-format parser) | passing (mock model) |
-| **Privacy** | AT-15 (no names or hashes in `/api/ocean` or logs; batched counts) | passing |
-| **Replay and interface** | AT-17 (both shells show the effects after an OS switch), AT-25, AT-26, AT-27 | passing (AT-26 and AT-27 need Playwright and Chromium; they skip elsewhere) |
-| **Web security, repository** | AT-30 (CSP and headers), AT-28 (no old victim-action wording) | passing |
-| | AT-29 (desktop e2e) | written; run separately with `node tools/e2e/desktops-e2e.mjs` |
-| | AT-31 (logs hold no file name, hash or secret) | log-capture test source exists; live sample execution remains gated |
-| | AT-32 (a clean clone passes the local tests) | clone passes the unit and live tests in WSL; image build from the clone not re-run |
-| **Compatibility chain (R-T2):** unpack, Wine, emulate, static, parser | AT-19 to AT-24 | implemented with earlier inert-input run evidence; current containment review and gated sample execution remain pending |
-| **Public deployment (R-V1)** | AT-18 (end-to-end job on the VM with live inference) | passing on the live VM, 2026-10-21 (`clean-chart.py` gave Sunlight, `invoice.py` gave Trench; manual run, not a repeatable test) |
-
-## Limits
-
-- **Size and rate:** 100 MB per upload, full analysis only up to 10 MB; a small per-address hourly limit (HTTP 429 beyond it) and a daily site-wide cap; 2 jobs at once and a queue of 10; 3 analysis retries.
-- **Per container:** 512 MB memory with no swap, 1 CPU, 128 tasks, 64 MB tmpfs, 128 MB home volume, 64 KB output per stream, 20 MB trace.
-- **Analysis depth:** a file that is only inspected can reach Twilight at most. Midnight and deeper need evidence from a run or emulation. Every report lists which steps ran.
-- **Not supported:** live URL scanning, following links out of the sandbox, running anything on a real Windows or macOS machine, accounts or history beyond one job.
-- **Trust:** gVisor is a strong boundary, not a proof. The `detonation` user is in the `docker` group and therefore root-equivalent on the VM, so the VM holds nothing but this app. The Wine step, if enabled, runs without gVisor and the receipt says so.
-
-## Status
-
-**Built and tested locally:** type detection, container arguments and isolation check, the seeded profile and collector, the gVisor syscall trace parser, the rule engine and receipts, the analysis loop with a mock model and the inference client, the M4 runner kinds (HTML in headless Chromium, PDF, Office, PowerShell, Speakeasy, archives, email), the job routes and queue, ocean state, the desktop replay, the main menu, job view and Bestiary, and the Vultr VM kit (dry run on a WSL2 distro). The Windows run of `node --test tests/*.test.mjs` is the reference; one route test (`P1-2`) can fail with `ECONNRESET` under load and passes when run alone.
-
-**Live deployment:** uploads and model-written analysis run on the Vultr VM (approved 2026-10-21, see [`docs/USER-DECISIONS.md`](docs/USER-DECISIONS.md)). Local runs of the gated samples (AT-2 to AT-8) remain unrepeated as automated tests.
-
-**Pending user decisions:**
-
-| Decision | Detail |
-|---|---|
-| Safety amendment | Approved for the Vultr deployment on 2026-10-21; the draft in [`docs/safety-amendment-DRAFT.md`](docs/safety-amendment-DRAFT.md) is not yet formally merged |
-| Wine step on runc | Wine 8, 10 and 11 fail under gVisor. Run the Wine step on runc with a tight seccomp profile and say so in the receipt (a), or drop it (b). AT-22 to AT-24 need (a). Kept behind `DETONATION_WINE_RUNC=true`, off by default |
-| Vultr acceptable use policy | Read 2026-10-21: no malware-analysis carve-out; treated as allowed under the text. Vultr not contacted |
-| Spend | Approved 2026-10-21 for one VM and per-use inference (item 5); the VM is running |
-| Inference models | Resolved: `deepseek-v4.1-flash`, 300 calls a day cap (verified live 2026-10-21) |
-| Hackathon rules | Check the rules on work done before the build week, 3 to 8 November 2026 (item 6) |
-| macOS shell and Win11React artwork | The macOS shell is an unlicensed mirror and the Win11React artwork has no licence. Replace or withhold both before a public deployment (items 7 and 13) |
-| Remaining | Fate of the 30 scripted scenes (item 8), the GitHub repository (item 9), confirm the licence below |
-
-## Docs
-
-| File | Purpose |
-|---|---|
-| [`docs/DETONATION-DESIGN.md`](docs/DETONATION-DESIGN.md) | Upload design: file types, depth tiers, families, creatures, fish, containment |
-| [`docs/SPEC.md`](docs/SPEC.md) | Build specification: API, pipeline, sandboxes, rule engine, Vultr deployment, acceptance tests, milestones |
-| [`docs/SPEC-SIMPLE.md`](docs/SPEC-SIMPLE.md) | The plan in plain English, with a word list |
-| [`docs/VISION.md`](docs/VISION.md) | Intent, journey, honest status |
-| [`docs/safety.md`](docs/safety.md) | Rules that never change |
-| [`docs/desktop-parity/README.md`](docs/desktop-parity/README.md) | The Windows and macOS training desktops, shared world, scene authoring |
-| [`docs/evidence/gvisor-wsl/REPORT.md`](docs/evidence/gvisor-wsl/REPORT.md) | gVisor tests in WSL, process limits and the Wine failure |
-| [`samples/README.md`](samples/README.md) | The demo samples and their expected verdicts |
-| [`docs/ocean-selection.md`](docs/ocean-selection.md), [`docs/ocean-taxonomy.md`](docs/ocean-taxonomy.md), [`docs/ocean-menu-taxonomy.md`](docs/ocean-menu-taxonomy.md) | The 60 scripted scenarios and taxonomies (generated) |
-
-Regenerate the generated docs after editing their JSON: `node tools/generate-ocean-selection-doc.mjs`, `node tools/build-ocean-taxonomy.mjs`, `node tools/build-ocean-menu-taxonomy.mjs`. After changing files under `ui/abyss/`, run `node tools/refresh-abyss-manifest.mjs`.
+More documents: [`docs/VISION.md`](docs/VISION.md), [`docs/DETONATION-DESIGN.md`](docs/DETONATION-DESIGN.md), [`docs/SPEC.md`](docs/SPEC.md), [`docs/desktop-parity/README.md`](docs/desktop-parity/README.md) (the two desktops).
 
 ## Licence
 
-The project's own code is under the [MIT licence](LICENSE). That covers neither third-party code and tools nor art and shells of unclear terms (the macOS shell, the Win11React artwork, the RetroDiffusion sprites). Their licences and open questions are in [`THIRD-PARTY.md`](THIRD-PARTY.md).
-
-Every scene in the ocean is fictional.
+The project's own code and the macOS desktop shell are under the [MIT licence](LICENSE). Third-party code, tools, fonts and art keep their own terms, recorded in [`THIRD-PARTY.md`](THIRD-PARTY.md): Win11React code is CC0, and its artwork is withheld from this repository.
