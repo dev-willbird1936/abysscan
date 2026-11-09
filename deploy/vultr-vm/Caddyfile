@@ -35,10 +35,15 @@ __PUBLIC_HOST__ {
 	# Plain text, not the controller's JSON 404. Allows the public demo to be indexed.
 	handle /robots.txt {
 		header Content-Type "text/plain; charset=utf-8"
-		respond "User-agent: *
-Allow: /
-Sitemap: https://demo.abysscan.com/
-" 200
+		respond "User-agent: *\nAllow: /\nSitemap: https://demo.abysscan.com/\n" 200
+	}
+
+	# Open Graph image (docs/demo-video/cover-16x9.png copied to /var/www/abysscan/og.png).
+	handle /og.png {
+		root * /var/www/abysscan
+		header Content-Type image/png
+		header Cache-Control "public, max-age=86400"
+		file_server
 	}
 
 	reverse_proxy 127.0.0.1:4173 {

@@ -50,6 +50,8 @@ test('the served page invites a threat search and does not promise a safety guar
   assert.match(source, /<p class="eyebrow mono">Threat simulator · on Vultr<\/p>/);
   assert.ok(source.includes(`<p class="premise">${premise}</p>`));
   assert.ok(source.includes(`<meta name="description" content="${premise}">`));
+  assert.ok(source.includes('<meta property="og:title" content="The Abyss — Search a threat, play the quest">'));
+  assert.ok(source.includes('<meta property="og:image" content="https://demo.abysscan.com/og.png">'));
   assert.ok(source.includes(`<p class="loader-premise" aria-hidden="true">${premise}</p>`));
   assert.doesNotMatch(source, /50 real cyberattacks|Every attack is a creature|safety guarantee/);
 });
