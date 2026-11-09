@@ -80,10 +80,31 @@ __PUBLIC_HOST__ {
 		redir * /.well-known/security.txt permanent
 	}
 
-	reverse_proxy 127.0.0.1:4173 {
-		# Caddy replaces any client-supplied X-Forwarded-For with the address it saw (no trusted_proxies are set); the
-		# controller rate-limits on the last entry.
-		# Job progress is a server-sent-event stream.
-		flush_interval -1
+	# JSON 404s stay on /api/*. Other missing pages become a Caddy error so handle_errors can serve HTML and keep status 404.
+	@api path /api/*
+	handle @api {
+		reverse_proxy 127.0.0.1:4173 {
+			flush_interval -1
+		}
+	}
+	handle {
+		reverse_proxy 127.0.0.1:4173 {
+			flush_interval -1
+			@notFound status 404
+			handle_response @notFound {
+				error 404
+			}
+		}
+	}
+	handle_errors {
+		@missing expression `{err.status_code} == 404`
+		handle @missing {
+			root * /var/www/abysscan
+			rewrite * /404.html
+			header Content-Type "text/html; charset=utf-8"
+			header Strict-Transport-Security "max-age=31536000"
+			header -Server
+			file_server
+		}
 	}
 }
