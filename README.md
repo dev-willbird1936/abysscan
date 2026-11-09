@@ -109,7 +109,7 @@ Without `PARALLEL_API_KEY` and a Vultr inference key (see [`deploy/vultr-vm/env.
 - **The live site is not an exact copy of this checkout.** It has had selective file deploys, so file versions on the VM can differ from this repository.
 - **Quests:** 59 historical quests compile and pass the quest rules. About half have had an independent review pass; every one replayed so far plays through on both desktops with every hard flag placed. Known gaps: macOS Safari has no favourites bar, and a mailbox forwarding rule cannot be shown yet ([`docs/QUEST-GAME.md`](docs/QUEST-GAME.md)).
 - **Sandbox limits:** gVisor is a strong boundary, not a proof. The service user is in the `docker` group, so the VM holds nothing but this app. The Wine step is off. A file that is only inspected can reach Twilight at most. See [`docs/FILE-COVERAGE.md`](docs/FILE-COVERAGE.md).
-- **Search spend:** the public site has no login. The deployed search would be bounded by per-address hourly limits, daily caps and caching ([`docs/threat-search/DEPLOY.md`](docs/threat-search/DEPLOY.md)).
+- **Search spend:** the public site has no login. Search is bounded by 10 searches and 3 creates per address per hour, 100 Parallel calls a day, and cached briefs and scenes ([`docs/threat-search/DEPLOY.md`](docs/threat-search/DEPLOY.md)).
 - **Every scenario is a fictional illustration based on public reporting, not observed malware.**
 
 More documents: [`docs/VISION.md`](docs/VISION.md), [`docs/DETONATION-DESIGN.md`](docs/DETONATION-DESIGN.md), [`docs/SPEC.md`](docs/SPEC.md), [`docs/desktop-parity/README.md`](docs/desktop-parity/README.md) (the two desktops).
