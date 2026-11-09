@@ -46,8 +46,8 @@
     },
     {
       "path": "ui/abyss/index.html",
-      "sha256": "af2aee5c272f99b81f4b0c70073118bc34a18049597309100a326dae1a143aa7",
-      "bytes": 13567,
+      "sha256": "7c136d5a4bc065d9ebdb8e0d4b2d57fa9dbbe4448e1a72586020728b62c78d58",
+      "bytes": 13575,
       "mime": "text/html; charset=utf-8",
       "owner": "renderer"
     },
