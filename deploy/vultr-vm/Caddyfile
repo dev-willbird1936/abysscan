@@ -80,6 +80,14 @@ __PUBLIC_HOST__ {
 		redir * /.well-known/security.txt permanent
 	}
 
+	# Retired pages: the Chamber timeline is a development-only page and /upload was the old Drop a file address.
+	handle /chamber.html {
+		error 404
+	}
+	handle /upload {
+		redir * / permanent
+	}
+
 	# JSON 404s stay on /api/*. Other missing pages become a Caddy error so handle_errors can serve HTML and keep status 404.
 	@api path /api/*
 	handle @api {
