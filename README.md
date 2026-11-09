@@ -11,7 +11,7 @@ Built for the Vultr Agent Rush hackathon, track **Blast Radius Zero**. The produ
 | **Slides** | [`docs/demo-video/detonation-ocean-slides.pdf`](docs/demo-video/detonation-ocean-slides.pdf) |
 | **Licence** | [MIT](LICENSE); third-party notices in [`THIRD-PARTY.md`](THIRD-PARTY.md) |
 
-The project was first called Detonation Ocean; that name survives in the page header, some paths and some documents.
+The project was first called Detonation Ocean; that name survives in some paths and some documents.
 
 <p>
 <img src="docs/images/search-result.png" alt="The live search for Zeus: Zeus (2007), In the ocean, with a Play it on Windows button" width="49%">

@@ -202,12 +202,12 @@ async function run() {
   } else {
     const match = JOB_PATH.exec(location.pathname);
     const token = location.hash.slice(1);
-    if (!match || !TOKEN.test(token)) { notice('This job link is incomplete. Open the full link you received after uploading.', true); return; }
+    if (!match || !TOKEN.test(token)) { notice('This job link is incomplete. Open the full private link, including the part after #.', true); return; }
     source = createNetworkSource({ jobId: match[1], token });
   }
   if (!skipped) revealGrid();
   $('jv-jobid').textContent = `Job ${source.jobId}`;
-  doc.title = `Job ${source.jobId} · Detonation Ocean`;
+  doc.title = `Job ${source.jobId} · The Abyss`;
 
   try {
     await source.stream(handle, undefined, () => state.finished || (state.failed && state.receipt !== null), () => state.lastEventId);
