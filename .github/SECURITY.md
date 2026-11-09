@@ -21,3 +21,12 @@ We will acknowledge the report and say what we will change. There is no bug boun
 - Inference keys and Parallel keys live only in the server environment, never in this repository.
 
 If you find a secret in a clone, treat it as leaked: rotate it and tell us.
+
+## Dependabot alerts on this repository
+
+GitHub scans every `requirements*.txt` and `package-lock.json` in the tree. Most of the open alerts are **not the live demo**:
+
+- `deploy/detonation/analyse/analyse-lock-candidate.hashes` (was a `requirements-*.candidate.txt`) is a **candidate pin list only**. Nothing in the analyse image or the VM installs it. See [`docs/evidence/containment-code-only/analyse-lock-candidate.md`](docs/evidence/containment-code-only/analyse-lock-candidate.md).
+- `desktop-comparison/win11-final/package-lock.json` is the withheld Win11React desktop's lockfile. That artwork is not in this clone; the Node app itself has **no npm dependencies**.
+- The live site at https://demo.abysscan.com is a Node controller with no visitor-supplied malware and with file upload retired.
+

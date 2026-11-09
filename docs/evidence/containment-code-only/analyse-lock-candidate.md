@@ -1,6 +1,6 @@
 # Analyse Python artifact-lock candidate
 
-**Status: candidate only.** `deploy/detonation/analyse/requirements-cp312-linux-x86_64.candidate.txt` is not consumed by `Dockerfile.analyse` or any image recipe. Its fourteen version pins and SHA-256 values record selected published wheels; the candidate has not been resolved, built, downloaded, byte-verified, or approved for use. It does not establish a complete lock, reproducible image, verified dependencies, or milestone acceptance.
+**Status: candidate only.** `deploy/detonation/analyse/analyse-lock-candidate.hashes` is not consumed by `Dockerfile.analyse` or any image recipe. Its fourteen version pins and SHA-256 values record selected published wheels; the candidate has not been resolved, built, downloaded, byte-verified, or approved for use. It does not establish a complete lock, reproducible image, verified dependencies, or milestone acceptance.
 
 ## Intended target
 
