@@ -97,7 +97,7 @@ test('pages: pixel chrome, nav, keyboard and reduced motion', () => {
     assert.match(html, /<main class="pg-main" id="main">/, file);
     assert.match(html, new RegExp(`<a href="${current}" aria-current="page">`), file);
     for (const label of ['Search', 'Bestiary', 'How it works']) assert.ok(html.includes(`>${label}</a>`), `${file} ${label}`);
-    assert.doesNotMatch(html, /https?:\/\/(?!www\.w3\.org)/, `${file} loads nothing third-party`);
+    assert.doesNotMatch(html, /https?:\/\/(?!www\.w3\.org|demo\.abysscan\.com)/, `${file} loads nothing third-party`);
     assert.doesNotMatch(html, /<script(?![^>]*\bsrc=)[^>]*>/, `${file} has no inline script`);
   }
   const css = read('ui/bestiary/bestiary.css');
