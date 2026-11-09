@@ -737,12 +737,12 @@ export async function openOceanShow({ jobId, token, fileName = 'your file', onFa
 
   const beats = {
     async catch() {
-      title.textContent = story?.catch?.title ?? 'The octopus catches your file';
-      setText(para(story?.catch?.text ?? 'Every upload is handled by the octopus: it takes your file down to a giant clam that works as a sealed sandbox.'));
-      // The file stays where it was dropped, in the upload panel; the octopus comes near and stretches one arm to it.
+      title.textContent = story?.catch?.title ?? 'The octopus takes the name';
+      setText(para(story?.catch?.text ?? 'Nothing is downloaded or run: the octopus carries the name down to a giant clam that works as a sealed sandbox.'));
+      // The name sits on the threat-search panel; the octopus comes near and stretches one arm to it.
       // The caption bar (bottom left, over the panel) waits until the octopus has the file, so the grab is in view.
       bar.classList.add('os-bar-late');
-      const panel = doc.getElementById(story?.anchor ?? 'upload')?.getBoundingClientRect();
+      const panel = doc.getElementById(story?.anchor ?? 'threat-search')?.getBoundingClientRect();
       file.x = clamp(panel ? (panel.left + panel.width * 0.3) / P : cx() - 60, 14, W - 14);
       file.y = clamp(panel ? (panel.top + panel.height * 0.4) / P : cy(), 14, H - 14);
       file.visible = true;

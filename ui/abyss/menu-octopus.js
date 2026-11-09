@@ -1,11 +1,11 @@
-// The agent octopus floating beside the upload panel on the surface screen. While a file is dragged over the page it
+// The agent octopus floating beside the threat-search panel on the surface screen. While a pointer is dragged over the page it
 // stretches ONE arm out to the file, as if to take it: the arm is drawn in code (ui/job/tentacle.mjs) in place of the
 // reaching arm of the pose for that direction (octopus-poses.json; the right side is the left pose mirrored), so it can
 // reach the file anywhere near; the body only leans a little. Decoration only: aria-hidden, no pointer events.
 // window.__menuOctopus lets the ocean show start its octopus from this one and hide it.
 (() => {
   'use strict';
-  // It floats beside the menu's panel: the threat search, or the upload panel where the server shows that instead.
+  // It floats beside the menu's panel: the threat search (or a leftover #upload panel if one is still in the page).
   const panels = [document.getElementById('threat-search'), document.getElementById('upload')].filter(Boolean);
   if (!panels.length) return;
   const form = { getBoundingClientRect: () => (panels.find(panel => !panel.hidden) ?? panels[0]).getBoundingClientRect(), addEventListener: (...args) => panels.forEach(panel => panel.addEventListener(...args)) };

@@ -214,7 +214,7 @@ export async function renderReport(doc, root, { report, state, source, reduced }
   const jobId = String(report.jobId ?? source?.jobId ?? 'job');
   const fullDownload = downloadLink(doc, `${safeId(jobId)}-report.json`, exportReport({ report, state, jobId }), 'Download full report (JSON)', 'jv-report-download');
   if (fullDownload) root.append(fullDownload);
-  root.append(el(doc, 'p', 'jv-muted', 'Private link: anyone with the full URL can read this report. It expires about one hour after completion or when the controller restarts. Download a copy to keep it. The receipt below records upload deletion and sandbox cleanup.'));
+  root.append(el(doc, 'p', 'jv-muted', 'Private link: anyone with the full URL can read this report. It expires about one hour after completion or when the controller restarts. Download a copy to keep it. The receipt below records sandbox cleanup.'));
   const download = hasIndicators(found) || reported.length ? downloadLink(doc, `${safeId(jobId)}-indicators.json`, {
     jobId, depth, family: verdict.family ?? null, complete: verdict.complete !== false,
     findings: reported.map(finding => ({ id: finding.id, label: findingFacts(finding).label, evidenceIds: finding.evidenceIds ?? [] })),
