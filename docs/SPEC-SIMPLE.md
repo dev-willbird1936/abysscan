@@ -2,7 +2,9 @@
 
 This is the plain-English version of [`SPEC.md`](SPEC.md). If the two disagree, `SPEC.md` is right.
 
-**Partly built; not accepted or publicly deployed.** Containment corrections are in progress. Upload and sample execution still require safety approval. No tests or runtime probes run in the current session, at the user's request; earlier results do not verify later changes.
+**What shipped for the hackathon is search and quests, not public file upload.** Visitors search a known threat and play it as a training game on a simulated desktop. `POST /api/jobs` answers 410 unless `DETONATION_UPLOADS=true`. The rest of this page describes the earlier upload-and-sandbox plan, which is still in the code as the containment story.
+
+**Partly built; the live demo is https://demo.abysscan.com.** Containment corrections are in progress. Public file upload is retired. No tests or runtime probes run in the current session, at the user's request; earlier results do not verify later changes.
 
 ---
 
@@ -142,12 +144,12 @@ The whole site keeps the **retro pixel-art look** of the current main menu: chun
 
 - 🌊 You **scroll down to dive** through the ocean, like now.
 - 📏 The depth gauge on the right shows the 5 tiers: **Sunlight · Twilight · Midnight · Abyss · Trench**, with real ocean depths (0 m to 11,000 m).
-- 📥 At the top: a big **Drop a file** box.
+- 🔍 At the top: a **Search a threat** box (the Drop a file panel is retired).
 - 🐟 Near the surface: **schools of fish**, one for each file type people uploaded.
 - 🦈 In the deep: **one monster per kind of harm**, bigger the more files it has eaten.
 - 🔦 Below 1,000 m your mouse pointer becomes a torch (already built).
 - 🔇 Sound is off unless you turn it on.
-- Menu buttons: **Upload · Bestiary · How it works · Sound**.
+- Menu buttons: **Bestiary · How it works · Sound** (search is on the ocean, not a nav button).
 
 ### When you upload (the dive)
 

@@ -83,7 +83,7 @@ const hooks = [
   ['Scroll to dive. Tap a creature to enter its attack demo. Use the list for historical details.', 'Scroll to dive. Tap a creature to see the fish inside it.'],
   ['Underwater attack timeline. Use the attack list for keyboard selection.', 'Underwater ocean of file results. The Bestiary page lists every creature.'],
   ['SEV1 “Nothing”', 'the Trench'],
-  // 15. Creatures keep clear of the Drop a file panel as they do of the hero text.
+  // 15. Creatures keep clear of the hero search panel as they do of the hero text.
   ['.hero .eyebrow, .hero h1 .l, .premise, .hint`', '.hero .eyebrow, .hero h1 .l, .premise, .hero .drop, .hint`'],
   // 16. Zone colours follow the site's severity scale (Trench to Sunlight): red, orange, yellow, light blue, white.
   ['fO=[``,`#ff4f6d`,`#ff9a5a`,`#ffd166`,`#b6a6ff`,`#7fe8ff`]', 'fO=[``,`#ff4f6d`,`#ff9a5a`,`#ffd166`,`#8fd3ff`,`#f4f8fc`]'],
