@@ -132,8 +132,8 @@ body[data-site="catalogue"] .hero { padding: 0; }
 body[data-site="catalogue"] :is(.matrix-scroll, .depth-key-list, .scenario-card, #profile-dialog) { border-radius: 0; box-shadow: none; backdrop-filter: none; border-color: var(--ui-edge); }
 body[data-site="catalogue"] :is(.back-link, .demo-link, .profile-button, .scenario-play, .close-button) { min-height: 44px; border-radius: 0; backdrop-filter: none; }
 body[data-site="catalogue"] .back-link { display: inline-flex; align-items: center; background: #0b2133; }
-.catalogue-jumps { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 24px; }
-.catalogue-jumps a { display: inline-flex; align-items: center; min-height: 44px; padding: 10px 14px; background: #0b2133; border: 1px solid #31566b; text-decoration: none; color: var(--ui-teal); font: 15px/1.4 var(--ui-font); }
+.catalogue-jumps, .bestiary-sections { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 24px; }
+:is(.catalogue-jumps, .bestiary-sections) a { display: inline-flex; align-items: center; min-height: 44px; padding: 10px 14px; background: #0b2133; border: 1px solid #31566b; text-decoration: none; color: var(--ui-teal); font: 15px/1.4 var(--ui-font); }
 body[data-site="catalogue"] .close-button { min-width: 44px; }
 body[data-site="catalogue"] .morphology-note { max-width: 90ch; font-size: 14px; line-height: 1.65; padding: 14px 18px; background: #0b2133; border-left: 2px solid var(--ui-teal); }
 body[data-site="entry"][data-stage="card"] { overflow-y: auto; }
