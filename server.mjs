@@ -70,7 +70,7 @@ const PRODUCTION_DISABLED_ROUTES = new Set([
   ...TRAINING_ROUTES, ...OCEAN_PROFILE_SESSION_ROUTES, HACKATHON_PROOF_PATH,
   '/api/scenarios/oauth/plan', '/api/scenarios/oauth/execute', '/api/desktop/sandbox/run',
 ]);
-// Detonation pages (SPEC 4.1). `/upload` is the main menu: the Drop a file panel is on it.
+// Detonation pages (SPEC 4.1). `/` and `/upload` both serve the main menu (threat search; the Drop a file panel is retired).
 const PAGE_FILES = new Map([
   ['/', 'index.html'], ['/index.html', 'index.html'], ['/upload', 'index.html'],
   ['/bestiary', 'bestiary.html'], ['/about', 'about.html'],
