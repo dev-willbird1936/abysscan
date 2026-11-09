@@ -250,7 +250,7 @@ export async function renderReport(doc, root, { report, state, source, reduced }
     : state.coverageItems?.length ? state.coverageItems : Array.isArray(state.coverage) && state.coverage.length ? [{ steps: state.coverage }] : []);
   const coverageBox = section(doc, 'Coverage');
   for (const item of coverageItems) {
-    if (item.item !== null) coverageBox.append(el(doc, 'h4', '', item.item === 0 ? 'Upload (item 0)'
+    if (item.item !== null) coverageBox.append(el(doc, 'h4', '', item.item === 0 ? 'Submitted file (item 0)'
       : `Item ${item.item} · Parent: ${item.parent ?? 'not reported'}`));
     const steps = item.steps.map(step => el(doc, 'li', 'jv-cover', `${step.status}: ${step.step}${step.detail ? ` — ${step.detail}` : ''}`));
     coverageBox.append(steps.length ? list(doc, steps, 'jv-coverage') : el(doc, 'p', 'jv-muted', 'No coverage steps were reported for this item.'));
