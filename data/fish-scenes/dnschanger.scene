@@ -1,0 +1,301 @@
+# DNSChanger (2007-2011). A fake video "codec" changed the PC's DNS servers, so the criminals chose where sites led.
+# A quest (QUESTS.md): the trainee places supply orders, then installs a "codec" from a clip a colleague shared, and the
+# supplier's own address starts leading to a copy. DNSChanger hit home and office PCs alike; the victim here is invented.
+os windows
+user Dana Okafor
+about
+  | DNSChanger arrived as a fake video "codec": a website said a clip needed one and offered a download. The download was DNSChanger.
+  | It quietly changed the computer's DNS servers, the phone book that turns site names into addresses, to ones run by criminals. Their servers redirected searches, swapped ads (about $14 million in fraud) and could answer with copies of real sites. Security and update sites stopped loading.
+  | About four million PCs, at homes and in offices, were affected until the FBI took the criminals' servers over in 2011. A Mac version (RSPlug) spread the same way, and some versions also changed home routers' DNS. The victim here is invented, and the copied supplier site is a training addition.
+story
+  | You are Dana Okafor, purchasing assistant at Northwind Traders. Each day you place the office's supply orders on the supplier's trade portal.
+  | It is mid-afternoon. You have placed 3 of today's 5 orders. Two to go.
+  | Your portal details are in a text file on the desktop. That is a bad habit, but it keeps this training quick.
+quota 3 5 Supply orders placed today
+
+# Dana's desk: the details she copies from (a soft flag: careless, but only here to keep the training simple).
+file Desktop/harbour-portal.txt
+  at 930 200
+  | Harbour Office Supply trade portal
+  | Account number: NT-40718
+  | Password: Paperclip-2026!
+
+# The supplier: a sign-in page with a padlock, and the order pages behind it. No favorite: a bookmark would keep leading
+# to this page after the copy takes over its address.
+page portal-login harbour-office.example/trade/sign-in
+  title Harbour Office Supply: trade sign-in
+  brand Harbour Office Supply
+  issuer Example Certificate Authority
+  heading Trade customers: sign in
+  | Welcome back. Sign in to place your order.
+  field Account number = NT-40718
+  field secret Password = Paperclip-2026!
+  button Sign in
+page done-paper harbour-office.example/trade/orders/confirmed
+  title Order placed
+  brand Harbour Office Supply
+  issuer Example Certificate Authority
+  heading Order placed
+  | PO-2291, 10 reams of A4 paper, 86.40. Delivery tomorrow before noon.
+page cancel-paper harbour-office.example/trade/orders/cancelled
+  title Order cancelled
+  brand Harbour Office Supply
+  issuer Example Certificate Authority
+  heading Order cancelled
+  | PO-2291 was not placed. Nothing was charged.
+page order-paper harbour-office.example/trade/orders/PO-2291
+  title Review order: PO-2291
+  brand Harbour Office Supply
+  issuer Example Certificate Authority
+  requires portal-login
+  heading Review your order: PO-2291
+  | Check the items and the total, then place the order.
+  section Your order
+  row Item = A4 copier paper, 80 gsm
+  row Quantity = 10 reams
+  row Total = 86.40
+  row Deliver to = Northwind Traders, 2nd floor stores
+  button Place order -> done-paper
+  button Cancel order -> cancel-paper
+
+mail mail-paper
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Order 4 of 5: A4 paper from Harbour
+  link order-paper
+  | Hi Dana,
+  |
+  | We are down to two reams on the second floor. Please order ten reams of A4 from Harbour. The link goes straight to the order.
+  |
+  | Marcus
+notify mail Marcus Lee
+  | Order 4 of 5: A4 paper from Harbour
+
+step The link goes to the supplier
+  look the link under Marcus's message
+  when mail mail-paper
+  | Marcus asks for paper. The email links to Harbour's own address, harbour-office.example. Hover over a link before you click it, to check where it goes.
+open mail-paper
+
+step Sign in as usual
+  look the padlock and the two boxes: Account number and Password, as on every visit
+  when visit order-paper
+  move Copy the details from harbour-portal.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The portal asks you to sign in first. The address bar shows a padlock, and the page asks only for an account number and a password. Remember what a normal visit looks like.
+open order-paper
+
+step Check, then place the order
+  look the items and the total
+  when choose portal-login 1
+  | You are in. Check the items and the total against Marcus's request, then place the order.
+signin portal-login
+
+step Order 4 of 5 done
+  look the counter in the guide: one order left
+  when choose order-paper any
+  move Open Mail and click the link in Priya's clip message.
+  | Done. One order to go. And a colleague has just sent a link.
+choose order-paper 1
+quota +1
+
+# The lure: a clip on a video site that "needs a codec".
+page video clips-now.example/watch
+  title Clips Now
+  heading Team offsite: the closing talk
+  | Your player is missing the required video codec. Download it to continue.
+  button Download codec
+mail mail-clip
+  from Priya Shah <priya.shah@northwind.example>
+  subject The clip from Friday's offsite
+  link video
+  | Dana,
+  |
+  | The clip of Friday's closing talk is up on a video site. Have a look when you get a minute.
+  |
+  | Priya
+notify mail Priya Shah
+  | The clip from Friday's offsite
+
+step A clip from a colleague
+  look Mail: Priya's clip message, and the address its link goes to
+  when visit video
+  move Press “Download codec”.
+  | Priya's message links to clips-now.example, a video site you do not know. Flag anything that looks wrong.
+  | The clip will not play. The player says a codec is missing and offers a Download codec button.
+open mail-clip
+open video
+
+# The "codec": a plain program. Windows hides .exe, so it reads video-codec-setup. It shows no window when it runs.
+program dnschanger video-codec-setup
+  publisher none
+  signed no
+  prompt open-warning
+  prompt elevation
+  description Video codec setup
+  process video-codec-setup.exe
+  cpu 6
+  mem 12
+  parent explorer.exe
+  command C:\Users\Dana Okafor\Downloads\video-codec-setup.exe
+
+# What Network settings shows after the change (a read-only panel; there is no input).
+view dns-settings panel
+  title Network: DNS servers
+  app Settings
+  size 480x340
+  heading Network
+  icon gear
+  section Ethernet
+  row IP assignment = Automatic (DHCP)
+  row DNS server assignment = Manual
+  row Preferred DNS = 192.0.2.53
+  row Alternate DNS = 192.0.2.54
+  button Close -> done primary
+
+step The “codec” is a program
+  look Downloads: video-codec-setup
+  when choose video 1
+  | The download is named like a codec. Its real name ends in .exe, the ending of a program. {Windows hides that ending on screen.|}
+file Downloads/video-codec-setup.exe
+  program dnschanger
+  size 212992
+open Downloads
+
+step The computer asks, and it is easy to say yes
+  look the security warning, then the box asking to allow changes
+  when prompt dnschanger
+  | Opening the "codec" makes the computer warn that the publisher is not verified, then ask for permission to make changes.
+  | Many people click Run and Yes here.
+open Downloads/video-codec-setup.exe
+
+step Nothing seems to happen
+  look the pointer: busy for a moment, then nothing. The chip “1 program running” is under this step.
+  when run dnschanger
+  move The clip never played. Open Settings from the {taskbar|Dock} and check the network.
+  | No player and no error: the clip never plays. The program stayed in the background, and the computer said nothing.
+answer run
+answer run
+
+step The network settings changed
+  look the DNS servers in Settings: DNS server assignment Manual, Preferred DNS 192.0.2.53
+  when open settings
+  | Settings shows how this computer finds sites. It was Automatic, and now it is Manual, with two servers you did not choose.
+  | DNS is the phone book that turns a site name into an address. The program replaced the computer's own with the criminals' pair, so they choose where every site leads.
+open dns-settings
+
+# The copy is a new page at the same address, defined once the trainee has closed Settings. It needs its own id: a page
+# redefined under the old id keeps the keys its new definition leaves out, such as the old padlock strip.
+step Back to work
+  look Mail: a new message from Marcus
+  when done dns-settings
+  move Open Mail and click the link in Marcus's new message.
+  | A few minutes later. Nothing on the screen looks different, and the clip is forgotten. Marcus has one more order, with the same Harbour link as the first.
+page portal-copy harbour-office.example/trade/sign-in
+  title Harbour Office Supply: trade sign-in
+  brand Harbour Office Supply
+  insecure
+  heading Trade customers: sign in
+  | Welcome back. Sign in to place your order.
+  field Account number = NT-40718
+  field secret Password = Paperclip-2026!
+  section Ink and toner: 40% off today
+  | Shop now at the supply store ›
+  row Sponsored by = ads-partner.invalid
+  button Sign in
+page done-toner harbour-office.example/trade/orders/confirmed
+  title Order placed
+  brand Harbour Office Supply
+  insecure
+  heading Order placed
+  | PO-2292, 4 toner cartridges, 212.00. Delivery tomorrow before noon.
+page cancel-toner harbour-office.example/trade/orders/cancelled
+  title Order cancelled
+  brand Harbour Office Supply
+  insecure
+  heading Order cancelled
+  | PO-2292 was not placed. Nothing was charged.
+page order-toner harbour-office.example/trade/orders/PO-2292
+  title Review order: PO-2292
+  brand Harbour Office Supply
+  insecure
+  requires portal-copy
+  heading Review your order: PO-2292
+  | Check the items and the total, then place the order.
+  section Your order
+  row Item = Toner cartridge, black, for the 3rd floor printer
+  row Quantity = 4
+  row Total = 212.00
+  row Deliver to = Northwind Traders, 2nd floor stores
+  button Place order -> done-toner
+  button Cancel order -> cancel-toner
+mail mail-toner
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Order 5 of 5: toner for the third floor
+  link order-toner
+  | Dana,
+  |
+  | Last one for today: four black toner cartridges for the third-floor printer. Same link as before: it opens the order at Harbour.
+  |
+  | Marcus
+notify mail Marcus Lee
+  | Order 5 of 5: toner for the third floor
+
+step The same address, a different page
+  look the address bar and the page: compare them with the first sign-in
+  when visit order-toner
+  | The address is still harbour-office.example. Compare the address bar and the page with the first sign-in.
+open order-toner
+
+step Place the last order
+  look the box of ads, and the address bar: compare them with the first sign-in
+  when choose portal-copy 1
+  | A box of ads sits where there were none, and Harbour's own pages never had ads. Your PC asked the criminals' DNS servers where Harbour is, and they answered with a copy.
+  | You are in, or so the copy says, and your account number and password went to the people who run it. The order looks right, so place it, as Dana would.
+signin portal-copy
+
+step 5 of 5, or so Dana thinks
+  look the counter: the shift is done
+  when choose order-toner any
+  | The copy says the order is placed, and the counter says five. Nothing on the screen looks wrong. Press Next to see what DNSChanger did.
+choose order-toner 1
+quota +1
+
+step What DNSChanger did
+  look the animation: everything that went the wrong way after the codec
+  | DNSChanger never read the keyboard. It changed the phone book, so the criminals looked up every site Dana visited and answered with their own copies and ads.
+  | In this training the copied site also took what Dana typed, and Harbour never saw the order. The real harm was mostly ad and search fraud.
+attack credential-phish
+  | searches and ads sent through the criminals' sites
+  | update and antivirus sites would not load
+  | Harbour's sign-in copied: account number and password
+  | order 5 never reached the supplier
+block 192.0.2.53 53
+
+flag hard link mail-clip
+  | The clip is on a video site the company does not use. That is where the fake codec was offered.
+flag hard choice video 1
+  | A video site never needs you to install a codec. Players handle video themselves.
+flag hard file Downloads/video-codec-setup.exe
+  label The “codec” file in Downloads
+  | The download is not a codec. video-codec-setup.exe is a program.
+flag hard dialog open-warning dnschanger
+  label The security warning for the “codec”
+  | A codec never asks to run as a program. Its publisher is not verified.
+flag hard dialog elevation dnschanger
+  label The “allow changes” box
+  | Installing a codec does not need permission to change the computer. This one needs it to change network settings.
+flag hard process video-codec-setup.exe
+  label video-codec-setup.exe running in the background
+  | The "codec" is still running in the background, with no window, after the clip never played.
+flag hard section portal-copy 1
+  label The ad box on the sign-in page
+  | Harbour's sign-in page never carried ads. The copy added this box, and every click on it paid the attackers.
+flag hard page portal-copy
+  label The sign-in page at harbour-office.example
+  | Harbour's own sign-in page has no ads. This copy at the same address has an ad box, and the changed DNS settings sent your PC to it.
+flag soft file Desktop/harbour-portal.txt
+  | Passwords in a text file on the desktop: any program that runs can read them. Use a password manager.
+
+lesson
+  | Never install a "codec" or "player" that a website offers to play a video. Real sites do not need one.
+  | If a familiar site suddenly looks different or shows ads it never had, stop. Do not sign in. The address can be right while the page is wrong.
+  | If searches, ads or update sites look strange everywhere, ask IT to check the DNS settings on the computer and the router, set them back to Automatic, and clean the PC with tools downloaded on a clean computer.

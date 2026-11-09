@@ -30,7 +30,10 @@ MAX_ADDED_FILES = 5000
 MAX_OUTPUT_BYTES = 64 * 1024
 MAX_READ_BYTES = 64 * 1024 * 1024
 CHUNK = 1024 * 1024
-RUNNER_COPY = {f"Downloads/sample.{ext}" for ext in ("py", "sh", "js")}
+RUNNER_COPY = {f"Downloads/sample.{ext}" for ext in ("py", "sh", "js", "bin")}
+# Every kind is staged at Downloads/sample.<ext>; the set above is kept for the callers that quote it, but the staged copy
+# must never be read as the sample copying itself.
+RUNNER_COPY_NAME = re.compile(r"^Downloads/sample\.[a-z0-9]{1,8}$")
 RANSOM_NAME = re.compile(r"ransom|decrypt|(recover|restore)[-_ ]*(your[-_ ]*)?files|read[-_ ]?me[-_ ]?to", re.I)
 RANSOM_TEXT = re.compile(rb"ransom|decrypt|bitcoin|your files (have been|are)", re.I)
 RANSOM_TEXT_EXTENSIONS = {".txt", ".html", ".htm", ".hta", ".md", ".rtf"}
@@ -191,7 +194,7 @@ def build_added(home, rel, sample_sha256):
               "sizeAfter": read[0] if read else size}
     if st and looks_executable(st.st_mode, head):
         fields["executable"] = True
-    if read and sample_sha256 and read[1] == sample_sha256 and rel not in RUNNER_COPY:
+    if read and sample_sha256 and read[1] == sample_sha256 and rel not in RUNNER_COPY and not RUNNER_COPY_NAME.match(rel):
         fields["copyOfSample"] = True
     name = os.path.basename(rel)
     if RANSOM_NAME.search(name) or (read and read[0] <= 65536 and os.path.splitext(name)[1].lower() in RANSOM_TEXT_EXTENSIONS

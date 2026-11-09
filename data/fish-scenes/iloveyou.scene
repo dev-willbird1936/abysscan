@@ -1,0 +1,271 @@
+# ILOVEYOU (May 2000). A love-letter email whose attachment was a script; it overwrote files and mailed itself on.
+# A quest (QUESTS.md): the trainee collects the Friday staff bulletin, files one real text note safely, then meets the love letter from a colleague.
+os windows
+user Dana Okafor
+about
+  | In May 2000 millions of people opened an email called ILOVEYOU. It came from someone they knew, and its attachment looked like a text file but was a script, a small program that Windows ran without showing anything.
+  | It turned picture and music files into scripts: each picture became a copy of itself, and each song was hidden and replaced by a script copy beside it. It set itself to start with Windows and mailed itself to everyone in the address book. The victims were ordinary offices; this training copy is invented, and Northwind Traders is not a real company.
+story
+  | You are Dana Okafor, office coordinator at Northwind Traders. Every Friday you put together the staff bulletin: each team emails you an item, and you collect them in the bulletin tool.
+  | It is mid-morning and your mail is open, as it is all day. You have collected 3 of the 5 items. Two to go.
+  | Your computer hides the end of file names such as .txt by default (Windows), or shows the whole name (a Mac). Read the whole name either way. Your mailbox password is in a text file on the desktop. That is a bad habit.
+quota 3 5 Bulletin items collected
+
+# Dana's desk: the details she copies from (a soft flag: careless, and easy to find).
+file Desktop/mailbox-login.txt
+  at 720 520
+  | Northwind mail
+  | Address: dana.okafor@northwind.example
+  | Password: Maple-Quill-2026
+
+# Dana's photo is on the desktop, along the bottom right where no window covers it; her song is in Music. The worm changes both on Run.
+file Desktop/team-photo.jpg
+  at 860 520
+file Music/summer-mix.mp3
+
+# The safe task: a real text note from a real colleague. It opens in the text editor with no warning.
+view ops-note document
+  title Ops-news.txt - Text Editor
+  app Text Editor
+  size 640x420
+  heading Ops-news.txt
+  | Operations news for the Friday bulletin.
+  | The loading bay is closed for painting on Monday and Tuesday. Deliveries go to the side door. Thank you for your patience.
+  | Marcus
+  bar This is a plain text note. Nothing in it can run. -> Collect for the bulletin -> done
+program ops-note Ops-news.txt
+  publisher none
+  signed no
+  description Text Document
+  view ops-note
+mail ops-mail
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Operations news for Friday
+  attach Downloads/Ops-news.txt
+  | Hi Dana,
+  |
+  | Operations' item for the bulletin is attached, as a plain text note. The loading bay is closed Monday and Tuesday.
+  |
+  | Marcus
+file Downloads/Ops-news.txt
+  program ops-note
+  size 1024
+
+step Bulletin item 4 of 5
+  look Mail: Marcus's message with his item attached
+  | A new item has come in from Marcus, in Operations. It is the one you were waiting for. Collect it the normal way, so you know what normal looks like.
+notify mail Marcus Lee
+  | Operations news for Friday
+
+step A colleague you know
+  look the attachment under the message: a text file, with a text icon
+  when mail ops-mail
+  cue file:fs-ops-news-txt-032202b8 mail:m-ops-mail app:mail
+  move Double-click “{Ops-news|Ops-news.txt}” under the message to open it.
+  | The message is from Marcus's own address, answers what you asked for, and the attachment is a plain text note. Hover over the name of a sender to check the address behind it.
+open ops-mail
+
+step Read the note
+  look the note in the text editor, and its “Collect for the bulletin” button
+  when run ops-note
+  cue view-btn:done view:ops-note
+  move Read the note, then click “Collect for the bulletin” in the bar at the top of the window.
+  | A text file just opens in the text editor. There is no warning and nothing else happens. Remember how quiet that was.
+open Downloads/Ops-news.txt
+
+step 4 of 5 collected
+  look the counter in the guide: one item left
+  when done ops-note
+  | Done. One item to go. And a message from Priya has just arrived.
+press ops-note done
+quota +1
+
+# The lure: the love letter. It comes from Priya's own address, because the worm sent it from her PC.
+program loveletter LOVE-LETTER-FOR-YOU.TXT
+  publisher none
+  signed no
+  prompt open-warning
+  description VBScript Script File
+  process wscript.exe
+  cpu 23
+  mem 9
+  parent explorer.exe
+  command C:\Windows\System32\wscript.exe "C:\Users\Dana\Downloads\LOVE-LETTER-FOR-YOU.TXT.vbs"
+  startup MSKernel32 wscript.exe C:\Windows\System32\MSKernel32.vbs
+  location HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+mail love-mail
+  from Priya Shah <priya.shah@northwind.example>
+  subject ILOVEYOU
+  attach Downloads/LOVE-LETTER-FOR-YOU.TXT.vbs
+  | kindly check the attached LOVELETTER coming from me.
+file Downloads/LOVE-LETTER-FOR-YOU.TXT.vbs
+  program loveletter
+  size 10240
+notify mail Priya Shah
+  | ILOVEYOU
+
+step A love letter from a colleague
+  look the subject and the attachment: a text file, but with a script icon
+  when mail love-mail
+  | The message is from Priya's real address, so it feels safe. But Priya never writes like this: one odd line, and a subject that says ILOVEYOU. The worm sent it from her PC without her knowing.
+  | Compare the attachment with Marcus's note. Its real name is LOVE-LETTER-FOR-YOU.TXT.vbs, a script. {Windows hides the .vbs at the end, so you see only .TXT|A Mac shows the whole name, .vbs included}. Flag anything that looks wrong.
+open love-mail
+
+step The computer asks before it runs
+  look the open warning: unknown publisher, a script
+  when prompt loveletter
+  | Marcus's note opened without a question. This "text file" makes the computer ask whether to run it. A real text file never asks that.
+  | In 2000 a mail program's attachment warning was easy to click past, and many people did. Today Run is still the click that does the damage.
+open Downloads/LOVE-LETTER-FOR-YOU.TXT.vbs
+
+step Nothing seems to happen
+  look {Task Manager|Activity Monitor}: wscript.exe, and the new start-up entry
+  move Open {Task Manager|Activity Monitor} from the “1 program running” chip below. Flag wscript.exe and the start-up entry in it, then open Tomas's message in Mail.
+  when run loveletter
+  | No window opens. The script host (wscript.exe) runs the script silently, so Dana sees nothing at all.
+  | The script copies itself to a system file called MSKernel32.vbs and adds a start-up entry of that name, so it runs every time the computer starts.
+answer run
+rename Desktop/team-photo.jpg team-photo.jpg.vbs
+file Music/summer-mix.mp3
+  hidden
+file Music/summer-mix.mp3.vbs
+  program loveletter
+  size 10240
+mail sent1
+  folder sent
+  from Dana Okafor <dana.okafor@northwind.example>
+  to Priya Shah <priya.shah@northwind.example>, Marcus Lee <marcus.lee@northwind.example>, Tomas Rivera <tomas.rivera@northwind.example>, Northwind all staff <all-staff@northwind.example>
+  subject ILOVEYOU
+  attach Downloads/LOVE-LETTER-FOR-YOU.TXT.vbs
+  | kindly check the attached LOVELETTER coming from me.
+# While Dana carries on, a genuine item arrives. Nothing on the screen looks wrong.
+page bulletin-added intranet.northwind.example/bulletin/added
+  title Bulletin: item added
+  brand Northwind Bulletin
+  heading Item added
+  | Facilities notice: car park resurfacing. 5 of 5 items are in this Friday's bulletin.
+page photo-refused intranet.northwind.example/bulletin/photo-error
+  title Bulletin: photo not accepted
+  brand Northwind Bulletin
+  heading Not a valid image
+  | The bulletin tool could not read the photo: it is not a valid image.
+  | The notice can still go in without a photo.
+  button Add the notice without a photo -> bulletin-added
+page bulletin-parking intranet.northwind.example/bulletin/items/parking
+  title Bulletin: Facilities notice
+  brand Northwind Bulletin
+  heading Facilities notice: ready to add
+  | Tomas has put his notice straight into the bulletin tool.
+  section Car park resurfacing
+  row Where = Staff car park, rows A to D
+  row When = Saturday, 7am to 5pm
+  row Instead = Use the visitor car park
+  row Header photo = team-photo.jpg, the bulletin's usual picture
+  button Add with the header photo -> photo-refused
+mail tomas-item
+  from Tomas Rivera <tomas.rivera@northwind.example>
+  subject Facilities item: car park on Saturday
+  link bulletin-parking
+  | Hi Dana,
+  |
+  | The car park notice is in the bulletin tool, ready to add. The link opens it.
+  |
+  | Tomas
+notify mail Tomas Rivera
+  | Facilities item: car park on Saturday
+
+step Back to work
+  look Mail: Tomas's message with a link to the bulletin tool
+  when mail tomas-item
+  move Click the link under Tomas's message in Mail.
+  | Dana thinks the love letter was a dud and gets on with the last item. This message is from Tomas, in Facilities, with a link to the company's own bulletin tool. Open it.
+open tomas-item
+
+step The last item
+  look the notice, its photo row, and the button
+  when visit bulletin-parking
+  move Check the notice, then click “Add with the header photo”.
+  | The same bulletin tool you have used all week. Check the notice, then add it with its photo.
+open bulletin-parking
+
+step A picture that is not a picture
+  look the bulletin tool's message, and the photo on the desktop
+  when choose bulletin-parking 1
+  | The bulletin tool will not take the header photo: it is not a valid image.
+  | When you ran the attachment, the worm turned Dana's photo into a copy of itself, and hid her song in Music, leaving a script copy of the song beside it. {Windows hides the .vbs ending, so the photo still reads team-photo.jpg|A Mac shows the .vbs ending on the photo and on the song's copy}.
+choose bulletin-parking 1
+
+step 5 of 5 collected
+  look the counter in the guide: the bulletin is complete
+  when choose photo-refused 1
+  | Tomas's notice goes in without the photo. Every item is in, and nothing else on the screen looks wrong. Then a message from Priya arrives.
+choose photo-refused 1
+quota +1
+# Within the hour the worm's copies reach the colleagues, and someone writes back.
+mail priya-asks
+  from Priya Shah <priya.shah@northwind.example>
+  subject Did you just send me a love letter?
+  | Dana, I just got a message from you with the subject ILOVEYOU and a text file. I did not send it. IT says my PC sent you the love letter earlier, after I opened a file from Accounts this morning. Did you open the one I sent you? Someone in Accounts says the same thing is reaching them too.
+  |
+  | Priya
+notify mail Priya Shah
+  | Did you just send me a love letter?
+
+step A message from Priya
+  look Mail: Priya's new message
+  when mail priya-asks
+  move Open the browser and click + for a new tab: a new tab opens the home page.
+  | Priya's PC sent Dana the love letter, and now Dana's account has sent one to Priya. Neither of them chose to. Open the message to see what Priya says.
+open priya-asks
+page bugfix win-bugsfix.example
+  title Bug fix download
+  brand Bug Fix Center
+  heading Download the WIN-BUGSFIX update
+  | Install this update to fix mail problems on this computer.
+  section File
+  row File = WIN-BUGSFIX.exe
+homepage bugfix
+
+step It changes the home page
+  look the browser: a new tab opens a “bug fix” download you did not choose
+  when visit bugfix
+  | The worm also set the browser's home page to a “bug fix” download. The file it offered was a second program that collected saved passwords. A password written in a text file on the desktop is the easiest one to collect.
+  | A real update never turns up as a home page you did not choose.
+open bugfix
+
+step It mails itself to everyone
+  look Sent in Mail: the love letter Dana never wrote, to Priya, Marcus, Tomas and the staff list
+  | While Dana worked, the script had already sent the same love letter from her account to every contact, so each of them got a message from someone they trust.
+  | Within days it had reached tens of millions of PCs.
+attack mass-mail-worm
+  | to Priya
+  | to Marcus
+  | to every contact
+  | tens of millions of PCs
+open sent1
+
+flag hard mail love-mail
+  label The email from Priya
+  | In your Inbox, from Priya: a subject and a one-line message Priya never writes. It came from her real address, because the worm sent it from her PC.
+flag hard file Downloads/LOVE-LETTER-FOR-YOU.TXT.vbs
+  | A "text file" with a script icon. {Windows hides the .vbs at the end of its name|The name ends in .vbs}.
+flag hard dialog open-warning loveletter
+  | A text file never asks to run. Publisher: Unknown. Type: VBScript Script File.
+flag hard process wscript.exe
+  | The script host running the worm's script in the background, with no window.
+flag hard startup MSKernel32
+  | The worm added itself to the programs that start every time the computer does.
+flag hard file Desktop/team-photo.jpg.vbs
+  | A picture that is really a script: the worm turned it into a copy of itself. {Windows hides the .vbs ending|The name ends in .vbs}.
+flag hard mail sent1
+  label The copy in your Sent mail
+  | In your Sent mail: a message Dana never wrote, sent from her own account to her contacts.
+flag hard page bugfix
+  | A home page nobody chose, offering a "bug fix" program. Updates come from Windows Update or Software Update, never from a page like this.
+flag soft file Desktop/mailbox-login.txt
+  | A mail password in a text file on the desktop: any program that runs can read it, and the second program the worm fetched stole saved passwords. Use a password manager.
+
+lesson
+  | A message from someone you know can still be malware: their PC may be the one sending it. Odd subject, odd wording, and an attachment you did not expect are reasons to ask them another way.
+  | Turn on file name endings (Windows: File Explorer, View, Show; Mac: Finder, Settings, Advanced). A "text file" that has a script icon, or ends in .vbs, .js, .exe or .scr, is a program: do not open it. A real text note, like Marcus's, never asks to run.
+  | Keep your mail program from running attachments by itself, and keep copies of your photos and music somewhere the worm cannot reach.

@@ -1,0 +1,299 @@
+# MacKeeper (2010 onwards). A Mac "cleaner" sold with pop-under ads; its free scan always found problems. Its maker, Zeobit, settled a class action in 2015 over claims that its scans faked problems.
+# A quest (QUESTS.md): the trainee collects supplier quotes on an office Mac, saves one safely, then meets a "your Mac is infected" pop-up.
+os macos
+user Dana Okafor
+about
+  | MacKeeper was a real Mac cleaning app, sold through very aggressive advertising, including pop-under ads.
+  | Its free scan found hundreds of "issues", but fixing them cost money. This is exaggerated marketing and scare tactics, not a virus: a lawsuit said its scan results were faked.
+  | The office worker in this training is invented, to show how the ads reached ordinary people at work.
+story
+  | You are Dana Okafor, office coordinator at Northwind Traders, working on your Mac. Marcus has asked you for four supplier quotes for the office paper order, to decide by five o'clock.
+  | It is mid-afternoon. You have saved 2 of the 4 quotes. Two to go.
+  | Your Mac's administrator password is on a note on the desktop. That is a bad habit, but it keeps this training quick.
+quota 2 4 Paper quotes saved today
+
+# Dana's desk: the note she copies the Mac's administrator password from (a soft flag: careless, but only here to keep the training simple).
+file Desktop/admin-password.txt
+  at 930 200
+  | Dana's Mac (training copy)
+  | Administrator password: Harbor-Tide-2026
+
+# The safe task: a quote from a supplier Priya already works with.
+page harbor-saved harbor-paper.example/quotes/Q-3117/saved
+  title Harbor Paper Supply: quote saved
+  brand Harbor Paper Supply
+  heading Quote saved
+  | Quote Q-3117 is saved to Northwind's quotes folder.
+page harbor-quote harbor-paper.example/quotes/Q-3117
+  title Harbor Paper Supply: quote Q-3117
+  brand Harbor Paper Supply
+  favorite
+  heading Your quote Q-3117
+  | Priced for Northwind Traders, as Priya asked.
+  section Quote
+  row Item = A4 paper, 80 gsm, 10 boxes
+  row Price = 214.00
+  row Delivery = free over 150, next working day
+  row Valid until = 14 November 2026
+  button Save to Northwind quotes -> harbor-saved
+mail mail-harbor
+  from Priya Shah <priya.shah@northwind.example>
+  subject Paper quote 3: Harbor Paper Supply
+  link harbor-quote
+  | Hi Dana,
+  |
+  | Harbor sent their quote for the paper. The link goes straight to it on their site.
+  |
+  | Priya
+
+# The lure's pages: a price-comparison site, and the pop-up that opens over it.
+page paper-saved paperprices-compare.example/office-paper/saved
+  title PaperPrices: quote saved
+  brand PaperPrices
+  heading Quote saved
+  | Lakeside Stationers, 10 boxes of A4 paper: 179.00, saved to Northwind's quotes folder.
+page paper-prices paperprices-compare.example/office-paper/all
+  title PaperPrices: all prices
+  brand PaperPrices
+  heading Office paper: all prices today
+  | Sorted by price for 10 boxes of A4 paper.
+  section Prices
+  row Lakeside Stationers = 179.00
+  row Quill and Reed = 192.50
+  row Harbor Paper Supply = 214.00
+  row Delivery = free over 150
+  button Save Lakeside as quote 4 -> paper-saved
+page paper-compare paperprices-compare.example/office-paper
+  title PaperPrices: office paper compared
+  brand PaperPrices
+  heading Office paper: compare today's prices
+  | Compare A4 paper from twelve suppliers, cheapest first.
+  section Today
+  row Suppliers listed = 12
+  row Cheapest = see all prices
+  section Sponsored
+  note Is your Mac running slow? Get a free scan in seconds.
+  button Show all prices -> paper-prices
+page popup mac-alert.invalid
+  title Your Mac may be infected!
+  heading Your Mac may be infected with 3 viruses!
+  | Remove them now with a free scan.
+  insecure
+  section Warning
+  tone warn
+  timer Damage to your Mac in = 119
+  button Scan now
+  button Download MacKeeper
+mail mail-compare
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Cheaper paper? Try this price site
+  link paper-compare
+  | Dana,
+  |
+  | A friend uses this site to compare paper prices. Worth a look for the fourth quote.
+  |
+  | Marcus
+
+# The installer: one ordinary page with options already ticked, then a done page.
+view mk-setup wizard
+  title MacKeeper Installer (training copy)
+  app Installer
+  publisher Keepwell Software
+  size 480x340
+  page Install MacKeeper
+  icon gear
+  | Select the additional tasks you would like to perform.
+  section Also do this
+  check [x] Open MacKeeper every time I log in
+  check [x] Run a free scan as soon as setup ends
+  check [x] Send usage data to the maker
+  button Install -> next primary
+  button Cancel -> close
+  page Done
+  icon shield-ok
+  | MacKeeper is installed. A free scan starts now.
+  button Close -> done primary
+
+# The "free scan", then the pitch: finding problems is free, fixing them is not.
+view mk-scan scan
+  title MacKeeper: free scan (training copy)
+  app MacKeeper
+  publisher Keepwell Software
+  size 480x340
+  page Scan results
+  icon shield-bad
+  heading Your Mac is in critical condition: 1,264 issues found
+  | MacKeeper checked this Mac and lists the problems below.
+  section Scan results
+  progress 100
+  columns Problem | Count | Risk
+  cells Junk files | 842 | Medium
+  cells Privacy traces | 399 | Medium
+  cells Large old files | 23 | Low
+  cells Security | 0 | None
+  button Fix all issues -> next primary
+  button Close -> close
+  page Activate to fix
+  icon money
+  heading Activate the full version to fix 1,264 issues
+  | The free version can only find problems. To fix them you must buy a subscription.
+  section Price
+  row Full version = 59.95 USD a year
+  row Issues found = 1,264
+  row Issues fixed = 0
+  tone warn
+  button Buy now -> none primary
+  button Not now -> done
+
+# The program: a real, signed installer app. Gatekeeper warns about a download from the Internet, then it asks for the admin password.
+program mackeeper MacKeeper.app
+  publisher Keepwell Software
+  signed yes
+  prompt open-warning
+  prompt elevation
+  description MacKeeper cleaner
+  process MacKeeper Helper
+  cpu 8
+  mem 140
+  parent launchd
+  command /Applications/MacKeeper.app/Contents/MacOS/MacKeeper Helper
+  startup MacKeeper-Helper /Applications/MacKeeper.app/Contents/MacOS/MacKeeper Helper
+  location System Settings > General > Login Items
+  view mk-setup
+
+step Paper quote 3 of 4
+  look Mail: Priya's message with the quote link
+  | A quote has come in from Priya, in Accounts. This one is real. Save it the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Paper quote 3: Harbor Paper Supply
+
+step A message from a colleague
+  look the sender and the link under the message
+  when mail mail-harbor
+  | Priya is a colleague you know, and the message is about the quote you were waiting for. It links to the supplier's address, harbor-paper.example. Hover over a link before you click it, to check where it goes.
+open mail-harbor
+
+step The supplier's own page
+  look the address, and the item and the price
+  when visit harbor-quote
+  | The page is on the supplier's own address, and it shows the quote Priya promised: the item, the price, the delivery. Check them, then save it.
+open harbor-quote
+
+step Save the quote
+  look the counter in the guide: quote 3 of 4
+  when choose harbor-quote 1
+  | Saved. Quote 3 of 4. The page did what the email said and nothing else. Marcus has just sent a suggestion for the last one.
+choose harbor-quote 1
+quota +1
+notify mail Marcus Lee
+  | Cheaper paper? Try this price site
+
+step A tip from Marcus
+  look the link under Marcus's message
+  when mail mail-compare
+  | Marcus suggests a price-comparison site. Nothing is wrong with his email: it is the pages around the link you should watch.
+open mail-compare
+
+step A price site you have not used
+  look the address, and the Sponsored advert
+  when visit paper-compare
+  | A price-comparison site you have not used before. It looks ordinary, with a Sponsored advert on it. Ask it for the prices.
+open paper-compare
+
+step A pop-up says your Mac is infected
+  look the "Not Secure" address, the warning and the countdown
+  when choose paper-compare 1
+  | A pop-up opened as a new tab over the prices. It claims your Mac has 3 viruses and starts a countdown. A web page cannot scan a computer, so the claim is made up to frighten you. Flag what looks wrong.
+choose paper-compare 1
+open popup
+
+step The download
+  look the new file in Downloads
+  when choose popup any
+  | Either button starts the same download: the browser saves MacKeeper.dmg in Downloads. You were looking for paper prices, not software, and an advert has just put a program on your Mac.
+choose popup 2
+folder Downloads/MacKeeper.dmg
+file Downloads/MacKeeper.dmg/MacKeeper.app
+  program mackeeper
+  size 52428800
+notify browser Download complete
+  | MacKeeper.dmg was saved in Downloads
+open Downloads/MacKeeper.dmg
+
+step Two warnings, and the password
+  look the first warning: the app, the developer and the button to open it; then the window that asks for the administrator password
+  when prompt mackeeper
+  | The computer warns before it opens anything downloaded from the Internet. MacKeeper is signed by a known developer, so the warning only asks you to confirm: a real warning that most people click through.
+  | A second window then asks for the administrator password, so the installer can set up a helper. A cleaner that scares you first and then asks for this much power deserves a second look.
+open Downloads/MacKeeper.dmg/MacKeeper.app
+
+step The installer has boxes already ticked
+  look the installer window: three ticked boxes
+  when run mackeeper
+  move Press “Install” in the installer window, as most people do. If another window covers it, click the installer first.
+  | The installer offers to open MacKeeper at login, run a scan and send usage data, all ticked in advance.
+  | MacKeeper Helper is already running, and it has already added itself to Login Items, before you pressed Install.
+answer run
+answer run
+close files
+
+step The scan finds 1,264 issues
+  look the scan window and the notification
+  when page mk-setup 2
+  | The free scan reports that the Mac is in critical condition. Most of the "issues" are ordinary caches and browser history, which every Mac has.
+  | The maker, Zeobit, settled a class action in 2015. The suit alleged that its scans faked security problems, so people paid for fixes they did not need.
+press mk-setup next
+show mk-scan
+notify settings MacKeeper: 1,264 issues found
+  | Your Mac is in critical condition. Activate the full version to fix all issues.
+
+step Fixing costs money
+  look the price page: "Buy now" and "Not now"
+  when page mk-scan 2
+  cue view:mk-scan choice:paper-prices-1 app:browser
+  move Press “Not now” to close the MacKeeper window. Then, in the PaperPrices tab, click “Save Lakeside as quote 4”.
+  | The Fix button leads to a price. Nothing is repaired until you pay, which is the point of the scan.
+  | MacKeeper Helper keeps running in the background and starts at every login, so the reminders keep coming. The process list and the start-up list show it.
+close mk-setup
+press mk-scan next
+
+step Four of four
+  look the counter and the notification: the quotes are done, and the reminder is back
+  when choose paper-prices 1
+  | Quote 4 is saved and the shift is done, but MacKeeper's reminder has already come back, with the helper still running behind you. Press Next to see what MacKeeper left on the Mac.
+press mk-scan done
+open paper-prices
+notify settings MacKeeper: your Mac needs attention
+  | Your Mac is still in critical condition. Activate the full version.
+choose paper-prices 1
+quota +1
+
+step What MacKeeper left behind
+  look the process list: MacKeeper Helper keeps running
+  | MacKeeper started from an advert you never asked for. It stays in the background, keeps its alarming reminders coming, and shares usage data. Removing it means taking it out of the start-up list and deleting the app.
+attack scareware
+  | 3 viruses
+  | 1,264 issues
+  | critical condition
+  | buy the full version
+open taskmanager
+block usage.keepwell-software.example 443
+
+flag hard section popup 1
+  | A web page cannot scan your Mac. This advert claims it found viruses and starts a countdown to frighten you.
+flag hard choice popup 2
+  | An advert pushing you to download software you were not looking for.
+flag hard file Downloads/MacKeeper.dmg/MacKeeper.app
+  | A program that arrived from an advert, not from the App Store or the maker's own site.
+flag hard dialog elevation mackeeper
+  | A cleaner from an advert asking for the administrator password to install a helper that runs in the background.
+flag hard process MacKeeper Helper
+  | The helper keeps running in the background after setup, so the reminders keep coming.
+flag hard startup MacKeeper-Helper
+  | It added itself to Login Items before you pressed Install, whatever the ticked box says.
+flag soft file Desktop/admin-password.txt
+  | The Mac's administrator password in a text file on the desktop: any program that runs can read it. Use a password manager.
+
+lesson
+  | A web page cannot know if your computer is infected. Close the tab, and do not download what a scary ad offers.
+  | Get software from the App Store or the maker's own site, untick pre-ticked extras, and be wary of any "cleaner" that finds alarming problems for free and then asks for payment.

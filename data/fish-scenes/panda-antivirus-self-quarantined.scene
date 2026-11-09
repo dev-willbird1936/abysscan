@@ -1,0 +1,332 @@
+# Panda antivirus (March 2015). A definition update made the antivirus quarantine its own .dll files. Shown here with a fictional vendor, Marten Antivirus.
+# A quest (QUESTS.md): the trainee approves the day's timesheets at a payroll desk, does one batch safely, then the antivirus
+# on Dana's PC raises a false alarm about its own files. There is no malware: the quest is about not overreacting (no restart, no
+# deleting from quarantine). The company, the people and the antivirus vendor are made up.
+os windows
+user Dana Okafor
+about
+  | In March 2015 an update to Panda antivirus told the product that its own .dll files, and some normal Windows files, were malware. It moved them into quarantine and stopped working.
+  | Nothing malicious happened. The harm came from the false alarm itself: the PC was left with no protection, and the vendor asked users not to restart until a fix arrived. The vendor (Marten Antivirus), the company and the people here are made up.
+story
+  | You are Dana Okafor, payroll clerk at Northwind Traders. Each day the department supervisors send their timesheets, and you check each batch and approve it in the company's payroll portal. Marten Antivirus guards every PC in the office.
+  | It is Monday morning, two days before payday. You have approved 8 of today's 10 timesheet batches. Two to go.
+  | Your payroll sign-in details are in a text file on the desktop. That is a bad habit, but it keeps this training quick.
+quota 8 10 Timesheet batches approved today
+spotted reasons not to panic
+
+# Dana's desk: the details to copy from (a soft flag: careless, but only here to keep the training simple).
+file Desktop/payroll-login.txt
+  at 430 520
+  | Northwind Payroll portal
+  | Staff ID: dana.okafor
+  | Password: Wages-2026!
+
+# The payroll portal: a sign-in page, and the batches behind it.
+page payroll-login payroll.northwind.example/timesheets/sign-in
+  title Northwind Payroll: sign in
+  brand Northwind Payroll
+  favorite
+  heading Sign in to Payroll
+  | Welcome back. Sign in to approve timesheets.
+  field Staff ID = dana.okafor
+  field secret Password = Wages-2026!
+  button Sign in
+page batch9-done payroll.northwind.example/timesheets/b9/approved
+  title Batch 9 approved
+  brand Northwind Payroll
+  heading Batch 9 approved
+  | Warehouse timesheets for 26 October to 1 November 2026 were sent to the pay run.
+page batch9-held payroll.northwind.example/timesheets/b9/returned
+  title Batch 9 sent back
+  brand Northwind Payroll
+  heading Batch 9 sent back
+  | The Warehouse supervisor has been asked to check the hours.
+page batch-9 payroll.northwind.example/timesheets/b9
+  title Timesheets: batch 9 of 10, Warehouse
+  brand Northwind Payroll
+  requires payroll-login
+  heading Timesheets: batch 9 of 10, Warehouse
+  | A batch of timesheets is waiting for your approval.
+  section Batch
+  row Department = Warehouse
+  row Pay period = 26 October to 1 November 2026
+  row Staff = 14
+  row Hours = 523.5
+  row Entered by = Tom Reyes, Warehouse supervisor
+  button Approve for the pay run -> batch9-done
+  button Send back to the supervisor -> batch9-held
+
+mail mail-b9
+  from Priya Shah <priya.shah@northwind.example>
+  subject Timesheets batch 9: Warehouse
+  link batch-9
+  | Hi Dana,
+  |
+  | The Warehouse timesheets are in the payroll portal, ready for your approval. The link goes straight to the batch.
+  |
+  | Priya
+
+step Batch 9 of 10
+  look Mail: Priya's message with the batch link
+  | A new batch has come in from Priya, in Accounts. It is a routine one. Approve it the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Timesheets batch 9: Warehouse
+
+step The link goes to the portal
+  look the link under Priya's message
+  when mail mail-b9
+  | The email links to the company's own address, payroll.northwind.example. Hover over a link before you click it, to check where it goes.
+open mail-b9
+
+step Sign in as usual
+  look the two boxes: Staff ID and Password, as on every visit
+  when visit batch-9
+  move Copy the details from payroll-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The portal asks you to sign in first. Two boxes: Staff ID and Password. Remember what a normal batch looks like.
+open batch-9
+
+step Check, then approve
+  look the Batch box: the department, the pay period, the staff and the hours
+  when choose payroll-login 1
+  | You are in. Check the department, the pay period and the hours, then approve the batch or send it back.
+signin payroll-login
+
+step 9 of 10 done
+  look the counter in the guide: one batch left
+  when choose batch-9 any
+  cue file:fs-marten-antivirus-exe-7b6f6855
+  move Double-click the Marten Antivirus icon on the desktop to see what it says.
+  | Done. One batch to go. And a banner has just appeared on screen: it is from the antivirus.
+choose batch-9 1
+quota +1
+
+# The false alarm: the antivirus opens from its icon on the desktop. The vendor is fictional: Marten Antivirus by Marten Software.
+# One window: the status, the list of quarantined files and the scan log, so the list is in view as soon as it opens.
+view marten-panel panel
+  title Marten Antivirus
+  app Marten Antivirus
+  publisher Marten Software
+  size 720x520
+  icon shield-bad
+  heading Your PC is not protected
+  section Status
+  tone bad
+  row Real-time shield = Off
+  row Scan engine = Not loaded: mtnengine.dll is missing
+  row Last update = 2 November 2026, 09:12
+  row Files in quarantine = 5
+  row Support = marten-av.example/support
+  section Quarantined items
+  columns File | Folder | Reported as | Action
+  cells mtnengine.dll | C:\Program Files\Marten | Generic malware | Quarantined
+  cells mtnui.dll | C:\Program Files\Marten | Generic malware | Quarantined
+  cells mtnhook.dll | C:\Program Files\Marten | Generic malware | Quarantined
+  cells wbemcomn.dll | C:\Windows\System32\wbem | Generic malware | Quarantined
+  cells wmiutils.dll | C:\Windows\System32\wbem | Generic malware | Quarantined
+  line 09:12  Definition update 2026-11-02 installed
+  line 09:12  mtnengine.dll: scan engine moved to quarantine
+  line 09:12  Real-time protection stopped
+  button Close -> close primary
+program marten Marten Antivirus
+  publisher Marten Software
+  signed yes
+  description Antivirus
+  view marten-panel
+file Desktop/Marten Antivirus.exe
+  at 600 520
+  program marten
+  size 2461696
+notify settings 5 threats found, protection off
+  | Marten Antivirus quarantined 5 files. Real-time protection is now off.
+
+step The antivirus raises the alarm
+  look the Marten Antivirus window: "Your PC is not protected", and the list of quarantined files under it
+  when run marten
+  cue mail:sam-panic app:mail
+  move Read the Marten Antivirus window, then open Mail: a colleague has written about it.
+  | A new definition update arrived this morning. A moment ago a banner said five threats were found and quarantined.
+  | Opening the antivirus shows the real problem. Protection is off, and the scan engine cannot start because its own file, mtnengine.dll, is missing.
+  | The list has five files: three of Marten's own and two parts of Windows. The "malware" is mostly the antivirus itself.
+  | A bad update told the product that its own files were dangerous, and it obeyed. Damaged system files like these can stop a PC from working, so this needs care, not speed.
+launch marten
+
+# A worried colleague, and the vendor's own notice.
+mail sam-panic
+  from Sam Patel <sam.patel@northwind.example>
+  subject URGENT: Marten says 5 viruses, I'm clearing it all
+  | Dana, my PC says I have 5 viruses and that the antivirus is switched off!!
+  |
+  | I'm going to delete everything in the quarantine and restart, so it scans again. IT has said nothing, so we are on our own. You should do the same before it spreads to the shared drive.
+  |
+  | Sam
+notify mail Sam Patel
+  | URGENT: Marten says 5 viruses, I'm clearing it all
+
+step Sam is panicking
+  look the subject in capitals, and what Sam plans to do before anyone has checked
+  when mail sam-panic
+  | Sam in Sales sees the same banner and wants to delete everything and restart. Nobody has checked what the files are, or asked IT or the vendor.
+  | Sam wants you to follow. Fear is how a false alarm does its harm, so before you delete or restart, find out who is saying what.
+  | Flag anything that looks wrong.
+open sam-panic
+
+page wait-ok marten-av.example/support/update-2026-11-02/wait
+  title Marten Support: thank you
+  brand Marten Software
+  heading Thank you
+  | We will email you as soon as the corrected update is ready. You do not need to do anything else, and you do not need to restart.
+page vendor-status marten-av.example/support/update-2026-11-02
+  title Marten Antivirus: faulty update 2026-11-02
+  brand Marten Software
+  heading Faulty update 2026-11-02: what to do
+  | This morning's definition update wrongly marked some good files as malware. It is a false alarm. No infection was found.
+  section What happened
+  row Cause = update 2026-11-02 listed good files as "Generic malware"
+  row Infection = none found
+  row Result = Marten's own files and some Windows files were quarantined
+  row Fix = a corrected update, due this afternoon
+  section Files wrongly quarantined
+  item mtnengine.dll, mtnui.dll and mtnhook.dll (Marten's own files)
+  item wbemcomn.dll and wmiutils.dll (parts of Windows)
+  note The corrected update puts every one of these back.
+  section Until then
+  item Do not restart your computer.
+  item Do not delete anything from quarantine.
+  item Do not run "repair tools" from emails or links.
+  note Deleting the Windows files, or restarting while they are missing, can leave the PC unable to start.
+  button Email me when the fix is ready -> wait-ok
+mail vendor-notice
+  from Marten Support <support@marten-av.example>
+  subject Important: please do not restart your PC
+  link vendor-status
+  | Dear customer,
+  |
+  | A faulty update may have moved some of your files into quarantine, including Marten Antivirus's own files.
+  |
+  | Please do not restart your computer. We are preparing a fixed update and will send the steps to restore the files. The link explains what happened and what to do until then.
+  |
+  | We are sorry for the trouble.
+  |
+  | Marten Support
+notify mail Marten Support
+  | Important: please do not restart your PC
+
+step The vendor says: do not restart
+  look the sender's address, marten-av.example, and the link
+  when mail vendor-notice
+  | The vendor writes from its own address and names the problem: a faulty update, with no infection. It asks you not to restart and links to its own support page.
+  | Hover over the link: it goes to marten-av.example, the same address the antivirus window lists under Support.
+  | Then compare this with Sam's message.
+open vendor-notice
+
+step The vendor's page
+  look the three boxes: what happened, the files wrongly quarantined, and what to do until then
+  when visit vendor-status
+  move Read the page, then click “Email me when the fix is ready”.
+  | The page says it plainly: the update was wrong, nothing was found, and a corrected update will put the files back. The five files are the ones you saw in the list.
+  | It also says what not to do: no restart, no deleting from quarantine, no "repair tools" from emails.
+open vendor-status
+
+# The last real batch, now that nothing has been touched.
+page batch10-done payroll.northwind.example/timesheets/b10/approved
+  title Batch 10 approved
+  brand Northwind Payroll
+  heading Batch 10 approved
+  | Front office timesheets for 26 October to 1 November 2026 were sent to the pay run.
+page batch10-held payroll.northwind.example/timesheets/b10/returned
+  title Batch 10 sent back
+  brand Northwind Payroll
+  heading Batch 10 sent back
+  | The Front office supervisor has been asked to check the hours.
+page batch-10 payroll.northwind.example/timesheets/b10
+  title Timesheets: batch 10 of 10, Front office
+  brand Northwind Payroll
+  requires payroll-login
+  heading Timesheets: batch 10 of 10, Front office
+  | A batch of timesheets is waiting for your approval.
+  section Batch
+  row Department = Front office
+  row Pay period = 26 October to 1 November 2026
+  row Staff = 6
+  row Hours = 214.0
+  row Entered by = Lena Park, Front office supervisor
+  button Approve for the pay run -> batch10-done
+  button Send back to the supervisor -> batch10-held
+
+step Waiting for the fix
+  look the page: the vendor will email when the fix is ready
+  when choose vendor-status 1
+  | You chose to wait. Nothing was deleted and nothing restarted, so the files are still in quarantine, ready for the fix to put them back.
+  | Protection stays off for now, so be careful with downloads and attachments.
+  | The work does not stop for it. Priya has sent the last batch.
+choose vendor-status 1
+mail mail-b10
+  from Priya Shah <priya.shah@northwind.example>
+  subject Last batch: Front office
+  link batch-10
+  | Dana,
+  |
+  | The Front office timesheets are the last of the day, and payday is close. The link opens the batch. Sorry about the antivirus trouble; IT says to leave the PCs as they are until the fix comes.
+  |
+  | Priya
+notify mail Priya Shah
+  | Last batch: Front office
+
+step Back to work
+  look Mail: Priya's last message, then the Batch box on the page
+  when visit batch-10
+  move Open Priya's “Last batch” message in Mail, then click its link.
+  | The last batch is an ordinary one from Priya. Its Batch box has the same rows as batch 9. Check it, then approve it.
+open batch-10
+
+step 10 of 10, and the shift is done
+  look the counter: the shift is done
+  when choose batch-10 any
+  | Every batch is approved and the payroll is on time. Press Next to see what the false alarm did to people who panicked.
+choose batch-10 1
+quota +1
+
+step What the false alarm did
+  look the animation: a scare with no virus behind it
+  | No virus touched a single computer. The harm came from the alarm itself: protection switched off, and people who deleted files and restarted to "fix" it.
+  | Sam's PC could not start after a restart. Yours kept working, because you waited for the vendor's fix.
+attack scareware
+  | the antivirus was real, its update was wrong
+  | no virus was found on any computer
+  | protection stayed off until the fix
+  | Sam restarted: the PC would not start
+mail vendor-fix
+  from Marten Support <support@marten-av.example>
+  subject Fixed update ready: protection is back
+  | Dear customer,
+  |
+  | The corrected update is ready and will install on your PC the next time it connects. It puts back all 5 files and switches protection on again. You can restart after that.
+  |
+  | Thank you for your patience.
+  |
+  | Marten Support
+notify mail Marten Support
+  | Fixed update ready: protection is back
+
+flag hard notice settings 5 threats found
+  | Five threats at once, right after an update, with protection switched off: that points to a bad update, not five infections.
+flag hard line marten-panel mtnengine.dll
+  | The antivirus's own scan engine was put in quarantine by its own update: a false alarm, not an infection.
+flag hard mail sam-panic
+  | A worried colleague, in capitals, telling you to delete everything and restart before anyone has checked.
+flag hard mail vendor-notice
+  | The vendor's own address names the faulty update, says no infection was found, and asks you to wait.
+flag hard section vendor-status 1
+  | The vendor says the update was wrong and nothing was infected: the "threats" are its own mistake.
+flag hard section vendor-status 2
+  | The files on the list are the antivirus's own and parts of Windows: deleting them would do the damage the update could not.
+flag soft file Desktop/payroll-login.txt
+  | Passwords in a text file on the desktop: any program that runs can read them, so use a password manager.
+flag soft file Desktop/Marten Antivirus.exe
+  | A copy of the antivirus on the desktop, so you can open it in training: normally it runs from the notification area.
+
+lesson
+  | Antivirus programs make mistakes. A "threat" list that names the antivirus itself is a false alarm, not an infection.
+  | Do not delete system files, clear quarantine or restart because a colleague or a forum tells you to.
+  | Check who is saying it, follow the vendor's own notice from its own address, and wait for its official fix.
+  | Do not run a "repair tool" from a link you were sent. Until protection is back, be careful with downloads and attachments.

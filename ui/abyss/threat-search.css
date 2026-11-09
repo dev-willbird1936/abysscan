@@ -1,0 +1,40 @@
+/* Threat search on the main menu (ui/abyss/threat-search.js). Built on the drop panel's pixel box (.drop, .drop-title, .drop-go). */
+/* One column (the shared .drop box is two columns by default). */
+.ts, body[data-site] .drop.ts { grid-template-columns: minmax(0, 1fr); }
+.ts > * { grid-column: 1 / -1; }
+.ts-row { display: flex; gap: calc(var(--u) * 3); }
+.ts-input { flex: 1; min-width: 0; font: 400 calc(var(--t) * 1.1)/1.3 var(--sans); color: var(--p8); background: var(--p0); border: 0; border-radius: 0;
+  padding: calc(var(--u) * 2.5) calc(var(--u) * 3); --edge: var(--p5);
+  box-shadow: 0 calc(var(--u) * -1) 0 0 var(--edge), 0 var(--u) 0 0 var(--edge), calc(var(--u) * -1) 0 0 0 var(--edge), var(--u) 0 0 0 var(--edge); }
+.ts-input::placeholder { color: var(--faint); opacity: 1; }
+.ts-input:focus { outline: none; --edge: var(--gold); background: var(--p1); }
+.ts-input::-webkit-search-cancel-button { filter: invert(1); }
+.ts-go:disabled, .ts-create:disabled { opacity: .6; cursor: progress; }
+.ts-out:empty { display: none; }
+.ts-status { margin: 0; color: var(--p7); font-size: var(--t); }
+.ts-status:empty { display: none; }
+.ts-status.bad { color: var(--coral); }
+.ts-list { list-style: none; margin: 0; padding: 0; display: grid; gap: calc(var(--u) * 3); }
+.ts-card { display: grid; gap: calc(var(--u) * 2); border-top: var(--u) solid var(--p4); padding-top: calc(var(--u) * 3); }
+.ts-head { display: flex; flex-wrap: wrap; align-items: center; gap: calc(var(--u) * 3); }
+.ts-name { font: 400 calc(var(--t) * 1.4)/1.1 var(--serif); color: var(--p8); overflow-wrap: anywhere; }
+.ts-badge { font-size: calc(var(--t) * .8); letter-spacing: .06em; text-transform: uppercase; color: var(--p0); background: var(--coral); padding: calc(var(--u) * .5) calc(var(--u) * 2); }
+.ts-badge.ts-in { background: var(--p6); }
+.ts-meta { margin: 0; font-size: calc(var(--t) * .85); color: var(--p6); }
+.ts-sum, .ts-q { margin: 0; font: 400 calc(var(--t) * .95)/1.45 var(--sans); color: var(--p8); }
+.ts-open, .ts-create { justify-self: start; text-decoration: none; }
+.ts-dialog { --bd: var(--p5); --hi: var(--p3); color: var(--p8); border: 0; width: min(92vw, calc(var(--t) * 32)); max-height: 88vh; overflow: auto; box-sizing: border-box;
+  padding: calc(var(--u) * 7) clamp(20px, 3vw, 36px) calc(var(--u) * 6); display: grid; gap: calc(var(--u) * 3); }
+.ts-dialog:not([open]) { display: none; }
+.ts-dialog::backdrop { background: repeating-conic-gradient(#02060ca0 0 25%, #02060c50 0 50%) 0 0 / calc(var(--u) * 2) calc(var(--u) * 2); }
+.ts-dialog > * { margin: 0; }
+.ts-kicker { font-size: calc(var(--t) * .85); letter-spacing: .06em; text-transform: uppercase; color: var(--faint); }
+.ts-c-name { font: 400 calc(var(--t) * 2)/1 var(--serif); overflow-wrap: anywhere; }
+.ts-q { font-weight: 600; }
+.ts-sources { margin: 0; padding-left: calc(var(--u) * 5); display: grid; gap: calc(var(--u) * 1); font: 400 calc(var(--t) * .85)/1.35 var(--sans); color: var(--p7); }
+.ts-sources a { color: var(--p6); overflow-wrap: anywhere; }
+.ts-actions { display: flex; flex-wrap: wrap; gap: calc(var(--u) * 4); align-items: center; }
+.ts-cancel { font: 400 var(--t) var(--serif); text-transform: uppercase; background: var(--p2); color: var(--p8); border: 0; cursor: pointer;
+  padding: calc(var(--u) * 2) calc(var(--u) * 5); min-height: calc(var(--u) * 11); }
+@media (max-width: 760px) { .ts-row { flex-direction: column; } .ts-row .drop-go { align-self: stretch; } }
+.ts-label { display: block; font-size: calc(var(--t) * .85); color: var(--p6); }

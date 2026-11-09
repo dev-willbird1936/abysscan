@@ -80,7 +80,7 @@ RUN /opt/static-venv/bin/python /tmp/capa_warm.py && ls -la /opt/capa-cache && d
 
 FROM debian:bookworm-slim@sha256:7c7b2c966bc9ee8cedfeef67e0e279108992c77681fa595db4a9d65c06ccc587 AS fetch
 RUN apt-get update \
- && apt-get install -y --no-install-recommends ca-certificates curl xz-utils python3 python3-venv python3-pip \
+ && apt-get install -y --no-install-recommends ca-certificates curl xz-utils bzip2 zstd python3 python3-venv python3-pip \
  && rm -rf /var/lib/apt/lists/*
 # PowerShell 7.6.6 (MIT, github.com/PowerShell/PowerShell/releases/tag/v7.6.6)
 RUN curl -fsSL -o /tmp/pwsh.tgz https://github.com/PowerShell/PowerShell/releases/download/v7.6.6/powershell-7.6.6-linux-x64.tar.gz \
@@ -120,6 +120,9 @@ FROM debian:bookworm-slim@sha256:7c7b2c966bc9ee8cedfeef67e0e279108992c77681fa595
 
 # LibreOffice 7.4.7 headless without the GUI packages (Writer, Calc, Impress), Chromium's shared libraries and two fonts; osslsigncode 2.5
 # (GPL-3.0-or-later with the OpenSSL exception) and the Boost runtime libraries that innoextract links.
+# i386 is added as a second architecture and qemu-user is installed because most Linux malware (Mirai, Gafgyt, Wirenet)
+# ships i386 and ARM builds: without them a real botnet can only be inspected, not run.
+RUN dpkg --add-architecture i386
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
     python3 \
@@ -127,7 +130,9 @@ RUN apt-get update \
     libreoffice-calc-nogui=4:7.4.7-1+deb12u14 libreoffice-impress-nogui=4:7.4.7-1+deb12u14 \
     libasound2 libatk-bridge2.0-0 libatk1.0-0 libatspi2.0-0 libcairo2 libcups2 libdbus-1-3 libdrm2 libgbm1 libglib2.0-0 \
     libnspr4 libnss3 libpango-1.0-0 libx11-6 libxcb1 libxcomposite1 libxdamage1 libxext6 libxfixes3 libxkbcommon0 libxrandr2 \
-    fonts-dejavu-core fonts-liberation \
+    fonts-dejavu-core fonts-liberation libmagic1 python3-magic bzip2 zstd xz-utils php-cli ruby lua5.4 default-jre-headless \
+    mono-runtime libmono-system-windows-forms4.0-cil \
+    libc6:i386 libstdc++6:i386 zlib1g:i386 qemu-user-static \
     osslsigncode=2.5-4 ca-certificates \
     libboost-iostreams1.74.0=1.74.0+ds1-21 libboost-program-options1.74.0=1.74.0+ds1-21 libboost-filesystem1.74.0=1.74.0+ds1-21 \
     libfontconfig1 \

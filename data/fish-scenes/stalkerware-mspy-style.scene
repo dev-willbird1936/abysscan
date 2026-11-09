@@ -1,0 +1,281 @@
+# Stalkerware, mSpy-style (2010 onwards). Phone monitoring apps used to watch a partner. This scene shows only what the person being watched can notice and where to get help.
+# A quest (QUESTS.md): the trainee is a front-desk coordinator on a lunch break. Dana confirms one real sign-in alert safely, then meets one she did not cause.
+# The app lives on a phone, so this desktop shows what the victim could really see from a computer: the cloud account's alert and device list, and the phone's battery and data page.
+# The victim in this story is invented. The scene never shows how to install or hide anything, and it ends with where to get safe help.
+os windows
+user Dana Okafor
+about
+  | Stalkerware is a phone app that secretly copies someone's messages, calls, photos and location to another person. Sold as a "family monitor" (mSpy and its many look-alikes), it is often used by an abuser against a partner.
+  | Some of these tools work through an app on the phone; others pull the cloud backup with the account password. This scene shows both.
+  | It is installed by hand, in a few minutes, by someone who has the phone and its passcode, or who knows the account password. It hides its icon and keeps a name like "Sync Service". The person being watched sees nothing on screen.
+  | This scene is about noticing the signs and getting help, never about installing it. The topic can be upsetting: the help page is the last task, and the person in the story is invented.
+story
+  | You are Dana Okafor, front-desk coordinator at Northwind Traders. At lunch you use the office computer for your own errands, including your own email: it is the one screen nobody at home can see.
+  | Lately someone at home has known things they should not: where you had lunch, who messaged you. You have not worked out how.
+  | You have done 2 of today's 4 lunch-break chores. Two to go: the alert about your new tablet, and whatever else comes up.
+  | Your cloud sign-in is in a text file on the desktop, next to your phone passcode. That is a bad habit, but it keeps this training quick.
+quota 2 4 Lunch-break chores done
+spotted signs someone was watching
+
+# Dana's desk (soft flags: careless, but only here to keep the training simple).
+file Desktop/cloud-login.txt
+  at 300 520
+  | Cloud Service account (phone backup)
+  | Account: dana.okafor@mail-box.example
+  | Password: Maple-Orchard-52!
+file Desktop/phone-passcode.txt
+  at 460 520
+  | Dana's phone (training copy)
+  | Passcode: 2580
+  | Recovery question (first street): Alder Lane
+
+# The cloud service's own pages: a sign-in page, and the device list behind it.
+page cloud-login account.cloud-service.example/sign-in
+  title Cloud Service: sign in
+  brand Cloud Service
+  favorite
+  heading Sign in to your account
+  | Welcome back. Sign in to see your devices and backups.
+  field Account = dana.okafor@mail-box.example
+  field secret Password = Maple-Orchard-52!
+  button Sign in
+page tablet-ok account.cloud-service.example/devices/confirmed
+  title Device confirmed
+  brand Cloud Service
+  heading Thanks, device confirmed
+  | Dana's tablet stays signed in to your account.
+page devices-ok account.cloud-service.example/devices/tablet
+  title Your account: devices
+  brand Cloud Service
+  requires cloud-login
+  heading Devices signed in to your account
+  | A new device signed in today. Check that you know it.
+  section Signed-in devices
+  columns Device | Last active | Where
+  cells Dana's phone | Today | Home
+  cells Dana's tablet (new) | This morning, 8:12 | Home
+  note The tablet signed in once, from your home address, when you set it up.
+  button Yes, this was me -> tablet-ok
+mail tablet-alert
+  from Cloud Service <no-reply@cloud-service.example>
+  to dana.okafor@mail-box.example
+  subject New sign-in: Dana's tablet
+  sent 2026-11-02 08:13
+  link devices-ok
+  | Hello Dana,
+  |
+  | Your new tablet signed in to your account this morning.
+  |
+  | If this was you, no action is needed. You can review your devices at any time.
+
+step Chore 3 of 4
+  look Mail: the cloud service's message about your new tablet
+  | You set up a new tablet this morning, so the cloud service sends an alert. This one is about you. Confirm it the normal way, so you know what a normal alert looks like.
+notify mail Cloud Service
+  | New sign-in: Dana's tablet
+
+step The link goes to your account
+  look the link under the message
+  when mail tablet-alert
+  | The email links to the service's own address, account.cloud-service.example. Hover over a link before you click it, to check where it goes.
+open tablet-alert
+
+step Sign in as usual
+  look the two boxes: Account and Password
+  when visit devices-ok
+  move Copy the details from cloud-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The account asks you to sign in first. Two boxes: Account and Password. Remember what this page normally looks like.
+open devices-ok
+
+step Check, then confirm
+  look the list: your phone and your new tablet, both at home
+  when choose cloud-login 1
+  move Read the list of devices, then click “Yes, this was me”.
+  | You are in. The list has two devices, and you know both: your phone, and the tablet you set up this morning at home.
+signin cloud-login
+
+step 3 of 4 done
+  look the counter in the guide: one chore left
+  when choose devices-ok any
+  | Confirmed. One chore to go. And another alert has just arrived.
+choose devices-ok 1
+quota +1
+
+# The lure: a second alert, from the same service, about a device Dana did not add.
+page helpline safer-phone-help.example/helpline
+  title Safer phone help: helplines
+  brand Safer Phone Help
+  heading A helpline can make a plan with you
+  | You do not have to decide alone, or tonight.
+  section Helpline (fictional number)
+  row Call = 555 0123
+  row Open = every hour of every day
+  row Tip = call from a phone the other person cannot see or check
+  section Before you call
+  item Write down what you noticed, with dates, and keep it somewhere they cannot see.
+  item Ask what to do about the phone before you touch it: the helpline will plan that with you.
+  item If you are in danger now, call your local emergency number.
+# weather is defined twice: the help page's Quick exit opens it, and its button goes back to help once help is defined.
+page weather daily-weather.example/today
+  title Weather today
+  heading Weather today
+page help safer-phone-help.example
+  title Safer phone help
+  brand Safer Phone Help
+  heading If you think someone is watching your phone
+  | You are not to blame, and help is available. If you are in danger now, call your local emergency number.
+  section First steps
+  item Use a device the other person cannot reach to look for help.
+  item Do not delete anything yet: removing it may alert them.
+  item Contact a domestic-abuse helpline or someone you trust.
+  item Save evidence such as screenshots and dates, somewhere they cannot see.
+  item With a helper, change passwords from the safe device, then check the phone.
+  section Leaving quickly
+  note Quick exit leaves this site at once. In this training copy it opens a neutral weather page.
+  button Find a helpline -> helpline
+  button Quick exit -> weather
+page weather daily-weather.example/today
+  title Weather today
+  brand Daily Weather
+  heading Weather today
+  | Sunny spells, 14 degrees. This neutral page is where Quick exit goes in this training copy.
+  button Back to safe help -> help
+page removed account.cloud-service.example/devices/removed
+  title Device removed
+  brand Cloud Service
+  heading Device removed
+  | The unknown device is signed out of your account.
+  section What happens next
+  tone warn
+  note The app on your phone is still there. Whoever set it up may see that your account stopped answering, and may not know why.
+  button Get safe help first -> help
+page phone-usage account.cloud-service.example/devices/phone
+  title Cloud Service: phone battery and data
+  brand Cloud Service
+  requires cloud-login
+  heading Your phone: battery and data
+  | Your phone sends this report to your account every week. It covers the last 7 days.
+  section Battery use
+  row Messages = 6%
+  row Maps = 9%
+  row Sync Service = 34%
+  section Mobile data uploaded
+  row Browser = 85 MB
+  row Messages = 40 MB
+  row Sync Service = 2.1 GB
+  section Apps with special access
+  tone warn
+  row Sync Service = location always, photos, accessibility
+  row Icon = hidden from the home screen
+  row Installed = 2 days ago
+  button Get safe help first -> help
+  button Remove the app now -> removed
+page devices account.cloud-service.example/devices
+  title Your account: devices
+  brand Cloud Service
+  requires cloud-login
+  heading Devices signed in to your account
+  | These devices have used your account recently.
+  section Signed-in devices
+  columns Device | Last active | Where
+  cells Dana's phone | Today | Home
+  cells Dana's tablet (new) | This morning | Home
+  cells Unknown device (Linux) | 2 minutes ago | Not home: 203.0.113.44
+  section What this device did
+  tone warn
+  row Backup restored = 2 days ago
+  row Photos viewed = 2 days ago
+  row Location checked = every 15 minutes
+  note If you did not add a device, someone may have your password or phone passcode.
+  button See what my phone reports -> phone-usage
+  button Remove this device -> removed
+mail alert
+  from Cloud Service <no-reply@cloud-service.example>
+  to dana.okafor@mail-box.example
+  subject New device signed in to your account
+  sent 2026-11-02 12:31
+  link devices
+  | Hello Dana,
+  |
+  | A new device signed in to your account from 203.0.113.44.
+  |
+  | If this was you, no action is needed. If not, review your devices.
+notify mail Cloud Service
+  | New device signed in to your account
+
+step A second alert
+  look the message: a new device, and an address you do not know
+  when mail alert
+  | Same service, same kind of message, but this one is not about the tablet. A device you did not add has signed in, from 203.0.113.44. The alert is real, and an alert you do not recognise is a warning sign. Flag anything that looks wrong.
+open alert
+
+step The account lists a device you never added
+  look the “Unknown device” row, and the activity beneath it
+  when visit devices
+  move Read the list and what the unknown device did, then press “See what my phone reports”.
+  cue choice:devices-1 choice:removed-1 choice:help-1 choice:weather-1
+  | You are still signed in, so the list opens at once. Two devices are yours; the third is not: Linux, 203.0.113.44, active 2 minutes ago, while you are at work.
+  | It restored a backup and looked at photos two days ago, and it checks your location every 15 minutes. Someone with your password or your phone for a few minutes can set this up.
+open devices
+
+step What the phone itself shows
+  look the “Sync Service” rows in battery, data and special access
+  when choose devices 1
+  move Read the three sections. Do not press “Remove the app now” yet: press “Get safe help first”.
+  cue choice:phone-usage-1 choice:removed-1 choice:help-1 choice:weather-1
+  | The report from your phone names an app you never installed. Sync Service uses a third of the battery, uploads 2.1 GB, and has access to your location, photos and accessibility.
+  | Accessibility lets an app read everything on the screen. Sync Service was installed 2 days ago, the same day the unknown device restored your backup.
+  | It has no icon, and monitoring apps hide like this. None of these signs proves it alone; together they are worth checking.
+open phone-usage
+
+step Do not delete anything yet
+  look the help page: “Do not delete anything yet”
+  when choose phone-usage 1
+  move Read the first steps, then press “Find a helpline”.
+  cue choice:help-1 choice:weather-1
+  | The tempting move is “Remove the app now”. Removing stalkerware can alert the person who set it up, which can be dangerous.
+  | The safest first step is to look for help from a device the other person cannot see, such as a friend's phone or a library computer, and to ask a trusted person or a helpline for a plan.
+choose phone-usage 1
+
+step 4 of 4 done
+  look the helpline page and the counter in the guide
+  when choose help 1
+  | A person who knows how to help with this is a phone call away. Writing down what you noticed, and when, is the next thing you do. That chore was not on your list, and it was the important one.
+choose help 1
+quota +1
+
+step What the app was passing on
+  look the animation: what someone else could read, and from where
+  | Two ways in: the hidden app on Dana's phone, or the cloud backup read with her account password. Both sent her messages, calls, photos and location to someone else.
+  | Dana saw none of it. The signs were all outside the app: an alert, a device she never added, and a phone that was working too hard.
+attack spyware-surveillance
+  | account alert
+  | unknown device
+  | backup restored
+  | messages copied
+  | calls and location logged
+  | photos viewed
+  | read on someone else's screen
+open devices
+
+flag hard mail alert
+  | The service's own alert about a device you did not add. An alert you do not recognise is a real warning sign.
+flag hard section devices 1
+  | A list with a device you never added: Linux, 203.0.113.44, active 2 minutes ago.
+flag hard section devices 2
+  | The unknown device restored a backup, viewed photos and checks your location every 15 minutes: watching, not signing in by mistake.
+flag hard section phone-usage 1
+  | An app you never open uses a third of the battery. A hidden app that always runs drains it.
+flag hard section phone-usage 2
+  | 2.1 GB uploaded by one app in a week, even with the screen off: the copies of your messages and photos on their way.
+flag hard section phone-usage 3
+  | An app with a bland name, no icon, and access to location, photos and accessibility, which lets it read everything on screen. It was installed the same day the unknown device restored your backup.
+flag soft file Desktop/cloud-login.txt
+  | A password in a text file: anyone who reaches this computer can read it. A password manager is safer.
+flag soft file Desktop/phone-passcode.txt
+  | A phone passcode and a recovery answer belong in no file at all. Someone who knows the passcode can install a monitoring app in minutes.
+
+lesson
+  | Stalkerware needs a few minutes with your phone or your account password. Watch for account alerts, unknown devices, a fast-draining battery and unexplained data use.
+  | Do not delete anything yet. Removing it can alert the person who set it up. Get safe help first, from a device they cannot reach, and plan with a helpline or someone you trust.
+  | Choose a passcode and password nobody else knows, turn on two-step sign-in, and check your devices list now and then.

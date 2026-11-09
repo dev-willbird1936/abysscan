@@ -12,11 +12,16 @@ export { RUNSC_LOG_ROOT };
 // Runner kinds by detected type (deploy/detonation/runner/run.sh, the JOB_KIND argument). Scripts run for real, html, svg and pdf in
 // Chromium, Office files in LibreOffice, exe in Speakeasy, zip and eml are unpacked. Every other type stays unexecuted.
 const KIND_BY_TYPE = {
-  py: 'py', sh: 'sh', 'js-node': 'node', ps1: 'ps1', html: 'html', svg: 'svg', pdf: 'pdf', exe: 'exe', zip: 'zip', eml: 'eml',
-  docx: 'office', docm: 'office', xlsx: 'office', xlsm: 'office', doc: 'office', xls: 'office', pptx: 'office',
+  py: 'py', sh: 'sh', perl: 'perl', php: 'php', ruby: 'ruby', lua: 'lua', class: 'java', 'js-node': 'node', ps1: 'ps1', html: 'html', svg: 'svg', pdf: 'pdf', exe: 'exe',
+  zip: 'zip', eml: 'eml', elf: 'elf',
+  docx: 'office', docm: 'office', rtf: 'rtf', msg: 'msg', xlsx: 'office', xlsm: 'office', doc: 'office', xls: 'office', pptx: 'office',
+  // 7zz reads all of these, so they take the zip path: their entries become children and are typed and run in turn.
+  jar: 'zip', apk: 'zip', // both are zip containers: their classes and dex become children
+  '7z': 'zip', rar: 'zip', tar: 'zip', gz: 'zip', bz2: 'zip', xz: 'zip', zst: 'zip', lz4: 'zip',
+  cab: 'zip', iso: 'zip', deb: 'zip', rpm: 'zip', ar: 'zip', cpio: 'zip',
 };
-const EXTENSION_BY_KIND = { node: 'js' }; // every other kind's extension is its name; Office uses the detected type
-const CONTAINER_KINDS = new Set(['zip', 'eml']); // unpacked even when the upload is in the static size tier
+const EXTENSION_BY_KIND = { node: 'js', perl: 'pl', php: 'php', ruby: 'rb', lua: 'lua', java: 'class', rtf: 'rtf', msg: 'msg', elf: 'bin' }; // every other kind's extension is its name; Office uses the detected type
+const CONTAINER_KINDS = new Set(['zip', 'eml', 'rtf', 'msg']); // unpacked even when the upload is in the static size tier
 const BROWSER_KINDS = new Set(['html', 'svg', 'pdf']);
 const UNPACK_STDOUT_BYTES = 4 * 1024 * 1024; // up to 50 entries with 32 KB of head each, as base64
 const COLLECT_WALL_MS = 7_000; // under the 10 s collecting stage cap, which also covers the trace parse

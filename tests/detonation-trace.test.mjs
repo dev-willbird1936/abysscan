@@ -91,6 +91,14 @@ test('openat: successful reads under the sandbox user paths and every successful
   ]);
 });
 
+test('a relative path resolves against the working directory: a sample that writes "WIFIADAPT" still leaves evidence', async () => {
+  // gVisor prints the directory an AT_FDCWD open resolves in; a real i386 botnet writes its drop by relative name.
+  const relative = line('00:01:08.000000', 1, 'qemu-i386-static', 'X', 'openat(AT_FDCWD /home/dana, 0x7 WIFIADAPT, O_WRONLY|O_CREAT|O_TRUNC, 0o666)', ok);
+  const bare = line('00:01:08.100000', 1, 'qemu-i386-static', 'X', 'openat(AT_FDCWD, 0x7 WIFIADAPT2, O_WRONLY|O_CREAT, 0o666)', ok);
+  const { items } = await parse([START, relative, bare]);
+  assert.deepEqual(items.map(item => [item.kind, item.path]), [['file-write', '/home/dana/WIFIADAPT'], ['file-write', '/home/dana/WIFIADAPT2']]);
+});
+
 test('O_PATH opens are metadata-only, while a later ordinary credential read still counts', async () => {
   const path = '/home/dana/.aws/credentials';
   const metadataOpen = line('00:01:08.000000', 1, 'python3', 'X', `openat(AT_FDCWD /home/dana, 0x7 ${path}, O_PATH|O_CLOEXEC, 0o0)`, ok);

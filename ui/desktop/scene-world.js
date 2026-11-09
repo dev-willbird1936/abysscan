@@ -378,7 +378,7 @@
       draft.data.processes ??= [];
       draft.data.processes.push({ id: `${PREFIX}proc`, name: processName(scene), cpu: 91, mem: 412, publisher: 'Unknown publisher', suspicious: true });
     }
-    draft.scene = { phase, stepId: desk.scene.stepId, highlight: LIVE.includes(phase) ? highlightOf(steps, index) : null, ...presentationOf(scene, desk, steps, index) };
+    draft.scene = { phase, stepId: desk.scene.stepId, highlight: LIVE.includes(phase) ? highlightOf(steps, index) : null, ...presentationOf(scene, desk, steps, index), ...(world.scene.cue ? { cue: world.scene.cue } : {}) };
     const intents = openWindows && index > before && index >= 0 ? [openIntent(draft, steps[index])].filter(Boolean) : [];
     if (JSON.stringify(draft) === JSON.stringify(world)) return { world, intents };
     draft.revision = world.revision + 1;

@@ -1,0 +1,57 @@
+.tm-app {
+  background: #0c0c0c;
+  color: #cccccc;
+
+  .tm-tabs {
+    height: 38px;
+    padding: 6px 8px 0;
+    background: #1f1f1f;
+    align-items: flex-end;
+    flex-shrink: 0;
+  }
+  .tm-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    width: 220px;
+    padding: 0 12px;
+    border-radius: 6px 6px 0 0;
+    background: #0c0c0c;
+    color: #fff;
+    svg {
+      width: 12px;
+      color: var(--oc-accent);
+    }
+  }
+  .tm-screen {
+    padding: 8px 12px;
+    font-family: "Cascadia Mono", Consolas, "Courier New", monospace;
+    font-size: 13.5px;
+    line-height: 1.35;
+    user-select: text;
+    cursor: text;
+  }
+  .tm-line {
+    white-space: pre-wrap;
+    word-break: break-all;
+    min-height: 1.35em;
+  }
+  .tm-input-row {
+    display: flex;
+    span {
+      white-space: pre;
+    }
+  }
+  .tm-input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #cccccc;
+    font: inherit;
+    caret-color: #cccccc;
+    padding: 0;
+  }
+}

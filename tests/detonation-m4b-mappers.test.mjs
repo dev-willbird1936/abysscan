@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { evaluate } from '../backend/detonation/findings.mjs';
 import { identifyDetail, mapIdentify } from '../backend/detonation/identify.mjs';
-import { mapCapa, mapGeneric, mapParserSignals, mapStatic, mapYara } from '../backend/detonation/static.mjs';
+import { mapCapa, mapGeneric, mapParserSignals, mapRtf, mapStatic, mapYara } from '../backend/detonation/static.mjs';
 import { mapUnwrap } from '../backend/detonation/unwrap.mjs';
 import { mapWine, wineCouldNotRun } from '../backend/detonation/wine.mjs';
 import { TWILIGHT_SIGNALS } from '../backend/detonation/analysis-loop.mjs';
@@ -40,9 +40,13 @@ test('identify: a UPX-packed program is unsigned and obfuscated; the coverage te
   assert.ok(verdict.signals.includes('unsigned') && verdict.signals.includes('obfuscated'));
 });
 
-test('identify: a plain installer is unsigned only; headers that could not be read say so', () => {
+test('identify: an installer reports the API groups its imports name, then its missing signature', () => {
   const { identify } = fixture('identify-inno');
-  assert.deepEqual(kinds(mapIdentify(identify, null, { at: AT })), ['unsigned']);
+  // An installer's import table names the groups it uses (start a program, write the registry, walk files, check timing); an
+  // import is intent, not action, so each is one Twilight item and the signature check is the last one.
+  const items = mapIdentify(identify, null, { at: AT });
+  assert.deepEqual(items.map(item => item.kind), ['suspicious', 'suspicious', 'suspicious', 'suspicious', 'unsigned']);
+  assert.ok(items.slice(0, 4).every(item => String(item.indicator).startsWith('imports ')));
   assert.equal(identifyDetail({ format: 'unknown' }), 'The headers could not be read.');
   assert.deepEqual(mapIdentify(undefined, null, { at: AT }), []);
   assert.deepEqual(mapIdentify({ signature: { status: 'valid' }, packers: [] }, null, { at: AT }), [], 'a valid signature is not evidence of anything');
@@ -50,15 +54,76 @@ test('identify: a plain installer is unsigned only; headers that could not be re
 
 test('identify (authored): a .NET assembly is static only, its P/Invoke list and odd names add Twilight items', () => {
   const items = mapIdentify({ format: 'pe', dotnet: true, signature: { status: 'valid' } }, {
-    suspiciousPinvoke: ['VirtualAlloc', 'WriteProcessMemory'], oddNameRatio: 0.9, namesChecked: 40,
+    assembly: 'Loader', version: '1.0.0.0', runtime: 'v4.0.30319', typeCount: 3, methodCount: 9,
+    suspiciousPinvoke: ['VirtualAlloc', 'WriteProcessMemory'], oddNameRatio: 0.9, namesChecked: 40, resources: ['stub.exe'],
   }, { at: AT });
-  assert.deepEqual(items.map(item => [item.kind, item.reason ?? item.indicator ?? item.technique]), [
-    ['emulation-stopped', 'dotnet-static-only'], ['suspicious', 'dotnet p/invoke VirtualAlloc'], ['suspicious', 'dotnet p/invoke WriteProcessMemory'], ['obfuscation', 'obfuscated .NET names'],
+  // The assembly is named and counted, then its P/Invoke list and unreadable names, then (with resources) what it carries.
+  assert.deepEqual(items.map(item => [item.kind, item.reason ?? item.indicator ?? item.technique ?? '']), [
+    ['suspicious', 'dotnet p/invoke VirtualAlloc'], ['suspicious', 'dotnet p/invoke WriteProcessMemory'],
+    ['obfuscation', 'obfuscated .NET names'], ['identified', ''], ['suspicious', 'embedded .NET resource'],
   ]);
   const verdict = verdictOf(items, 'inspect');
   assert.equal(verdict.depth, 'twilight');
-  assert.ok(verdict.signals.includes('incomplete'));
+  // It is run under Mono now: a readable assembly is not an incomplete inspection.
+  assert.ok(!verdict.signals.includes('incomplete'));
+  assert.ok(verdict.signals.includes('other-suspicious'));
   assert.deepEqual(kinds(mapIdentify({ format: 'pe', dotnet: true }, { error: 'ValueError' }, { at: AT })), ['emulation-stopped'], 'unreadable metadata still says the assembly was not run');
+});
+
+test('identify (authored): a compiled Java class is named and counted, and nothing is claimed that was not read', () => {
+  const items = mapIdentify({ format: 'class', magic: { description: 'compiled Java class data' } }, null, {
+    at: AT, classinfo: { name: 'com.acme.Runner', version: '17', major: 61, strings: ['java/net/Socket'] },
+  });
+  assert.deepEqual(items.map(item => item.kind), ['identified', 'identified']);
+  assert.match(items[1].detail, /Compiled Java class com\.acme\.Runner, Java 17 bytecode\./);
+  assert.deepEqual(mapIdentify({ format: 'class' }, null, { at: AT, classinfo: { error: 'ValueError' } }), [], 'an unreadable class says nothing');
+});
+
+test('generic (authored): a shell link names its target and the host tool it launches', () => {
+  const B = String.fromCharCode(92);
+  const join = (...parts) => parts.join(B);
+  const target = join('C:', 'Windows', 'System32', 'powershell.exe');
+  const base = {
+    binwalk: { ok: true, found: [] }, yara: { ok: true, matchCount: 0 }, strings: { ascii: 2, utf16: 2 }, entropy: { overall: 4 },
+  };
+  const lnk = mapGeneric({ ...base, lnk: { target, arguments: '-NoP -W Hidden -EncodedCommand SQBFAFgA' } }, { at: AT }).evidence.filter(item => item.tool === 'lnk');
+  assert.deepEqual(lnk.map(item => [item.kind, item.indicator ?? '']), [['identified', ''], ['suspicious', 'shortcut runs a host tool']]);
+  assert.ok(lnk[0].detail.includes(target), 'the detail names the link target');
+  // A network target is its own finding, and a plain link to a document is not.
+  const share = mapGeneric({ ...base, lnk: { target: join('', '', 'evil', 'share', 'a.exe') } }, { at: AT }).evidence.filter(item => item.tool === 'lnk');
+  assert.deepEqual(share.map(item => item.indicator ?? ''), ['', 'shortcut points at a network share']);
+  const clean = mapGeneric({ ...base, lnk: { target: join('C:', 'docs', 'a.pdf') } }, { at: AT }).evidence.filter(item => item.tool === 'lnk');
+  assert.deepEqual(clean.map(item => item.kind), ['identified']);
+  // An Internet Shortcut is only a pointer: the URL is the evidence.
+  const shortcut = mapGeneric({ ...base, shortcut: { url: 'http://203.0.113.9/invoice.exe' } }, { at: AT }).evidence.filter(item => item.indicator === 'internet shortcut target');
+  assert.deepEqual(shortcut.map(item => item.detail), ['The shortcut opens http://203.0.113.9/invoice.exe.']);
+});
+
+
+test('generic (authored): an RTF carrier and a Dalvik executable name their own intent', () => {
+  const rtf = mapRtf([{ id: 'rtf-objupdate', count: 1, preview: '\objupdate' }, { id: 'rtf-datastore', count: 2, preview: 'datastore' }, { id: 'nope', count: 1 }], { at: AT });
+  assert.deepEqual(rtf.map(item => [item.kind, item.indicator]), [['exploit-indicator', 'rtf object update'], ['exploit-indicator', 'rtf ole datastore']]);
+  const report = {
+    binwalk: { ok: true, found: [] }, yara: { ok: true, matchCount: 0 }, strings: { ascii: 4, utf16: 0 }, entropy: { overall: 5 },
+    dex: { version: '035', classes: 3, methods: 12, readStrings: 40, apis: { exec: ['Ljava/lang/Runtime;->exec'], sms: ['Landroid/telephony/SmsManager;'] } },
+  };
+  const dex = mapGeneric(report, { at: AT }).evidence.filter(item => item.tool === 'dex');
+  assert.deepEqual(dex.map(item => [item.kind, item.detail]), [
+    ['identified', 'Android DEX 035: 3 class(es), 12 method reference(s), 40 string(s) read.'],
+    ['suspicious', 'The code runs other programs: Ljava/lang/Runtime;->exec.'],
+    ['suspicious', 'The code sends text messages: Landroid/telephony/SmsManager;.'],
+  ]);
+});
+
+test('unwrap (authored): a payload appended after the last section becomes a child and says so', () => {
+  const head = Buffer.from([0x50, 0x4b, 0x03, 0x04]).toString('base64');
+  const unpack = { entries: [{ index: 0, name: 'overlay.bin', size: 1759, path: '/home/dana/Downloads/.unpacked/0/0.dat', head }], stopped: null };
+  const mapped = mapUnwrap({ format: 'payload', size: 1759, offset: 41984, ...unpack }, { at: AT, budget: { entries: 50, bytes: 52428800 } });
+  assert.deepEqual(mapped.children.map(child => child.name), ['overlay.bin']);
+  assert.deepEqual(mapped.evidence.filter(item => item.indicator === 'appended payload').map(item => item.detail), [
+    'The program carries 1759 bytes appended after its last section, and they are not data: a payload was unpacked from there.',
+  ]);
+  assert.match(mapped.step.detail, /the payload appended after the last section/);
 });
 
 // --- unwrap -------------------------------------------------------------------------------------------------------------------------

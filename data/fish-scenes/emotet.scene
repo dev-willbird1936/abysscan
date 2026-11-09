@@ -1,0 +1,313 @@
+# Emotet (2014 onwards). A loader spread by Word attachments in replies to real email threads; it installed other malware.
+# A quest (QUESTS.md): the trainee builds a budget pack, checks one real attachment safely, then meets an Emotet reply in a thread of their own.
+os windows
+user Dana Okafor
+about
+  | Emotet replied to real email conversations it had stolen, with a Word file that asked the reader to turn on editing and content. The name on the message was a colleague's, and it quoted words the reader had really written. Its macro downloaded Emotet, which stole more email threads and installed the next malware, often ransomware. This training copy is invented: Northwind Traders is not a real company.
+story
+  | You are Dana Okafor, finance coordinator at Northwind Traders. This week you are building the Q4 budget pack: each department sends its figures in a file, and you check every one before it goes in.
+  | It is Monday morning. You have checked 3 of the 5 department files. Two to go. On Thursday you also sent Marcus, in Operations, your draft and asked him to check the travel line.
+  | Your mailbox password is in a text file on the desktop so you do not have to retype it. That is a bad habit, kept here only to make the training quick.
+quota 3 5 Q4 budget files checked
+
+# Dana's desk: the details she copies from (a soft flag: careless, but only here to keep the training simple).
+file Desktop/mailbox-login.txt
+  at 930 200
+  | Northwind mail
+  | Address: dana.okafor@northwind.example
+  | Password: Maple-Quill-2026
+
+# Thursday's real message: the thread that Emotet will reuse.
+mail draft-sent
+  folder sent
+  sent 2026-10-29 09:41
+  from Dana Okafor <dana.okafor@northwind.example>
+  to Marcus Lee <marcus.lee@northwind.example>
+  subject Budget draft for Q4
+  | Marcus, here is my first draft. Can you check the travel line?
+
+# The safe task: a real attachment from a real colleague. The figures show at once; nothing has to be turned on.
+view budget-ok sheet
+  title Marketing_Q4_lines.xlsx [Protected View]
+  app Spreadsheet
+  size 760x520
+  bar PROTECTED VIEW  The figures are already showing: you can check them without editing.
+  section Marketing: Q4 lines
+  columns Line | Q3 actual | Q4 plan
+  cells Advertising | 18,400 | 19,000
+  cells Events | 7,250 | 8,500
+  cells Print | 2,100 | 1,800
+  cells Agency fees | 12,000 | 12,000
+  cells Total | 39,750 | 41,300
+program budget-ok Marketing_Q4_lines.xlsx
+  publisher none
+  signed no
+  description Budget figures
+  view budget-ok
+mail marketing
+  from Priya Shah <priya.shah@northwind.example>
+  subject RE: Q4 marketing lines
+  attach Downloads/Marketing_Q4_lines.xlsx
+  | Hi Dana,
+  |
+  | Marketing's Q4 figures are attached, as agreed last week. Events is up a little for the spring launch.
+  |
+  | Priya
+file Downloads/Marketing_Q4_lines.xlsx
+  program budget-ok
+  size 31744
+
+step Budget file 4 of 5
+  look Mail: Priya's message with the figures attached
+  | A new file has come in from Priya, in Marketing. It is the one you were waiting for. Check it the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | RE: Q4 marketing lines
+
+step A colleague you know
+  look the sender's address and the attachment under the message
+  when mail marketing
+  cue file:fs-marketing-q4-lines-xlsx-f703ae43 mail:marketing app:mail
+  | The message is from Priya's own Northwind address, answers something you agreed last week, and the file is a spreadsheet of figures. Hover over a sender to check the address behind the name.
+open marketing
+
+step Read the figures
+  look the spreadsheet: the figures, and the counter in the guide
+  when run budget-ok
+  | The spreadsheet opens in Protected View, which stops anything inside from running. The figures are on the screen straight away and the totals add up: 4 of 5 files done. A real budget never needs more than that to be read.
+  | One file to go. And Marcus has just answered your draft.
+open Downloads/Marketing_Q4_lines.xlsx
+quota +1
+
+# The lure: a reply in the thread Dana started on Thursday. Real words, a stranger's address, a Word file that asks for permission.
+view emotet-doc document
+  title Budget_Q4_0412.doc [Protected View] - Word
+  app Document
+  size 760x520
+  page
+  bar PROTECTED VIEW  Be careful: files from the Internet can contain viruses. Unless you need to edit, it is safer to stay in Protected View. -> Enable Editing -> next
+  icon lock
+  heading This document was created in an earlier version.
+  | To view or edit this document, please click the "Enable editing" button on the top bar, and then click "Enable content".
+  | Training copy: there is no budget in this file and no real macro.
+  page
+  bar SECURITY WARNING  Macros have been disabled. -> Enable Content -> run:emotet-powershell
+  icon lock
+  heading This document was created in an earlier version.
+  | To view or edit this document, please click the "Enable editing" button on the top bar, and then click "Enable content".
+  | Training copy: there is no budget in this file and no real macro.
+
+# The macro starts PowerShell hidden. Word is its parent. Nothing is downloaded here: the desktop has no network.
+program emotet-powershell Windows PowerShell
+  publisher Microsoft Corporation
+  signed yes
+  process powershell.exe
+  cpu 22
+  mem 74
+  parent WINWORD.EXE
+  command powershell.exe -w hidden -enc JABzAD0A...
+
+# Emotet itself, run by PowerShell. It copies itself to AppData and adds a Run key.
+program emotet-loader 581.exe
+  publisher none
+  signed no
+  process 581.exe
+  cpu 8
+  mem 19
+  parent powershell.exe
+  command C:\Users\Dana\AppData\Local\581.exe
+  startup 581 C:\Users\Dana\AppData\Local\581.exe
+  location HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+
+# The Word attachment: a .doc with a macro. Opening it shows Protected View.
+program emotet-word Budget_Q4_0412.doc
+  publisher none
+  signed no
+  command "C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE" "Budget_Q4_0412.doc"
+  view emotet-doc
+mail reply
+  from Marcus Lee <accounts@harbour-print.invalid>
+  subject RE: Budget draft for Q4
+  attach Downloads/Budget_Q4_0412.doc
+  | Hi Dana, please see the updated figures attached.
+  |
+  | > From: Dana Okafor
+  | > Sent: Thursday 09:41
+  | > Subject: Budget draft for Q4
+  | > Marcus, here is my first draft. Can you check the travel line?
+file Downloads/Budget_Q4_0412.doc
+  program emotet-word
+  size 214016
+notify mail Marcus Lee
+  | RE: Budget draft for Q4
+
+step A reply to your own draft
+  look the sender line: a name Dana knows, an address she does not
+  when mail reply
+  cue file:fs-budget-q4-0412-doc-2e95f9dd mail:reply app:mail
+  | It answers the question you asked Marcus on Thursday, quoting your own words. Marcus's PC was infected earlier, so Emotet copied your thread with him. The reply comes from another mailbox that Emotet had taken over, so it looks like the next mail in a conversation you started.
+  | The name is Marcus's. The address behind it is a stranger's mailbox. This time the file is a Word document, not figures. Flag anything that looks wrong.
+open reply
+
+step The document asks you to turn things on
+  look Word: the yellow Protected View bar and the “earlier version” page
+  when run emotet-word
+  move Do what the page says: click “Enable Editing” in the yellow bar.
+  | Word opens the file in Protected View, which stops macros. Compare it with the spreadsheet: there are no figures, only an excuse and an arrow to the bar.
+  | A real budget never needs Enable Editing to be read.
+open Downloads/Budget_Q4_0412.doc
+
+step Enable Editing
+  look the bar: it now says Security Warning, with “Enable Content”
+  when page emotet-doc 2
+  move Click “Enable Content” in the Security Warning bar.
+  | Pressing Enable Editing took the file out of Protected View. Word now says macros are disabled and offers “Enable Content”, which is what starts the macro.
+press emotet-doc next
+
+step The macro starts PowerShell
+  look the process list: powershell.exe, busy on the CPU, and the “Connection blocked” notification
+  when run emotet-powershell
+  | “Enable Content” runs the macro hidden in the file. It starts PowerShell with an encoded command (-enc), so nobody reading it sees what it does.
+  | The command downloads Emotet. Here that download is blocked: the training desktop has no network.
+press emotet-doc run:emotet-powershell
+open taskmanager
+block cdn-files.invalid 443
+
+step Emotet installs itself
+  look 581.exe in the process list and in the start-up list
+  | On a real PC the download works: 581.exe lands in AppData and starts. The Word window never shows a budget, so Dana thinks the file is broken and carries on.
+  | It adds itself to the start-up list, so a restart does not remove it.
+folder Home/AppData
+folder Home/AppData/Local
+file Home/AppData/Local/581.exe
+  program emotet-loader
+  size 392192
+launch emotet-loader
+open taskmanager
+
+# Back to work: the last department file, a genuine one, while Emotet reads the mailbox.
+page pack-added budget-pack.northwind.example/q4/added
+  title Q4 budget pack: file added
+  brand Northwind Q4 Budget Pack
+  heading HR lines added
+  | The HR lines are in the Q4 pack. 5 of 5 department files are done.
+page pack-back budget-pack.northwind.example/q4/returned
+  title Q4 budget pack: sent back
+  brand Northwind Q4 Budget Pack
+  heading HR lines sent back
+  | The HR lines go back to Priya for another look.
+page pack-hr budget-pack.northwind.example/q4/hr-lines
+  title Q4 budget pack: HR lines
+  brand Northwind Q4 Budget Pack
+  heading HR lines: ready to add
+  | Priya has put the HR figures straight into the budget pack.
+  section HR: Q4 lines
+  row Training = 6,200
+  row Recruitment = 4,500
+  row Total = 10,700
+  button Add to the Q4 pack -> pack-added
+  button Send back to Priya -> pack-back
+mail hr-mail
+  from Priya Shah <priya.shah@northwind.example>
+  subject Last one: HR lines for the Q4 pack
+  link pack-hr
+  | Dana,
+  |
+  | HR's figures are the last ones. I put them in the budget pack: the link opens them, ready to add.
+  |
+  | Priya
+notify mail Priya Shah
+  | Last one: HR lines for the Q4 pack
+
+step Back to work
+  look Mail: Priya's last message
+  when mail hr-mail
+  | Priya's last file of the week. This one is a link to the company's own budget pack, not an attachment.
+open hr-mail
+
+step The link goes to the pack
+  look the link under Priya's message
+  when visit pack-hr
+  | The link goes to budget-pack.northwind.example, the same address as all week.
+open pack-hr
+
+step Check, then add
+  look the HR figures and the Add button
+  when choose pack-hr any
+  move Check the figures, then click “Add to the Q4 pack”.
+  | The page is the same pack you have used all week. The figures add up: 6,200 and 4,500 make 10,700. That makes 5 of 5 files. Then Priya writes to you.
+choose pack-hr 1
+quota +1
+mail priya-asks
+  from Priya Shah <priya.shah@northwind.example>
+  subject Did you send me this?
+  sent 2026-11-02 09:33
+  | Dana, I just got a reply from you to the Q3 review thread saying “please see the updated figures attached”. I did not ask for anything. Did you send it?
+  |
+  | Priya
+notify mail Priya Shah
+  | Did you send me this?
+
+step Did you send me this?
+  look Mail: Priya's question, then the Sent folder
+  when mail priya-asks
+  | Priya asks whether you sent her a reply to the Q3 thread. You did not write it.
+  | The Sent folder has three replies you never wrote, all with the same words: “please see the updated figures attached”.
+mail sent-1
+  folder sent
+  sent 2026-11-02 09:21
+  from Dana Okafor <dana.okafor@northwind.example>
+  to Priya Shah <priya.shah@northwind.example>
+  subject RE: Q3 report review
+  attach Downloads/Budget_Q4_0412.doc
+  | Hi Priya, please see the updated figures attached.
+mail sent-2
+  folder sent
+  sent 2026-11-02 09:22
+  from Dana Okafor <dana.okafor@northwind.example>
+  to Marcus Lee <marcus.lee@northwind.example>
+  subject RE: Holiday photos list
+  attach Downloads/Budget_Q4_0412.doc
+  | Hi Marcus, please see the updated figures attached.
+mail sent-3
+  folder sent
+  sent 2026-11-02 09:24
+  from Dana Okafor <dana.okafor@northwind.example>
+  to Priya Shah <priya.shah@northwind.example>
+  subject RE: Notes from Monday
+  attach Downloads/Budget_Q4_0412.doc
+  | Hi Priya, please see the updated figures attached.
+open sent-1
+
+# The reveal: what Emotet did with the mailbox while Dana finished her shift.
+step What Emotet did with the mailbox
+  look the Sent folder: the replies Dana never wrote
+  | Emotet had copied Dana's mail threads and her mail password. It logged in as her and sent the same Word file to her contacts, as replies to real threads, so the mail is believed.
+  | Then it sells the access: on real networks the next program was often ransomware.
+notify mail Mail threads copied
+  | Emotet read the inbox and sent the conversations to the attackers, to reuse in its next emails.
+attack mass-mail-worm
+  | Dana's mail threads copied
+  | “Updated figures” sent to Priya
+  | “Updated figures” sent to Marcus
+  | access sold on: ransomware next
+block 203.0.113.61 8080
+
+flag hard mail reply
+  | The name is Marcus's, but the address is a stranger's mailbox at harbour-print.invalid, not Northwind's.
+flag hard file Downloads/Budget_Q4_0412.doc
+  | An old-format Word document where figures were expected. It shows no budget, only an excuse and an arrow to the bar.
+flag hard process powershell.exe
+  | Windows PowerShell, busy on the CPU, started by the Word macro. It ran a hidden, encoded command (-enc).
+flag hard process 581.exe
+  | Emotet running under a number, from the AppData folder.
+flag hard startup 581
+  | Emotet added itself to the start-up list, so it starts every time Dana signs in.
+flag hard mail sent-1
+  | A reply Dana never wrote: Emotet used her stolen mail password to send it.
+flag soft file Desktop/mailbox-login.txt
+  | A mail password in a text file on the desktop: any program that runs can read it, and Emotet's modules also took saved mail passwords. Use a password manager.
+
+lesson
+  | A reply in a thread you know can still come from an attacker. Check the address behind the name, not only the name and the quoted words.
+  | Never click “Enable Editing” or “Enable Content” to read a document. A real budget shows its figures in Protected View. If an attachment looks wrong, ask the sender another way: phone them or write a new message.
+  | If you opened one by mistake, tell IT at once, change your mail password, and do not keep working. Block macros from the internet and use two-step sign-in, so a stolen mailbox cannot be used alone.

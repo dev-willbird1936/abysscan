@@ -1,0 +1,388 @@
+# Morris worm (2 November 1988). The first internet worm: no click, no file, only a Unix machine that slowed to a crawl.
+# A quest (QUESTS.md): the trainee is a computing-centre operator doing the evening round of the lab's Unix machines. kappa is
+# healthy, sigma has the worm, and tau is the next machine the worm reaches. The replay runs on today's desktop and mail dates.
+# Invented victim: the real worm hit universities, research labs and military sites. The centre and the people here are invented,
+# and the desktop is a modern stand-in (web status pages, a Terminal): in 1988 the operators typed commands.
+os macos
+user Dana Okafor
+about
+  | The Morris worm reached Unix machines over the network on 2 November 1988. Nobody opened anything: an operator only saw the machine get slower and slower.
+  | It got in through two holes that had known fixes (sendmail's debug mode and the finger service) and through guessed passwords. It hid as a process named sh and copied itself to every machine it could find.
+  | A bug let it copy itself onto a machine that was already infected, so the copies piled up. About 6,000 machines, roughly a tenth of the internet at the time, were left unusable. The computing centre and the people here are invented.
+story
+  | You are Dana Okafor, operator at the Northwind University Computing Centre. Every evening you do the load round: you check the status page of each of the lab's six Unix machines and mark it checked.
+  | This desktop replays the evening of 2 November 1988, so the dates on screen are the replay's. You have checked 3 of the 6 machines. Three to go: kappa, then sigma, then tau. Marcus's message about kappa is waiting in Mail.
+  | Two text files on your desktop hold the operator login and some machine notes. That is a bad habit, but it keeps this training quick.
+quota 3 6 Machines checked tonight
+
+# Dana's desk: soft flags (careless, but only here to keep the training simple).
+file Desktop/operator-logins.txt
+  at 930 200
+  | Computing Centre operator login (same on all six machines)
+  | User: dana
+  | Password: okafor
+file Desktop/machine-notes.txt
+  at 930 300
+  | Machine notes (training copy)
+  | sendmail: debug mode left ON since the mail move, it makes bounces easier to trace. Switch off one day.
+  | fingerd: still the 1986 version on all six. Patches wait for the summer break.
+
+# The centre's status pages: one sign-in, then a page per machine.
+page lab-login ops.northwind.example/sign-in
+  title Computing Centre: operator sign in
+  brand Northwind Computing Centre
+  favorite
+  heading Operator sign in
+  | Sign in to see the lab's machines.
+  field User = dana
+  field secret Password = okafor
+  button Sign in
+
+page kappa-checked ops.northwind.example/hosts/kappa/checked
+  title kappa: checked
+  brand Northwind Computing Centre
+  heading kappa marked as checked
+  | Load and processes are normal. Recorded in tonight's round.
+page kappa-later ops.northwind.example/hosts/kappa/later
+  title kappa: left
+  brand Northwind Computing Centre
+  heading kappa left for later
+  | kappa has not been marked as checked.
+page kappa-status ops.northwind.example/hosts/kappa
+  title kappa: status
+  brand Northwind Computing Centre
+  requires lab-login
+  heading kappa
+  | Lab Unix server, student logins. Check the load and the processes, then mark it checked.
+  section Load
+  row Load average (1, 5, 15 minutes) = 1.02  0.88  0.75
+  row Processes = 41
+  section Who is running what
+  row root = 12 processes
+  row daemon = 1 process
+  row students = 28 processes
+  section Network
+  row Connections open = 4
+  row Busiest ports = 25 (mail), a few messages
+  button Mark as checked -> kappa-checked
+  button Check again later -> kappa-later
+
+mail kappa-check
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Evening round: kappa
+  sent 2026-11-02 21:05
+  link kappa-status
+  | Hi Dana,
+  |
+  | Machine four of the round is kappa. Sign in to the status page, look at the load and the processes, and mark it checked. The login is in operator-logins.txt on your desktop.
+  |
+  | Marcus, Computing Centre
+
+step Machine 4 of 6
+  look Mail: Marcus's message with the kappa link
+  | A new message from Marcus. This machine is healthy. Do the check the normal way, so you know what normal looks like.
+notify mail Marcus Lee
+  | Evening round: kappa
+
+step The link goes to the centre's page
+  look the link under Marcus's message
+  when mail kappa-check
+  | The email links to the centre's own address, ops.northwind.example. Hover over a link before you click it, to check where it goes.
+open kappa-check
+
+step Sign in as usual
+  look the two boxes: User and Password
+  when visit kappa-status
+  move Copy the details from operator-logins.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The status pages ask for the operator login first. Two boxes: User and Password. The password is only the user's own surname, which is how many accounts were set up then.
+open kappa-status
+
+step Check, then mark
+  look the three sections: load about 1, one daemon process, four connections
+  when choose lab-login 1
+  | You are in. A healthy machine has a load average near 1, hardly any processes owned by "daemon", and a few network connections. Remember these numbers.
+signin lab-login
+
+step 4 of 6 done
+  look the counter in the guide, and the new message from Marcus
+  when choose kappa-status any
+  | Done: four of six. Marcus has just sent the next one, sigma.
+choose kappa-status 1
+quota +1
+
+# The next machine: sigma. The worm arrived over the network a few minutes ago; the status page is the same page with different numbers.
+page sigma-checked ops.northwind.example/hosts/sigma/checked
+  title sigma: checked
+  brand Northwind Computing Centre
+  heading sigma marked as checked
+  | Recorded in tonight's round.
+page sigma-later ops.northwind.example/hosts/sigma/later
+  title sigma: left
+  brand Northwind Computing Centre
+  heading sigma left for later
+  | sigma has not been marked as checked.
+page sigma-status ops.northwind.example/hosts/sigma
+  title sigma: status
+  brand Northwind Computing Centre
+  requires lab-login
+  heading sigma
+  | Lab Unix server, research logins. Check the load and the processes, then mark it checked.
+  section Load
+  row Load average (1, 5, 15 minutes) = 2.91  1.44  0.98
+  row Processes = 58
+  section Who is running what
+  row root = 12 processes
+  row daemon = 9 processes
+  row students = 37 processes
+  section Network
+  row Connections open = 14
+  row Busiest ports = 79 (finger) and 25 (mail), on other lab machines
+  button Mark as checked -> sigma-checked
+  button Check again later -> sigma-later
+
+mail sigma-check
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Evening round: sigma
+  sent 2026-11-02 21:40
+  link sigma-status
+  | Dana,
+  |
+  | Machine five of the round is sigma, the research server. Same check as kappa, same sign-in. It has been a bit sluggish for people this evening, so have a look at the numbers.
+  |
+  | Marcus, Computing Centre
+notify mail Marcus Lee
+  | Evening round: sigma
+
+step Machine 5 of 6: sigma
+  look the link under Marcus's message: the same kind as the first
+  when mail sigma-check
+  | Marcus's next machine, with the same kind of link. Nothing about the email is wrong. Marcus says sigma has been a bit sluggish, which is worth remembering.
+open sigma-check
+
+step The same page, different numbers
+  look "Who is running what": daemon owns 9 processes, kappa had 1. Also the busy network ports
+  when visit sigma-status
+  move Compare the numbers with kappa's. Flag what is different, then press “Mark as checked”.
+  | You are still signed in, so the page opens straight away. It is the same page as kappa's, with the same layout. Only the numbers are different.
+  | The load is nearly three times kappa's, "daemon" owns nine processes instead of one, and the busiest network ports are finger and mail on other machines. Nothing on this page says "virus".
+open sigma-status
+
+# The advisory from another campus: three holes, and what to do about them.
+page advisory-done ops.northwind.example/advisory/applied
+  title Advisory: fixes applied
+  brand Northwind Computing Centre
+  heading Fixes applied
+  | sendmail debug mode is off and fingerd is replaced on sigma. The copies stop being fed, but sigma was only one of six machines.
+  section What happens next
+  | The other five machines must get the same two fixes, or they will be open to the same holes as soon as sigma is back on the network.
+page advisory-wait ops.northwind.example/advisory/waiting
+  title Advisory: left until morning
+  brand Northwind Computing Centre
+  heading Left until morning
+  | Nothing was changed. Every minute, more copies of sh start on sigma, and the other machines are open to the same two holes.
+page advisory campus-it.example/advisory/unix-virus
+  title There may be a virus loose on the internet
+  brand Campus IT advisory
+  heading Unix virus: what to do now
+  | A program is copying itself between Unix machines. These are the holes it uses.
+  section sendmail debug mode
+  row Hole = the mail program accepts commands when its debug mode is on
+  row Fix = turn debug mode off
+  section fingerd
+  row Hole = the finger service can be tricked into running a shell
+  row Fix = replace fingerd with the patched copy
+  section Passwords
+  row Hole = the worm tries each user's name and a list of common words
+  row Fix = change any password that is a name or a common word
+  button Apply the fixes and take sigma off the network -> advisory-done
+  button Wait until morning -> advisory-wait
+
+# What happens on sigma over the next half hour: the Terminal shows the load and every copy of sh, in one window.
+view morris-uptime console
+  title Terminal: dana@sigma
+  app Terminal
+  size 600x480
+  line $ uptime
+  line 21:44  up 3 days,  2 users,  load averages: 2.91 1.44 0.98
+  line $ uptime
+  line 21:56  up 3 days,  2 users,  load averages: 9.40 4.12 1.90
+  line $ uptime
+  line 22:09  up 3 days,  2 users,  load averages: 27.80 21.30 11.05
+  line $ ps aux
+  line USER     PID  %CPU  %MEM  COMMAND
+  line root       1   0.0   0.1  /etc/init
+  line root      48   0.1   0.3  syslogd
+  line daemon  2214  12.4   0.4  sh
+  line daemon  2231  11.9   0.4  sh
+  line daemon  2246  11.0   0.4  sh
+  line daemon  2259  10.2   0.4  sh
+  line daemon  2270   9.8   0.4  sh
+  line daemon  2284   9.1   0.4  sh
+  line daemon  2291   8.7   0.4  sh
+  line daemon  2303   8.2   0.4  sh
+  line daemon  2317   7.9   0.4  sh
+  line daemon  2326   6.1   0.4  cc
+  line daemon  2329   2.9   0.3  ld
+  line dana    2340   0.0   0.2  -sh
+  line $ ls
+  line sh: fork: Resource temporarily unavailable
+
+step 5 of 6 done, and the machine is slowing
+  look the Terminal: the load average climbs from 3 to almost 28
+  when choose sigma-status any
+  move Look at the Terminal window. Then open Task Manager (Activity Monitor on a Mac): the “programs running” chip opens it.
+  | Marked: five of six. But look at the Terminal now. The load average is how many jobs are waiting for the processor: a healthy machine shows about 1.
+  | Here it climbed from 2.9 to 27.8 in 25 minutes, and a new command fails with "Resource temporarily unavailable": the machine has no room left to start anything. Nobody opened a file or a message.
+choose sigma-status 1
+quota +1
+run sh
+  cpu 12
+  mem 6
+  parent fingerd
+  command /bin/sh
+run cc
+  cpu 6
+  mem 12
+  parent sh
+  command cc -o x7731,l1 x7731,l1.c
+run ld
+  cpu 3
+  mem 9
+  parent cc
+  command ld -o x7731,l1 x7731,l1.o
+show morris-uptime
+
+step Dozens of copies, all named sh
+  look Task Manager (Activity Monitor on a Mac): sh, cc and ld in the list, each using a share of the processor
+  when open taskmanager
+  move Flag the sh and cc rows. Then open Ira's message in Mail, from the mail icon.
+  | The worm named itself sh, the name of the ordinary Unix shell, so it looked normal in a process list. Task Manager shows one sh row. The Terminal behind it lists nine copies: bring it forward from the Dock or taskbar.
+  | The first copy came in through the finger service, which the worm tricked into starting sh. Each copy started the next, and the compilers cc and ld built the part of the worm this machine needs.
+  | Kill one and a new copy starts a moment later, as the Terminal shows. A message has just come in from another campus.
+mail warning
+  from Ira Kessler <ira.kessler@campus-it.example>
+  subject There may be a virus loose on the internet
+  sent 2026-11-02 22:12
+  link advisory
+  | Colleagues,
+  |
+  | A program is copying itself between our Unix machines. It uses the debug mode of sendmail and a flaw in the finger service. It also guesses passwords.
+  |
+  | The steps to take are on the page below. Please act now.
+  |
+  | Ira Kessler, Campus IT (a training message)
+notify mail Ira Kessler
+  | There may be a virus loose on the internet
+open taskmanager
+
+step A warning from another campus
+  look the three sections: sendmail debug mode, fingerd, passwords
+  when visit advisory
+  move Read the three sections, then press “Apply the fixes and take sigma off the network”.
+  | Ira writes from Campus IT at another site: the same program is copying itself between their Unix machines. This is the first clue what the worm is, and it comes from outside.
+  | Mail is slow because of the load, and many operators read the warning only after their machines were already full. Hover over the link first, as always.
+open advisory
+
+step How it spread
+  look the "Connection blocked" banners for finger (port 79) and mail (port 25)
+  when choose advisory any
+  move Open Marcus's last message in Mail and follow its link to tau.
+  | The worm tried every machine it could find: through sendmail's debug mode, a buffer overflow in fingerd, and guessed passwords from a short list. About one time in seven it copied itself onto a machine that was already infected, so the copies piled up.
+  | It did not destroy anyone's files. It only slowed the machines until they were useless. Here two of its attempts were blocked.
+choose advisory 1
+block 192.0.2.41 79
+block 192.0.2.42 25
+
+# The sixth machine: the round goes on while the worm is already on the network.
+page tau-checked ops.northwind.example/hosts/tau/checked
+  title tau: checked
+  brand Northwind Computing Centre
+  heading tau marked as checked
+  | Recorded in tonight's round. That is all six machines.
+page tau-later ops.northwind.example/hosts/tau/later
+  title tau: left
+  brand Northwind Computing Centre
+  heading tau left for later
+  | tau has not been marked as checked.
+page tau-status ops.northwind.example/hosts/tau
+  title tau: status
+  brand Northwind Computing Centre
+  requires lab-login
+  heading tau
+  | Lab Unix server, teaching logins. Check the load and the processes, then mark it checked.
+  section Load
+  row Load average (1, 5, 15 minutes) = 1.10  0.97  0.81
+  row Processes = 44
+  section Who is running what
+  row root = 12 processes
+  row daemon = 1 process
+  row students = 31 processes
+  section Network
+  row Connections open = 9
+  row From sigma = 6 connections, all to port 79 (finger)
+  button Mark as checked -> tau-checked
+  button Check again later -> tau-later
+
+mail tau-check
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Evening round: tau (the last one)
+  sent 2026-11-02 22:31
+  link tau-status
+  | Dana,
+  |
+  | Last machine of the round is tau, the teaching server. Same check as the others, same sign-in. Mark it checked when you have looked at it.
+  |
+  | Marcus, Computing Centre
+notify mail Marcus Lee
+  | Evening round: tau (the last one)
+
+step Machine 6 of 6: tau
+  look the Network section of tau: the connections from sigma
+  when visit tau-status
+  move Compare tau with the other machines. Flag what is different, then press “Mark as checked”.
+  | Marcus's last machine of the round is tau, the teaching server. It has the same page and the same check.
+  | Tau's load looks normal. So compare its network section with kappa's and sigma's.
+open tau-status
+
+step 6 of 6 done
+  look the counter in the guide: the round is complete
+  when choose tau-status any
+  | Done: six of six. The round is marked. Press Next to see what the worm had been doing all evening.
+choose tau-status 1
+quota +1
+
+step What the worm did
+  look the animation: the worm's four steps
+  | The worm reached sigma through finger and sendmail, and by guessing a password. From there it went on to the next machine, which is why tau had connections from sigma.
+  attack network-worm
+  | finger
+  | sendmail
+  | weak password
+  | the next machine
+block 192.0.2.43 79
+
+flag hard section sigma-status 1
+  | Load nearly three times kappa's, on a machine people called sluggish.
+flag hard section sigma-status 2
+  | The "daemon" user owned nine processes here and one on kappa. A service account does not start nine jobs on its own.
+flag hard section sigma-status 3
+  | Fourteen connections open, against four on kappa. The busiest ports are finger and mail, on other lab machines.
+flag hard process sh
+  | The worm named itself after the ordinary Unix shell, so it hid in the process list. The first copy came through the finger service, which the worm tricked into running a shell.
+flag hard process cc
+  | A C compiler running at night, with no one from the lab compiling anything. The worm built the part of itself that fitted this machine.
+flag hard section tau-status 3
+  | Six connections from sigma, all to the finger port: the worm was already reaching for the next machine.
+flag hard notice taskmanager Connection blocked: 192.0.2.41
+  | Sigma trying to reach the finger port of another lab machine, to infect it too.
+flag hard notice taskmanager Connection blocked: 192.0.2.42
+  | Sigma trying to reach the mail port of another machine: the worm's other way in, through sendmail's debug mode.
+flag soft file Desktop/operator-logins.txt
+  | One login and a password that is only a surname, the same on all six machines. The worm tried each user's name first.
+flag soft file Desktop/machine-notes.txt
+  | A note that debug mode is on and fingerd is old: the two holes the worm used, written down and left open.
+
+lesson
+  | Patch network services and switch off the ones you do not use: the worm needed two old holes that had known fixes. A debug mode left on "to help" is an open door.
+  | Use strong passwords that are not a name or a common word, and not the same on every machine.
+  | Learn what normal looks like. When a machine suddenly slows, a service account owns many processes, or one name shows many copies, tell your admin and take the machine off the network. Killing the copies one by one does not work.

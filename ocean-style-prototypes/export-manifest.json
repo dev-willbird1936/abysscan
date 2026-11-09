@@ -1,0 +1,426 @@
+{
+  "generation": "Codex native image_gen.imagegen",
+  "processing": "Exact 16:9 export; only non-decreasing depth brightness is reduced. Native originals preserved.",
+  "images": [
+    {
+      "source": "source-assets\\minimal-silhouettes\\01-sunlight.png",
+      "path": "assets\\minimal-silhouettes\\01-sunlight.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 153.23
+    },
+    {
+      "source": "source-assets\\minimal-silhouettes\\02-twilight.png",
+      "path": "assets\\minimal-silhouettes\\02-twilight.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 48.39
+    },
+    {
+      "source": "source-assets\\minimal-silhouettes\\03-midnight.png",
+      "path": "assets\\minimal-silhouettes\\03-midnight.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 10.01
+    },
+    {
+      "source": "source-assets\\minimal-silhouettes\\04-abyss.png",
+      "path": "assets\\minimal-silhouettes\\04-abyss.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 7.82
+    },
+    {
+      "source": "source-assets\\minimal-silhouettes\\05-trench.png",
+      "path": "assets\\minimal-silhouettes\\05-trench.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 7.58
+    },
+    {
+      "source": "source-assets\\paper-cut\\01-sunlight.png",
+      "path": "assets\\paper-cut\\01-sunlight.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 127.58
+    },
+    {
+      "source": "source-assets\\paper-cut\\02-twilight.png",
+      "path": "assets\\paper-cut\\02-twilight.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 33.33
+    },
+    {
+      "source": "source-assets\\paper-cut\\03-midnight.png",
+      "path": "assets\\paper-cut\\03-midnight.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 6.9
+    },
+    {
+      "source": "source-assets\\paper-cut\\04-abyss.png",
+      "path": "assets\\paper-cut\\04-abyss.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 4.49
+    },
+    {
+      "source": "source-assets\\paper-cut\\05-trench.png",
+      "path": "assets\\paper-cut\\05-trench.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 0.70753,
+      "mean_brightness": 3.39
+    },
+    {
+      "source": "source-assets\\watercolor\\01-sunlight.png",
+      "path": "assets\\watercolor\\01-sunlight.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 159.19
+    },
+    {
+      "source": "source-assets\\watercolor\\02-twilight.png",
+      "path": "assets\\watercolor\\02-twilight.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 42.89
+    },
+    {
+      "source": "source-assets\\watercolor\\03-midnight.png",
+      "path": "assets\\watercolor\\03-midnight.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 8.79
+    },
+    {
+      "source": "source-assets\\watercolor\\04-abyss.png",
+      "path": "assets\\watercolor\\04-abyss.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 5.96
+    },
+    {
+      "source": "source-assets\\watercolor\\05-trench.png",
+      "path": "assets\\watercolor\\05-trench.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 0.68342,
+      "mean_brightness": 4.63
+    },
+    {
+      "source": "source-assets\\pixel-art\\01-sunlight.png",
+      "path": "assets\\pixel-art\\01-sunlight.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 125.05
+    },
+    {
+      "source": "source-assets\\pixel-art\\02-twilight.png",
+      "path": "assets\\pixel-art\\02-twilight.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 39.51
+    },
+    {
+      "source": "source-assets\\pixel-art\\03-midnight.png",
+      "path": "assets\\pixel-art\\03-midnight.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 8.01
+    },
+    {
+      "source": "source-assets\\pixel-art\\04-abyss.png",
+      "path": "assets\\pixel-art\\04-abyss.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 4.59
+    },
+    {
+      "source": "source-assets\\pixel-art\\05-trench.png",
+      "path": "assets\\pixel-art\\05-trench.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 0.7638,
+      "mean_brightness": 3.52
+    },
+    {
+      "source": "source-assets\\field-guide\\01-sunlight.png",
+      "path": "assets\\field-guide\\01-sunlight.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 114.74
+    },
+    {
+      "source": "source-assets\\field-guide\\02-twilight.png",
+      "path": "assets\\field-guide\\02-twilight.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 27.5
+    },
+    {
+      "source": "source-assets\\field-guide\\03-midnight.png",
+      "path": "assets\\field-guide\\03-midnight.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 6.09
+    },
+    {
+      "source": "source-assets\\field-guide\\04-abyss.png",
+      "path": "assets\\field-guide\\04-abyss.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 5.26
+    },
+    {
+      "source": "source-assets\\field-guide\\05-trench.png",
+      "path": "assets\\field-guide\\05-trench.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 0.56258,
+      "mean_brightness": 4.06
+    },
+    {
+      "source": "source-assets\\screen-print\\01-sunlight.png",
+      "path": "assets\\screen-print\\01-sunlight.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 129.82
+    },
+    {
+      "source": "source-assets\\screen-print\\02-twilight.png",
+      "path": "assets\\screen-print\\02-twilight.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 34.48
+    },
+    {
+      "source": "source-assets\\screen-print\\03-midnight.png",
+      "path": "assets\\screen-print\\03-midnight.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 9.33
+    },
+    {
+      "source": "source-assets\\screen-print\\04-abyss.png",
+      "path": "assets\\screen-print\\04-abyss.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 8.91
+    },
+    {
+      "source": "source-assets\\screen-print\\05-trench.png",
+      "path": "assets\\screen-print\\05-trench.png",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "export_dimensions": [
+        1600,
+        900
+      ],
+      "brightness_factor": 1.0,
+      "mean_brightness": 7.19
+    }
+  ]
+}

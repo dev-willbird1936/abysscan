@@ -1,0 +1,320 @@
+# CryptoLocker (September 2013 to 2014). Ransomware that arrived as a zipped "parcel" or "invoice" attachment and encrypted every document it could reach.
+# A quest (QUESTS.md): the trainee is an accounts clerk matching supplier statements at month end, who is also waiting for a courier.
+# Invented victim: in 2013 and 2014 small offices, accountants and even police stations were hit; the clerk and the firm here are made up.
+os windows
+user Dana Okafor
+about
+  | CryptoLocker arrived as a "delivery failed" or "invoice" email with a zip file. Inside was a program with a PDF icon and a .exe ending that Windows hides. Opening it said almost nothing: it quietly encrypted the documents and pictures on the computer, on the shared drives and on USB drives it could reach, then showed a window with a 72-hour countdown to pay about 300 USD.
+  | An estimated quarter of a million computers were hit before police and security firms took its servers down in 2014. The accounts clerk and the firm here are invented.
+story
+  | You are Dana Okafor, accounts clerk at Northwind Traders. At the end of each month you match every supplier's statement against the ledger. The statements come by email as PDFs, and the finished ones go in the Statements folder on the office's shared drive.
+  | It is Friday afternoon. You have matched 8 of this month's 10 supplier statements. Two to go.
+  | You are also waiting for a courier: the new cheque books are due today. Last month's ledger backup sits on a USB drive that stays plugged into your PC. It stays plugged in so it is always to hand.
+  | Along the way, flag anything that looks wrong.
+quota 8 10 Supplier statements matched
+
+# Dana's office: the shared drive with the finished statements, and the USB backup that is never unplugged.
+drive Northwind Share
+  kind share
+  as Share
+folder Share/Statements
+file Share/Statements/Litware-statement-October.pdf
+  | Litware Inc: statement for October 2026
+  | Closing balance: 2,904.00
+  | Matched to the ledger by Dana Okafor
+file Share/Statements/Tailspin-statement-October.pdf
+  | Tailspin Toys: statement for October 2026
+  | Closing balance: 1,478.40
+  | Matched to the ledger by Dana Okafor
+file Share/Statements/Fabrikam-statement-October.pdf
+  | Fabrikam Ltd: statement for October 2026
+  | INV-1042, dated 9 October 2026: 3,815.50
+  | Closing balance: 3,815.50
+drive Backup Drive
+  kind usb
+  as Backup
+file Backup/ledger-backup-2026-10.zip
+  size 4812800
+  | Training copy of last month's ledger backup.
+
+# The safe task: a real statement from a supplier Dana knows, as a real PDF. The figures show at once; nothing asks to run.
+view contoso-statement document
+  title Contoso-statement-October.pdf
+  app PDF
+  size 700x520
+  heading Contoso Foods: statement for October 2026
+  section Invoices not yet paid
+  columns Invoice | Date | Amount
+  cells INV-2201 | 4 October | 1,240.00
+  cells INV-2218 | 14 October | 860.50
+  cells INV-2236 | 27 October | 1,115.25
+  cells Total due | | 3,215.75
+program contoso-pdf Contoso-statement-October.pdf
+  publisher none
+  signed no
+  description Supplier statement
+  view contoso-statement
+mail stmt-contoso
+  from Ana Ruiz <ana.ruiz@contoso.example>
+  subject Contoso Foods: statement for October
+  sent 2026-11-06 14:05
+  attach Downloads/Contoso-statement-October.pdf
+  | Hello Dana,
+  |
+  | Our statement for October is attached, three invoices still open. Please let me know if anything differs from your ledger.
+  |
+  | Ana Ruiz, Contoso Foods
+file Downloads/Contoso-statement-October.pdf
+  program contoso-pdf
+  size 96256
+
+step Statement 9 of 10
+  look Mail: Ana's message with the PDF attached
+  | A new statement has come in from Ana Ruiz at Contoso Foods, a supplier you deal with every month. This one is a normal one. Match it the usual way, so you know what a normal afternoon looks like.
+notify mail Ana Ruiz
+  | Contoso Foods: statement for October
+
+step A statement from a supplier you know
+  look the sender, and the attachment: Contoso-statement-October.pdf
+  when mail stmt-contoso
+  cue file:fs-contoso-statement-octobe-4d493454 mail:stmt-contoso app:mail
+  | Ana's own address, the same words as every month, and an attachment that really is a PDF. Hover over a sender to check the address behind the name.
+open stmt-contoso
+
+step Read the figures
+  look the PDF: three invoices and a total, and the counter in the guide
+  when run contoso-pdf
+  | The statement opens in the PDF viewer and asks nothing. Three invoices add up to 3,215.75, as in the ledger: 9 of 10 matched. A real statement needs no permission to be read.
+  | One to go. And a parcel notice has just arrived.
+open Downloads/Contoso-statement-October.pdf
+quota +1
+
+# The lure: a delivery notice with a zip file, arriving on the day a courier really is due.
+view cryptolocker-ransom ransom
+  title CryptoLocker
+  app CryptoLocker
+  bg #1a0000
+  fg #f2e6e6
+  accent #c01818
+  size 520x440
+  heading Your personal files are encrypted
+  icon lock
+  | Important files on this computer (documents, photos, databases) were encrypted with a unique RSA-2048 public key made for this computer.
+  | To decrypt them you need the private key. It is on a secret server and will be destroyed when the time below runs out.
+  section Time left to pay
+  timer Private key will be destroyed in = 259200
+  section Encrypted files
+  columns File | State
+  cells Fabrikam-statement-October.pdf | encrypted
+  cells Litware-statement-October.pdf | encrypted
+  cells Q3-report.docx | encrypted
+  cells budget.xlsx | encrypted
+  cells Contract draft.docx | encrypted
+  cells holiday-01.png | encrypted
+  section How the attackers asked to be paid
+  item Step 1: buy a prepaid voucher
+  item Step 2: send the voucher code to the attackers
+  item Or pay 2 bitcoin to the address they give you
+  note Nothing here is real. A training copy: no payment is taken and no key exists.
+  button Pay with voucher -> none primary
+  button Pay with bitcoin -> none
+  button Show encrypted files -> open:documents
+
+# The program: no window of its own when it starts. It copies itself, adds a Run entry and asks its server for a key.
+program cryptolocker shipment-4421.pdf
+  publisher none
+  signed no
+  prompt open-warning
+  description Parcel label
+  process qwzpvtr.exe
+  cpu 6
+  mem 31
+  parent explorer.exe
+  command C:\Users\dana\AppData\Roaming\qwzpvtr.exe
+  startup CryptoLocker C:\Users\dana\AppData\Roaming\qwzpvtr.exe
+  location HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+  selfdelete
+folder Downloads/shipment-4421.zip
+  archive zip
+file Downloads/shipment-4421.zip/shipment-4421.pdf.exe
+  icon pdf
+  program cryptolocker
+  size 164352
+mail parcel
+  from Parcel Delivery <tracking@parcel-notice.invalid>
+  subject Delivery failed: shipment 4421-889
+  sent 2026-11-06 14:20
+  attach Downloads/shipment-4421.zip
+  | Dear customer,
+  |
+  | We could not deliver your parcel. Print the attached label and bring it to your nearest depot.
+  |
+  | Parcel Delivery
+notify mail Parcel Delivery
+  | Delivery failed: shipment 4421-889
+
+step A parcel could not be delivered
+  look the sender and the attachment: a zip file, not a PDF
+  when mail parcel
+  move Open the zip attached to the email, then double-click the PDF icon inside it.
+  cue file:fs-shipment-4421-pdf-exe-7f327ce3 file:fs-shipment-4421-zip-c27fee06 mail:parcel app:mail
+  | The cheque books are due today, so this looks like the courier. But it comes from a sender Dana has never dealt with, says only "Dear customer", names no company and asks her to print a label from a zip file.
+  | Flag anything that looks wrong.
+open parcel
+
+step The "label" is a program
+  look the file inside the zip: a PDF icon, with a name that ends in .pdf.exe
+  when prompt cryptolocker
+  | The name ends in .pdf.exe. Windows hides the .exe, so it reads shipment-4421.pdf there. Properties shows its real type: Application. A real label needs no program.
+  | Opening it makes the computer ask whether to run a program from an unknown publisher. A real PDF never asks this.
+open Downloads/shipment-4421.zip/shipment-4421.pdf.exe
+
+step Nothing seems to happen
+  look the pointer: busy for a moment, then nothing; the Connection blocked notice in the top right
+  when run cryptolocker
+  | Dana clicks Run and the window just closes. CryptoLocker copies itself into her AppData folder under a random name, deletes the file it came in and adds a Run entry so it starts with Windows.
+  | It then asks its server for a key: a made-up web address that changes every day, so it is hard to block. The key stays on the server; the computer only gets a public half.
+answer run
+block xhkqjzwtrv.invalid 443
+
+# Priya writes about the last statement. The share is slow for her too.
+mail stmt-last
+  from Priya Shah <priya.shah@northwind.example>
+  subject Last one for today: Fabrikam statement
+  sent 2026-11-06 15:10
+  | Dana,
+  |
+  | Fabrikam's statement is the last one. It is in the Statements folder on the Share. Please match it to the ledger and file it.
+  |
+  | By the way, is the Share slow for you? Mine has been crawling for the last hour.
+  |
+  | Priya
+notify mail Priya Shah
+  | Last one for today: Fabrikam statement
+
+step Priya asks about the Share
+  look Mail: Priya's message, and her question about the Share
+  when mail stmt-last
+  | Priya asks whether the Share is slow for you too. It has been crawling for her for an hour, and she is not sure why. Her message is a real one.
+open stmt-last
+
+# The busy processor shows before the lock does: the trainee sees the program at work, then the window appears by itself.
+step The busy processor
+  look Task Manager (Activity Monitor on a Mac): qwzpvtr.exe, a program with a random name, using about 40% of the processor
+  when open taskmanager
+  | qwzpvtr.exe is the program from the zip, under a random name. It is using about 40% of the processor and climbing while it works through the files on this PC and on the Share.
+  | Nothing on screen says it is ransomware. The computer is just slow.
+run qwzpvtr.exe
+  cpu 41
+  mem 52
+  parent explorer.exe
+  command C:\Users\dana\AppData\Roaming\qwzpvtr.exe
+open taskmanager
+
+step The window that opened by itself
+  look the CryptoLocker window, and the padlocks on the files
+  | While you were looking at the processor, the encryption finished. A CryptoLocker window opened by itself. Every document, picture and file on the desktop, in Documents and on the Share was locked, and so was the USB backup.
+  | The window lists the files, a countdown of 72 hours and a price: about 300 USD in bitcoin or prepaid vouchers. The key sits on a server, and the countdown says it will be destroyed.
+encrypt Desktop
+encrypt Documents
+encrypt Pictures
+encrypt Share/Statements/Fabrikam-statement-October.pdf
+encrypt Share/Statements/Litware-statement-October.pdf
+encrypt Share/Statements/Tailspin-statement-October.pdf
+encrypt Backup/ledger-backup-2026-10.zip
+show cryptolocker-ransom
+
+# Back to work: Fabrikam's own website still has the statement, because it is not a file on this PC or the Share.
+page stmt-done portal.fabrikam.example/customers/statements/matched
+  title Statement matched
+  brand Fabrikam Customer Portal
+  heading Statement matched
+  | Thank you. Northwind's October statement is marked as matched.
+page stmt-query portal.fabrikam.example/customers/statements/query
+  title Difference reported
+  brand Fabrikam Customer Portal
+  heading Difference reported
+  | Fabrikam accounts will look at the difference and write to you.
+page stmt-fab portal.fabrikam.example/customers/statements/october
+  title Statement: October 2026
+  brand Fabrikam Customer Portal
+  heading Statement: October 2026
+  | Fabrikam's statement for Northwind Traders is ready to check against your ledger.
+  section Statement
+  row Opening balance = 0.00
+  row INV-1042, 9 October = 3,815.50
+  row Payments received = 0.00
+  row Closing balance = 3,815.50
+  button Matches my ledger -> stmt-done
+  button Report a difference -> stmt-query
+mail stmt-portal
+  from Priya Shah <priya.shah@northwind.example>
+  subject Fabrikam statement: use their website
+  sent 2026-11-06 15:40
+  link stmt-fab
+  | Dana,
+  |
+  | Every file I try to open on the Share says it cannot be opened, and there is a window with a clock. I have called IT: do not touch anything else, and do not pay.
+  |
+  | Fabrikam's own website still has the statement. The link opens it. Please match it there so the month closes.
+  |
+  | Priya
+notify mail Priya Shah
+  | Fabrikam statement: use their website
+
+step Priya warns the office
+  look Priya's message: the files will not open, and what she says to do
+  when mail stmt-portal
+  | Priya has seen the window too: every file she opens on the Share says it cannot be opened, and she has called IT. Her message is a real one, and it says not to pay.
+open stmt-portal
+
+step Fabrikam's own website
+  look the link under Priya's message: Fabrikam's real website
+  when visit stmt-fab
+  | The link goes to Fabrikam's own website, the same portal Northwind has used for statements. The statement lives on Fabrikam's server, so the lock cannot touch it.
+  | CryptoLocker is still in the start-up list, so it starts again with Windows. The office needs IT to clean the PC, not a payment.
+open stmt-fab
+
+step 10 of 10, but the files are gone
+  look the counter: the month is closed
+  when choose stmt-fab 1
+  | Fabrikam's statement is matched, so the 10 of 10 is done and the month can close. The files, the Share and the backup are still locked. Press Next to see what CryptoLocker did.
+choose stmt-fab 1
+quota +1
+
+step What CryptoLocker took
+  look the animation: every file it could reach
+  | CryptoLocker encrypted the documents and pictures on this PC, the shared drive and the USB backup, so no copy was left on the computer.
+  | Recovery meant paying, or restoring a backup kept somewhere the program could not reach. In June 2014 police and security firms took its servers down. Later, a free decryption service helped some victims get their files back.
+attack ransomware-encrypt
+  | Fabrikam-statement-October.pdf
+  | Litware-statement-October.pdf
+  | Q3-report.docx
+  | Contract draft.docx
+  | holiday-01.png
+  | the USB backup too
+open Documents
+
+flag hard mail parcel
+  | A sender Dana has never dealt with, a "Dear customer" greeting, no company named, and a zip file where a courier would give a tracking link.
+flag hard file Downloads/shipment-4421.zip/shipment-4421.pdf.exe
+  | A program with a PDF icon. Windows hides the .exe at the end of its name.
+flag hard dialog open-warning cryptolocker
+  | A parcel label never needs to run as a program. Publisher: Unknown.
+flag hard process qwzpvtr.exe
+  | CryptoLocker working in the background under a random name, using a lot of the processor to encrypt the files.
+flag hard startup CryptoLocker
+  label The CryptoLocker start-up entry
+  | CryptoLocker added itself to the programs that start every time Windows does.
+flag hard notice taskmanager connection blocked
+  | The program tried to reach a made-up internet address that changes every day: the server that holds its key.
+flag hard file Desktop/Expenses October.xlsx
+  label The locked Expenses October.xlsx on the desktop
+  | A file on the desktop with a padlock: CryptoLocker locked it, so it will not open. It locked every file it could reach.
+flag soft file Backup/ledger-backup-2026-10.zip
+  | A backup on a drive that is always plugged in: ransomware locks it too. Keep one copy offline or in a service that keeps older versions.
+
+lesson
+  | Keep a backup that ransomware cannot reach: an offline drive, or a cloud backup that keeps older versions. A backup plugged in all day is locked with everything else.
+  | A delivery notice from a stranger with a zip file is never a real label. Check parcels on the carrier's own site, and turn on "show file extensions" in Windows so shipment-4421.pdf.exe shows its real ending.
+  | If a window like this appears, unplug the network cable or turn off Wi-Fi, and tell IT at once. Do not pay: nothing guarantees the key, and paying funds the next attack.

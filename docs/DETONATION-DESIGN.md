@@ -37,20 +37,25 @@ The private terminal report retains the full per-item coverage list (`coverage: 
 | `.pdf` | Run (render) + inspect | `pdfid`, `pdf-parser`, headless Chromium |
 | Office (`.docx`, `.docm`, `.xlsx`, `.xlsm`, `.doc`, `.xls`, `.pptx`) | Run macros + inspect, then emulate | LibreOffice headless, `oletools`, ViperMonkey |
 | `.exe`, `.dll`, `.scr`, `.com`, `.cpl` | Run under Wine, then emulate | Wine, Speakeasy, Qiling, capa, pefile |
-| `.rtf` | Inspect | `rtfobj` (oletools); embedded objects analysed in turn |
+| `.rtf` | Inspect + unpack | `rtfobj` (oletools) extracts every `objdata` object, which becomes a child and is typed, inspected and run in turn; the carrier is also read for `objupdate`, embedded OLE, ActiveX and the OLE datastore, which Word activates |
 | `.html`, `.htm`, `.svg` | Run in a browser | Playwright Chromium, no network, synthetic form input |
-| `.eml`, `.msg` | Inspect + unpack | Python `email`, `extract-msg`; links and attachments analysed in turn |
+| `.eml`, `.msg` | Inspect + unpack | `.eml`: Python `email` reads the message, its links and its attachments. `.msg`: the OLE container is read with `olefile` and every attachment stream (`__substg1.0_3701…`) becomes a child, typed and run in turn. Neither container is opened by a mail client |
 | `.js`, `.vbs`, `.hta`, `.wsf` (Windows Script Host) | Run under Wine, then emulate + model-written deobfuscator | Wine `wscript`/`mshta`, box-js, ViperMonkey |
 | `.bat`, `.cmd` | Run under Wine + model-written deobfuscator | Wine `cmd` |
 | `.ps1` | Run (partly) + deobfuscate | PowerShell 7 on Linux |
-| `.lnk` | Inspect | `LnkParse3`; the target command is analysed in turn |
-| `.py`, `.sh`, Node `.js`, ELF | Run | gVisor container |
+| `.lnk` | Inspect | The link structures are read directly: `LinkInfo` local base path, network path, working directory, command-line arguments and the environment-variable block. The target command is reported, and a target that is a host tool, a script host, a URL or a network share is `suspicious`. The link is never followed: it cannot run on Linux, so the verdict stays incomplete and says so |
+| `.url`, `.website` | Inspect | An Internet Shortcut is a text file whose only content is the URL it opens. The URL is reported as `suspicious` (indicator `internet shortcut target`); the link is not followed, so the verdict stays incomplete |
+| `.py`, `.sh`, `.pl`, `.php`, `.rb`, `.lua`, Node `.js`, ELF | Run | gVisor container (python3, bash, perl, php, ruby, lua5.4, node). An ELF is chmod +x and executed; because gVisor has no 32-bit compatibility, an i386, ARM, AArch64, MIPS, PowerPC or SPARC binary runs under `qemu-user` instead (the header chooses, `elfarch.py`). A binary that forks and exits is dwelled on so its child is seen |
+| `.exe`, `.dll` (managed .NET) | Run | The CLR header (optional-header directory 14) marks a managed assembly, and Mono executes it inside the same gVisor container: real syscalls (file writes, connects) reach the trace, and anything the program prints is reported as program-controlled text. An assembly Mono refuses falls back to Speakeasy emulation, and Wine stays off by decision. |
+| Every file | Identify | `libmagic` names it, the import table (PE, ELF), the .NET metadata (name, runtime, resources) and the Java constant pool (class name, bytecode level) say what it intends; a type that is identified and inspected (text, an image, a font) is complete coverage, while content that cannot be identified at all is `unsupported-type` and keeps the verdict incomplete |
+| `.7z`, `.rar`, `.tar`, `.gz`, `.bz2`, `.xz`, `.zst`, `.cab`, `.iso`, `.deb`, `.rpm`, `.ar`, `.cpio` | Inspect + unpack | `7zz` opens them all; every entry is typed from its bytes and analysed in turn. A bare compression stream (`zst`, `xz`, `bz2`, `gz`) is decompressed with its own tool because `7zz` lists no inner name, so a Debian `control.tar.zst` still yields its `postinst` and that script is run |
 | `.msi` | Run under Wine + inspect | Wine `msiexec`, `msitools` |
-| `.apk` | Inspect | `androguard` |
-| `.dmg`, `.pkg`, Mach-O | Inspect | `7z`, LIEF |
-| `.jar` | Run or inspect | JVM, CFR |
+| `.apk`, `.jar` | Inspect + unpack | `7zz` opens the container; the dex, classes and manifest become children, each typed from its bytes. A Dalvik executable is read from its header and string table (version, class and method counts, and the API names that say what it can do: exec, SMS, device identifiers, dynamic code loading, network, administrator rights) |
+| `.dmg`, `.pkg`, Mach-O | Inspect | `7z`, LIEF; a Mach-O cannot run on Linux, so the verdict stays incomplete |
+| `.jar`, `.class` | Run or inspect | `7zz` opens a jar (or the class is uploaded as is); every class becomes a child and runs on the JVM, whose class name is read from the constant pool, so a packaged class still resolves. `CFR` reads what a class does |
 | `.one` | Inspect + unpack | `pyOneNote` |
-| Images, `.txt`, `.csv` | Quick inspection | Type, size and polyglot checks |
+| Images, `.txt`, `.csv`, fonts, audio, video | Quick inspection | Type, size and polyglot checks |
+| Anything else | Inspect | `libmagic`, strings, entropy, binwalk and YARA; a type that cannot be run marks the verdict incomplete |
 
 A type that does not match its extension is a Disguise finding.
 
@@ -91,6 +96,7 @@ Each family is a kind of behaviour, so clean files have one too. The neutral nam
 | Data access | Theft / surveillance | Reads credentials, browser data, keys, clipboard, screen, keystrokes |
 | File changes | Extortion / destruction | Writes, encrypts, deletes or overwrites files |
 | Drifter | — | Computes only; touches nothing. Sunlight only |
+| Unclassified | — | Raised a signal but no finding, so it is not a drifter (that means the file did nothing). Above Sunlight an unclassified result shows as Unclassified |
 
 **Family** is what the file is mainly for: the behaviour with the most evidence. Family and depth are set independently, so every cell can be reached.
 
@@ -160,6 +166,7 @@ In priority order:
 | Attempts a system wipe (`rm -rf /`, deleting system files) | File changes | Jörmungandr | The world serpent that ends the world |
 | Encrypts user files, drops a ransom note or sets a ransom wallpaper | File changes | Kraken (existing) | Seizes the ship and holds it |
 | Deletes or overwrites user files, backups or shadow copies | File changes | Leviathan | Swallows everything whole |
+| Writes a copy of itself into the user area | Network | Hydra | Cut one off and two more grow |
 | Spreads to other hosts or shares, or mass-mails the user's contacts | Network | Hydra | Cut one off and two more grow |
 
 ### Other: proven harm that fits no finding above
@@ -191,7 +198,7 @@ Every upload starts as one small fish: the standard creature for its file type. 
 
 - **Species** comes from the file type (table below).
 - **Sunlight and Twilight:** the fish stays in its depth band, darkened and marked by the result's depth and family. Fish gather in **schools by file type**, so busy types make bigger schools. Show at most about 30 fish per school; hovering shows the true count.
-- **Midnight, Abyss and Trench:** the fish was eaten, so it leaves no marker. Instead, **each finding has one creature that grows as it eats more files**. Size grows with the log of the count, capped at about 3× the base size. Hovering shows "has eaten N files". A finding that has never happened has no creature, so the deep stays empty until something real is found. The creature does not show the file types it ate.
+- **Midnight, Abyss and Trench:** the fish was eaten, so it leaves no marker. Instead, **each finding has one creature that grows as it eats more files**. It starts small (0.4× its full size for one file), grows 14% with every file and stops at 2.1× from the 14th file on. Hovering shows "has eaten N files". A finding that has never happened has no creature, so the deep stays empty until something real is found. The Bestiary card and the zone card list the last 20 fish it ate as species, file type, depth reached and day, never a name, hash, address or job. A rare species shows as the coelacanth without a type.
 - **Your own run** always plays at full detail: you see your fish swim down or get eaten. The shared ocean shows only the school or the growth.
 - **Batch shared updates** (for example every few minutes), so a new fish or a growth step cannot be timed to one upload.
 - **Random traits** (size, pattern, colour shift) come from a random seed. Never seed from the file hash: a hash can be looked up to identify the file.
@@ -234,7 +241,7 @@ Hackathon sprites: pufferfish, flounder, leafy seadragon, boxfish, barracuda, ma
 
 | Requirement | Approach |
 |---|---|
-| Process isolation | Non-Wine roles require gVisor (`runsc`/`runsc-trace`) and Docker: non-root, `--cap-drop ALL`, `no-new-privileges`, read-only root, tmpfs home, `--network none`, no Docker socket or host mounts beyond the verified fixed per-job allowlist in SPEC §6.3. Linux-native execution uses this boundary; Windows files are emulated or inspected unless the separately approved Wine exception is enabled. Wine remains disabled pending that decision; if approved, its dedicated runc container must verify the Wine seccomp profile and common isolation controls, but has no gVisor kernel boundary or syscall trace ([recorded limitations](evidence/gvisor-wsl/PIDS-AND-WINE.md#b6-what-is-lost-versus-gvisor)). The [safety amendment and separate Wine approval](safety-amendment-DRAFT.md) both remain pending |
+| Process isolation | Non-Wine roles require gVisor (`runsc`/`runsc-trace`) and Docker: non-root, `--cap-drop ALL`, `no-new-privileges`, read-only root, tmpfs home, `--network none`, no Docker socket or host mounts beyond the verified fixed per-job allowlist in SPEC §6.3. Linux-native execution uses this boundary; Windows files are emulated or inspected unless the separately approved Wine exception is enabled. Wine remains disabled pending that decision; if approved, its dedicated runc container must verify the Wine seccomp profile and common isolation controls, but has no gVisor kernel boundary or syscall trace ([recorded limitations](evidence/gvisor-wsl/PIDS-AND-WINE.md#b6-what-is-lost-versus-gvisor)). The safety amendment and separate Wine approval both remain pending |
 | Secret hygiene | The inference key lives only in the controller environment. Containers start with an empty environment. Fake honey credentials are planted in the sandbox. Uploaded content reaches the model only as quoted, size-capped data |
 | Resource limits | 512 MB memory, no swap, 1 CPU, 128 processes, 64 MB tmpfs, 30 s wall clock, 64 KB output, 3 retries, a run queue, a per-user rate limit, a daily inference spend cap |
 | Lifecycle | A fresh container per run. Forced removal in `finally`, then a check that it is gone. If removal is unconfirmed, accept no new runs. A reaper removes stale containers. The upload is deleted after the run |
@@ -251,6 +258,6 @@ The conditional Wine exception retains common isolation controls, not an identic
 6. Write the mapping from trace events to desktop changes (file write → Explorer/Finder, process → Task Manager/Activity Monitor, blocked connection → banner).
 7. Upload handling: consent checkbox, encrypted temporary storage, deletion after the run, files never served back; per-IP limits and upload caps.
 8. Without inference, verdicts still come from evidence; only the explanation is missing. Sunlight results carry a "not a guarantee" disclaimer.
-9. Replace the macOS shell (unlicensed mirror) before any public deployment.
+9. Decide the fate of the Win11React artwork (not cleared; withheld from the public repository).
 10. Decide whether the 30 scripted scenes become a sample-upload gallery or are removed.
 11. Hackathon deliverables: Git repository, public URL, architecture diagram, video script.

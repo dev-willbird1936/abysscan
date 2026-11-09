@@ -1,0 +1,293 @@
+# Stuxnet (2010). A worm that spread on USB sticks with no click and quietly sabotaged industrial machines.
+# A quest (QUESTS.md): the trainee is a control-room technician who closes work orders by loading files from USB sticks. The second stick carries Stuxnet.
+# Invented victim: the real targets were industrial plants whose control PCs had no internet, so everything came in on sticks. The plant and the people here are invented.
+os windows
+user Dana Okafor
+about
+  | Stuxnet spread on USB sticks. Windows only had to draw the icons of some shortcut files for it to get in, with no click and no warning.
+  | It then hid behind drivers that looked trusted, and its target was industrial control equipment that kept showing normal values. The plant, the contractor and the people here are invented.
+story
+  | You are Dana Okafor, control-room technician at Northwind Industrial Systems, in the hall where Cascade 3 runs. The control network has no internet, so every calibration sheet and report arrives on a USB stick.
+  | It is mid-afternoon. You have closed 8 of today's 10 work orders. Two to go.
+  | Two notes on your desktop say USB ports and AutoPlay are left on for convenience, and where the engineering PC's password is. Those are bad habits, kept here to make the training quick.
+quota 8 10 Work orders closed today
+
+# Dana's desk: soft flags, careless but only here to keep the training simple.
+file Desktop/usb-notes.txt
+  at 930 200
+  | Control room PCs: USB ports and AutoPlay left ON.
+  | IT says blocking sticks slows the contractors down.
+  | Marcus
+file Desktop/engineering-pc.txt
+  at 930 300
+  | Engineering PC (Cascade 3)
+  | Administrator password: Cascade-2026!
+  | Windows updates: on hold until the outage window
+
+# What AutoPlay runs on a clean stick: Windows' own folder window.
+program explorer Windows Explorer
+  publisher Microsoft Windows
+  signed yes
+
+# Cascade 3's operator panel, on the desk. Its double-click opens it with no warning. The red section is the truth the
+# panel did not show: it is only in the training copy.
+view plant panel
+  title Plant Control: Cascade 3
+  app Plant Control
+  publisher Northwind Industrial Systems
+  size 640x440
+  heading Centrifuge hall: all systems normal
+  icon shield-ok
+  section Operator display
+  tone good
+  row Cascade 3 speed = 1,064 Hz
+  row Vibration = normal
+  row Status = NORMAL, all green
+  progress 100
+  section What the machines were really doing
+  tone bad
+  row Speed requested = 1,410 Hz, then 2 Hz, then 1,064 Hz again
+  row Shown to the operator = a recording of old, normal values
+  note The operator could not see this. The screen replayed normal readings while the machines were damaged. This part is only in the training copy.
+  button Close -> done primary
+program cascade-panel Plant Control
+  publisher Northwind Industrial Systems
+  signed yes
+  view plant
+file Desktop/Cascade 3 panel.exe
+  at 90 40
+  program cascade-panel
+
+# The work-order register: the plant's own web page, one page per work order.
+page wo-held-0911 register.northwind-industrial.example/work-orders/WO-0911/held
+  title Work order held
+  brand Northwind Work Orders
+  heading Work order held
+  | WO-0911 is on hold. Maintenance will bring the calibration sheets again.
+page wo-closed-0911 register.northwind-industrial.example/work-orders/WO-0911/closed
+  title Work order closed
+  brand Northwind Work Orders
+  heading Work order closed
+  | WO-0911, the vibration sensor calibration for Cascade 3, has been closed.
+page wo-0911 register.northwind-industrial.example/work-orders/WO-0911
+  title Close work order WO-0911
+  brand Northwind Work Orders
+  heading Close work order WO-0911
+  | A work order is waiting to be closed.
+  section Work order
+  row Task = Load the vibration sensor calibration sheets for Cascade 3
+  row Source = Marcus Lee, in-house maintenance
+  row Files received = 2 calibration sheets (PDF), from the maintenance stick
+  button Close work order -> wo-closed-0911
+  button Hold for maintenance -> wo-held-0911
+
+mail mail-wo0911
+  from Priya Shah <priya.shah@northwind.example>
+  subject WO-0911: calibration sheets loaded? Please close it
+  link wo-0911
+  | Hi Dana,
+  |
+  | Marcus's calibration sheets are on the stick you just opened. The work order is ready to close. The link opens it in the register.
+  |
+  | Priya, shift lead
+
+step Work order 9 of 10
+  look the AutoPlay box in the corner: “Open folder to view files” and “Take no action”
+  move Click “Open folder to view files” in the AutoPlay box.
+  cue dialog:autoplay:fs-drive-calibration-stick
+  | Marcus from in-house maintenance has brought a stick with the new calibration sheets for Cascade 3. You plug it in, as you do ten times a shift. This is a normal one: do it the usual way, so you know what normal looks like.
+  | AutoPlay is the box Windows shows when a stick goes in. It lists what you can do with it: open the folder, or take no action.
+drive Calibration Stick
+  kind usb
+  as CALIB
+file CALIB/vibration-calibration.pdf
+  | Cascade 3 vibration sensors: calibration sheet. Training copy.
+file CALIB/pressure-calibration.pdf
+  | Cascade 3 pressure sensors: calibration sheet. Training copy.
+dialog autoplay CALIB
+  option Open folder to view files -> run:explorer
+
+step Two files, as promised
+  look the folder: two PDF sheets, exactly what the register will say
+  when run explorer
+  | The stick opens as a folder. Two calibration sheets, which is what Marcus said he was bringing.
+  | A new email has come in from Priya, the shift lead, with a link to the register.
+answer option:0
+open CALIB
+notify mail Priya Shah
+  | WO-0911: calibration sheets loaded? Please close it
+
+step A message from the shift lead
+  look the link under Priya's message
+  when mail mail-wo0911
+  | The email links to the plant's own address, register.northwind-industrial.example. Hover over a link before you click it, to check where it goes.
+open mail-wo0911
+
+step Close it the normal way
+  look the register: it says 2 calibration sheets, and the folder showed 2
+  when visit wo-0911
+  | The page is the plant's own. The register says 2 sheets came from the stick, and the folder showed 2.
+  | Check, then close the work order or hold it.
+open wo-0911
+
+# The next work order: a stick left by a contractor's engineer, with the worm on it.
+page wo-held-0912 register.northwind-industrial.example/work-orders/WO-0912/held
+  title Work order held
+  brand Northwind Work Orders
+  heading Work order held
+  | WO-0912 is on hold. Meridian Controls will be asked to send the drive report again.
+page wo-closed-0912 register.northwind-industrial.example/work-orders/WO-0912/closed
+  title Work order closed
+  brand Northwind Work Orders
+  heading Work order closed
+  | WO-0912, the drive report from Meridian Controls for Cascade 3, has been closed.
+page wo-0912 register.northwind-industrial.example/work-orders/WO-0912
+  title Close work order WO-0912
+  brand Northwind Work Orders
+  heading Close work order WO-0912
+  | A work order is waiting to be closed.
+  section Work order
+  row Task = Load the drive report for the Cascade 3 motor drives
+  row Source = Meridian Controls, the plant's drive supplier
+  row Files received = 1 drive report (PDF), from the engineer's USB stick
+  button Close work order -> wo-closed-0912
+  button Hold for the supplier -> wo-held-0912
+
+# The loader: it ran when Windows drew the shortcut icon. No prompt, no window. It runs as an lsass.exe copy; the real lsass.exe starts at boot from wininit.exe, this one from Explorer.
+program stuxnet-loader Shortcut icon loader
+  publisher none
+  process lsass.exe
+  cpu 1
+  mem 14
+  parent explorer.exe
+  command C:\Windows\System32\lsass.exe
+
+mail mail-wo0912
+  from Priya Shah <priya.shah@northwind.example>
+  subject Last one: WO-0912, drive report from Meridian
+  link wo-0912
+  | Dana,
+  |
+  | The last work order of the day: the drive report that Meridian's engineer left on a stick at the front desk. It is the stick you just opened. The register entry is ready.
+  |
+  | Priya
+
+step 9 of 10 done
+  look the AutoPlay box in the corner: the same choice as before
+  when choose wo-0911 any
+  move Click “Open folder to view files” in the AutoPlay box, as you did a minute ago.
+  cue dialog:autoplay:fs-drive-meridian-controls
+  | Done. One to go. Meridian Controls is the plant's drive supplier, trusted for years. Their engineer left a stick at the front desk with the drive report, and you plug it in.
+  | AutoPlay looks exactly as it did for Marcus's stick. Nothing in it warns you.
+choose wo-0911 1
+quota +1
+drive Meridian Controls
+  kind usb
+  as MERIDIAN
+file MERIDIAN/drive-report-cascade3.pdf
+  | Cascade 3 motor drives: service report. Training copy.
+file MERIDIAN/Copy of Shortcut to.lnk
+  icon shortcut
+  size 4171
+file MERIDIAN/~WTR4132.tmp
+  size 515072
+file MERIDIAN/~WTR4141.tmp
+  size 25720
+dialog autoplay MERIDIAN
+  option Open folder to view files -> run:stuxnet-loader
+
+step Opening the folder is the infection
+  look the folder: the report, a shortcut you did not expect, and two ~WTR files
+  when run stuxnet-loader
+  | The folder opened as normal, and nobody clicked a shortcut. To draw its icon, Windows read a crafted shortcut that loaded ~WTR4141.tmp, and the worm ran. There was no warning and no window.
+  | Beside the report, the shortcut is the bait. The two ~WTR files are the worm itself: its loader, and its main body, copied onto the stick. Nothing you save would be named that way.
+  | At once the worm tried to reach another PC on the plant network, on port 445, the Windows file-sharing port. Its banner shows the attempt being blocked.
+answer option:0
+open MERIDIAN
+block 192.0.2.60 445
+startup MRxCls system32\drivers\mrxcls.sys
+  location HKLM\SYSTEM\CurrentControlSet\Services\MRxCls
+  publisher Realtec Semiconductor Corp.
+startup MRxNet system32\drivers\mrxnet.sys
+  location HKLM\SYSTEM\CurrentControlSet\Services\MRxNet
+  publisher Realtec Semiconductor Corp.
+
+step Two start-up notices
+  look Task Manager: lsass.exe, and its parent process in the details
+  when open taskmanager
+  move Open Task Manager and see what is running. The two start-up banners are still on screen.
+  | The worm runs under lsass.exe, a real Windows name, so it looks like part of the system. Click it: its parent process is Explorer, the program that draws your desktop. The real lsass.exe is started at boot by wininit.exe, not by Explorer.
+  | The worm also installed two drivers, MRxCls and MRxNet, to start with the PC. Windows gives no notice for a new driver like these: the two banners are this training desktop's reminder. The drivers carry a valid digital signature from a company called Realtec Semiconductor, stolen from a real hardware maker. A signature proves who signed a file, not that it is safe.
+open taskmanager
+notify mail Priya Shah
+  | Last one: WO-0912, drive report from Meridian
+
+step The last work order
+  look the link under Priya's message: the plant's own address, like the first
+  when mail mail-wo0912
+  | Priya's last message of the day, with a real register link, like the first one. The stick she mentions is the one you just opened.
+open mail-wo0912
+
+step Compare with the folder
+  look the register line: 1 drive report, and the folder showed 4 items
+  when visit wo-0912
+  | The register is the plant's own, and the page is normal: Stuxnet does not touch it. Check the files against the folder, as you did for the first work order: the folder had 4 items, the register lists 1 drive report.
+  | Close the work order or hold it.
+open wo-0912
+
+step 10 of 10 done
+  look the counter in the guide: the shift is done
+  cue file:fs-cascade-3-panel-exe-871afeb8
+  when choose wo-0912 any
+  | All 10 work orders are closed. Before you go, check Cascade 3's panel on your desktop.
+choose wo-0912 1
+quota +1
+
+step Cascade 3's panel says all is well
+  look the Plant Control window: green status, and the red section at the bottom
+  when run cascade-panel
+  | Cascade 3's screen says all is well: green status, normal speed, normal vibration. Its real target was industrial machines like these.
+  | The red section at the bottom is what the panel did not show. It is only in this training copy: the operator in 2010 could not see it.
+open Desktop/Cascade 3 panel.exe
+
+step The screen closes, and nothing changes
+  look the desktop: no window, no warning
+  when done plant
+  | You close the window and go back to work. Nothing on the screen ever showed a problem, and nothing on it ever would.
+
+step What Stuxnet did
+  look the animation: the stick, this PC, the next PCs; then Software Update: the 2010 fix, still waiting
+  | Over the next weeks it copies itself to every stick plugged into this PC, and to other PCs on the plant network. Where it finds the right controller, it changes the machines' speeds every few weeks and hides it behind the calm screen.
+  | It tried to reach other PCs on port 445, the file-sharing port: the banner you saw was that attempt. On a real plant network nothing blocked it.
+  | Microsoft fixed the shortcut bug in August 2010 (MS10-046). This PC had that update on hold.
+  | The machines wear out and fail early, and nobody can say why. A calm screen is not proof that all is well.
+update Shell shortcut fix (MS10-046) kb MS10-046 size 1 MB status available
+attack network-worm
+  | the next USB stick
+  | the engineering PC
+  | the control network
+  | Cascade 3's motor drives
+
+flag hard file MERIDIAN/Copy of Shortcut to.lnk
+  | Windows reads a shortcut like this to draw its icon, and that is what lets the worm in. The real worm carried several, one for each version of Windows it could fool.
+flag hard file MERIDIAN/~WTR4141.tmp
+  | The loader the shortcut calls, with a temporary-style name that starts with a tilde. Nothing you save would be called this.
+flag hard file MERIDIAN/~WTR4132.tmp
+  | The worm's main body, copied to the stick beside its loader. Same odd name, and far bigger.
+flag hard process lsass.exe
+  | Its parent is Explorer, and it started when the stick was opened. The real lsass.exe starts at boot from wininit.exe. The missing publisher is a training simplification; the parent is the real clue.
+flag hard startup MRxCls
+  | A new driver that starts with every boot and loads the worm into system processes. The signature is stolen, so “signed” does not mean safe.
+flag hard startup MRxNet
+  | The second driver. Once it starts, it hides the worm's shortcut and ~WTR files from Windows, so a clean-looking stick proves nothing.
+flag hard notice taskmanager Connection blocked: 192.0.2.60
+  | This PC tried to reach another PC on port 445, the Windows file-sharing port, to copy the worm there.
+flag soft file Desktop/usb-notes.txt
+  | USB ports and AutoPlay left on for convenience: this is how a stick gets in. Block sticks you did not buy, or scan them first.
+flag soft file Desktop/engineering-pc.txt
+  | A password in a text file, and updates on hold: the 2010 shortcut flaw had a fix that this PC would not have received.
+
+lesson
+  | Treat every USB stick you did not buy as untrusted, even from a supplier you know: the supplier's own laptop may be the one that carries it. Keep Windows updated; the shortcut flaw was fixed by a 2010 update.
+  | A signed driver is not a safe driver. A new driver you did not ask for is worth a call to IT, however well it is signed.
+  | Control systems should sit on their own network, and an operator should have a second way to check what the machines are doing. A calm screen is not proof that all is well.

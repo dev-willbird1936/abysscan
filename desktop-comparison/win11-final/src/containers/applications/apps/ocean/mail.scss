@@ -1,0 +1,171 @@
+.ml-app {
+  .ml-folders {
+    width: 190px;
+  }
+  .ml-account {
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .ml-new {
+    margin: 4px 4px 6px;
+    height: 34px;
+  }
+  .ml-list {
+    width: 300px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--oc-stroke);
+    background: var(--oc-layer);
+  }
+  .ml-list-head {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border-bottom: 1px solid var(--oc-stroke);
+  }
+  .ml-item {
+    &[data-unread="true"] {
+      .ml-sender,
+      .ml-subj {
+        font-weight: 600;
+      }
+      .ml-subj {
+        color: var(--oc-accent);
+      }
+      &::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: var(--oc-accent);
+      }
+    }
+  }
+  .ml-flag {
+    color: #c42b1c;
+    width: 11px;
+  }
+  .ml-reader {
+    background: var(--oc-card);
+  }
+  .ml-move {
+    height: 30px;
+    border-radius: 5px;
+    border: 1px solid var(--oc-stroke);
+    background: transparent;
+    padding: 0 8px;
+    outline: none;
+    option {
+      background: var(--oc-layer);
+    }
+  }
+  .ml-reader-body {
+    padding: 18px 24px;
+  }
+  .ml-subject {
+    font-size: 19px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    user-select: text;
+  }
+  .ml-from {
+    gap: 12px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--oc-stroke);
+    align-items: center;
+  }
+  .ml-attachments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 0 0;
+  }
+  .ml-attach {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 220px;
+    padding: 8px 10px;
+    border: 1px solid var(--oc-stroke);
+    border-radius: 6px;
+    background: var(--oc-card2);
+
+    &:hover {
+      border-color: var(--oc-accent);
+    }
+    &[data-missing="true"] {
+      opacity: 0.55;
+      pointer-events: none;
+    }
+    .ml-attach-icon {
+      width: 20px;
+      height: 20px;
+      color: var(--oc-accent);
+      flex-shrink: 0;
+    }
+  }
+  .ml-text {
+    white-space: pre-wrap;
+    padding: 16px 0;
+    font-size: 14px;
+    line-height: 1.55;
+    user-select: text;
+  }
+  .ml-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--oc-accent);
+    text-decoration: underline;
+    cursor: pointer;
+    svg {
+      width: 12px;
+    }
+  }
+  .ml-compose {
+    background: var(--oc-card);
+  }
+  .ml-compose-fields {
+    padding: 4px 20px;
+  }
+  .ml-field {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 40px;
+    border-bottom: 1px solid var(--oc-stroke);
+
+    span {
+      width: 60px;
+      color: var(--oc-text2);
+    }
+  }
+  .ml-field-input {
+    flex: 1;
+    height: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+  }
+  .ml-compose-body {
+    margin: 0;
+    padding: 14px 20px;
+    border: none;
+    outline: none;
+    resize: none;
+    background: transparent;
+    font-size: 14px;
+    user-select: text;
+  }
+}
+
+@container (max-width: 760px) {
+  .ml-app .ml-folders {
+    width: 150px;
+  }
+  .ml-app .ml-list {
+    width: 240px;
+  }
+}

@@ -69,7 +69,7 @@ test('MZ without a PE signature is not an executable', () => {
 
 test('ELF runs natively', () => {
   const r = detectType(Buffer.from([0x7f, 0x45, 0x4c, 0x46, 2, 1, 1, 0]), 'tool');
-  assert.deepEqual(r, { detectedType: 'elf', claimedExtension: '', path: 'run', mismatch: false, supported: false });
+  assert.deepEqual(r, { detectedType: 'elf', claimedExtension: '', path: 'run', mismatch: false, supported: true });
 });
 
 test('zip, OOXML and macro-enabled OOXML are told apart by entries', () => {
@@ -85,7 +85,7 @@ test('zip, OOXML and macro-enabled OOXML are told apart by entries', () => {
 
 test('zip entries identify jar and apk', () => {
   const jar = detectType(zipOf('META-INF/MANIFEST.MF', 'A.class'), 'a.jar');
-  assert.deepEqual([jar.detectedType, jar.path, jar.mismatch, jar.supported], ['jar', 'run', false, false]);
+  assert.deepEqual([jar.detectedType, jar.path, jar.mismatch, jar.supported], ['jar', 'run', false, true]);
   assert.equal(detectType(zipOf('com/x/B.class'), 'a.jar').detectedType, 'jar');
   const apk = detectType(zipOf('META-INF/MANIFEST.MF', 'AndroidManifest.xml', 'classes.dex'), 'a.apk');
   assert.deepEqual([apk.detectedType, apk.path, apk.mismatch], ['apk', 'inspect', false]);
@@ -127,7 +127,7 @@ test('Mach-O, fat Mach-O, dmg, pkg and OneNote are told apart; a Java class is n
   const be = (...words) => Buffer.concat(words.map((w) => { const b = Buffer.alloc(4); b.writeUInt32BE(w); return b; }));
   for (const magic of [0xfeedface, 0xfeedfacf, 0xcefaedfe, 0xcffaedfe]) assert.equal(detectType(be(magic, 7, 0), 'a.out').detectedType, 'macho');
   assert.equal(detectType(be(0xcafebabe, 2, 0, 0), 'fat').detectedType, 'macho');
-  assert.equal(detectType(be(0xcafebabe, 0x34, 0, 0), 'A.class').detectedType, 'unknown');
+  assert.equal(detectType(be(0xcafebabe, 0x34, 0, 0), 'A.class').detectedType, 'class');
   const dmg = detectType(Buffer.concat([Buffer.alloc(1024), Buffer.from('koly'), Buffer.alloc(508)]), 'a.dmg');
   assert.deepEqual([dmg.detectedType, dmg.path, dmg.mismatch], ['dmg', 'inspect', false]);
   assert.equal(detectType(Buffer.from('xar!\0\x1c\0\x01'), 'a.pkg').detectedType, 'pkg');
@@ -135,7 +135,7 @@ test('Mach-O, fat Mach-O, dmg, pkg and OneNote are told apart; a Java class is n
   assert.deepEqual([one.detectedType, one.path, one.mismatch], ['one', 'inspect', false]);
 });
 
-test('paths and hackathon support follow DETONATION-DESIGN §2', () => {
+test('paths and support: every identified type is handled, unrecognised content stays inspect-only', () => {
   const msiMagic = Buffer.from([0x84, 0x10, 0x0c, 0, 0, 0, 0, 0, 0xc0, 0, 0, 0, 0, 0, 0, 0x46]);
   const cases = [
     // [detectedType, buffer, path, supported]
@@ -144,14 +144,22 @@ test('paths and hackathon support follow DETONATION-DESIGN §2', () => {
     ['xlsx', zipOf('[Content_Types].xml', 'xl/a'), 'run', true], ['xlsm', zipOf('[Content_Types].xml', 'xl/vbaProject.bin'), 'run', true],
     ['doc', ole2('WordDocument'), 'run', true], ['xls', ole2('Workbook'), 'run', true], ['pptx', zipOf('[Content_Types].xml', 'ppt/a'), 'run', true],
     ['ps1', text('Write-Host 1'), 'run', true], ['py', text('import os\n'), 'run', true], ['sh', text('#!/bin/sh\n'), 'run', true],
-    ['js-node', text('require("fs")'), 'run', true], ['elf', Buffer.from([0x7f, 0x45, 0x4c, 0x46]), 'run', false],
-    ['jar', zipOf('META-INF/MANIFEST.MF'), 'run', false],
+    ['js-node', text('require("fs")'), 'run', true], ['elf', Buffer.from([0x7f, 0x45, 0x4c, 0x46]), 'run', true],
+    ['jar', zipOf('META-INF/MANIFEST.MF'), 'run', true],
     ['exe', pe(0x0102), 'wine', true], ['dll', pe(0x2102), 'wine', false], ['bat', text('@echo off'), 'wine', true],
     ['js-wsh', text('WScript.Echo(1)'), 'wine', true], ['vbs', text('Dim x'), 'wine', true], ['hta', text('<hta:application>'), 'wine', false],
     ['msi', Buffer.concat([ole2(), msiMagic]), 'wine', false],
     ['zip', zipOf('a.txt'), 'inspect', true], ['eml', text('Received: x\nFrom: a\nTo: b\nSubject: s\n\nhi'), 'inspect', true],
-    ['msg', ole2('__properties_version1.0'), 'inspect', false], ['rtf', text('{\\rtf1'), 'inspect', false],
-    ['lnk', Buffer.from([0x4c, 0, 0, 0, 0x01, 0x14, 0x02, 0]), 'inspect', false], ['apk', zipOf('AndroidManifest.xml', 'classes.dex'), 'inspect', false],
+    ['apk', zipOf('AndroidManifest.xml', 'classes.dex'), 'inspect', true],
+    // Only a runner or an unpacker counts as support; a type that can just be fingerprinted stays inspect-only.
+    // A message whose property stream was stripped is still a message: its attachment streams are the payload.
+    ['msg', ole2('__substg1.0_37010102'), 'inspect', true],
+    ['msg', ole2('__properties_version1.0'), 'inspect', true],
+    // An RTF carries an OLE object in objdata; rtfobj extracts it, so its payload becomes a child and is analysed in turn.
+    ['rtf', text('{\\rtf1'), 'inspect', true],
+    ['lnk', Buffer.from([0x4c, 0, 0, 0, 0x01, 0x14, 0x02, 0]), 'inspect', false],
+    // An Internet Shortcut is a text file whose only content is the URL it opens; it cannot be followed here.
+    ['url', text('[InternetShortcut]\nURL=http://203.0.113.9/invoice.exe\n'), 'inspect', false],
     ['png', Buffer.from([0x89, 0x50, 0x4e, 0x47]), 'inspect', false], ['text', text('hello'), 'inspect', false],
   ];
   for (const [type, buf, path, supported] of cases) {
@@ -196,14 +204,28 @@ test('shebangs and text heuristics choose scripts and their paths', () => {
   }
 });
 
+test('ambiguous text scripts stay inspection-only without claiming deceptive renaming', () => {
+  for (const name of ['hello.py', 'hello.sh', 'hello.ps1', 'hello.js']) {
+    const result = detectType(Buffer.from("print('hello')\n"), name);
+    assert.equal(result.detectedType, 'text');
+    assert.equal(result.path, 'inspect');
+    assert.equal(result.supported, false);
+    assert.equal(result.mismatch, false);
+    assert.equal(result.recognitionUncertain, true);
+  }
+  assert.equal(detectType(Buffer.from("print('hello')\n"), 'invoice.pdf.py').mismatch, true);
+  assert.equal(detectType(Buffer.from('#!/usr/bin/env python3\nprint(1)\n'), 'hello.py').path, 'run');
+});
+
 test('plain text is inspected; a script claiming .txt is a mismatch', () => {
   assert.equal(detectType(text('hello world'), 'notes.txt').mismatch, false);
   assert.equal(detectType(text('import os\nos.getcwd()'), 'notes.txt').mismatch, true);
 });
 
 test('unsupported and unknown types are inspected and flagged unsupported', () => {
+  // An RTF is inspected only, but supported: its objdata object is unpacked and analysed in turn.
   const rtf = detectType(text('{\\rtf1'), 'a.rtf');
-  assert.deepEqual([rtf.path, rtf.supported], ['inspect', false]);
+  assert.deepEqual([rtf.path, rtf.supported], ['inspect', true]);
   const bin = detectType(Buffer.from([0, 1, 2, 3, 4]), 'blob.dat');
   assert.deepEqual(bin, { detectedType: 'unknown', claimedExtension: 'dat', path: 'inspect', mismatch: false, supported: false });
   assert.equal(detectType(Buffer.from([0, 1, 2, 3]), 'fake.pdf').mismatch, true);

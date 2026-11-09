@@ -1,0 +1,208 @@
+# EICAR test file (1990s onwards). A harmless 68-character test string that every antivirus product deliberately flags.
+# A quest (QUESTS.md): the trainee does Northwind's quarterly computer safety checklist, one normal check first, then the
+# antivirus test. The alert is the point; the lesson is to read it calmly and not to overreact.
+os windows
+user Dana Okafor
+about
+  | The EICAR test file is not a virus. It is one short line of plain text that is also a tiny, harmless DOS program. Antivirus makers agreed to treat it as "malware", so anyone can check that their protection works. Nothing in it spreads or harms the computer. The office, the people and the intranet here are made up.
+story
+  | You are Dana Okafor, office manager at Northwind Traders. Every quarter IT asks each team to finish a seven-point computer safety checklist.
+  | The checklist is due this week. You have finished 5 of the 7 checks. Marcus and Priya in IT send the last two by email.
+  | Your intranet details are in a text file on the desktop. That is a bad habit, but it keeps this training quick.
+quota 5 7 Safety checks done
+spotted signs it was only a test
+
+# Dana's desk: the intranet details she copies from (a soft flag: careless, but only here to keep the training simple).
+file Desktop/intranet-login.txt
+  at 930 200
+  | Northwind Intranet
+  | Staff ID: dana.okafor
+  | Password: Harbor-2026!
+
+# The intranet: a sign-in page and the two checks behind it.
+page intranet-login intranet.northwind.example/safety/sign-in
+  title Northwind Intranet: sign in
+  brand Northwind Intranet
+  favorite
+  heading Sign in to the intranet
+  | Welcome back. Sign in to work on your safety checklist.
+  field Staff ID = dana.okafor
+  field secret Password = Harbor-2026!
+  button Sign in
+page check6-done intranet.northwind.example/safety/check-6/done
+  title Check 6 recorded
+  brand Northwind Intranet
+  heading Check 6 recorded
+  | Thank you. Software updates: confirmed up to date. One check left on your list.
+page check6-help intranet.northwind.example/safety/check-6/help
+  title Check 6: help requested
+  brand Northwind Intranet
+  heading Help requested
+  | IT will contact you about your software updates.
+page check6 intranet.northwind.example/safety/check-6
+  title Check 6 of 7: software updates
+  brand Northwind Intranet
+  requires intranet-login
+  heading Check 6 of 7: software updates
+  | Confirm that your computer installs its updates. IT has already read the details below from your computer.
+  section Your computer
+  row Computer = NW-DANA-LT
+  row Software updates = Up to date
+  row Restart waiting = No
+  row Last checked = Today
+  button Confirm: my computer is up to date -> check6-done
+  button Report a problem to IT -> check6-help
+
+mail check6-note
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Safety checklist, check 6: software updates
+  link check6
+  | Hi Dana,
+  |
+  | Check 6 on the quarterly checklist is a quick one: confirm that your computer is up to date. The link opens it on the intranet.
+  |
+  | Marcus, IT
+
+step Check 6 of 7
+  look Mail: Marcus's message with the checklist link
+  | A new check has come in from Marcus, in IT. This one is routine. Do it the normal way, so you know what normal looks like.
+notify mail Marcus Lee
+  | Safety checklist, check 6: software updates
+
+step The link goes to the intranet
+  look the link under Marcus's message
+  when mail check6-note
+  | The email links to the company's own address, intranet.northwind.example. Hover over a link before you click it, to check where it goes.
+open check6-note
+
+step Sign in as usual
+  look the two boxes: Staff ID and Password, as on every visit
+  when visit check6
+  move Copy the details from intranet-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The intranet asks you to sign in first. Two boxes: Staff ID and Password. Remember what a normal check looks like.
+open check6
+
+step Check the computer
+  look the list of what IT read from your computer
+  when choose intranet-login 1
+  | You are in. The page shows that the computer is up to date. Check it, then confirm or ask for help.
+signin intranet-login
+
+step 6 of 7 done
+  look the counter in the guide: one check left
+  when choose check6 any
+  | Done. One check to go, and another email has just arrived.
+choose check6 1
+quota +1
+
+# The lure: the test file itself, offered by IT on the intranet.
+page check7-done intranet.northwind.example/safety/check-7/done
+  title Check 7 recorded
+  brand Northwind Intranet
+  heading Check 7 recorded
+  | Thank you. Antivirus: working. Your safety checklist is complete.
+page check7-help intranet.northwind.example/safety/check-7/help
+  title Check 7: help requested
+  brand Northwind Intranet
+  heading Help requested
+  | Nothing happened, so your antivirus may be switched off. IT will contact you.
+page check7 intranet.northwind.example/safety/check-7
+  title Check 7 of 7: is your antivirus working?
+  brand Northwind Intranet
+  requires intranet-login
+  heading Check 7 of 7: is your antivirus working?
+  | Download the standard EICAR test file and open it. A working antivirus reacts at once. Then record what happened.
+  section What the file is
+  row File = eicar.com
+  row Size = 68 bytes
+  row Contains = one line of plain text that says it is a test
+  row Harm = none: it only asks your antivirus to say "found"
+  section What should happen
+  note Your antivirus should raise an alert as soon as you open the file, and some react as soon as it is saved. Remove the file when it does.
+  button Download eicar.com
+  button My antivirus raised an alert -> check7-done
+  button Nothing happened: tell IT -> check7-help
+program eicar eicar.com
+  publisher none
+  signed no
+  description Antivirus test file (harmless)
+  detected Virus:DOS/EICAR_Test_File (training label)
+mail check7-note
+  from Priya Shah <priya.shah@northwind.example>
+  subject Check 7: the antivirus test
+  link check7
+  | Hi Dana,
+  |
+  | Last one. This check tests your antivirus with a tiny file, eicar.com. It is not a virus: antivirus programs are built to react to it, and that tells us they are switched on.
+  |
+  | The link opens the page with the file and the steps. Download it, open it, then record the result on the same page.
+  |
+  | Priya, IT training
+notify mail Priya Shah
+  | Check 7: the antivirus test
+
+step Check 7: the antivirus test
+  look Mail: Priya's message about the test file
+  when mail check7-note
+  | Priya, the IT trainer, sends the last check. It asks you to download a test file on purpose, and the email says what the file is and why. It comes from Priya's company address, and the link goes to intranet.northwind.example, like Marcus's.
+open check7-note
+
+step The test page
+  look the page: what the file is, its size, and the Download button
+  when visit check7
+  | The page tells you what the file is before you take it: a 68-byte text file, made so that antivirus programs react to it. Read it, then press Download.
+open check7
+
+step The file arrives
+  look Downloads: eicar.com has arrived
+  when choose check7 1
+  | The name and the size match the page. Your antivirus may react as soon as the file is saved. Open it to see the alert.
+file Downloads/eicar.com
+  program eicar
+  size 68
+  | Training copy: the real test line is described here, and not copied.
+open Downloads
+
+step The antivirus reacts
+  look the antivirus alert naming the threat: EICAR_Test_File
+  when detected eicar
+  | The moment you open the file, the antivirus raises an alert and names a "threat". It sounds alarming. Read the name: EICAR_Test_File. That is the test passing.
+  | The alert says the file was stopped before it ran. There is nothing to fix, and no need to call anyone in a hurry.
+  | {Windows Security raised this one. On another PC the alert may come from your company's antivirus app|On a Mac, the alert may come from macOS or from your company's antivirus app}. Either way, the answer is the same.
+open Downloads/eicar.com
+
+step Remove it, and nothing else happens
+  look {File Explorer|Finder}: the file is gone, and {Task Manager|Activity Monitor} shows nothing new
+  when remove eicar
+  | Removing the file sends it to the Recycle Bin (the Trash on a Mac). There is no new process, no start-up entry and no hidden change.
+  | That is the lesson of the test: the alert is real, the danger is not.
+answer trash
+open Downloads
+open taskmanager
+
+step 7 of 7 done
+  look the counter in the guide: the checklist is complete
+  when choose check7 2
+  | Recorded: the alert means the antivirus works. If nothing had happened, it might be switched off, and IT would need to know.
+choose check7 2
+quota +1
+
+flag hard mail check7-note
+  label Priya's email about the test file
+  | It says outright that eicar.com is a test file that antivirus programs are built to react to, and that it is not a virus.
+flag hard section check7 1
+  label What the file is
+  | The page names the file, gives its 68 bytes and says the harm is none: that is what the test file really is.
+flag hard file Downloads/eicar.com
+  label eicar.com in Downloads
+  | Its name and its 68 bytes match the test page, so it is the file the page describes.
+flag hard dialog detected eicar
+  label The antivirus alert
+  | The threat is named EICAR_Test_File, the standard name of the test file, so the alert is the test passing.
+flag soft file Desktop/intranet-login.txt
+  | Passwords in a text file on the desktop: any program that runs can read them. Use a password manager.
+
+lesson
+  | An alert on the EICAR test file means your antivirus is working. Read the threat name, remove the file, and carry on. Do not panic, switch off the computer or delete other files to be safe.
+  | A real alert on a file you did not expect is different: remove it, and ask your IT team.
+  | Only use the EICAR test file from the official test page or your IT team, and never trust a stranger who tells you a file is "just a test".

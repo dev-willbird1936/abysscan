@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en" data-theme="ocean">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#071d28">
+  <title>The Abyss Desktop</title>
+  <link rel="stylesheet" href="./desktop.css">
+  <script src="./desktop.js" defer></script>
+</head>
+<body data-session-state="loading">
+  <div class="desktop-shell">
+    <header class="system-bar" aria-label="Fictional training desktop controls">
+      <div class="brand-lockup" aria-label="The Abyss training desktop">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <div><strong>The Abyss</strong><span class="brand-caption">TRAINING DESKTOP</span></div>
+      </div>
+      <div class="system-context" aria-label="Desktop and training session status">
+        <span id="active-app-name" class="active-app-name">Training Center</span>
+        <span id="scenario-label" class="scenario-label">Choose an exercise</span>
+        <span id="execution-mode" class="mode-badge" title="Execution mode reported by backend">Not connected</span>
+      </div>
+      <nav class="system-actions" aria-label="Training session controls">
+        <button id="guide-toggle" class="chrome-button" type="button" aria-expanded="false" aria-controls="walkthrough">Guide</button>
+        <button id="training-center-toggle" class="chrome-button" type="button" aria-expanded="true" aria-controls="launcher">Exercises</button>
+        <button id="reset-session" class="chrome-button" type="button" disabled>Reset</button>
+        <button id="end-session" class="chrome-button end-button" type="button" disabled>End session</button>
+      </nav>
+    </header>
+
+    <main id="desktop" class="desktop-surface" aria-label="Fictional synthetic training desktop">
+      <nav id="desktop-icons" class="desktop-icons" aria-label="Training applications"></nav>
+      <section id="window-layer" class="window-layer" aria-label="Open application windows">
+        <aside id="walkthrough" class="app-window guide-window" aria-labelledby="guide-heading" hidden>
+          <header id="guide-titlebar" class="window-titlebar" tabindex="0" aria-label="Training Guide window title bar. Use arrow keys to move the window.">
+            <span id="guide-heading" class="window-title">Training Guide</span>
+            <div class="window-controls" aria-label="Training Guide window controls">
+              <button id="guide-close" class="window-control close-window" type="button" aria-label="Close Training Guide window" title="Close Training Guide">×</button>
+              <button id="guide-minimize" class="window-control minimize-window" type="button" aria-label="Minimize Training Guide window" title="Minimize Training Guide">−</button>
+              <button id="guide-maximize" class="window-control maximize-window" type="button" aria-label="Maximize or restore Training Guide window" title="Maximize or restore Training Guide">□</button>
+            </div>
+          </header>
+          <div class="window-content guide-window-content">
+            <header class="panel-heading">
+              <div><span class="eyebrow">BACKEND-ORDERED WALKTHROUGH</span><h1>Exercise guide</h1></div>
+              <span id="severity-badge" class="severity-badge">SEV —</span>
+            </header>
+            <div id="guide-content" class="guide-content">
+              <p class="empty-guide">Choose a training scenario to begin. No session is allocated until you explicitly opt in.</p>
+            </div>
+            <details class="records-disclosure">
+              <summary>Backend records and event trail</summary>
+              <section class="records-section" aria-labelledby="consequence-heading">
+                <div class="section-heading">
+                  <div><span class="eyebrow">BACKEND RECORD</span><h2 id="consequence-heading">Before / after</h2></div>
+                  <button id="refresh-session" class="icon-button" type="button" aria-label="Refresh backend state" disabled>↻</button>
+                </div>
+                <div id="consequence-content" class="record-content"><p>Backend state appears after an opted-in session starts.</p></div>
+              </section>
+              <section class="records-section event-section" aria-labelledby="events-heading">
+                <div class="section-heading"><div><span class="eyebrow">APPEND-ONLY SESSION TRAIL</span><h2 id="events-heading">Events</h2></div></div>
+                <ol id="event-list" class="event-list"><li>No session events.</li></ol>
+              </section>
+            </details>
+          </div>
+        </aside>
+
+        <section id="launcher" class="app-window training-center-window is-open" aria-labelledby="launcher-heading" aria-describedby="launcher-description">
+          <header id="launcher-titlebar" class="window-titlebar" tabindex="0" aria-label="Training Center window title bar. Use arrow keys to move the window.">
+            <span class="window-title">Training Center</span>
+            <div class="window-controls" aria-label="Training Center window controls">
+              <button id="training-close" class="window-control close-window" type="button" aria-label="Close Training Center window" title="Close Training Center">×</button>
+              <button id="training-minimize" class="window-control minimize-window" type="button" aria-label="Minimize Training Center window" title="Minimize Training Center">−</button>
+              <button id="training-maximize" class="window-control maximize-window" type="button" aria-label="Maximize or restore Training Center window" title="Maximize or restore Training Center">□</button>
+            </div>
+          </header>
+          <div class="window-content training-center-content">
+            <span class="eyebrow">OPT-IN REQUIRED · SYNTHETIC DATA</span>
+            <h1 id="launcher-heading">Choose an exercise</h1>
+            <p id="launcher-description">Select one of ten fictional scenarios. A bounded training session starts only after you opt in.</p>
+            <div id="launcher-status" class="launcher-status" role="status" aria-live="polite">Loading the available training scenarios…</div>
+            <div class="scenario-picker">
+              <label for="scenario-selector">Training scenario</label>
+              <select id="scenario-selector" disabled aria-describedby="selected-summary"></select>
+              <div id="selected-summary" class="selected-summary">Scenario details will appear here.</div>
+            </div>
+            <label class="opt-in-row" for="training-opt-in">
+              <input id="training-opt-in" type="checkbox" disabled>
+              <span><strong>Start this synthetic training session.</strong><span>The backend uses fictional accounts, files, and state.</span></span>
+            </label>
+            <div class="launcher-actions">
+              <button id="launch-session" class="primary-button" type="button" disabled>Start opted-in session</button>
+              <button id="retry-catalog" class="secondary-button" type="button" hidden>Retry scenario list</button>
+            </div>
+            <p class="boundary-note">Execution mode is reported by the backend. This is not a virtual machine or cloud deployment.</p>
+          </div>
+        </section>
+      </section>
+      <div id="error-banner" class="error-banner" role="alert" hidden></div>
+      <div id="busy-overlay" class="busy-overlay" hidden><span class="spinner" aria-hidden="true"></span><span id="busy-label">Contacting the training backend…</span></div>
+    </main>
+
+    <footer class="taskbar" aria-label="Open application dock">
+      <div class="dock-surface">
+        <nav id="taskbar-apps" class="taskbar-apps" aria-label="Open and minimized applications"></nav>
+      </div>
+      <span id="connection-status" class="taskbar-status" role="status">Training API not checked</span>
+      <time id="system-clock" class="taskbar-clock" aria-label="Current local time">--:--</time>
+    </footer>
+  </div>
+
+  <dialog id="exit-dialog" class="confirm-dialog" aria-labelledby="exit-heading">
+    <span class="eyebrow">END EXERCISE</span>
+    <h2 id="exit-heading">Close this training session?</h2>
+    <p>The backend session will be closed, and its former state will no longer be available in this desktop. Starting again creates a fresh session.</p>
+    <div class="dialog-actions"><button id="cancel-exit" class="secondary-button" type="button">Keep working</button><button id="confirm-exit" class="danger-button" type="button">Close session</button></div>
+  </dialog>
+  <div id="screen-reader-announcer" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>

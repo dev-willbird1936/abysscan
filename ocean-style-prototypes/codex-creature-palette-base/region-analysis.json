@@ -1,0 +1,704 @@
+{
+  "anglerfish": {
+    "native_sha256": "f9a9d2b5e12bd99eeaa8a43d33e02507f5a6c2905b789937ce11574ae9418d9d",
+    "native_size": [
+      1254,
+      1254
+    ],
+    "native_partial_alpha_pixels": 385036,
+    "native_rgb_colours": 40002,
+    "thresholded_source_bbox": [
+      202,
+      194,
+      1092,
+      1069
+    ],
+    "logical_bbox": [
+      16,
+      17,
+      112,
+      111
+    ],
+    "logical_size": [
+      128,
+      128
+    ],
+    "margin_min_pixels": 16,
+    "region_pixels": {
+      "primary": 1476,
+      "secondary": 1003,
+      "tertiary": 166,
+      "outline": 536,
+      "dark_detail": 912,
+      "light_detail": 222
+    },
+    "region_fraction": {
+      "primary": 0.3421,
+      "secondary": 0.2324,
+      "tertiary": 0.0385,
+      "outline": 0.1242,
+      "dark_detail": 0.2114,
+      "light_detail": 0.0514
+    },
+    "visible_rgb_colours": 6,
+    "roles": {
+      "primary": {
+        "file": "masks/anglerfish-primary.png",
+        "sha256": "aed13710a365a4edf4b2f419d4474651c805694c4232f3bb1a3adaa859c3d99a",
+        "pixels": 1476,
+        "bbox": [
+          22,
+          26,
+          91,
+          101
+        ],
+        "components": [
+          1476
+        ]
+      },
+      "secondary": {
+        "file": "masks/anglerfish-secondary.png",
+        "sha256": "49e2565b2b73a46384a98a6a33404bb593d47bc32d8e4aaacc00294e82f1d3e2",
+        "pixels": 1003,
+        "bbox": [
+          20,
+          53,
+          110,
+          109
+        ],
+        "components": [
+          264,
+          227,
+          198,
+          110,
+          71,
+          63,
+          62,
+          8
+        ]
+      },
+      "tertiary": {
+        "file": "masks/anglerfish-tertiary.png",
+        "sha256": "f8f18e949cab1378088e8db4ca842eaff555a4230fb41010ccd16ecf71ee1c10",
+        "pixels": 166,
+        "bbox": [
+          20,
+          19,
+          100,
+          97
+        ],
+        "components": [
+          91,
+          21,
+          21,
+          18,
+          12,
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "normalization": "Crop alpha>=128 bounds; proportionally fit whole sprite within 96x96 using LANCZOS; threshold alpha at 128; map interior RGB to nearest exact role/neutral marker, with near-black pixels preserved as dark details; retain original bytes separately."
+  },
+  "viperfish": {
+    "native_sha256": "ab8771d2e47359347cfec67e77336e8775b0db378c66521fa027419def78882e",
+    "native_size": [
+      1254,
+      1254
+    ],
+    "native_partial_alpha_pixels": 150255,
+    "native_rgb_colours": 32403,
+    "thresholded_source_bbox": [
+      168,
+      489,
+      1102,
+      787
+    ],
+    "logical_bbox": [
+      16,
+      48,
+      112,
+      79
+    ],
+    "logical_size": [
+      128,
+      128
+    ],
+    "margin_min_pixels": 16,
+    "region_pixels": {
+      "primary": 410,
+      "secondary": 375,
+      "tertiary": 53,
+      "outline": 262,
+      "dark_detail": 325,
+      "light_detail": 47
+    },
+    "region_fraction": {
+      "primary": 0.2785,
+      "secondary": 0.2548,
+      "tertiary": 0.036,
+      "outline": 0.178,
+      "dark_detail": 0.2208,
+      "light_detail": 0.0319
+    },
+    "visible_rgb_colours": 6,
+    "roles": {
+      "primary": {
+        "file": "masks/viperfish-primary.png",
+        "sha256": "e29cd8873a11ec6ecdeeeb717f4fab201b8613a6db25b143fd4625fc0c87202f",
+        "pixels": 410,
+        "bbox": [
+          21,
+          55,
+          102,
+          72
+        ],
+        "components": [
+          410
+        ]
+      },
+      "secondary": {
+        "file": "masks/viperfish-secondary.png",
+        "sha256": "8cc08ac3652a7b508fe73046ea7dcab792e2fe2bd43c69c161d0922526b28e40",
+        "pixels": 375,
+        "bbox": [
+          19,
+          49,
+          111,
+          78
+        ],
+        "components": [
+          163,
+          76,
+          48,
+          44,
+          9,
+          7,
+          7,
+          6,
+          6,
+          5,
+          4
+        ]
+      },
+      "tertiary": {
+        "file": "masks/viperfish-tertiary.png",
+        "sha256": "6fc66d3890e2b7996f695daf6a78670dcf666d5c143de1419c90e3a219ef8732",
+        "pixels": 53,
+        "bbox": [
+          19,
+          61,
+          88,
+          72
+        ],
+        "components": [
+          6,
+          5,
+          5,
+          4,
+          4,
+          4,
+          4,
+          4,
+          3,
+          3,
+          2,
+          2,
+          2,
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "normalization": "Crop alpha>=128 bounds; proportionally fit whole sprite within 96x96 using LANCZOS; threshold alpha at 128; map interior RGB to nearest exact role/neutral marker, with near-black pixels preserved as dark details; retain original bytes separately."
+  },
+  "siphonophore": {
+    "native_sha256": "4702dc8806d81829da5ba2474a33f9573ff5e19c27c6112c1199125bcc52e09b",
+    "native_size": [
+      1254,
+      1254
+    ],
+    "native_partial_alpha_pixels": 182918,
+    "native_rgb_colours": 36392,
+    "thresholded_source_bbox": [
+      296,
+      169,
+      994,
+      1108
+    ],
+    "logical_bbox": [
+      28,
+      16,
+      99,
+      112
+    ],
+    "logical_size": [
+      128,
+      128
+    ],
+    "margin_min_pixels": 16,
+    "region_pixels": {
+      "primary": 135,
+      "secondary": 457,
+      "tertiary": 106,
+      "outline": 443,
+      "dark_detail": 463,
+      "light_detail": 10
+    },
+    "region_fraction": {
+      "primary": 0.0836,
+      "secondary": 0.2831,
+      "tertiary": 0.0657,
+      "outline": 0.2745,
+      "dark_detail": 0.2869,
+      "light_detail": 0.0062
+    },
+    "visible_rgb_colours": 6,
+    "roles": {
+      "primary": {
+        "file": "masks/siphonophore-primary.png",
+        "sha256": "4538467a95c4db17d4196ea670c67635ac36bfbf2c1ac7409574ec38448d4971",
+        "pixels": 135,
+        "bbox": [
+          34,
+          23,
+          89,
+          98
+        ],
+        "components": [
+          133,
+          1,
+          1
+        ]
+      },
+      "secondary": {
+        "file": "masks/siphonophore-secondary.png",
+        "sha256": "f90624c72d0b4613097d9429ded221722a8b61e62bbe17cd9bb79f4b2ff59df1",
+        "pixels": 457,
+        "bbox": [
+          38,
+          23,
+          96,
+          108
+        ],
+        "components": [
+          39,
+          36,
+          35,
+          35,
+          35,
+          34,
+          34,
+          33,
+          31,
+          31,
+          27,
+          26,
+          20,
+          19,
+          7,
+          5,
+          4,
+          3,
+          1,
+          1,
+          1
+        ]
+      },
+      "tertiary": {
+        "file": "masks/siphonophore-tertiary.png",
+        "sha256": "ff285e06c6f1bdb5a7553c2ba94b2c9873620ad8a21fd2a4eb5a499510cf9810",
+        "pixels": 106,
+        "bbox": [
+          29,
+          17,
+          98,
+          111
+        ],
+        "components": [
+          31,
+          5,
+          5,
+          5,
+          4,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          1,
+          1
+        ]
+      }
+    },
+    "normalization": "Crop alpha>=128 bounds; proportionally fit whole sprite within 96x96 using LANCZOS; threshold alpha at 128; map interior RGB to nearest exact role/neutral marker, with near-black pixels preserved as dark details; retain original bytes separately."
+  },
+  "isopod-host": {
+    "native_sha256": "9c8cea3972ffb88db7e731f0624997f0a9c1c25c245dde9dcd80f4970a5aaa99",
+    "native_size": [
+      1254,
+      1254
+    ],
+    "native_partial_alpha_pixels": 362698,
+    "native_rgb_colours": 29490,
+    "thresholded_source_bbox": [
+      164,
+      366,
+      1128,
+      937
+    ],
+    "logical_bbox": [
+      16,
+      35,
+      112,
+      92
+    ],
+    "logical_size": [
+      128,
+      128
+    ],
+    "margin_min_pixels": 16,
+    "region_pixels": {
+      "primary": 1640,
+      "secondary": 946,
+      "tertiary": 60,
+      "outline": 264,
+      "dark_detail": 544,
+      "light_detail": 60
+    },
+    "region_fraction": {
+      "primary": 0.4667,
+      "secondary": 0.2692,
+      "tertiary": 0.0171,
+      "outline": 0.0751,
+      "dark_detail": 0.1548,
+      "light_detail": 0.0171
+    },
+    "visible_rgb_colours": 6,
+    "roles": {
+      "primary": {
+        "file": "masks/isopod-host-primary.png",
+        "sha256": "992506e7b86d81593aa68d6df350310335a3eb5ab159e1394977074353201169",
+        "pixels": 1640,
+        "bbox": [
+          22,
+          37,
+          97,
+          79
+        ],
+        "components": [
+          1640
+        ]
+      },
+      "secondary": {
+        "file": "masks/isopod-host-secondary.png",
+        "sha256": "b31d6581b7954628d17dd7b344ee16c4e3a2fbef4a2adb654c841f0ead418065",
+        "pixels": 946,
+        "bbox": [
+          20,
+          51,
+          111,
+          91
+        ],
+        "components": [
+          788,
+          157,
+          1
+        ]
+      },
+      "tertiary": {
+        "file": "masks/isopod-host-tertiary.png",
+        "sha256": "6a0fd4bb5b45a5d02d99b44f4a07e8d78a31fb31c53eaf9ceae654e075f4d97d",
+        "pixels": 60,
+        "bbox": [
+          21,
+          47,
+          39,
+          72
+        ],
+        "components": [
+          58,
+          1,
+          1
+        ]
+      }
+    },
+    "normalization": "Crop alpha>=128 bounds; proportionally fit whole sprite within 96x96 using LANCZOS; threshold alpha at 128; map interior RGB to nearest exact role/neutral marker, with near-black pixels preserved as dark details; retain original bytes separately."
+  },
+  "cookiecutter": {
+    "native_sha256": "b7f00d012c37c91b8a0385ea57fdc53cbad1bfb644aa0a9c83daae00ea08aa9d",
+    "native_size": [
+      1254,
+      1254
+    ],
+    "native_partial_alpha_pixels": 187160,
+    "native_rgb_colours": 25921,
+    "thresholded_source_bbox": [
+      187,
+      427,
+      1072,
+      887
+    ],
+    "logical_bbox": [
+      16,
+      39,
+      112,
+      89
+    ],
+    "logical_size": [
+      128,
+      128
+    ],
+    "margin_min_pixels": 16,
+    "region_pixels": {
+      "primary": 769,
+      "secondary": 495,
+      "tertiary": 174,
+      "outline": 185,
+      "dark_detail": 469,
+      "light_detail": 17
+    },
+    "region_fraction": {
+      "primary": 0.3646,
+      "secondary": 0.2347,
+      "tertiary": 0.0825,
+      "outline": 0.0877,
+      "dark_detail": 0.2224,
+      "light_detail": 0.0081
+    },
+    "visible_rgb_colours": 6,
+    "roles": {
+      "primary": {
+        "file": "masks/cookiecutter-primary.png",
+        "sha256": "fae528132a1a1e0334b8367d2275eaef7ad5835d7e81519ff76e4e8904a26ac8",
+        "pixels": 769,
+        "bbox": [
+          17,
+          40,
+          97,
+          76
+        ],
+        "components": [
+          540,
+          229
+        ]
+      },
+      "secondary": {
+        "file": "masks/cookiecutter-secondary.png",
+        "sha256": "c9af24349d9b4988d3b495f7076a473f3759a7e74f3877c3c568c6cb58e21cb1",
+        "pixels": 495,
+        "bbox": [
+          33,
+          54,
+          111,
+          88
+        ],
+        "components": [
+          390,
+          41,
+          25,
+          22,
+          17
+        ]
+      },
+      "tertiary": {
+        "file": "masks/cookiecutter-tertiary.png",
+        "sha256": "a018988c01d206300c3b511e3c0cd0582474ca053a1d5416cdbb6e8e7dbd8774",
+        "pixels": 174,
+        "bbox": [
+          19,
+          44,
+          51,
+          66
+        ],
+        "components": [
+          92,
+          82
+        ]
+      }
+    },
+    "normalization": "Crop alpha>=128 bounds; proportionally fit whole sprite within 96x96 using LANCZOS; threshold alpha at 128; map interior RGB to nearest exact role/neutral marker, with near-black pixels preserved as dark details; retain original bytes separately."
+  },
+  "octopus": {
+    "native_sha256": "14bba5459fa54795eda77b94adb1f33d08b8303e0ead85dcbcf315c4383cfd91",
+    "native_size": [
+      1254,
+      1254
+    ],
+    "native_partial_alpha_pixels": 344434,
+    "native_rgb_colours": 43177,
+    "thresholded_source_bbox": [
+      196,
+      196,
+      1062,
+      1068
+    ],
+    "logical_bbox": [
+      16,
+      16,
+      111,
+      112
+    ],
+    "logical_size": [
+      128,
+      128
+    ],
+    "margin_min_pixels": 16,
+    "region_pixels": {
+      "primary": 370,
+      "secondary": 1679,
+      "tertiary": 459,
+      "outline": 328,
+      "dark_detail": 942,
+      "light_detail": 33
+    },
+    "region_fraction": {
+      "primary": 0.0971,
+      "secondary": 0.4406,
+      "tertiary": 0.1204,
+      "outline": 0.0861,
+      "dark_detail": 0.2472,
+      "light_detail": 0.0087
+    },
+    "visible_rgb_colours": 6,
+    "roles": {
+      "primary": {
+        "file": "masks/octopus-primary.png",
+        "sha256": "11a56b5ba4d744d63c68867edee3e7b76ab3d7cbf8cc71d2dae555a117059b79",
+        "pixels": 370,
+        "bbox": [
+          52,
+          44,
+          75,
+          75
+        ],
+        "components": [
+          370
+        ]
+      },
+      "secondary": {
+        "file": "masks/octopus-secondary.png",
+        "sha256": "4b333986a92e80c07164794be344915d6ca13e5e17523d96f80fb6983c0b2191",
+        "pixels": 1679,
+        "bbox": [
+          17,
+          17,
+          110,
+          111
+        ],
+        "components": [
+          428,
+          227,
+          223,
+          222,
+          208,
+          204,
+          167
+        ]
+      },
+      "tertiary": {
+        "file": "masks/octopus-tertiary.png",
+        "sha256": "e2437c8095e3bf50505dc55599bd65a3721e12f70d6f510d80da67cabb759cb9",
+        "pixels": 459,
+        "bbox": [
+          19,
+          18,
+          108,
+          110
+        ],
+        "components": [
+          14,
+          14,
+          13,
+          9,
+          9,
+          9,
+          9,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          5,
+          5,
+          5,
+          5,
+          4,
+          4,
+          4,
+          4,
+          4,
+          3,
+          3,
+          3,
+          3,
+          2,
+          2,
+          1,
+          1
+        ]
+      }
+    },
+    "normalization": "Crop alpha>=128 bounds; proportionally fit whole sprite within 96x96 using LANCZOS; threshold alpha at 128; map interior RGB to nearest exact role/neutral marker, with near-black pixels preserved as dark details; retain original bytes separately."
+  }
+}

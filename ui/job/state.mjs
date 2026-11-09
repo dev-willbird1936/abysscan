@@ -15,6 +15,41 @@ export const DEPTH_INFO = {
 export const depthRank = depth => DEPTHS.indexOf(depth);
 export const isDeepDepth = depth => depthRank(depth) >= 2;
 
+export function verdictHeading(state) {
+  const depth = state.verdict?.depth ?? state.depth;
+  if (!DEPTHS.includes(depth)) return 'Result inconclusive';
+  if (isDeepDepth(depth)) return 'Harmful behaviour observed';
+  if (state.failed || state.verdict?.complete === false || (state.receipt && !receiptView(state.receipt).ok)) return 'Result inconclusive';
+  return depth === 'twilight' ? 'Suspicious or inconclusive' : 'No harmful behaviour observed';
+}
+
+// One presentation contract for the ocean, full report and downloaded report. Depth remains evidence, not clearance.
+export function resultSummary(state) {
+  const depth = state.verdict?.depth ?? state.depth;
+  const info = DEPTH_INFO[depth];
+  const integrity = Boolean(state.receipt && !receiptView(state.receipt).ok);
+  const complete = Boolean(info && !state.failed && state.verdict?.complete !== false && receiptView(state.receipt).ok);
+  const status = integrity ? 'integrity' : !info || state.failed || state.verdict?.complete === false ? 'incomplete' : !complete ? 'pending' : isDeepDepth(depth) ? 'harmful' : depth === 'twilight' ? 'suspicious' : 'observed';
+  const badge = isDeepDepth(depth) ? `${info.name} · ${info.meaning}`
+    : integrity ? 'Integrity check not confirmed'
+      : status === 'incomplete' ? 'Inconclusive · checks incomplete'
+        : status === 'pending' ? 'Verification pending'
+          : depth === 'sunlight' ? 'Sunlight · No harmful behaviour observed' : `${info.name} · Suspicious or inconclusive`;
+  const warning = integrity ? 'Sandbox integrity or cleanup could not be verified. Do not rely on this run as clearance; review the receipt.'
+    : status === 'incomplete' ? 'Some checks did not finish. Treat the file as unknown rather than safe.'
+      : status === 'pending' ? 'Waiting for cleanup and the host canary check. This is not a final clearance.' : '';
+  return { status, heading: verdictHeading(state), badge, warning, complete };
+}
+
+export function executionText(typed) {
+  switch (typed?.label) {
+    case 'Inspected': return { title: 'Sealed in for inspection', detail: 'The file is inspected, not executed. Static checks can miss behaviour that only appears when a file runs.' };
+    case 'Emulated': return { title: 'Sealed in for emulation', detail: 'The file is emulated in a network-less sandbox. This is not a real Windows or macOS machine; some behaviour may not be reproduced.' };
+    case 'Executed on Linux': case 'Ran under Wine': return { title: 'Sealed in for execution', detail: 'The file runs in a network-less sandbox with a seeded home folder and time and resource limits. A separate canary check watches one host file, not the whole host.' };
+    default: return { title: 'Preparing the sandbox checks', detail: 'Waiting for the recorded coverage. The report will distinguish execution, emulation and inspection.' };
+  }
+}
+
 const STAGE_RANK = { received: 0, typed: 1, queued: 1, detonating: 2, collecting: 3, analysing: 4, explaining: 5, verdict: 5, tearing_down: 6, done: 7 };
 
 // A row is active while the job's rank is in [from, to) and done once it reaches `to`.
@@ -143,8 +178,15 @@ export function stageRows(state) {
   return STAGE_ROWS.map(row => {
     let status = state.rank >= row.to ? 'done' : state.rank >= row.from ? 'active' : 'todo';
     if (state.failed && state.failedRow === row.key) status = 'failed';
+    if (row.key === 'teardown' && state.finished && state.receipt?.teardownConfirmed !== true) status = 'failed';
     let label = row.label;
-    if (row.key === 'analysing' && status !== 'todo') label = `Analysing (${Math.min(Math.max(state.attempt, 1), MAX_ATTEMPTS)}/${MAX_ATTEMPTS})`;
+    if (row.key === 'detonating' && state.typed?.label === 'Inspected') label = 'Inspecting';
+    if (row.key === 'detonating' && state.typed?.label === 'Emulated') label = 'Emulating';
+    if (row.key === 'analysing' && status !== 'todo' && state.attempts.length) label = `Analysing (${Math.min(Math.max(state.attempt, 1), MAX_ATTEMPTS)}/${MAX_ATTEMPTS})`;
+    if (['analysing', 'explaining'].includes(row.key) && !state.attempts.length && (state.finished || state.explanation?.modelAvailable === false)) {
+      status = 'skipped';
+      label = row.key === 'analysing' ? 'Model analysis' : 'Model explanation';
+    }
     return { key: row.key, label, status };
   });
 }
@@ -195,7 +237,7 @@ export function receiptView(receipt) {
   if (Array.isArray(receipt.notes)) for (const note of receipt.notes) if (typeof note === 'string' && note) lines.push(`Note: ${note}`);
   if (Array.isArray(receipt.limitsHit) && receipt.limitsHit.length) lines.push(`Limits hit: ${receipt.limitsHit.map(item => shortText(item)).join(', ')}`);
   if (isRecord(receipt.inference)) lines.push(`Model calls: ${Number.isInteger(receipt.inference.calls) ? receipt.inference.calls : 'unknown'}`);
-  return { ok: destroyed && canary === 'unchanged', headline, lines };
+  return { ok: destroyed && canary === 'unchanged' && receipt.uploadDeleted !== false, headline, lines };
 }
 
 // "Will run under Wine" before the run, the recorded label after it.

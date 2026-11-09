@@ -860,7 +860,8 @@
     k.arc = (a, b, q, lift) => [bez(a[0], (a[0] + b[0]) / 2, b[0], q), bez(a[1], Math.min(a[1], b[1]) - lift, b[1], q)];
     // Labels from the host's targets of one kind, topped up with fixed defaults.
     k.names = (kind, defaults, n) => {
-      const own = k.targets.filter(t => t.kind === kind).map(t => t.label.slice(0, 16));
+      // A host's own labels may be real captured values (a fish quest's {captured}): up to 22 characters.
+      const own = k.targets.filter(t => t.kind === kind).map(t => t.label.slice(0, 22));
       return own.concat(defaults).slice(0, n || defaults.length);
     };
     return k;
@@ -902,7 +903,9 @@
   attack('credential-phish', { title: 'PHISHING: CREDENTIALS CAPTURED', unit: 'credentials', evKind: 'credential-captured', total: 3, labels: ['j.doe@corp.example', 'a.lee@mail.example', 'm.ruiz@work.example'] }, k => {
     const who = k.names('account', ['j.doe@corp.example', 'a.lee@mail.example', 'm.ruiz@work.example'], 3);
     k.slots(3);
-    const rows = who.map(label => ({ card: k.icon('card', 3), label: k.txt(label, k.px * 56, .75, PX.y), pw: k.txt('pw: ********', k.px * 40, .7, PX.m) }));
+    // The line under each card: what the account was (a host's 'secret' targets name the field), else a masked password.
+    const what = k.names('secret', ['pw: ********', 'pw: ********', 'pw: ********'], 3);
+    const rows = who.map((label, i) => ({ card: k.icon('card', 3), label: k.txt(label, k.px * 64, .75, PX.y), pw: k.txt(what[i], k.px * 48, .7, PX.m) }));
     return {
       hover: [.72, .4],
       draw(t) {

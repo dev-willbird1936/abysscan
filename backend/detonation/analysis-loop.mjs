@@ -34,7 +34,8 @@ function verdictFacts(verdict) {
 export function isValidPng(buffer) {
   return Buffer.isBuffer(buffer) && buffer.length >= 33
     && buffer.subarray(0, 8).equals(PNG_SIGNATURE)
-    && buffer.readUInt32BE(8) === 13 && buffer.toString('latin1', 12, 16) === 'IHDR';
+    && buffer.readUInt32BE(8) === 13 && buffer.toString('latin1', 12, 16) === 'IHDR'
+ && buffer.readUInt32BE(16) > 0 && buffer.readUInt32BE(20) > 0;
 }
 
 // Exactly one fenced python block, at most 20 KB. Returns {code} or {reason}.
@@ -114,7 +115,8 @@ export async function runAnalysis({ verdict, evidenceSummary, diffSummary, stati
 
 Rule-engine verdict and findings (facts): ${verdictFacts(verdict)}
 Artifacts: ${Object.keys(artifacts).join(', ') || 'none'}
-Write at most ${MAX_EXPLANATION_CHARS} characters of plain English that explains this verdict. Do not claim anything absent from the findings.` },
+Write at most ${MAX_EXPLANATION_CHARS} characters of plain English that explains this verdict. Do not claim anything absent from the findings.
+The reader is not technical: in two to four short sentences, say what the file tried to do and why that is harmful, in everyday words. Use plain text, no Markdown. Do not mention the rule engine, verdict objects, artifacts or finding ids.` },
     ]);
   } catch {
     return { ...unavailable(loop.attempts), artifacts, scriptOk: loop.ok };

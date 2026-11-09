@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ocean · Scroll through the depths</title>
+<style>
+:root{color-scheme:dark;font-family:ui-sans-serif,system-ui,sans-serif;background:#03080f;color:#edf6fa}*{box-sizing:border-box}body{margin:0}header{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:18px 28px;background:#07101af2;border-bottom:1px solid #263443}h1{margin:0;font-size:20px;letter-spacing:-.035em;font-weight:500}.intro{margin:5px 0 0;color:#9fb3c5;font-size:12px}label{display:flex;align-items:center;gap:12px;font-size:13px;color:#b6cbd9}select{font:inherit;color:#edf6fa;background:#142331;border:1px solid #3a5266;border-radius:8px;padding:10px 32px 10px 12px;max-width:100%}select:focus-visible,a:focus-visible{outline:2px solid #8be2ec;outline-offset:4px}main{width:100%;max-width:1920px;margin:auto}.zone{margin:0;position:relative;aspect-ratio:16/9;overflow:hidden;background:#06111f}.zone img{display:block;width:100%;height:100%;object-fit:cover}.zone .creatures{position:absolute;inset:0;pointer-events:none}.creature-warning{position:absolute;right:18px;bottom:18px;padding:6px 9px;border-radius:5px;background:#08111bd9;color:#e5bca7;font-size:11px}.zone figcaption{position:absolute;left:24px;bottom:24px;padding:9px 13px;border:1px solid #daeef52b;border-radius:8px;background:#04101bba;color:#e3eff5;font-size:12px}.zone figcaption strong{font-weight:500}.zone figcaption span{margin-left:12px;color:#b2c7d5}.missing{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:10px;padding:20px;color:#b3c9da;background:#0c1928}.missing small{overflow-wrap:anywhere;color:#8ba3b8}.loading{position:absolute;top:16px;right:20px;font-size:11px;color:#bbd8e7;background:#06111fbf;padding:6px 9px;border-radius:5px}footer{padding:20px 28px;color:#8da6ba;font-size:12px;line-height:1.7;background:#03080f}footer p{margin:0}footer a{color:#abdfe7}[hidden]{display:none!important}@media(max-width:620px){header{padding:13px 15px;gap:12px;flex-wrap:wrap}h1{font-size:17px}.intro{font-size:11px}label{width:100%;gap:10px}select{flex:1;min-width:0}.zone figcaption{left:12px;bottom:12px;padding:6px 8px;font-size:10px}.zone figcaption span{margin-left:8px}.loading{top:8px;right:10px;font-size:10px}footer{padding:16px}}
+</style>
+</head>
+<body>
+<header><div><h1>One ocean. Six ways down.</h1><p class="intro">Scroll from sunlight to trench. Five illustrated depths, no 3D.</p></div><label for="style">Art style <select id="style"></select></label></header>
+<main id="ocean" aria-label="Five ocean depths, from surface to trench"></main>
+<footer><p id="status" role="status" aria-live="polite"></p><p id="description"></p><p>Codex image-generation prototypes · <a href="generation-brief.txt">Ocean brief</a> · <a href="creature-generation-brief.txt">Creature brief</a> · <a href="creature-roster.json">3D renderer roster</a> · Separate from the existing app.</p></footer>
+<script src="creature-roster-view.js"></script>
+<script>
+const styles=[
+{id:'minimal-silhouettes',name:'Minimal silhouettes',description:'Clean gradients and sparse marine silhouettes. The simplest ocean direction.'},
+{id:'paper-cut',name:'Layered paper-cut',description:'Overlapping flat shapes and soft shadows suggest 2.5D without a renderer.'},
+{id:'watercolor',name:'Soft watercolor',description:'Translucent washes, soft edges, and subtle pigment texture.'},
+{id:'pixel-art',name:'Retro pixel art',description:'Crisp pixels, limited palettes, and tiny sea creatures.'},
+{id:'field-guide',name:'Scientific field guide',description:'Delicate marine specimen linework and restrained blue washes.'},
+{id:'screen-print',name:'Atmospheric screen print',description:'Bold flat shapes, limited inks, and subtle grain.'}];
+const depthRanges={
+ '01-sunlight':'0–200 m','02-twilight':'200–1,000 m','03-midnight':'1,000–4,000 m',
+ '04-abyss':'4,000–6,000 m','05-trench':'6,000–11,000 m'
+};
+const depths=window.OCEAN_CREATURE_ROSTER.tiers.map(tier=>({
+ id:tier.id,name:tier.name,range:depthRanges[tier.id],
+ creatures:tier.creatures.map(c=>c.name).join(', ')
+}));
+const select=document.getElementById('style'),ocean=document.getElementById('ocean'),status=document.getElementById('status');let revision=0;
+styles.forEach((s,i)=>select.add(new Option(s.name,i)));
+function render(){
+  const s=styles[Number(select.value)],current=++revision;
+  let backgrounds=0,creatures=0,failed=0;
+  document.getElementById('description').textContent=s.description;
+  status.textContent=`Loading ${s.name.toLowerCase()} ocean and creature layers…`;
+  const update=()=>{if(current!==revision)return;status.textContent=`${s.name}: ${backgrounds}/5 ocean images and ${creatures}/5 creature layers loaded${failed?`, ${failed} layer${failed===1?'':'s'} unavailable`:''}. Five 16:9 depths, from surface to trench.`};
+  ocean.replaceChildren(...depths.map(d=>{
+    const figure=document.createElement('figure');figure.className='zone';
+    const loading=document.createElement('span');loading.className='loading';loading.textContent='Loading layers…';
+    const missing=document.createElement('div');missing.className='missing';missing.hidden=true;
+    const title=document.createElement('strong');title.textContent='Ocean image unavailable';
+    const filename=document.createElement('small');filename.textContent=`assets/${s.id}/${d.id}.png`;missing.append(title,filename);
+    const warning=document.createElement('span');warning.className='creature-warning';warning.textContent='Creature layer unavailable';warning.hidden=true;
+    let settled=0;
+    const layer=overlay=>{
+      const img=document.createElement('img');img.decoding='async';
+      if(s.id==='pixel-art')img.style.imageRendering='pixelated';
+      if(overlay){img.className='creatures';img.alt=`${s.name} creatures: ${d.creatures}`;}
+      else img.alt=`${s.name} illustration: ${d.name.toLowerCase()} ocean zone, ${d.range}`;
+      img.onload=()=>{if(current!==revision)return;overlay?creatures++:backgrounds++;if(++settled===2)loading.hidden=true;update();};
+      img.onerror=()=>{if(current!==revision)return;failed++;img.hidden=true;if(overlay)warning.hidden=false;else missing.hidden=false;if(++settled===2)loading.hidden=true;update();};
+      img.src=`${overlay?'creature-assets':'assets'}/${s.id}/${d.id}.png`;return img;
+    };
+    const caption=document.createElement('figcaption'),name=document.createElement('strong'),range=document.createElement('span');
+    name.textContent=d.name;range.textContent=d.range;caption.append(name,range);
+    figure.append(layer(false),missing,layer(true),loading,warning,caption);return figure;
+  }));
+}
+select.onchange=render;render();
+</script>
+</body>
+</html>

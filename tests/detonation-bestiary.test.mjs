@@ -19,7 +19,7 @@ const cardOf = (html, id) => html.match(new RegExp(`<li class="card[^"]*" id="${
 test('every finding ID in data/creatures.json renders exactly one card', () => {
   const { creatures } = render(roster, fish, null);
   const ids = cardIds(creatures);
-  assert.equal(roster.creatures.length, 22);
+  assert.equal(roster.creatures.length, 23);
   assert.deepEqual(ids, roster.creatures.map((entry) => entry.findingId));
   assert.ok(ids.includes('other-harm'), 'the giant squid has a card');
 });
@@ -96,7 +96,7 @@ test('pages: pixel chrome, nav, keyboard and reduced motion', () => {
     assert.match(html, /<a class="pg-skip" href="#main">/, file);
     assert.match(html, /<main class="pg-main" id="main">/, file);
     assert.match(html, new RegExp(`<a href="${current}" aria-current="page">`), file);
-    for (const label of ['Upload', 'Bestiary', 'How it works']) assert.ok(html.includes(`>${label}</a>`), `${file} ${label}`);
+    for (const label of ['Search', 'Bestiary', 'How it works']) assert.ok(html.includes(`>${label}</a>`), `${file} ${label}`);
     assert.doesNotMatch(html, /https?:\/\/(?!www\.w3\.org)/, `${file} loads nothing third-party`);
     assert.doesNotMatch(html, /<script(?![^>]*\bsrc=)[^>]*>/, `${file} has no inline script`);
   }
@@ -115,4 +115,45 @@ test('About page covers architecture, the four containment properties with their
   }
   assert.match(html, /not a guarantee/);
   assert.doesNotMatch(html, /\bSEV\d/);
+});
+
+// cardOf stops at the first </li>; a card with a fish list has more of them.
+const wholeCard = (html, id) => html.match(new RegExp(`<li class="card[^"]*" id="${id}"[\\s\\S]*?class="eaten"[^<]*</p></div></li>`))[0];
+
+test('a found creature lists the fish it ate: species, file type, depth reached and the day', () => {
+  const recent = [
+    { species: 'pufferfish', type: 'zip', depth: 'abyss', day: '2026-03-02' },
+    { species: 'coelacanth', type: null, depth: 'trench', day: '2026-03-01' },
+  ];
+  const card = wholeCard(render(roster, fish, { creatures: [{ findingId: 'persistence', eaten: 2, recent }] }).creatures, 'persistence');
+  assert.match(card, /<b>Fish it ate<\/b><\/p>/);
+  assert.match(card, /<li><span class="ate-fish">Pufferfish<\/span> <span class="ate-type">\.zip<\/span> sank to Abyss <time>2026-03-02<\/time><\/li>/);
+  assert.match(card, /<li><span class="ate-fish">Coelacanth<\/span> sank to Trench <time>2026-03-01<\/time><\/li>/, 'a withheld type shows the species only');
+  assert.match(card, /Has eaten 2 files/);
+  const more = wholeCard(render(roster, fish, { creatures: [{ findingId: 'persistence', eaten: 31, recent }] }).creatures, 'persistence');
+  assert.match(more, /Fish it ate<\/b> \(latest 2 of 31\)/);
+});
+
+test('historical illustrations are labelled separately from observed uploads', () => {
+  const page = render(roster, fish, {
+    schools: [{ species: 'barracuda', depth: 'sunlight', count: 2, observed: 1, examples: 1, known: ['Example file'] }],
+    creatures: [{ findingId: 'encrypt', eaten: 2, observed: 1, examples: 1, recent: [
+      { name: 'Historical example', species: 'barracuda', type: 'exe', depth: 'trench', base: true },
+      { species: 'coelacanth', type: null, depth: 'trench', day: '2026-10-31' },
+    ] }],
+  });
+  assert.match(wholeCard(page.creatures, 'encrypt'), /1 historical illustration · 1 observed upload/);
+  assert.match(wholeCard(page.creatures, 'encrypt'), /historical illustration; not a sandbox result/);
+  assert.match(page.fish, /School size: 2 · 1 observed upload · 1 historical illustration/);
+});
+
+test('a creature counted before the list existed shows the count only; the list is escaped and names nothing else', () => {
+  const old = wholeCard(render(roster, fish, { creatures: [{ findingId: 'persistence', eaten: 5 }] }).creatures, 'persistence');
+  assert.doesNotMatch(old, /Fish it ate|ate-list/);
+  assert.match(old, /Has eaten 5 files/);
+  const evil = [{ species: '<b>x</b>', type: '<img src=x>', depth: 'abyss<', day: '"><script>' }];
+  const card = wholeCard(render(roster, fish, { creatures: [{ findingId: 'persistence', eaten: 1, recent: evil }] }).creatures, 'persistence');
+  assert.doesNotMatch(card, /<img|<script|<b>x/);
+  const listing = card.match(/<ul class="ate-list">[\s\S]*?<\/ul>/)[0];
+  assert.doesNotMatch(listing, /name|sha|job|\bip\b/i);
 });

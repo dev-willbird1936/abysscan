@@ -169,12 +169,16 @@ test('flags executables and copies of the sample; the runner copy of the sample 
     box.put('Downloads/dropper', '#!/bin/sh\necho second stage\n');
     box.put('Documents/copy1.sh', sample);
     box.put('Pictures/copy2.txt', sample);
+    // Every kind is staged at Downloads/sample.<ext>: a document, script or page the runner put there is not the sample
+    // copying itself, and calling it self-copy turned ordinary documents into Midnight.
+    box.put('Downloads/sample.php', '<?php echo 1; ?>');
     const diff = box.run('--sample-sha256', sha256(sample));
     assert.equal(find(diff, 'added', 'Downloads/sample.sh'), undefined);
     assert.equal(find(diff, 'added', 'Downloads/dropper').executable, true);
     assert.equal(find(diff, 'added', 'Downloads/dropper').copyOfSample, undefined);
     assert.equal(find(diff, 'added', 'Documents/copy1.sh').copyOfSample, true);
     assert.equal(find(diff, 'added', 'Pictures/copy2.txt').copyOfSample, true);
+    assert.equal(find(diff, 'added', 'Downloads/sample.php').copyOfSample, undefined);
   } finally { box.cleanup(); }
 });
 

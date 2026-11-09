@@ -1,0 +1,191 @@
+// To Do, People, Clock, Updates and Authenticator share these list layouts.
+.ls-app {
+  .ls-user {
+    padding: 8px 10px 12px;
+  }
+  .ls-main {
+    padding: 22px 28px 12px;
+    background: var(--oc-bg);
+  }
+  .ls-subtitle {
+    margin: 2px 0 14px;
+  }
+  .ls-add {
+    gap: 12px;
+    height: 46px;
+    padding: 0 14px;
+    border-radius: 6px;
+    background: var(--oc-card);
+    border: 1px solid var(--oc-stroke);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    flex-shrink: 0;
+    svg {
+      width: 14px;
+    }
+  }
+  .ls-add-input {
+    border: none;
+    outline: none;
+    background: transparent;
+    height: 100%;
+  }
+  .ls-tasks {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .ls-task {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 52px;
+    padding: 6px 8px 6px 16px;
+    border-radius: 6px;
+    background: var(--oc-card);
+    border: 1px solid var(--oc-stroke);
+    flex-shrink: 0;
+
+    &:hover {
+      background: var(--oc-card2);
+    }
+    &[data-done="true"] .ls-task-title {
+      text-decoration: line-through;
+      color: var(--oc-text2);
+    }
+    .oc-btn {
+      opacity: 0;
+    }
+    &:hover .oc-btn {
+      opacity: 1;
+    }
+  }
+  .ls-due[data-overdue="true"] {
+    color: var(--oc-danger);
+  }
+  .ls-due svg {
+    width: 10px;
+  }
+  .ls-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 6px 6px;
+    font-weight: 600;
+    svg {
+      width: 10px;
+    }
+  }
+}
+
+.pp-app {
+  .pp-list {
+    width: 250px;
+    flex-shrink: 0;
+    background: var(--oc-layer);
+    border-right: 1px solid var(--oc-stroke);
+  }
+  .pp-head {
+    padding: 12px 12px 6px;
+  }
+  .pp-search {
+    padding: 0 12px 8px;
+  }
+  .pp-letter {
+    padding: 8px 16px 2px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--oc-accent);
+  }
+  .pp-item {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 6px 10px;
+    margin: 0 6px 1px;
+    border-radius: 5px;
+    &:hover {
+      background: var(--oc-hover);
+    }
+    &[data-active="true"] {
+      background: var(--oc-sel);
+    }
+  }
+  .pp-card {
+    padding: 26px 30px;
+    gap: 14px;
+  }
+  .pp-hero {
+    gap: 20px;
+    align-items: center;
+  }
+  .pp-actions {
+    margin-top: 10px;
+  }
+  .pp-section {
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .pp-mail {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    border-radius: 5px;
+    svg {
+      width: 12px;
+      color: var(--oc-accent);
+    }
+    &:hover {
+      background: var(--oc-hover);
+    }
+  }
+}
+
+.td-app {
+  .ls-task[data-sel="true"] {
+    background: var(--oc-sel);
+  }
+  .td-star[data-on="true"] {
+    color: var(--oc-accent);
+  }
+  .td-prio {
+    color: #d13438;
+    font-weight: 700;
+  }
+  .td-details {
+    width: 260px;
+    flex-shrink: 0;
+    gap: 10px;
+    padding: 14px 12px;
+    background: var(--oc-layer);
+    border-left: 1px solid var(--oc-stroke);
+  }
+  .td-details-head {
+    gap: 10px;
+    padding: 10px;
+    border-radius: 6px;
+    background: var(--oc-card);
+  }
+  .td-field {
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: var(--oc-card);
+    svg {
+      width: 12px;
+    }
+  }
+  .td-notes {
+    min-height: 110px;
+    resize: vertical;
+  }
+}
+
+.pp-app .pp-fav {
+  color: var(--oc-accent);
+  width: 12px;
+}

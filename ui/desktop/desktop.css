@@ -122,6 +122,90 @@ body[data-os="macos"] .ocean-hint { top: 70px; }
   box-shadow: 0 30px 90px rgb(0 0 0 / 55%);
   transform: translateX(-50%);
 }
+/* The step-by-step guide (fish runs): bottom left, left of the scene's windows (fish-scenes.mjs places them at x >= 27%). */
+.ocean-guide {
+  position: absolute;
+  z-index: 26;
+  left: 14px;
+  bottom: 62px;
+  display: grid;
+  gap: 8px;
+  width: clamp(250px, 24vw, 340px);
+  max-height: calc(100% - 130px);
+  padding: 12px 14px 13px;
+  overflow: auto;
+  border: 1px solid rgb(180 240 230 / 30%);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgb(20 56 70 / 97%), rgb(6 20 32 / 98%));
+  box-shadow: 0 20px 60px rgb(0 0 0 / 50%);
+  color: var(--ink);
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+.ocean-guide[hidden] { display: none; }
+body[data-os="macos"] .ocean-guide { bottom: 88px; }
+.guide-top { display: flex; align-items: baseline; gap: 6px; margin: 0; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.guide-eyebrow { color: var(--mint); }
+.guide-count { color: var(--amber); }
+.guide-hide { margin-left: auto; padding: 2px 8px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--muted); font: inherit; letter-spacing: .06em; cursor: pointer; }
+.guide-hide:hover { color: var(--ink); }
+.guide-title { margin: 0; font-size: 17px; line-height: 1.25; }
+.guide-step p { margin: 0 0 6px; color: #d4e6e3; }
+.guide-step .guide-look { margin: 8px 0 0; padding: 6px 9px; border-left: 3px solid var(--amber); border-radius: 0 8px 8px 0; background: rgb(255 211 138 / 10%); color: var(--ink); }
+.guide-look b { color: var(--amber); }
+/* Your move: what the trainee can do on the desktop to play the next step. */
+.guide-step .guide-move { margin: 8px 0 0; padding: 6px 9px; border-left: 3px solid var(--mint); border-radius: 0 8px 8px 0; background: rgb(139 227 213 / 10%); color: var(--ink); }
+.guide-move b { color: var(--mint); }
+.guide-move .guide-or { color: var(--muted); white-space: nowrap; }
+.guide-step .guide-followed { margin: 0 0 6px; color: var(--mint); font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.guide-followed::before { content: '✓ '; }
+.guide-step .guide-note { margin: 8px 0 0; padding: 6px 9px; border-left: 3px solid #ff9f8a; background: rgb(255 159 138 / 12%); color: var(--ink); }
+.guide-activity { display: flex; flex-wrap: wrap; gap: 5px; }
+.guide-activity[hidden] { display: none; }
+.guide-activity-head { flex-basis: 100%; margin: 2px 0 0; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.guide-chip.guide-chip-cue { outline: 2px solid #ffb300; outline-offset: 2px; }
+body[data-fx=low] .guide-chip-cue, body[data-fx=high] .guide-chip-cue { animation: guide-chip-cue 1.4s ease-in-out infinite; }
+@keyframes guide-chip-cue { 50% { box-shadow: 0 0 0 5px rgb(255 179 0 / 22%); } }
+@media (prefers-reduced-motion: reduce) { .guide-chip-cue { animation: none !important; } }
+.guide-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border: 1px solid rgb(180 240 230 / 30%); border-radius: 999px; background: rgb(255 255 255 / 6%); color: var(--ink); font: inherit; font-size: 12px; }
+button.guide-chip { cursor: pointer; }
+button.guide-chip:hover { background: rgb(255 255 255 / 14%); }
+.guide-chip.bad { border-color: rgb(255 159 138 / 55%); background: rgb(255 120 100 / 12%); }
+.guide-chip-icon { width: 14px; text-align: center; }
+/* The quest HUD: the shift's counter and the flags placed (QUESTS.md §1). */
+.guide-hud { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 3px 10px; padding: 7px 10px; border: 1px solid rgb(126 231 135 / 30%); border-radius: 10px; background: rgb(126 231 135 / 7%); font-size: 12px; }
+.guide-hud[hidden] { display: none; }
+.hud-label { color: var(--muted); font-weight: 700; }
+.hud-count { color: #7ee787; font-size: 15px; display: inline-block; font-variant-numeric: tabular-nums; }
+.hud-bar { grid-column: 1 / -1; height: 5px; border-radius: 3px; background: rgb(255 255 255 / 12%); overflow: hidden; }
+.hud-fill { display: block; height: 100%; background: linear-gradient(90deg, #4cc38a, #7ee787); transition: width .45s cubic-bezier(.2, 1, .3, 1); }
+.hud-flags { color: #ff9f8a; font-weight: 700; white-space: nowrap; }
+.guide-step .guide-flag-rule { margin: 8px 0 0; padding: 6px 9px; border-left: 3px solid #ff9f8a; border-radius: 0 8px 8px 0; background: rgb(255 159 138 / 10%); color: var(--ink); }
+/* The end card: flags graded. */
+.grade-score { margin: 0 0 8px; color: var(--ink); }
+.grade-big { font-size: 26px; color: #7ee787; display: inline-block; margin-right: 4px; font-variant-numeric: tabular-nums; }
+.grade-list { margin: 0 0 8px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.grade-list li { display: grid; grid-template-columns: 16px 1fr; gap: 0 6px; font-size: 12.5px; }
+.grade-list .grade-mark { grid-row: span 2; font-weight: 800; }
+.grade-list .found .grade-mark { color: #7ee787; }
+.grade-list .missed .grade-mark { color: #ff9f8a; }
+.grade-list .missed b { color: #ffd0c4; }
+.grade-why { color: var(--muted); font-size: 11.5px; }
+.guide-step .guide-lesson-head { margin: 10px 0 4px; color: var(--mint); font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.guide-step .grade-extra { color: var(--muted); font-size: 12px; }
+.guide-dots { display: flex; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.guide-dots li { flex: 1; height: 4px; border-radius: 2px; background: rgb(255 255 255 / 14%); }
+.guide-dots li.done { background: var(--mint); }
+.guide-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.guide-actions .ocean-button { padding: 8px 14px; }
+.guide-actions .ocean-button[hidden], .guide-all[hidden] { display: none; }
+.guide-all { margin-left: auto; padding: 4px 2px; border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 12.5px; text-decoration: underline; cursor: pointer; }
+.guide-all:hover { color: var(--ink); }
+/* A guide step's attack animation plays right of the guide card; its caption sits at the top, clear of the animation's HUD. */
+body.guide-attack .ocean-fx-layer { top: 46px; left: calc(clamp(250px, 24vw, 340px) + 28px); }
+body.guide-attack[data-os="macos"] .ocean-fx-layer { top: 64px; }
+body.guide-attack .ocean-fx-caption { top: 58px; bottom: auto; left: calc(50% + (clamp(250px, 24vw, 340px) + 28px) / 2); }
+body.guide-attack[data-os="macos"] .ocean-fx-caption { top: 76px; }
 /* "What the program showed": the sandbox replay's Wine screenshots, parent-drawn above the active shell. */
 .ocean-showed {
   position: absolute;
@@ -333,3 +417,23 @@ body[data-os="macos"] .ocean-intro { top: 14%; }
 }
 .ocean-receipt dt { color: #93c4c6; }
 .ocean-receipt dd { margin: 0; overflow-wrap: anywhere; }
+
+/* Parent-only product chrome. The OS iframes keep their native visual language. */
+body[data-site="desktop"] :is(.ocean-card, .ocean-guide, .ocean-debrief, .ocean-showed, .ocean-intro) { border-radius: 0; background: #0b2133; border: 1px solid #537d8f; box-shadow: 4px 4px 0 #020a14; }
+body[data-site="desktop"] .ocean-gate { backdrop-filter: none; }
+body[data-site="desktop"] :is(.ocean-card h1, .guide-title, .ocean-debrief h2) { font-family: var(--ui-pixel); font-weight: 400; font-size: 30px; }
+body[data-site="desktop"] :is(.ocean-lede, .ocean-points li, .ocean-tick) { font-size: 15px; line-height: 1.6; }
+body[data-site="desktop"] :is(.ocean-fine, .ocean-stages li, .ocean-debrief ul, .guide-step p) { font-size: 14px; line-height: 1.6; }
+body[data-site="desktop"] :is(.ocean-button, .ocean-link, .os-switcher button, .guide-hide, .guide-all, .intro-button) { min-height: 44px; border-radius: 0; }
+body[data-site="desktop"] .ocean-chrome { opacity: 1; border-radius: 0; background: #071624f2; backdrop-filter: none; box-shadow: none; }
+body[data-site="desktop"] :is(.os-switcher, .ocean-chip, .ocean-tick, .ocean-points li, .guide-look, .guide-move, .guide-note, .guide-chip, .ocean-stages li) { border-radius: 0; }
+body[data-site="desktop"] .ocean-guide { border-left: 3px solid #8be3d5; }
+body[data-site="desktop"] .guide-actions { gap: 10px; }
+body[data-site="desktop"] .ocean-intro { max-height: 70vh; overflow-y: auto; font: 16px/1.6 var(--ui-font); }
+body[data-site="desktop"] .ocean-intro h2 { font-family: var(--ui-pixel); }
+@media (max-width: 760px) {
+  body[data-site="desktop"] .ocean-chrome, body[data-site="desktop"][data-os="macos"] .ocean-chrome { top: auto; right: 8px; bottom: 8px; max-width: calc(100vw - 16px); gap: 2px; }
+  body[data-site="desktop"] .ocean-link { padding: 8px; }
+  body[data-site="desktop"] .ocean-guide, body[data-site="desktop"][data-os="macos"] .ocean-guide { left: 12px; bottom: 72px; width: min(340px, calc(100vw - 24px)); max-height: 50dvh; }
+  body[data-site="desktop"] .ocean-card { margin: auto; }
+}

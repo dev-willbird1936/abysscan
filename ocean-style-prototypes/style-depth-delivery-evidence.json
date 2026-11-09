@@ -1,0 +1,1293 @@
+{
+  "user_request": "Six 2D/2.5D art styles \u00d7 five depth panels; each panel has one native Codex creature composition as a transparent overlay on its existing ocean background, style dropdown swaps all five.",
+  "generated_layers": {
+    "generator": "Codex native image_gen.imagegen",
+    "native_composition_count": 30,
+    "final_creature_overlay_count": 30,
+    "styles": [
+      "minimal-silhouettes",
+      "paper-cut",
+      "watercolor",
+      "pixel-art",
+      "field-guide",
+      "screen-print"
+    ],
+    "depths": [
+      "01-sunlight",
+      "02-twilight",
+      "03-midnight",
+      "04-abyss",
+      "05-trench"
+    ],
+    "native_source_hashes_unique": true,
+    "final_overlay_hashes_unique": true,
+    "all_native_sources_genuinely_transparent_rgba": true,
+    "all_exports_rgba_1600x900_with_transparency": true,
+    "assets": [
+      {
+        "style": "minimal-silhouettes",
+        "depth": "01-sunlight",
+        "native_source": "creature-approved-sources/minimal-silhouettes/01-sunlight.png",
+        "native_sha256": "c47c42cc35c94433d39d5f3b3a9626aa68c9e5901413c2357f50197adec1ab02",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\minimal-silhouettes\\01-sunlight.png",
+        "final_sha256": "3452c2f57b22fb5b8c111a4f599f4c26977005c440aae8af4beebe2cdfbeeb51",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.78508,
+        "visible_bounds": [
+          160,
+          103,
+          1429,
+          793
+        ]
+      },
+      {
+        "style": "minimal-silhouettes",
+        "depth": "02-twilight",
+        "native_source": "creature-approved-sources/minimal-silhouettes/02-twilight.png",
+        "native_sha256": "4bcd01e4d83a0b7a7142d4380fae82469a3f0a169685e1795de378463af783b4",
+        "native_dimensions": [
+          1672,
+          940
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\minimal-silhouettes\\02-twilight.png",
+        "final_sha256": "2d1b3556325389c2170b4abe5241d666a86fbc45abd48f5b0ea7692f06f3b9fa",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.865596,
+        "visible_bounds": [
+          209,
+          201,
+          1416,
+          790
+        ]
+      },
+      {
+        "style": "minimal-silhouettes",
+        "depth": "03-midnight",
+        "native_source": "creature-approved-sources/minimal-silhouettes/03-midnight.png",
+        "native_sha256": "d930582686f580617ae54b1d04c6c2dc0274b13ea5f74d9f8cd191b8d00001da",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\minimal-silhouettes\\03-midnight.png",
+        "final_sha256": "0b0e342ca3ce64ece4c0c29920a76181c8df043202c482e8842ec03093c4c2b9",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.954573,
+        "visible_bounds": [
+          675,
+          238,
+          1237,
+          711
+        ]
+      },
+      {
+        "style": "minimal-silhouettes",
+        "depth": "04-abyss",
+        "native_source": "creature-approved-sources/minimal-silhouettes/04-abyss.png",
+        "native_sha256": "db95826982f472ee55568834a8cd5245ae8dd844a013f7f66c1963c5b03679f6",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\minimal-silhouettes\\04-abyss.png",
+        "final_sha256": "aad0894476e43d693c3158f7441403dd0370dc5cd49a3455411ed2b8ed5eb473",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.794812,
+        "visible_bounds": [
+          160,
+          97,
+          1430,
+          810
+        ]
+      },
+      {
+        "style": "minimal-silhouettes",
+        "depth": "05-trench",
+        "native_source": "creature-approved-sources/minimal-silhouettes/05-trench.png",
+        "native_sha256": "c35863f0191d061bee40bbc2813d3205647df05cd1d0c60d8dd538a6d891bca6",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\minimal-silhouettes\\05-trench.png",
+        "final_sha256": "891f9d375acac7f45779d99e73fcc56fd7b3125082aa55f0b3cb39b1a8c8cf80",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.753897,
+        "visible_bounds": [
+          167,
+          103,
+          1418,
+          796
+        ]
+      },
+      {
+        "style": "paper-cut",
+        "depth": "01-sunlight",
+        "native_source": "creature-source-assets\\paper-cut\\01-sunlight.png",
+        "native_sha256": "1639ee333ee9ba5e45759cd29aad9bd12dc6193e26ce2983282b5916bfa0d0de",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\paper-cut\\01-sunlight.png",
+        "final_sha256": "e44eaa9a179a34cfe3ce9b7098bb263dbbfe4a4dc2c81583dde8d5767762d6e1",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.739724,
+        "visible_bounds": [
+          191,
+          102,
+          1428,
+          798
+        ]
+      },
+      {
+        "style": "paper-cut",
+        "depth": "02-twilight",
+        "native_source": "creature-source-assets\\paper-cut\\02-twilight.png",
+        "native_sha256": "f7e73d26a68a6b572ff34163b2f47b280e79380e6388726e0ad3b045818f0e55",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\paper-cut\\02-twilight.png",
+        "final_sha256": "3f7fd74c258a02e88d1670f63b8abb0aedb2ee92809a98ba3e93d84db6d4f4d3",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.83888,
+        "visible_bounds": [
+          193,
+          121,
+          1417,
+          784
+        ]
+      },
+      {
+        "style": "paper-cut",
+        "depth": "03-midnight",
+        "native_source": "creature-source-assets\\paper-cut\\03-midnight.png",
+        "native_sha256": "51628139296ba9f9a00f9f1a75fd95e3154cfb667f9437d2eaf095fd455538a0",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\paper-cut\\03-midnight.png",
+        "final_sha256": "e3840ac9fa3d82c5cf07c1632b72ab70ecb042a814856086e3697af3f1a111d7",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.936577,
+        "visible_bounds": [
+          343,
+          174,
+          1232,
+          731
+        ]
+      },
+      {
+        "style": "paper-cut",
+        "depth": "04-abyss",
+        "native_source": "creature-source-assets\\paper-cut\\04-abyss.png",
+        "native_sha256": "a08d8df951b92339a09ec8257f66c84030ae36448c2058b7404899f326750697",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\paper-cut\\04-abyss.png",
+        "final_sha256": "03bbc65b225062014fffd65d74f6772f07a1bc95c088625dc079b2dd6a79b7d9",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.665931,
+        "visible_bounds": [
+          160,
+          103,
+          1428,
+          810
+        ]
+      },
+      {
+        "style": "paper-cut",
+        "depth": "05-trench",
+        "native_source": "creature-source-assets\\paper-cut\\05-trench.png",
+        "native_sha256": "60928348ddadbd6958413c26aca18a9ec34c69d8b7f351faa5cc64f74a1d2cde",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\paper-cut\\05-trench.png",
+        "final_sha256": "c49266b5ba57488f59617da55a986632e6c887f6ca79f2bdbcd87904fa212c65",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.662502,
+        "visible_bounds": [
+          160,
+          97,
+          1425,
+          810
+        ]
+      },
+      {
+        "style": "watercolor",
+        "depth": "01-sunlight",
+        "native_source": "creature-source-assets\\watercolor\\01-sunlight.png",
+        "native_sha256": "1fc48598622ff096e51e6a20b6f4355aea3490ad7cb210d82e6ea8008defc5f0",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\watercolor\\01-sunlight.png",
+        "final_sha256": "98d7e64753a8ae0c0e8e5564dfb8a0bbfe332ed52750eee604569bb7471c9f09",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.746205,
+        "visible_bounds": [
+          174,
+          106,
+          1427,
+          810
+        ]
+      },
+      {
+        "style": "watercolor",
+        "depth": "02-twilight",
+        "native_source": "creature-source-assets\\watercolor\\02-twilight.png",
+        "native_sha256": "72787e17416bc2d728be9655461665511af770bc7fd16243567261f59df1ebdb",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\watercolor\\02-twilight.png",
+        "final_sha256": "9d5c58834580d8ab99a0a0b86fa3bffce299e730a8848f74b625a97cd8e73d0a",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.818383,
+        "visible_bounds": [
+          183,
+          106,
+          1425,
+          810
+        ]
+      },
+      {
+        "style": "watercolor",
+        "depth": "03-midnight",
+        "native_source": "creature-source-assets\\watercolor\\03-midnight.png",
+        "native_sha256": "9cfc4b0e0683276f90d0b7f018bd6920c2c0fe0e6d234ee994c57184cdbb5810",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\watercolor\\03-midnight.png",
+        "final_sha256": "e758c8cdfb05ab3b13ea01529970d9c56532512a0a6420bea738777bbe5f0bc1",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.926651,
+        "visible_bounds": [
+          298,
+          166,
+          1302,
+          732
+        ]
+      },
+      {
+        "style": "watercolor",
+        "depth": "04-abyss",
+        "native_source": "creature-source-assets\\watercolor\\04-abyss.png",
+        "native_sha256": "3825c4a93c3b24ea8c96d5a5a64009c73f50f9f6d98ba5ed44263a2cd5472649",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\watercolor\\04-abyss.png",
+        "final_sha256": "183a9ebe0fcde4222b74239eb5b532f94ae930ac4b106412de1a8f8ec7d7ce4e",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.693894,
+        "visible_bounds": [
+          160,
+          90,
+          1437,
+          810
+        ]
+      },
+      {
+        "style": "watercolor",
+        "depth": "05-trench",
+        "native_source": "creature-source-assets\\watercolor\\05-trench.png",
+        "native_sha256": "0cc2f31e75c63e61dffc802e37088a5e995b36d43a636cd7aa43405d3013c71c",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\watercolor\\05-trench.png",
+        "final_sha256": "4499aab182acd087f88a75d21f5deb4e2fd379cc6c7bf2efca11ccf67715c9d2",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.666556,
+        "visible_bounds": [
+          160,
+          106,
+          1427,
+          793
+        ]
+      },
+      {
+        "style": "pixel-art",
+        "depth": "01-sunlight",
+        "native_source": "creature-source-assets\\pixel-art\\01-sunlight.png",
+        "native_sha256": "f1b1174cc459e923d7458789cf1b211d83871eff35133d6348e4d6132bc7c4ab",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\pixel-art\\01-sunlight.png",
+        "final_sha256": "8dd4d51d890d65b9644ca11d73c4960e0fafd140eefda216b6b3c013a20ebd92",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.76587,
+        "visible_bounds": [
+          160,
+          90,
+          1421,
+          810
+        ]
+      },
+      {
+        "style": "pixel-art",
+        "depth": "02-twilight",
+        "native_source": "creature-source-assets\\pixel-art\\02-twilight.png",
+        "native_sha256": "1db66a7e90d59d22901b37c235e2f410e0ec0f1abbc1cd2c84662456859bbd65",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\pixel-art\\02-twilight.png",
+        "final_sha256": "239b6579ac60f7d70f595f4623512482f1817cb364ebd9d8c04388079fbb4772",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.83733,
+        "visible_bounds": [
+          179,
+          105,
+          1415,
+          792
+        ]
+      },
+      {
+        "style": "pixel-art",
+        "depth": "03-midnight",
+        "native_source": "creature-source-assets\\pixel-art\\03-midnight.png",
+        "native_sha256": "2d43b1ba61603a75a2dd301c0c7e59f9cdf970509fc6c14d734940b466b94af8",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\pixel-art\\03-midnight.png",
+        "final_sha256": "080927f1ef33daf982dd2b569188ac2743e66ba32bbfadbbcda5b4d191e0020d",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.9551,
+        "visible_bounds": [
+          525,
+          166,
+          1312,
+          731
+        ]
+      },
+      {
+        "style": "pixel-art",
+        "depth": "04-abyss",
+        "native_source": "creature-source-assets\\pixel-art\\04-abyss.png",
+        "native_sha256": "635fd01adc5e2b75e5362ef890e096bb6be10d6d5bcf89feb7071ab4e636ce02",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\pixel-art\\04-abyss.png",
+        "final_sha256": "f565d53029fee80e45240cb05524250c26d2d1a91a4237192d4776736a233a33",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.703255,
+        "visible_bounds": [
+          160,
+          90,
+          1422,
+          810
+        ]
+      },
+      {
+        "style": "pixel-art",
+        "depth": "05-trench",
+        "native_source": "creature-source-assets\\pixel-art\\05-trench.png",
+        "native_sha256": "8821f791be51e475d4fea8fbe531c3c816be9e9a173eae05ce407c19a0083e6e",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\pixel-art\\05-trench.png",
+        "final_sha256": "03cfd4c6578672166a7c17499d0890e34c282999e53b802cf82670bcee291782",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.636994,
+        "visible_bounds": [
+          160,
+          99,
+          1427,
+          810
+        ]
+      },
+      {
+        "style": "field-guide",
+        "depth": "01-sunlight",
+        "native_source": "creature-source-assets\\field-guide\\01-sunlight.png",
+        "native_sha256": "7d9fb6947c7f5600e57f3cc24996dcba90d5a9561ca4123e6bdfa3a4051eb35a",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\field-guide\\01-sunlight.png",
+        "final_sha256": "b807451a2cba5343bb86eda126266f52ccc1cd274390e3292ccf37136484e6cb",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.714782,
+        "visible_bounds": [
+          160,
+          106,
+          1428,
+          810
+        ]
+      },
+      {
+        "style": "field-guide",
+        "depth": "02-twilight",
+        "native_source": "creature-source-assets\\field-guide\\02-twilight.png",
+        "native_sha256": "c9f605b798c4355193a672cbab9668169b2385cdca0df865c7f736c636953592",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\field-guide\\02-twilight.png",
+        "final_sha256": "2ff6fd0c3562d8aa3d0313259cf3d7bee9a5ea0daabf00fe2fa39f1252796d75",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.819717,
+        "visible_bounds": [
+          191,
+          114,
+          1413,
+          810
+        ]
+      },
+      {
+        "style": "field-guide",
+        "depth": "03-midnight",
+        "native_source": "creature-source-assets\\field-guide\\03-midnight.png",
+        "native_sha256": "aad811ec93a0e001f4c817b9c15c266f4a40c7f80a93902d6faa043a9c436b38",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\field-guide\\03-midnight.png",
+        "final_sha256": "327f530e66aa33949dd42bc31ce9150a06e637f61194739bb0c29f02bae42287",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.937726,
+        "visible_bounds": [
+          496,
+          176,
+          1204,
+          731
+        ]
+      },
+      {
+        "style": "field-guide",
+        "depth": "04-abyss",
+        "native_source": "creature-source-assets\\field-guide\\04-abyss.png",
+        "native_sha256": "956f93cb82065518beee0b5c0644a911504e2bb3fa5e72065aa05020d17c3570",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\field-guide\\04-abyss.png",
+        "final_sha256": "0e11e6c47e0ecf28b2b247a71566557bdec7e39d998730f2582f467aa311b761",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.617525,
+        "visible_bounds": [
+          160,
+          92,
+          1439,
+          810
+        ]
+      },
+      {
+        "style": "field-guide",
+        "depth": "05-trench",
+        "native_source": "creature-source-assets\\field-guide\\05-trench.png",
+        "native_sha256": "01b963ac7565b30ff4a61bb54c39dfb0d947e0058db091c591c2520ae81e3746",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\field-guide\\05-trench.png",
+        "final_sha256": "331cde096ffbb636713b82433b289858142a216cd276faef1b62d62ec1a7c05b",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.673908,
+        "visible_bounds": [
+          160,
+          90,
+          1427,
+          810
+        ]
+      },
+      {
+        "style": "screen-print",
+        "depth": "01-sunlight",
+        "native_source": "creature-source-assets\\screen-print\\01-sunlight.png",
+        "native_sha256": "088c136612afee9f18c14003e99fab10709dbaf1e425cbeb51eb0d19b2994b58",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\screen-print\\01-sunlight.png",
+        "final_sha256": "0614707999e8552146aa0da28b19108897b0f50e8d7ed9333a46833a92612dbb",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.701347,
+        "visible_bounds": [
+          160,
+          109,
+          1413,
+          792
+        ]
+      },
+      {
+        "style": "screen-print",
+        "depth": "02-twilight",
+        "native_source": "creature-source-assets\\screen-print\\02-twilight.png",
+        "native_sha256": "d2a8947cf0a0717a9429ec15b2305f1a6418d3ffa4169e042edb94ac5f08ec3b",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\screen-print\\02-twilight.png",
+        "final_sha256": "50e9e043f991471343ebd5c3d2c5aa2619b2f9089e241b221577a071bb32909d",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.838722,
+        "visible_bounds": [
+          183,
+          105,
+          1416,
+          796
+        ]
+      },
+      {
+        "style": "screen-print",
+        "depth": "03-midnight",
+        "native_source": "creature-source-assets\\screen-print\\03-midnight.png",
+        "native_sha256": "9416c199c1f7967c116360b2e4fb55d15133d25a41bc4a43fae6d043f2155e7c",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\screen-print\\03-midnight.png",
+        "final_sha256": "02467ee23e488839e1814cb17753d05db1751a01f307f731d39fc6d04c7735a3",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.927205,
+        "visible_bounds": [
+          607,
+          198,
+          1307,
+          731
+        ]
+      },
+      {
+        "style": "screen-print",
+        "depth": "04-abyss",
+        "native_source": "creature-source-assets\\screen-print\\04-abyss.png",
+        "native_sha256": "ccee4af1380f57a57e2afb23bfd5751d8a61bbe60946dd0e35b5e03e599c5d2e",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\screen-print\\04-abyss.png",
+        "final_sha256": "f2bfa8a931459839a8f3984e0f8b800e47bca72cf97cbea65f105a3dd2855d9a",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.665296,
+        "visible_bounds": [
+          160,
+          93,
+          1430,
+          810
+        ]
+      },
+      {
+        "style": "screen-print",
+        "depth": "05-trench",
+        "native_source": "creature-source-assets\\screen-print\\05-trench.png",
+        "native_sha256": "dc3d88baaa830f91b31ae091192fe75a8b044eafec4f37c84706bbdb59bd0333",
+        "native_dimensions": [
+          1672,
+          941
+        ],
+        "native_transparency_extrema": [
+          0,
+          255
+        ],
+        "final_layer": "creature-assets\\screen-print\\05-trench.png",
+        "final_sha256": "0f97400cd660b209573fc24b4a9ba740648368c94a00308a017b0daaff89636f",
+        "final_dimensions": [
+          1600,
+          900
+        ],
+        "final_alpha_extrema": [
+          0,
+          255
+        ],
+        "transparent_fraction": 0.661675,
+        "visible_bounds": [
+          160,
+          99,
+          1430,
+          810
+        ]
+      }
+    ]
+  },
+  "preserved_ocean_backgrounds": {
+    "count": 30,
+    "unchanged_scope": "separate existing ocean background assets",
+    "files": [
+      {
+        "style": "minimal-silhouettes",
+        "depth": "01-sunlight",
+        "file": "assets\\minimal-silhouettes\\01-sunlight.png",
+        "sha256": "4f8cedbfffcb4650a4109beecda0440cb73df22a3c672859d39aece9914280a7",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "minimal-silhouettes",
+        "depth": "02-twilight",
+        "file": "assets\\minimal-silhouettes\\02-twilight.png",
+        "sha256": "611b948c0438520329944d494d3d85007281c6cffc33eb88866a7d3bdf9ed868",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "minimal-silhouettes",
+        "depth": "03-midnight",
+        "file": "assets\\minimal-silhouettes\\03-midnight.png",
+        "sha256": "d67ccf7f0768422e014d8e0f2f39ac805994ec950c8fcb43590bfc8e7c427303",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "minimal-silhouettes",
+        "depth": "04-abyss",
+        "file": "assets\\minimal-silhouettes\\04-abyss.png",
+        "sha256": "acc0aa7402ac563a3c54f632e4ea9ab84036d9f5a332257a9f6c997646526e9d",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "minimal-silhouettes",
+        "depth": "05-trench",
+        "file": "assets\\minimal-silhouettes\\05-trench.png",
+        "sha256": "e4e6ea480fb6d291cee593e26956fa993c98ad85d391f5dfea557c4016d35286",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "paper-cut",
+        "depth": "01-sunlight",
+        "file": "assets\\paper-cut\\01-sunlight.png",
+        "sha256": "e8d5d57f3c28166c07e10a024e8f4634bca3c3b5e0467b7cc88121ce30aeb64b",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "paper-cut",
+        "depth": "02-twilight",
+        "file": "assets\\paper-cut\\02-twilight.png",
+        "sha256": "8f270737396199b80b8a3af43cc751f4507088411987c3dddb982104703bb754",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "paper-cut",
+        "depth": "03-midnight",
+        "file": "assets\\paper-cut\\03-midnight.png",
+        "sha256": "2186e90f330fe43b912c32f24054e31d61c0b45d9e0792695d33210064ab0c7f",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "paper-cut",
+        "depth": "04-abyss",
+        "file": "assets\\paper-cut\\04-abyss.png",
+        "sha256": "cf831b111fdbcf98fba1cf2ef821ed2b8b43c247a32b930740fd739d748277e1",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "paper-cut",
+        "depth": "05-trench",
+        "file": "assets\\paper-cut\\05-trench.png",
+        "sha256": "ad5917cc2e53b96d0a5374c1a81c5e27af233c3d1551a9f1941401d369e0a44e",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "watercolor",
+        "depth": "01-sunlight",
+        "file": "assets\\watercolor\\01-sunlight.png",
+        "sha256": "627e0fecca6ba03b38034d95682c9ca9f560c1bb1a406cbc06c26fdca21fa9a3",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "watercolor",
+        "depth": "02-twilight",
+        "file": "assets\\watercolor\\02-twilight.png",
+        "sha256": "995c696a958414e912c4be94171b62948226b2a106fad65a1c703afae1251a96",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "watercolor",
+        "depth": "03-midnight",
+        "file": "assets\\watercolor\\03-midnight.png",
+        "sha256": "6ccf9c159e8dab50b9cdfecf0f90113e8e29a54010b6912928a46e238c0eec80",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "watercolor",
+        "depth": "04-abyss",
+        "file": "assets\\watercolor\\04-abyss.png",
+        "sha256": "85d039d42621a0fc57b0be2e9a2ca8128e83ddcda432a72872d21e3c9c34c077",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "watercolor",
+        "depth": "05-trench",
+        "file": "assets\\watercolor\\05-trench.png",
+        "sha256": "cb3b500c47a97cd617a43f37924a1dee588b45e083d0dd2d37c8ff0fa5a1c9c2",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "pixel-art",
+        "depth": "01-sunlight",
+        "file": "assets\\pixel-art\\01-sunlight.png",
+        "sha256": "fe57a5856628c8a5c2ff1e0b725440e9b55766e9ba2081f952f9a2a9eab6b5c3",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "pixel-art",
+        "depth": "02-twilight",
+        "file": "assets\\pixel-art\\02-twilight.png",
+        "sha256": "042f50bdee46d34188e7b05593004930158c8dd5a9f4c5bafc39374779493f1f",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "pixel-art",
+        "depth": "03-midnight",
+        "file": "assets\\pixel-art\\03-midnight.png",
+        "sha256": "811e7c0d4a87a1424e21906542dc034f85c3e1c5e74ac036ea938475bddad705",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "pixel-art",
+        "depth": "04-abyss",
+        "file": "assets\\pixel-art\\04-abyss.png",
+        "sha256": "35ffe9a21b2ddc6c82dc4b3dacc5ce82f8332376be3412f7aa16dc91c5e18f31",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "pixel-art",
+        "depth": "05-trench",
+        "file": "assets\\pixel-art\\05-trench.png",
+        "sha256": "6e2211cce8e42c7d440de21ed129d476e8e588c304fa291f4983c43f14e8df0e",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "field-guide",
+        "depth": "01-sunlight",
+        "file": "assets\\field-guide\\01-sunlight.png",
+        "sha256": "f59be72899a78e56d9eb0058eb33231ac4714784bc01bdf9fa29ca410f283acb",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "field-guide",
+        "depth": "02-twilight",
+        "file": "assets\\field-guide\\02-twilight.png",
+        "sha256": "1a126d361de31fa6da5eea0b3859443bd1761eb53dee34aebbca163cbacce4a7",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "field-guide",
+        "depth": "03-midnight",
+        "file": "assets\\field-guide\\03-midnight.png",
+        "sha256": "44b7c15534dc124650df59c89a4b3bea97b92db419be371b7189614f6aa4d174",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "field-guide",
+        "depth": "04-abyss",
+        "file": "assets\\field-guide\\04-abyss.png",
+        "sha256": "c69ac06fa841c2d18994815ec59c4af5a5ab7ad00dc99f916ea29a2663065331",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "field-guide",
+        "depth": "05-trench",
+        "file": "assets\\field-guide\\05-trench.png",
+        "sha256": "697e522d0d24ed32615e3a49e8d4654bb547f73cef45738185ba37d5b0ca55b1",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "screen-print",
+        "depth": "01-sunlight",
+        "file": "assets\\screen-print\\01-sunlight.png",
+        "sha256": "8d1df67d5cd8ab55bc9499d54094514e59acbaf139a254c1d95c43c1ab33683b",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "screen-print",
+        "depth": "02-twilight",
+        "file": "assets\\screen-print\\02-twilight.png",
+        "sha256": "09be79a3962a6d45ad192b7b710d571ca3a7ff16a57ef2338551fb0b62221f58",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "screen-print",
+        "depth": "03-midnight",
+        "file": "assets\\screen-print\\03-midnight.png",
+        "sha256": "6875d209e36ad261c305721b5c2c1d246c590fbf019b013d2e6c077a28a1de3c",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "screen-print",
+        "depth": "04-abyss",
+        "file": "assets\\screen-print\\04-abyss.png",
+        "sha256": "13470ad04781f05387cd23b8d0141785200a5f811a79cc9f90e0f426d298d5d7",
+        "dimensions": [
+          1600,
+          900
+        ]
+      },
+      {
+        "style": "screen-print",
+        "depth": "05-trench",
+        "file": "assets\\screen-print\\05-trench.png",
+        "sha256": "e36aaac0be9f9a73b32d033713e93e46b73772be9ef1a81116dde824a36519b0",
+        "dimensions": [
+          1600,
+          900
+        ]
+      }
+    ]
+  },
+  "viewer": {
+    "file": "index.html",
+    "styles": 6,
+    "panels_per_style": 5,
+    "dropdown_swaps_background_and_overlay": true,
+    "browser_verification": "creature-browser-verification.json",
+    "browser_loaded_layers": 30,
+    "browser_loaded_backgrounds": 30,
+    "mobile_viewport": [
+      390,
+      844
+    ],
+    "mobile_16_9_and_aligned": true
+  },
+  "supporting_provenance": [
+    "USER-REQUEST.md",
+    "creature-generation-brief.txt",
+    "creature-generation-result.txt",
+    "creature-roster.json",
+    "creature-verification.json",
+    "export-manifest.json",
+    "creature-browser-verification.json"
+  ],
+  "scope_limitations": [
+    "Representative grouped species, not 50 individual records or clickable creatures.",
+    "Adjacent ocean panels are not seamless painted scenery.",
+    "Codex native prices/quota were not reported; no free-cost claim."
+  ]
+}

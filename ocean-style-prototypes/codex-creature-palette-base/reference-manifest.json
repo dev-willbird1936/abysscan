@@ -1,0 +1,38 @@
+[
+  {
+    "family": "anglerfish",
+    "reference": "ocean-style-prototypes/codex-creature-palette-base/inputs/anglerfish-anatomy-reference.png",
+    "sha256": "e3b7b830f15025aead4b112546efbbfa844d48354e075826671998c92cb20d6a",
+    "selected_still_sha256": "4b74747f7af418c90b6d808cef26bbf5caf9127d9ab71396073ef75f12b4adba"
+  },
+  {
+    "family": "viperfish",
+    "reference": "ocean-style-prototypes/codex-creature-palette-base/inputs/viperfish-anatomy-reference.png",
+    "sha256": "8b0ecdd8010dd087281dc0a162b7cd48d7e8bff8499c0a73a4abe3aaf600f115",
+    "selected_still_sha256": "1b76afb2b8580a13379276c0b2e86a26f32cf6575b39dab5872a8e7f9f9d380f"
+  },
+  {
+    "family": "siphonophore",
+    "reference": "ocean-style-prototypes/codex-creature-palette-base/inputs/siphonophore-anatomy-reference.png",
+    "sha256": "a8aa37077e7bb322b6c126f9dbf3b2fc16249f8f9ff309016c3e35a47def69e3",
+    "selected_still_sha256": "01f886ca048d959be6601c32b161610d637cc172f2676415e15f3340457ae6cb"
+  },
+  {
+    "family": "isopod-host",
+    "reference": "ocean-style-prototypes/codex-creature-palette-base/inputs/isopod-host-anatomy-reference.png",
+    "sha256": "32a860b7c044f7f5cf4b2247910f9ce16940abb5e58c29e8a60ee9f1ed096ee1",
+    "selected_still_sha256": "fe4daf0fb47eb8dd5dbb1abc4ea3e24f5fbf3acfa34132793956631728d0632b"
+  },
+  {
+    "family": "cookiecutter",
+    "reference": "ocean-style-prototypes/codex-creature-palette-base/inputs/cookiecutter-anatomy-reference.png",
+    "sha256": "7ec56bf501dba48e21ef8a66004e9ac3f2dd763be3c3cbfbc07c181f99252285",
+    "selected_still_sha256": "5fba0005fc510afa3fe168e063c3c9ac75a0a32ba6565e19351a0868147ab2a7"
+  },
+  {
+    "family": "octopus",
+    "reference": "ocean-style-prototypes/codex-creature-palette-base/inputs/octopus-anatomy-reference.png",
+    "sha256": "601f45952d1f8ece56970653f70ef88c47f3e3979026e92bdc6697501684ad71",
+    "selected_still_sha256": "db27829e06a9a5e11d44d2243e2f8de323d7f9642cfe46ddae30c7d1ae19fef5"
+  }
+]

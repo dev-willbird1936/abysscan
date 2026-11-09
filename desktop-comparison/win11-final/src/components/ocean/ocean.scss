@@ -1,0 +1,1245 @@
+// Ocean shell additions: acrylic surfaces, toasts, notification centre, task view, switcher,
+// overlays and fullscreen. Colours follow body[data-theme] and the accent var --clrPrm.
+
+body {
+  --acrylic-bg: rgb(243 243 243 / 78%);
+  --acrylic-border: rgb(255 255 255 / 55%);
+  --acrylic-shadow: 0 8px 32px rgb(0 0 0 / 18%), 0 0 0 1px rgb(0 0 0 / 6%);
+  --card-bg: rgb(255 255 255 / 60%);
+  --card-hover: rgb(255 255 255 / 85%);
+  --muted-txt: #5c5c5c;
+}
+
+body[data-theme="dark"] {
+  --acrylic-bg: rgb(36 36 40 / 78%);
+  --acrylic-border: rgb(255 255 255 / 9%);
+  --acrylic-shadow: 0 8px 32px rgb(0 0 0 / 45%), 0 0 0 1px rgb(0 0 0 / 30%);
+  --card-bg: rgb(255 255 255 / 5%);
+  --card-hover: rgb(255 255 255 / 9%);
+  --muted-txt: #b5b5b5;
+}
+
+body[data-reduce-transparency="true"] {
+  --acrylic-bg: rgb(243 243 243);
+}
+
+body[data-theme="dark"][data-reduce-transparency="true"] {
+  --acrylic-bg: rgb(36 36 40);
+}
+
+body[data-reduce-motion="true"] * {
+  transition-duration: 0s !important;
+  animation-duration: 0s !important;
+}
+
+// The build has no Tailwind base layer, so neutralise UA button chrome (zero specificity).
+:where(button) {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.acrylic {
+  background: var(--acrylic-bg);
+  backdrop-filter: blur(30px) saturate(1.3);
+  -webkit-backdrop-filter: blur(30px) saturate(1.3);
+  border: 1px solid var(--acrylic-border);
+  box-shadow: var(--acrylic-shadow);
+  border-radius: 8px;
+  color: var(--dark-txt);
+}
+
+body[data-reduce-transparency="true"] .acrylic {
+  backdrop-filter: none;
+}
+
+#nightoverlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: rgb(255 140 30);
+  mix-blend-mode: multiply;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+  z-index: 2147483000;
+}
+
+body[data-nightlight="true"] #nightoverlay {
+  opacity: 0.32;
+}
+
+#brightoverlay {
+  z-index: 2147483001;
+  transition: opacity 0.25s ease;
+}
+
+body[data-fullscreen="true"] {
+  .taskbar {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .desktop {
+    height: 100vh;
+  }
+}
+
+.toastX {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  margin-left: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  font-size: 11px;
+  opacity: 0.55;
+  color: inherit;
+
+  &:hover {
+    opacity: 1;
+    background: var(--card-hover);
+  }
+}
+
+.linkBtn {
+  font-size: 12px;
+  color: var(--clrPrm);
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// ---------- toasts ----------
+
+.oceanToasts {
+  position: absolute;
+  right: 12px;
+  bottom: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 10002;
+  pointer-events: none;
+}
+
+.oceanToast {
+  width: 364px;
+  padding: 12px 14px 14px;
+  pointer-events: auto;
+  cursor: pointer;
+  animation: toastIn 0.35s cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+@keyframes toastIn {
+  from {
+    transform: translateX(110%);
+    opacity: 0;
+  }
+}
+
+.toastHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted-txt);
+}
+
+.toastTitle {
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.toastBody {
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--muted-txt);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+// ---------- notification centre ----------
+
+// Fills the column above the taskbar; the notification card shrinks and scrolls on short screens.
+.oceanCentre {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  bottom: 12px;
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 12px;
+  pointer-events: none;
+  z-index: 9999;
+  transition: all 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+
+  &[data-hide="true"] {
+    transform: translateX(calc(100% + 24px));
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.centreCard {
+  padding: 0;
+  overflow: hidden;
+  flex-shrink: 0;
+  pointer-events: auto;
+
+  &:first-child {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 1;
+    min-height: 0;
+  }
+}
+
+.centreHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.centreList {
+  max-height: 280px;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px 10px 12px;
+}
+
+.centreItem {
+  padding: 10px 12px 12px;
+  margin-top: 6px;
+  border-radius: 6px;
+  background: var(--card-bg);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--card-hover);
+  }
+}
+
+.centreEmpty,
+.focusNote {
+  padding: 18px 8px;
+  font-size: 12px;
+  color: var(--muted-txt);
+  text-align: center;
+}
+
+.focusNote {
+  padding: 6px;
+}
+
+.calHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px 4px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.calNav {
+  width: 30px;
+  height: 28px;
+  border-radius: 4px;
+  color: inherit;
+
+  &:hover {
+    background: var(--card-hover);
+  }
+}
+
+.calGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 4px 12px;
+  gap: 2px;
+}
+
+.calDow {
+  text-align: center;
+  font-size: 11px;
+  padding: 6px 0;
+  color: var(--muted-txt);
+}
+
+.calDay {
+  height: 38px;
+  border-radius: 50%;
+  font-size: 12px;
+  color: inherit;
+  position: relative;
+
+  &:hover {
+    background: var(--card-hover);
+  }
+
+  &[data-out="true"] {
+    opacity: 0.4;
+  }
+
+  &[data-picked="true"] {
+    box-shadow: inset 0 0 0 1.5px var(--clrPrm);
+  }
+
+  &[data-today="true"] {
+    background: var(--clrPrm);
+    color: var(--alt-txt);
+    font-weight: 600;
+  }
+
+  &[data-event="true"]::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 5px;
+    width: 4px;
+    height: 4px;
+    margin-left: -2px;
+    border-radius: 50%;
+    background: var(--clrPrm);
+  }
+}
+
+.calAgenda {
+  margin: 6px 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: var(--card-bg);
+  min-height: 64px;
+}
+
+.calEvent {
+  display: flex;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.calBar {
+  width: 3px;
+  border-radius: 2px;
+  background: var(--clrPrm);
+}
+
+.centreFoot {
+  display: flex;
+  justify-content: flex-end;
+  padding: 6px 12px 12px;
+}
+
+.focusBtn {
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 4px;
+  background: var(--card-bg);
+  color: inherit;
+  border: 1px solid var(--acrylic-border);
+
+  &[data-on="true"] {
+    background: var(--clrPrm);
+    color: var(--alt-txt);
+  }
+}
+
+// ---------- task view / switcher ----------
+
+.oceanTaskView {
+  position: absolute;
+  inset: 0 0 48px 0;
+  z-index: 10001;
+  background: rgb(0 0 0 / 28%);
+  backdrop-filter: blur(24px) saturate(1.2);
+  -webkit-backdrop-filter: blur(24px) saturate(1.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeIn 0.18s ease;
+  color: #fff;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+.tvTitle {
+  margin-top: 48px;
+  font-size: 20px;
+  font-weight: 600;
+  text-shadow: 0 1px 8px rgb(0 0 0 / 40%);
+}
+
+.tvGrid {
+  margin-top: 36px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+  max-width: 88vw;
+}
+
+.tvEmpty {
+  padding: 40px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.tvDesktops {
+  position: absolute;
+  bottom: 24px;
+  display: flex;
+  gap: 12px;
+}
+
+.tvDesk {
+  padding: 10px 26px;
+  font-size: 12px;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 14%);
+  border: 2px solid transparent;
+
+  &[data-active="true"] {
+    border-color: var(--clrPrm);
+  }
+}
+
+.winCard {
+  width: 248px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--acrylic-bg);
+  color: var(--dark-txt);
+  box-shadow: var(--acrylic-shadow);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+
+  &:hover,
+  &[data-selected="true"] {
+    border-color: var(--clrPrm);
+    transform: translateY(-2px);
+  }
+}
+
+.winCardHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+
+  .truncate {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.winCardBody {
+  height: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--clrPrm) 18%, transparent), transparent 70%), var(--card-bg);
+  text-transform: capitalize;
+}
+
+.oceanSwitcher {
+  position: absolute;
+  inset: 0;
+  z-index: 10003;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+
+  .swStrip {
+    pointer-events: auto;
+    display: flex;
+    gap: 14px;
+    padding: 18px;
+    max-width: 92vw;
+    overflow-x: auto;
+  }
+
+  .winCard {
+    width: 200px;
+  }
+
+  .winCardBody {
+    height: 112px;
+  }
+}
+
+// ---------- error page ----------
+
+.bsod {
+  position: absolute;
+  inset: 0;
+  padding: 12vh 12vw;
+  background: #0067c0;
+  color: #fff;
+
+  h1 {
+    font-size: 96px;
+  }
+
+  h2 {
+    font-size: 24px;
+    margin: 16px 0;
+  }
+
+  button {
+    margin-top: 24px;
+    padding: 6px 18px;
+    border: 1px solid #fff;
+    border-radius: 4px;
+  }
+}
+
+// ---------- desktop icons ----------
+
+// Empty desktop clicks fall through to .desktop (data-menu="desk"); only icons take pointers.
+.desktopIcons {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  .dskItem {
+    pointer-events: auto;
+  }
+}
+
+.dskItem {
+  position: absolute;
+  width: 76px;
+  min-height: 80px;
+  padding: 6px 2px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  outline: none;
+  touch-action: none;
+
+  .uicon {
+    pointer-events: none;
+    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 30%));
+  }
+
+  &:hover {
+    background: rgb(255 255 255 / 14%);
+  }
+
+  &[data-selected="true"] {
+    background: rgb(255 255 255 / 24%);
+    border-color: rgb(255 255 255 / 35%);
+  }
+
+  &[data-dragging="true"] {
+    opacity: 0.75;
+    z-index: 5;
+  }
+}
+
+.dskName {
+  margin-top: 4px;
+  max-width: 72px;
+  font-size: 12px;
+  line-height: 1.25;
+  text-align: center;
+  color: #fff;
+  // Windows 11 style: white label on a soft dark drop shadow, legible on light wallpapers.
+  text-shadow: 0 1px 2px rgb(0 0 0 / 90%), 0 0 5px rgb(0 0 0 / 70%), 0 0 12px rgb(0 0 0 / 45%);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
+}
+
+.dskRename {
+  margin-top: 4px;
+  width: 74px;
+  font-size: 12px;
+  padding: 1px 3px;
+  border: 1px solid var(--clrPrm);
+  background: #fff;
+  color: #000;
+  text-align: center;
+}
+
+// ---------- Start + search ----------
+
+.startMenu .startTop {
+  padding: 22px 32px 0;
+}
+
+.startMenu .stmenu,
+.startMenu .allCont {
+  height: calc(100% - 64px - 56px);
+}
+
+.startMenu .allCont {
+  top: 56px;
+}
+
+.startSearch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 17px;
+  background: var(--bg2);
+  border: 1px solid rgb(0 0 0 / 6%);
+  border-bottom: 2px solid var(--clrPrm);
+
+  input {
+    flex: 1;
+    background: transparent;
+    font-size: 13px;
+    color: var(--dark-txt);
+
+    &::placeholder {
+      color: var(--gray-txt);
+      opacity: 1;
+    }
+  }
+}
+
+body[data-theme="dark"] .startSearch svg {
+  fill: #ddd;
+}
+
+.startAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent-dark, #4cc2ff), var(--accent-light, #0067c0));
+}
+
+.startMenu .menuUp .pnApps .pnApp .appName {
+  width: 88px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.startMenu .pnPaged {
+  position: relative;
+}
+
+.startMenu .pnDots {
+  position: absolute;
+  top: 50%;
+  right: -18px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.startMenu .pnDot {
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--gray-txt, #888);
+  opacity: 0.55;
+
+  &[data-on="true"] {
+    width: 6px;
+    height: 14px;
+    border-radius: 3px;
+    background: var(--clrPrm);
+    opacity: 1;
+  }
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.startMenu .powerCont {
+  top: -132px;
+  left: -60px;
+  width: 128px;
+  text-align: left;
+}
+
+.startMenu .searchMenu {
+  padding: 18px 32px 24px;
+  min-height: 0;
+  height: calc(100% - 56px);
+}
+
+.searchResults {
+  display: flex;
+  gap: 16px;
+  height: 100%;
+  text-align: left;
+}
+
+.resultList {
+  flex: 1.1;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+.resultGroup {
+  margin: 12px 0 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-txt);
+}
+
+.resultItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+
+  &:hover,
+  &[data-active="true"] {
+    background: var(--bg2);
+  }
+}
+
+.resultSub {
+  font-size: 11px;
+  color: var(--gray-txt);
+}
+
+.resultEmpty,
+.searchTip {
+  padding: 18px 4px;
+  font-size: 12px;
+  color: var(--gray-txt);
+}
+
+.resultPreview {
+  flex: 1;
+  margin-top: 12px;
+  border-radius: 8px;
+  background: var(--bg2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 36px 20px;
+  gap: 6px;
+  align-self: flex-start;
+
+  .previewName {
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    word-break: break-word;
+  }
+}
+
+.previewOpen {
+  margin-top: 18px;
+  padding: 6px 28px;
+  border-radius: 4px;
+  background: var(--clrPrm);
+  color: var(--alt-txt);
+  font-size: 13px;
+}
+
+.searchIdle {
+  text-align: left;
+  padding-top: 18px;
+
+  .topApp {
+    width: 16%;
+    text-align: center;
+  }
+}
+
+// ---------- quick settings ----------
+
+.sidePane .bottomBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.qkSettings {
+  padding: 8px;
+  border-radius: 4px;
+
+  &:hover {
+    background: var(--bg2, rgb(255 255 255 / 30%));
+  }
+}
+
+// ui/settings.png is a white glyph: dark in light theme; the dark-theme .uicon invert flips it back.
+.qkSettings img {
+  filter: invert(1);
+}
+
+// ---------- widgets ----------
+
+.widGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 8px 20px 24px;
+}
+
+.widCard {
+  border-radius: 8px;
+  padding: 14px 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--acrylic-border);
+  font-size: 12px;
+  color: var(--dark-txt);
+  text-align: left;
+}
+
+.widWeather {
+  grid-column: span 2;
+  background: linear-gradient(135deg, rgb(76 194 255 / 28%), rgb(0 103 192 / 12%)), var(--card-bg);
+}
+
+.widHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.widBig {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.widTemp {
+  font-size: 40px;
+  font-weight: 300;
+}
+
+.widForecast {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  margin-top: 12px;
+  text-align: center;
+  gap: 4px;
+}
+
+.widRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 0;
+
+  .calBar {
+    align-self: stretch;
+  }
+
+  input {
+    margin-top: 2px;
+    accent-color: var(--clrPrm);
+  }
+}
+
+.widStock {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--acrylic-border);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.stockUp {
+  color: #0f9d58;
+}
+
+.stockDown {
+  color: #d93025;
+}
+
+// ---------- windows ----------
+
+body {
+  --win-bg: #f3f3f3;
+  --win-title: rgb(243 243 243 / 92%);
+  --win-border: rgb(0 0 0 / 14%);
+  --win-shadow: 0 2px 6px rgb(0 0 0 / 10%), 0 16px 40px rgb(0 0 0 / 22%);
+}
+
+body[data-theme="dark"] {
+  --win-bg: #202020;
+  --win-title: rgb(32 32 32 / 92%);
+  --win-border: rgb(255 255 255 / 10%);
+  --win-shadow: 0 2px 6px rgb(0 0 0 / 30%), 0 16px 40px rgb(0 0 0 / 55%);
+}
+
+.oceanWin {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  background: var(--win-bg);
+  color: var(--dark-txt);
+  border: 1px solid var(--win-border);
+  border-radius: 8px;
+  box-shadow: var(--win-shadow);
+  transition:
+    left 0.22s cubic-bezier(0.1, 0.9, 0.2, 1),
+    top 0.22s cubic-bezier(0.1, 0.9, 0.2, 1),
+    width 0.22s cubic-bezier(0.1, 0.9, 0.2, 1),
+    height 0.22s cubic-bezier(0.1, 0.9, 0.2, 1),
+    transform 0.2s ease,
+    opacity 0.2s ease,
+    filter 0.35s ease;
+  animation: winOpen 0.18s cubic-bezier(0.1, 0.9, 0.2, 1);
+
+  &[data-live="true"] {
+    transition: none;
+  }
+
+  &[data-mode="maximized"],
+  &[data-mode="fullscreen"],
+  &[data-tiled="true"] {
+    border-radius: 0;
+
+    .oceanTitle,
+    .oceanWinBody {
+      border-radius: 0;
+    }
+  }
+
+  &[data-mode="fullscreen"] {
+    border: 0;
+
+    .oceanTitle {
+      display: none;
+    }
+  }
+
+  &[data-mode="minimized"] {
+    transform: translateY(30%) scale(0.6);
+    transform-origin: bottom center;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &[data-focused="false"] .oceanTitleText {
+    opacity: 0.6;
+  }
+}
+
+@keyframes winOpen {
+  from {
+    transform: scale(0.94);
+    opacity: 0;
+  }
+}
+
+.oceanTitle {
+  height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 12px;
+  font-size: 12px;
+  background: var(--win-title);
+  border-radius: 8px 8px 0 0;
+  user-select: none;
+
+  .oceanTitleText {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.oceanCtl {
+  display: flex;
+  height: 100%;
+  align-self: stretch;
+
+  button {
+    width: 46px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+
+    &:hover {
+      background: rgb(128 128 128 / 18%);
+    }
+  }
+
+  .oceanClose {
+    border-top-right-radius: 7px;
+
+    &:hover {
+      background: #c42b1c;
+
+      img {
+        filter: invert(1);
+      }
+    }
+  }
+
+  .snapbox {
+    position: relative;
+
+    .snapcont {
+      top: 34px;
+      right: -40px;
+      animation: popupFast 0.15s ease-out;
+    }
+  }
+}
+
+@keyframes popupFast {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+body[data-theme="dark"] .oceanCtl img {
+  filter: invert(1);
+}
+
+body[data-theme="dark"] .oceanCtl .oceanClose:hover img {
+  filter: invert(1);
+}
+
+.oceanWinBody {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 0 0 8px 8px;
+}
+
+.oceanCrash {
+  padding: 24px;
+  font-size: 13px;
+  color: var(--gray-txt);
+}
+
+.oceanHandle {
+  position: absolute;
+  z-index: 3;
+
+  &.h-n,
+  &.h-s {
+    left: 8px;
+    right: 8px;
+    height: 8px;
+    cursor: ns-resize;
+  }
+
+  &.h-n {
+    top: -4px;
+  }
+
+  &.h-s {
+    bottom: -4px;
+  }
+
+  &.h-e,
+  &.h-w {
+    top: 8px;
+    bottom: 8px;
+    width: 8px;
+    cursor: ew-resize;
+  }
+
+  &.h-e {
+    right: -4px;
+  }
+
+  &.h-w {
+    left: -4px;
+  }
+
+  &.h-ne,
+  &.h-nw,
+  &.h-se,
+  &.h-sw {
+    width: 12px;
+    height: 12px;
+  }
+
+  &.h-ne {
+    top: -4px;
+    right: -4px;
+    cursor: nesw-resize;
+  }
+
+  &.h-sw {
+    bottom: -4px;
+    left: -4px;
+    cursor: nesw-resize;
+  }
+
+  &.h-nw {
+    top: -4px;
+    left: -4px;
+    cursor: nwse-resize;
+  }
+
+  &.h-se {
+    bottom: -4px;
+    right: -4px;
+    cursor: nwse-resize;
+  }
+}
+
+.snapPreview {
+  position: absolute;
+  z-index: 9000;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 22%);
+  border: 1px solid rgb(255 255 255 / 45%);
+  backdrop-filter: blur(16px);
+  pointer-events: none;
+  animation: fadeIn 0.12s ease;
+}
+
+// ---------- focus dimming (SCENARIOS-60 contract §3) ----------
+// Windows, taskbar icons, Start tiles and desktop icons outside world.scene.focusApps fade back.
+// They stay fully clickable.
+[data-dim]:not(.oceanWin) {
+  transition:
+    filter 0.35s ease,
+    opacity 0.35s ease;
+}
+
+[data-dim="true"] {
+  filter: saturate(0.25);
+  opacity: 0.55;
+}
+
+// A minimised window stays hidden whatever its dimming.
+.oceanWin[data-dim="true"][data-mode="minimized"] {
+  opacity: 0;
+}
+
+// ---------- user avatar picture and one-click lock-screen user ----------
+.avatarImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.lockUser {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+// ---------- creature in the wallpaper layer ----------
+// Sits above the wallpaper and below windows and icons (DOM order in App.jsx). Position and scale
+// are written by creature.jsx; the sprite animation here is the per-state idle motion.
+.oceanCreatureLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.creatureSprite {
+  position: absolute;
+  top: 0;
+  left: 0;
+  image-rendering: pixelated;
+  user-select: none;
+  pointer-events: none;
+  will-change: transform;
+  filter: drop-shadow(0 0 16px rgb(120 220 255 / 35%));
+}
+
+// Pressed against the glass: the edges of the screen darken.
+.creatureVignette {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.9s ease;
+  background: radial-gradient(ellipse at 50% 50%, rgb(0 0 0 / 0%) 22%, rgb(0 6 20 / 82%) 100%);
+}
+
+.oceanCreatureLayer[data-state="press"] .creatureVignette {
+  opacity: 1;
+}
+
+// Reduced motion: the pose is fixed (creature.jsx), so only the fades are switched off.
+body[data-reduce-motion="true"] .creatureVignette {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .creatureVignette,
+  [data-dim]:not(.oceanWin) {
+    transition: none;
+  }
+}
+
+// Focus apps glow in the taskbar, like the Dock glow on macOS.
+.taskAppWrap[data-focus="true"] {
+  filter: drop-shadow(0 0 7px rgb(140 210 255 / 75%));
+}
+
+/* Program windows and OS dialogs (PROGRAMS.md); the content is drawn by src/ocean/program-ui.js. */
+.oceanProgram { height: 100%; }
+.oceanWin[data-layout="character"] { background: transparent !important; box-shadow: none !important; border: 0 !important; }
+.oceanWin[data-layout="character"] .oceanTitle { opacity: 0; height: 18px; min-height: 18px; }
+.oceanWin[data-layout="character"]:hover .oceanTitle { opacity: .9; }
+.oceanWin[data-layout="character"] .oceanWinBody { background: transparent !important; }
+.oceanWin[data-layout="screen"] .oceanTitle { display: none; }
+.oceanWin[data-layout="screen"] { border-radius: 0 !important; z-index: 900 !important; }
+.oceanDialogs { position: fixed; inset: 0; z-index: 950; pointer-events: none; }
+.oceanDialogBackdrop { position: absolute; inset: 0; pointer-events: auto; background: rgba(0, 0, 0, .08); }
+.oceanDialogBackdrop[data-dim="true"] { background: rgba(0, 0, 0, .55); }
+.oceanDialogSlot { position: absolute; left: 50%; top: 44%; transform: translate(-50%, -50%); pointer-events: auto; }
+.oceanDialogSlot[data-top="false"] { filter: brightness(.96); }
+.oceanDialogSlot[data-corner="true"] { left: auto; top: auto; right: 14px; bottom: 62px; transform: none; }

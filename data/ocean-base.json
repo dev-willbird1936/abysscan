@@ -1,0 +1,449 @@
+{
+  "note": "The ocean's base fish: 12 well-known files or attacks per depth, there before any upload (backend/detonation/ocean-state.mjs publicView). Midnight, Abyss and Trench entries are eaten by the creature of their worst behaviour (findingId, ui/job/creatures.mjs); Sunlight and Twilight entries join the school of their file type (type, data/fish.json). They are public history, so they keep their names; uploads never do. Years only where certain. scene: data/fish-scenes/<scene>.scene, played on the training desktops (docs/desktop-parity/FISH-SCENES.md); noDesktop: why there is nothing to show on a desktop.",
+  "entries": [
+    {
+      "name": "WannaCry",
+      "year": 2017,
+      "depth": "trench",
+      "type": "exe",
+      "findingId": "encrypt",
+      "scene": "wannacry"
+    },
+    {
+      "name": "CryptoLocker",
+      "year": 2013,
+      "depth": "trench",
+      "type": "exe",
+      "findingId": "encrypt",
+      "scene": "cryptolocker"
+    },
+    {
+      "name": "DarkSide / Colonial Pipeline",
+      "year": 2021,
+      "depth": "trench",
+      "type": "exe",
+      "findingId": "encrypt",
+      "scene": "darkside"
+    },
+    {
+      "name": "NotPetya",
+      "year": 2017,
+      "depth": "trench",
+      "type": "dll",
+      "findingId": "system-wipe",
+      "scene": "notpetya"
+    },
+    {
+      "name": "Shamoon",
+      "year": 2012,
+      "depth": "trench",
+      "type": "exe",
+      "findingId": "system-wipe",
+      "scene": "shamoon"
+    },
+    {
+      "name": "CIH (Chernobyl)",
+      "year": 1998,
+      "depth": "trench",
+      "type": "exe",
+      "findingId": "system-wipe",
+      "scene": "cih-chernobyl"
+    },
+    {
+      "name": "ILOVEYOU",
+      "year": 2000,
+      "depth": "trench",
+      "type": "vbs",
+      "findingId": "destroy-files",
+      "scene": "iloveyou"
+    },
+    {
+      "name": "Jerusalem",
+      "year": 1987,
+      "depth": "trench",
+      "type": "exe",
+      "findingId": "destroy-files",
+      "noDesktop": "A 1987 DOS virus: it is older than the Windows and macOS desktops."
+    },
+    {
+      "name": "Morris worm",
+      "year": 1988,
+      "depth": "trench",
+      "type": "elf",
+      "findingId": "spread",
+      "scene": "morris-worm"
+    },
+    {
+      "name": "Conficker",
+      "year": 2008,
+      "depth": "trench",
+      "type": "dll",
+      "findingId": "spread",
+      "scene": "conficker"
+    },
+    {
+      "name": "Stuxnet",
+      "year": 2010,
+      "depth": "trench",
+      "type": "lnk",
+      "findingId": "spread",
+      "scene": "stuxnet"
+    },
+    {
+      "name": "Mirai",
+      "year": 2016,
+      "depth": "trench",
+      "type": "elf",
+      "findingId": "spread",
+      "scene": "mirai"
+    },
+    {
+      "name": "Pegasus",
+      "year": 2016,
+      "depth": "abyss",
+      "type": "html",
+      "findingId": "privilege-escalation",
+      "scene": "pegasus"
+    },
+    {
+      "name": "Flashback",
+      "year": 2012,
+      "depth": "abyss",
+      "type": "jar",
+      "findingId": "persistence",
+      "scene": "flashback"
+    },
+    {
+      "name": "Sony BMG rootkit",
+      "year": 2005,
+      "depth": "abyss",
+      "type": "exe",
+      "findingId": "defence-tamper",
+      "scene": "sony-rootkit"
+    },
+    {
+      "name": "Superfish",
+      "year": 2015,
+      "depth": "abyss",
+      "type": "exe",
+      "findingId": "traffic-redirect",
+      "scene": "superfish"
+    },
+    {
+      "name": "DNSChanger",
+      "year": 2011,
+      "depth": "abyss",
+      "type": "exe",
+      "findingId": "traffic-redirect",
+      "scene": "dnschanger"
+    },
+    {
+      "name": "CoolWebSearch",
+      "year": 2003,
+      "depth": "abyss",
+      "type": "html",
+      "findingId": "browser-hijack",
+      "scene": "coolwebsearch"
+    },
+    {
+      "name": "SolarWinds SUNBURST",
+      "year": 2020,
+      "depth": "abyss",
+      "type": "dll",
+      "findingId": "remote-control",
+      "scene": "solarwinds"
+    },
+    {
+      "name": "Back Orifice",
+      "year": 1998,
+      "depth": "abyss",
+      "type": "exe",
+      "findingId": "remote-control",
+      "scene": "back-orifice"
+    },
+    {
+      "name": "Zeus",
+      "year": 2007,
+      "depth": "abyss",
+      "type": "exe",
+      "findingId": "injection",
+      "scene": "zeus"
+    },
+    {
+      "name": "Emotet",
+      "year": 2014,
+      "depth": "abyss",
+      "type": "doc",
+      "findingId": "second-stage",
+      "scene": "emotet"
+    },
+    {
+      "name": "Log4Shell",
+      "year": 2021,
+      "depth": "abyss",
+      "type": "jar",
+      "findingId": "second-stage",
+      "scene": "log4shell"
+    },
+    {
+      "name": "Coinhive cryptojacking",
+      "year": 2017,
+      "depth": "abyss",
+      "type": "html",
+      "findingId": "resource-hijack",
+      "scene": "coinhive"
+    },
+    {
+      "name": "Podesta phishing",
+      "year": 2016,
+      "depth": "midnight",
+      "type": "eml",
+      "findingId": "fake-login",
+      "scene": "podesta"
+    },
+    {
+      "name": "Celebgate iCloud phishing",
+      "year": 2014,
+      "depth": "midnight",
+      "type": "eml",
+      "findingId": "fake-login",
+      "scene": "celebgate"
+    },
+    {
+      "name": "Business email compromise",
+      "depth": "midnight",
+      "type": "eml",
+      "findingId": "fake-login",
+      "scene": "bec"
+    },
+    {
+      "name": "Heartbleed",
+      "year": 2014,
+      "depth": "midnight",
+      "type": null,
+      "findingId": "steal-credentials",
+      "scene": "heartbleed"
+    },
+    {
+      "name": "event-stream npm package",
+      "year": 2018,
+      "depth": "midnight",
+      "type": "js-node",
+      "findingId": "steal-credentials",
+      "scene": "event-stream"
+    },
+    {
+      "name": "RedLine Stealer",
+      "year": 2020,
+      "depth": "midnight",
+      "type": "exe",
+      "findingId": "steal-browser",
+      "scene": "redline"
+    },
+    {
+      "name": "Target / BlackPOS",
+      "year": 2013,
+      "depth": "midnight",
+      "type": "exe",
+      "findingId": "steal-documents",
+      "scene": "target-blackpos"
+    },
+    {
+      "name": "Cambridge Analytica",
+      "year": 2018,
+      "depth": "midnight",
+      "type": "html",
+      "findingId": "steal-documents",
+      "scene": "cambridge-analytica"
+    },
+    {
+      "name": "Agent Tesla",
+      "year": 2014,
+      "depth": "midnight",
+      "type": "exe",
+      "findingId": "keylog",
+      "scene": "agent-tesla"
+    },
+    {
+      "name": "Stalkerware (mSpy-style)",
+      "depth": "midnight",
+      "type": "apk",
+      "findingId": "capture",
+      "scene": "stalkerware-mspy-style"
+    },
+    {
+      "name": "CryptoShuffler",
+      "year": 2017,
+      "depth": "midnight",
+      "type": "exe",
+      "findingId": "clipboard-swap",
+      "scene": "cryptoshuffler"
+    },
+    {
+      "name": "British Airways / Magecart",
+      "year": 2018,
+      "depth": "midnight",
+      "type": "html",
+      "findingId": "exfil-attempt",
+      "scene": "magecart"
+    },
+    {
+      "name": "Bonzi Buddy",
+      "year": 1999,
+      "depth": "twilight",
+      "type": "exe",
+      "scene": "bonzi-buddy"
+    },
+    {
+      "name": "Comet Cursor",
+      "year": 1997,
+      "depth": "twilight",
+      "type": "exe",
+      "scene": "comet-cursor"
+    },
+    {
+      "name": "Gator (GAIN) adware",
+      "depth": "twilight",
+      "type": "exe",
+      "scene": "gator"
+    },
+    {
+      "name": "Hotbar",
+      "depth": "twilight",
+      "type": "exe",
+      "scene": "hotbar"
+    },
+    {
+      "name": "MyWebSearch / Smiley Central",
+      "depth": "twilight",
+      "type": "exe",
+      "scene": "mywebsearch"
+    },
+    {
+      "name": "Ask Toolbar (Java bundle)",
+      "depth": "twilight",
+      "type": "exe",
+      "scene": "ask-toolbar"
+    },
+    {
+      "name": "Babylon Toolbar",
+      "depth": "twilight",
+      "type": "exe",
+      "scene": "babylon-toolbar"
+    },
+    {
+      "name": "OpenCandy bundler",
+      "depth": "twilight",
+      "type": "exe",
+      "scene": "opencandy"
+    },
+    {
+      "name": "WinFixer scareware",
+      "depth": "twilight",
+      "type": "exe",
+      "scene": "winfixer"
+    },
+    {
+      "name": "MacKeeper",
+      "depth": "twilight",
+      "type": "dmg",
+      "scene": "mackeeper"
+    },
+    {
+      "name": "Tech-support scam pop-up",
+      "depth": "twilight",
+      "type": "html",
+      "scene": "tech-support-scam"
+    },
+    {
+      "name": "Facebook likejacking",
+      "year": 2010,
+      "depth": "twilight",
+      "type": "html",
+      "scene": "likejacking"
+    },
+    {
+      "name": "EICAR test file",
+      "depth": "sunlight",
+      "type": "text",
+      "scene": "eicar-test-file"
+    },
+    {
+      "name": "Good Times virus hoax",
+      "year": 1994,
+      "depth": "sunlight",
+      "type": "eml",
+      "scene": "good-times-virus-hoax"
+    },
+    {
+      "name": "Bill Gates email-tracking hoax",
+      "year": 1997,
+      "depth": "sunlight",
+      "type": "eml",
+      "scene": "bill-gates-email-tracking-hoax"
+    },
+    {
+      "name": "jdbgmgr.exe teddy-bear hoax",
+      "year": 2002,
+      "depth": "sunlight",
+      "type": "exe",
+      "scene": "jdbgmgr-hoax"
+    },
+    {
+      "name": "SULFNBK.EXE hoax",
+      "year": 2001,
+      "depth": "sunlight",
+      "type": "exe",
+      "scene": "sulfnbk-hoax"
+    },
+    {
+      "name": "Elf Bowling",
+      "year": 1998,
+      "depth": "sunlight",
+      "type": "exe",
+      "scene": "elf-bowling"
+    },
+    {
+      "name": "Budweiser Frogs screensaver hoax",
+      "year": 1997,
+      "depth": "sunlight",
+      "type": "exe",
+      "scene": "budweiser-frogs-screensaver-hoax"
+    },
+    {
+      "name": "svchost.exe (McAfee false alarm)",
+      "year": 2010,
+      "depth": "sunlight",
+      "type": "exe",
+      "scene": "mcafee-svchost"
+    },
+    {
+      "name": "Chrome (flagged as Zbot)",
+      "year": 2011,
+      "depth": "sunlight",
+      "type": "exe",
+      "scene": "chrome-flagged-as-zbot"
+    },
+    {
+      "name": "Sophos updater (self-flagged)",
+      "year": 2012,
+      "depth": "sunlight",
+      "type": "exe",
+      "scene": "sophos-updater-self-flagged"
+    },
+    {
+      "name": "Panda antivirus (self-quarantined)",
+      "year": 2015,
+      "depth": "sunlight",
+      "type": "dll",
+      "scene": "panda-antivirus-self-quarantined"
+    },
+    {
+      "name": "user32.dll (AVG false alarm)",
+      "year": 2008,
+      "depth": "sunlight",
+      "type": "dll",
+      "scene": "avg-user32"
+    }
+  ]
+}

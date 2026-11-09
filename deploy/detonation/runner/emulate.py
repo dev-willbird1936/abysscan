@@ -5,12 +5,18 @@ network events per entry point, the error that stopped each entry point, and the
 """
 import json
 import os
+import subprocess
 import time
 
 import speakeasy
 from runnerlib import finish, parse_args
 
 TIMEOUT_SECONDS = 30
+# Mono is a Linux runtime, not a Windows one: a managed .NET assembly can be executed instead of emulated, so the run
+# produces real syscalls (file writes, sockets) in the trace instead of an API-level simulation. Native PEs keep the emulator.
+MONO = "/usr/bin/mono"
+MONO_TIMEOUT = 25
+MONO_OUTPUT = 4000
 MAX_INSTRUCTIONS = 5_000_000
 MAX_API_COUNT = 10_000
 MAX_LIST = 400
@@ -54,9 +60,49 @@ def reduce_entry(entry):
     }
 
 
+def managed(path):
+    """True when the PE declares a CLR header, which is what lets `mono` run it."""
+    try:
+        import pefile
+
+        # The CLR header is directory 14 of the optional header; pefile only follows it when asked, so read its address directly.
+        pe = pefile.PE(path, fast_load=True)
+        directory = pe.OPTIONAL_HEADER.DATA_DIRECTORY[pefile.DIRECTORY_ENTRY["IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR"]]
+        return bool(getattr(directory, "VirtualAddress", 0))
+    except Exception:
+        return False
+
+
+def run_mono(args):
+    """Runs the assembly under Mono. Returns the block the controller maps, or None when Mono cannot start the file."""
+    if not (os.path.isfile(MONO) and managed(args.file)):
+        return None
+    environment = dict(os.environ, TMPDIR="/tmp/dt/tmp", XDG_CONFIG_HOME="/tmp/dt/xdg/config", XDG_CACHE_HOME="/tmp/dt/xdg/cache")
+    try:
+        done = subprocess.run([MONO, args.file], capture_output=True, timeout=MONO_TIMEOUT, env=environment, cwd="/tmp/dt/tmp")
+    except subprocess.TimeoutExpired as timeout:
+        return {"engine": "mono", "exitCode": None, "stopped": "killed after %d s" % MONO_TIMEOUT,
+                "stdout": (timeout.stdout or b"")[-MONO_OUTPUT:].decode("utf-8", "replace"),
+                "stderr": (timeout.stderr or b"")[-MONO_OUTPUT:].decode("utf-8", "replace")}
+    except OSError:
+        return None
+    stdout = done.stdout[-MONO_OUTPUT:].decode("utf-8", "replace")
+    stderr = done.stderr[-MONO_OUTPUT:].decode("utf-8", "replace")
+    # Mono exits 1 with this wording when the assembly needs something the runtime does not have: the emulator still gets a turn.
+    if done.returncode == 1 and ("Cannot open assembly" in stderr or "does not contain a valid CIL image" in stderr):
+        return None
+    return {"engine": "mono", "exitCode": done.returncode, "stdout": stdout, "stderr": stderr}
+
+
 def main():
     args = parse_args()
     started = time.monotonic()
+    mono = run_mono(args)
+    if mono is not None:
+        emulation = {"entryPoints": [], "instructions": 0, "seconds": round(time.monotonic() - started, 1),
+                     "timeoutSeconds": MONO_TIMEOUT, "maxInstructions": 0, "failure": None, "mono": mono}
+        finish(args, emulation=emulation)
+        return
     try:
         emulator = speakeasy.Speakeasy(config=configuration())
         module = emulator.load_module(args.file)

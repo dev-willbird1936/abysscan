@@ -41,9 +41,9 @@ test('desktop page is only the creature stage: safety gate, one slim control, th
   assert.equal((stage.match(/sandbox="allow-scripts" allow="camera 'none'; microphone 'none'/g) ?? []).length, 2, 'both shells: scripts only, no camera or microphone');
   assert.match(html, /<div id="ocean-stage" class="ocean-stage">/);
   const scripts = [...html.matchAll(/<script src="([^"]+)" defer><\/script>/g)].map(match => match[1]);
-  assert.deepEqual(scripts, ['./desktop-model.js', './world-model.js', './ocean-scenes.js', ...DEPTHS.map(depth => `./ocean-scenarios/${depth}.js`),
-    './scenario-profile.js', './ocean-fx.js', './scene-world.js', './desktop.js'],
-  'both models, the scenes, the scenario data, the fx and the projection load before the parent script');
+  assert.deepEqual(scripts, ['./desktop-model.js', './world-model.js', './program-ui.js', './ocean-scenes.js', ...DEPTHS.map(depth => `./ocean-scenarios/${depth}.js`),
+    './scenario-profile.js', './ocean-fx.js', '/ui/abyss/pixel-lit.js', './scene-world.js', './desktop.js'],
+  'both models, the scenes, the scenario data, the fx, the pixel lighting (the lit creature of a fish guide) and the projection load before the parent script');
   assert.doesNotMatch(html, /creature-preview|template-shell-controls|template-shell-switch|profile-session-optin|Win11React|StarKnightt/);
   assert.doesNotMatch(html, /<input\b[^>]*type=["'](?:text|password|email|url)["']/i);
   assert.doesNotMatch(html, /(?:href|src)=["']https?:/i);
@@ -70,7 +70,10 @@ test('cloud and controller modes show a local-simulation notice and never offer 
   assert.match(js, /function proofIsAvailable\(\) \{\s*return state\.profile\?\.id === 'deception-abyss' && \(state\.profileSimulationEnabled \|\| state\.hackathonProofAvailable\);/);
   assert.match(js, /result\.effect === 'request-proof' && proofIsAvailable\(\)/);
   assert.match(js, /const PROOF_URL = '\/chamber\.html\?demo=oauth-2023&profile=deception-abyss'/);
-  assert.match(js, /const SHELL_ORIGIN_RE = \/\^http:\\\/\\\/127\\\.0\\\.0\\\.1:\\d\{2,5\}\$\//, 'shells load only from a loopback origin');
+  // Shells load from a loopback origin (the local shell server) or from this app's own /s/<token> path (the live site): nothing else.
+  const origin = new RegExp(/const SHELL_ORIGIN_RE = (\/.*\/);/.exec(js)[1].slice(1, -1));
+  for (const ok of ['http://127.0.0.1:4189', 'http://127.0.0.1:4371', '/s/abcdefghijklmnopqrstuvwxyz012345']) assert.ok(origin.test(ok), ok);
+  for (const bad of ['https://evil.example', 'http://localhost:4189', 'http://127.0.0.1.evil.example', 'http://127.0.0.1:4189/x', '//evil.example', '/s/short', '/s/', '/s/abcdefghijklmnopqrstuvwxyz012345/x', '/previews/win11-final', '']) assert.ok(!origin.test(bad), bad);
 });
 
 const FAKE_PROFILE = Object.freeze({

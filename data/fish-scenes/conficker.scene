@@ -1,0 +1,341 @@
+# Conficker (late 2008). A worm that spread through an unpatched Windows network service and USB sticks.
+# A quest (QUESTS.md): the trainee is a council planning technician who logs applications handed in on USB sticks. The second stick carries Conficker.
+# Invented victim: in 2009 Conficker shut down computers at councils, hospitals and ministries, some for weeks.
+os windows
+user Dana Okafor
+about
+  | Conficker spread from PC to PC through a Windows network flaw, with no click, and through USB sticks with a fake AutoPlay entry.
+  | Newer Windows versions no longer run a program from autorun.inf by itself, so this is how AutoPlay worked in 2008–09.
+  | Once inside it switched off updates and security tools, blocked security websites and waited for orders. In 2009 it forced councils, hospitals and armed forces to switch off thousands of computers. The council and the planning technician here are invented.
+story
+  | You are Dana Okafor, planning technician at Northwind Borough Council. Each day you log new planning applications in the council's planning register.
+  | Applicants without a computer at home hand in their drawings on a USB stick at the front counter. It is mid-afternoon. You have logged 6 of today's 8 applications. Two to go.
+  | Two notes on your desktop hold the counter PCs' Administrator password and a reminder that updates are paused. Those are bad habits, kept here to make the training quick.
+quota 6 8 Applications logged today
+
+# Dana's desk: soft flags, careless but only here to keep the training simple.
+file Desktop/counter-pcs.txt
+  at 930 200
+  | Front counter PCs (all 12 the same)
+  | Administrator password: Counter-2026!
+file Desktop/updates-paused.txt
+  at 930 300
+  | From IT: Windows updates are paused on the counter PCs until the planning backlog is cleared.
+  | Marcus
+
+# What AutoPlay runs on a clean stick: Windows' own folder window.
+program explorer Windows Explorer
+  publisher Microsoft Windows
+  signed yes
+
+# The register: the council's own web page, one page per application.
+page held-0417 planning.northwind.example/register/26-0417/held
+  title Application held
+  brand Northwind Planning Register
+  heading Application held
+  | 26/0417 is on hold. Reception will ask Mr Haddad to bring the drawings again.
+page logged-0417 planning.northwind.example/register/26-0417/logged
+  title Application logged
+  brand Northwind Planning Register
+  heading Application logged
+  | 26/0417, a garden office at 14 Alder Close, has been logged. Mr Haddad will get a receipt.
+page reg-0417 planning.northwind.example/register/26-0417
+  title Log application 26/0417
+  brand Northwind Planning Register
+  heading Log planning application 26/0417
+  | A new application is waiting to be logged.
+  section Application
+  row Applicant = Mr O. Haddad
+  row Site = 14 Alder Close
+  row Proposal = Garden office, 12 square metres
+  row Files received = 3 drawings (PDF), from the applicant's USB stick
+  button Log application -> logged-0417
+  button Hold for the applicant -> held-0417
+
+mail mail-0417
+  from Priya Shah <priya.shah@northwind.example>
+  subject Application 26/0417 (Haddad): ready to log
+  link reg-0417
+  | Hi Dana,
+  |
+  | Mr Haddad's drawings are on the stick you just opened. The register entry is ready for you to log. The link opens it.
+  |
+  | Priya, front counter
+
+step Application 7 of 8
+  look the AutoPlay box in the corner: one row, "Open folder to view files"
+  move Click “Open folder to view files” in the AutoPlay box.
+  cue dialog:autoplay:fs-drive-haddad-plans
+  | Mr Haddad is at the front counter with a USB stick holding the drawings for his garden office. You plug it in, as you do ten times a week. This is a normal one: do it the usual way, so you know what normal looks like.
+  | AutoPlay is the box Windows shows when a stick goes in. It lists what you can do with it. Here there is one choice.
+drive Haddad Plans
+  kind usb
+  as HADDAD
+file HADDAD/site-plan.pdf
+  | Site plan, 14 Alder Close. Scale 1:200. Training copy.
+file HADDAD/floor-plan.pdf
+  | Garden office floor plan, 12 square metres. Training copy.
+file HADDAD/elevations.pdf
+  | Garden office elevations: north, south, east, west. Training copy.
+dialog autoplay HADDAD
+  option Open folder to view files -> run:explorer
+
+step One row, one meaning
+  look the folder: three PDF drawings, as the applicant said
+  when run explorer
+  | One row, so no doubt what it does: it opens the stick as a folder. Three PDF drawings, exactly what Mr Haddad said he was bringing.
+  | A new email has come in from Priya at the counter, with a link to the register.
+answer option:0
+open HADDAD
+notify mail Priya Shah
+  | Application 26/0417 (Haddad): ready to log
+
+step A message from the counter
+  look the link under Priya's message
+  when mail mail-0417
+  | The email links to the council's own address, planning.northwind.example. Hover over a link before you click it, to check where it goes.
+open mail-0417
+
+step Log it the normal way
+  look the application on the page: the address, and 3 files that match the folder
+  when visit reg-0417
+  | The page is the council's own. The register says 3 drawings came from the stick, and the folder showed 3.
+  | Check, then log the application or hold it.
+open reg-0417
+
+# The next application: a stick from an architect's office, with the worm on it.
+page held-0418 planning.northwind.example/register/26-0418/held
+  title Application held
+  brand Northwind Planning Register
+  heading Application held
+  | 26/0418 is on hold. Reception will ask Kestrel Design to send the drawings again.
+page logged-0418 planning.northwind.example/register/26-0418/logged
+  title Application logged
+  brand Northwind Planning Register
+  heading Application logged
+  | 26/0418, a loft conversion at 3 Mill Lane, has been logged. Mrs Nwosu will get a receipt.
+page reg-0418 planning.northwind.example/register/26-0418
+  title Log application 26/0418
+  brand Northwind Planning Register
+  heading Log planning application 26/0418
+  | A new application is waiting to be logged.
+  section Application
+  row Applicant = Mrs A. Nwosu (agent: Kestrel Design)
+  row Site = 3 Mill Lane
+  row Proposal = Loft conversion with rear dormer
+  row Files received = 3 files (2 PDF, 1 Word), from the agent's USB stick
+  button Log application -> logged-0418
+  button Hold for the applicant -> held-0418
+
+# The worm itself. It hides inside svchost.exe, loaded from a DLL with a random name. It shows no window.
+program conficker Generic Host Process for Win32 Services
+  publisher none
+  process svchost.exe -k netsvcs
+  cpu 19
+  mem 31
+  parent services.exe
+  command C:\Windows\System32\svchost.exe -k netsvcs
+  startup qxlvhs C:\Windows\System32\svchost.exe -k netsvcs
+  location HKLM\SYSTEM\CurrentControlSet\Services\qxlvhs
+  notify settings Automatic Updates turned off
+  | The Windows Update service was stopped and disabled.
+
+step 7 of 8 done
+  look the AutoPlay box in the corner: two rows with the same name; the first has a program's icon, not a folder's
+  when choose reg-0417 any
+  move Click the first “Open folder to view files” in the AutoPlay box, as most people would.
+  cue dialog:autoplay:fs-drive-kestrel-plans
+  | Done. One to go. A builder's agent has just handed over a stick from Kestrel Design for the last application, and you plug it in.
+  | This time AutoPlay lists “Open folder to view files” twice. The first row has a program's icon, not a folder's, so it runs a program. Most people pick the first without looking at the icons.
+choose reg-0417 1
+quota +1
+drive Kestrel Plans
+  kind usb
+  as KESTREL
+file KESTREL/loft-floor-plan.pdf
+  | Loft floor plan, 3 Mill Lane. Training copy.
+file KESTREL/loft-elevations.pdf
+  | Loft and rear dormer elevations. Training copy.
+file KESTREL/design-statement.docx
+  | Design statement, 3 Mill Lane loft conversion. Training copy.
+folder KESTREL/RECYCLER
+  hidden
+folder KESTREL/RECYCLER/S-5-3-42-2819952290-8240758988-879315005-3665
+  hidden
+file KESTREL/RECYCLER/S-5-3-42-2819952290-8240758988-879315005-3665/jwgkvsq.vmx
+  program conficker
+  hidden
+  size 164352
+# The real autorun.inf is hidden; it is shown here so the trainee can find it.
+file KESTREL/autorun.inf
+  | [autorun]
+  | action=Open folder to view files
+  | shellexecute=rundll32 .\RECYCLER\S-5-3-42-2819952290-8240758988-879315005-3665\jwgkvsq.vmx
+  | icon=%SystemRoot%\system32\shell32.dll,4
+  | useautoplay=1
+dialog autoplay KESTREL
+  option Open folder to view files -> run:conficker
+  option Open folder to view files -> open:fs-drive-kestrel-plans
+
+mail mail-0418
+  from Priya Shah <priya.shah@northwind.example>
+  subject Last one: 26/0418 (Kestrel Design)
+  link reg-0418
+  | Dana,
+  |
+  | The last one for today: Kestrel Design's loft conversion, 26/0418. Their stick is the one you just opened. The register entry is ready.
+  |
+  | Priya
+
+step Nothing seems to happen
+  look the folder that opened as normal, and the two notices in the corner: a new start-up item, and “Automatic Updates turned off”
+  when run conficker
+  | The folder opened as normal, so nothing looked wrong. But the first row was the worm's, the one with a program's icon: the stick's autorun.inf had added it, and it ran a hidden file, jwgkvsq.vmx, which is really a program library. The second row was the real one.
+  | It hides inside svchost.exe, a name Windows uses many times, and adds a start-up entry so it returns after every restart. Windows only shows two notices: a new start-up item, and Automatic Updates turned off.
+  | The other route needed no click at all: an unpatched network service let it in from another PC.
+answer option:0
+open KESTREL
+notify mail Priya Shah
+  | Last one: 26/0418 (Kestrel Design)
+
+step The last application
+  look the link under Priya's message: the council's own address, like the first
+  when mail mail-0418
+  | Priya's last message of the day, with a real register link, like the first one. The stick she mentions is the one you just opened.
+open mail-0418
+
+step Application 8 of 8
+  look the application on the page: nothing on it is wrong
+  when visit reg-0418
+  | Priya's email and the register are real, and the page is normal: Conficker does not touch pages. Its work is somewhere else.
+  | Log the last application.
+open reg-0418
+
+# The defences go down.
+view wu-error message
+  title Windows Update
+  icon error
+  | Windows Update cannot currently check for updates because the service is not running. Error 0x80070422.
+  button OK -> close primary
+view sec-center panel
+  title Windows Security
+  app Windows Security
+  size 560x400
+  icon shield-bad
+  heading Your device is at risk
+  section Protection status
+  tone bad
+  row Virus & threat protection = Service stopped
+  row Windows Update = Disabled
+  row Background Intelligent Transfer Service = Disabled
+  row Error Reporting = Disabled
+  note These services were stopped and set to Disabled.
+  section Security update never installed
+  tone warn
+  row KB958644 = Security Update for Windows: not installed
+  button Retry -> view:wu-error
+  button Dismiss -> done
+
+step 8 of 8 logged
+  look Windows Security: protection off, and the Windows Update service stopped
+  when choose reg-0418 any
+  move Read the Windows Security window (Retry shows the error), then click Dismiss.
+  | All 8 applications are logged, but Windows Security now says the device is at risk. Conficker stops Windows Update and the security tools, so the flaw is never fixed and nothing removes it.
+  | Retry fails with a service error: the services are set to Disabled. The update that closes the flaw was never installed, because updates were paused.
+choose reg-0418 1
+quota +1
+update Security Update for Windows (KB958644)
+  kb KB958644
+  size 224 KB
+  status available
+notify settings Virus protection turned off
+  | Real-time protection was switched off.
+show sec-center
+
+step The warning is closed
+  look Mail: Marcus's message with the link to the cleaner
+  when done sec-center
+  | Closing the warning changes nothing: the services stay stopped. A few minutes later Marcus in IT writes, because other counter PCs show the same warning.
+
+# IT's reply: the worm blocks the very site IT points to.
+page avsite security-vendor.example
+  title This site can't be reached
+  heading This site can't be reached
+  | security-vendor.example's server IP address could not be found.
+  | DNS_PROBE_FINISHED_NXDOMAIN
+  button Reload -> avsite
+mail mail-it
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Counter PCs: protection warning? Run the free cleaner
+  link avsite
+  | Hi Dana,
+  |
+  | Several counter PCs are showing that Windows Security warning. The security company has a free cleaner on its website, and the link is below. Please run it now.
+  |
+  | Marcus, IT
+notify mail Marcus Lee
+  | Counter PCs: protection warning? Run the free cleaner
+
+step A message from IT
+  look the link under Marcus's message
+  when mail mail-it
+  | A real message from Marcus in IT, and the link goes to the security company's own address. Nothing about the email is wrong.
+open mail-it
+
+step It blocks the security websites
+  look the browser: “This site can't be reached” for the cleaner download
+  when visit avsite
+  move Click “Reload” to try again.
+  | The security company's site will not load. Conficker drops the answers for the names of security companies, so their sites never load. Microsoft's update site fails the same way.
+  | A PC that cannot open any security website, while other sites work, has a problem. Tell IT at once, and by phone, not by email.
+open avsite
+
+step It spreads to the next PCs
+  look the connection list in the console window, and the "Connection blocked" notifications
+  when choose avsite any
+  | It tries every other PC on the network: first through the same flaw, then by guessing the Administrator password on the ADMIN$ share. Every counter PC has the same password, so one guess would open all twelve.
+  | Here those connections are blocked. In the real outbreaks they were not, and whole councils had to switch their computers off.
+choose avsite 1
+view netstat console
+  title netstat -an
+  app Console
+  size 520x240
+  line C:\Users\Dana Okafor>netstat -an
+  line Proto  Local address        Foreign address      State
+  line TCP    192.0.2.23:49702     192.0.2.41:445       SYN_SENT
+  line TCP    192.0.2.23:49703     192.0.2.42:445       SYN_SENT
+  line TCP    192.0.2.23:49704     192.0.2.41:445       SYN_SENT
+  line TCP    192.0.2.23:49705     192.0.2.42:445       SYN_SENT
+  line TCP    192.0.2.23:49706     192.0.2.41:445       SYN_SENT
+attack network-worm
+  | 192.0.2.41
+  | 192.0.2.42
+  | the next PC
+  | the next network
+block 192.0.2.41 445
+block 192.0.2.42 445
+show netstat
+
+flag hard file KESTREL/autorun.inf
+  | A stick of drawings needs no autorun.inf. This one added a second “Open folder to view files” row to AutoPlay.
+flag hard process svchost.exe -k netsvcs
+  | Windows runs many svchost.exe, but this one has no publisher and loads a randomly named library, qxlvhs.dll, that the worm set up.
+flag hard startup qxlvhs
+  | A start-up entry with a random name, so the worm returns after every restart.
+flag hard notice settings Automatic Updates turned off
+  | Nobody turned updates off. The worm did, so the flaw it uses is never fixed.
+flag hard notice settings Virus protection turned off
+  | Real-time protection switched itself off right after the stick was opened.
+flag hard page avsite
+  | A security company's site that will not load while other sites do: Conficker blocks those names.
+flag hard notice taskmanager Connection blocked: 192.0.2.41
+  | The PC trying to reach other PCs on port 445, the Windows file-sharing port, to infect them.
+flag soft file Desktop/counter-pcs.txt
+  | One Administrator password on every counter PC: the worm only has to guess it once. Use a different password on each PC.
+flag soft file Desktop/updates-paused.txt
+  | Paused updates left the flaw open for weeks after the fix came out.
+
+lesson
+  | Turn off AutoPlay for USB sticks. When two AutoPlay rows have the same name, the row with a program's icon runs a program, and the row with a folder's icon only opens the stick. Open a stick from File Explorer instead.
+  | Install security updates promptly: the fix for Conficker's flaw came out weeks before it spread. Pausing updates leaves the door open.
+  | If updates or your antivirus switch off by themselves, or security websites will not open, tell IT straight away. Use a different Administrator password on every PC.

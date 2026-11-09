@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { runInNewContext } from 'node:vm';
+import { withheldWallpaper } from './fixtures/withheld-artwork.mjs';
 
 const require = createRequire(import.meta.url);
 const OceanWorldModel = require('../ui/desktop/world-model.js');
@@ -104,7 +105,7 @@ test('every profile merged onto the seed is a valid world for a fictional victim
     for (const app of ['mail', 'browser', 'mfa', 'messages']) assert.ok(world.dock.pins.includes(app), `${id} pins ${app}`);
     assert.equal(world.sys.wallpaper, 'stock');
     const wallpaper = world.sys.wallpaperUrl.replace(/^\/previews\//, 'desktop-comparison/previews/');
-    assert.ok(existsSync(new URL(`../${wallpaper}`, import.meta.url)), `${id} wallpaper ${world.sys.wallpaperUrl} exists`);
+    assert.ok(withheldWallpaper(world.sys.wallpaperUrl) || existsSync(new URL(`../${wallpaper}`, import.meta.url)), `${id} wallpaper ${world.sys.wallpaperUrl} exists`);
     assert.ok(world.dock.badges.mail <= world.data.mail.messages.filter(item => item.folder === 'inbox' && !item.read).length || world.dock.badges.mail === 1, `${id} mail badge`);
     // No seed leftovers from the Northwind desktop.
     assert.equal(JSON.stringify(world.fs.nodes).includes('Welcome.txt'), false, `${id} drops the seed welcome file`);

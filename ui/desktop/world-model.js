@@ -34,6 +34,7 @@
   const SANDBOX_MAX_EVENTS = 64;
   const WORLD_MAX_BYTES = 256 * 1024;
   const WORK = Object.freeze({ w: 1000, h: 600 });
+const GUIDE_EDGE = 270;
   const MIN_SIZE = Object.freeze({ w: 200, h: 120 });
   const PHASES = Object.freeze(['boot', 'lock', 'desktop', 'sleep', 'off']);
   // Allowed shell-requested phase changes. lock -> desktop is the fixed training sign-in (no password).
@@ -47,13 +48,83 @@
   const OVERLAYS = Object.freeze(['launcher', 'search', 'quick', 'centre', 'taskView', 'switcher']);
   const FIXED_FOLDERS = Object.freeze(['root', 'home', 'desktop', 'documents', 'downloads', 'pictures', 'music', 'trash']);
   const NODE_KINDS = Object.freeze(['folder', 'file', 'app']);
+  // System windows that are not apps a trainee launches: 'program' draws data.views (a scene program's own window).
+  // They are always available, never in the dock, launcher, store or `installed`.
+  const SYSTEM_APPS = Object.freeze(['program']);
+  // ---- file types (PROGRAMS.md §1): what a file is, from its name. Both shells use these for icon, label and open. ----
+  // [type, label]. Windows hides the extension of every type listed here (x.pdf.exe shows as x.pdf); macOS shows them
+  // all except .app. An unlisted extension is 'unknown': shown in full, and opening it asks how to open it.
+  const FILE_TYPES = Object.freeze(Object.fromEntries([
+    ...['exe', 'com'].map(ext => [ext, ['program', 'Application']]), ['scr', ['program', 'Screen saver']], ['pif', ['program', 'Shortcut to MS-DOS Program']],
+    ['vbs', ['script', 'VBScript Script File']], ['vbe', ['script', 'VBScript Encoded File']], ['js', ['script', 'JScript Script File']],
+    ['jse', ['script', 'JScript Encoded File']], ['wsf', ['script', 'Windows Script File']], ['bat', ['script', 'Windows Batch File']],
+    ['cmd', ['script', 'Windows Command Script']], ['ps1', ['script', 'Windows PowerShell Script']], ['hta', ['script', 'HTML Application']],
+    ['sh', ['script', 'Shell script']], ['command', ['script', 'Terminal shell script']], ['reg', ['script', 'Registration Entries']],
+    ['msi', ['installer', 'Windows Installer Package']], ['pkg', ['installer', 'Installer package']], ['mpkg', ['installer', 'Installer package']],
+    ['app', ['macapp', 'Application']], ['dmg', ['diskimage', 'Disk Image']], ['iso', ['diskimage', 'Disc Image File']], ['img', ['diskimage', 'Disc Image File']],
+    ['zip', ['archive', 'Compressed (zipped) Folder']], ['rar', ['archive', 'RAR archive']], ['7z', ['archive', '7-Zip archive']],
+    ['gz', ['archive', 'GZ archive']], ['tgz', ['archive', 'Compressed archive']], ['tar', ['archive', 'TAR archive']],
+    ['lnk', ['shortcut', 'Shortcut']], ['url', ['shortcut', 'Internet Shortcut']],
+    ['dll', ['library', 'Application extension']], ['sys', ['library', 'System file']], ['ocx', ['library', 'ActiveX control']],
+    ['dat', ['data', 'DAT File']], ['bin', ['data', 'BIN File']], ['tmp', ['data', 'TMP File']],
+    ['jar', ['java', 'Executable Jar File']], ['class', ['java', 'Java class file']],
+    ...['doc', 'docx', 'rtf', 'odt'].map(ext => [ext, ['word', ext === 'rtf' ? 'Rich Text Format' : 'Word Document']]),
+    ['docm', ['word-macro', 'Word Macro-Enabled Document']], ['dotm', ['word-macro', 'Word Macro-Enabled Template']],
+    ...['xls', 'xlsx', 'ods'].map(ext => [ext, ['sheet', 'Excel Worksheet']]), ['xlsm', ['sheet-macro', 'Excel Macro-Enabled Worksheet']],
+    ['csv', ['sheet', 'CSV File']], ['tsv', ['sheet', 'TSV File']], ['numbers', ['sheet', 'Numbers Spreadsheet']],
+    ...['ppt', 'pptx'].map(ext => [ext, ['slides', 'PowerPoint Presentation']]), ['odp', ['slides', 'OpenDocument Presentation']], ['key', ['slides', 'Keynote Presentation']],
+    ['pages', ['word', 'Pages Document']],
+    ['pdf', ['pdf', 'PDF Document']],
+    ...['txt', 'log', 'ini', 'cfg', 'conf', 'md', 'json', 'xml', 'nfo', 'yaml', 'yml', 'toml', 'py', 'sql'].map(ext => [ext, ['text', ext === 'txt' ? 'Text Document' : `${ext.toUpperCase()} File`]]),
+    ...['html', 'htm', 'mht'].map(ext => [ext, ['web', 'HTML Document']]), ['eml', ['mail', 'Email message']], ['msg', ['mail', 'Outlook Item']],
+    ...['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'svg', 'ico', 'heic', 'tif', 'tiff'].map(ext => [ext, ['image', `${ext.toUpperCase()} image`]]),
+    ...['mp3', 'wav', 'm4a', 'ogg', 'wma', 'flac', 'aac'].map(ext => [ext, ['audio', `${ext.toUpperCase()} audio`]]),
+    ...['mp4', 'mov', 'avi', 'wmv', 'webm', 'mkv'].map(ext => [ext, ['video', `${ext.toUpperCase()} video`]]),
+    ...['cer', 'crt', 'pem'].map(ext => [ext, ['certificate', 'Security Certificate']]), ...['p12', 'pfx'].map(ext => [ext, ['certificate', 'Personal Information Exchange']]),
+    ...['bz2', 'xz'].map(ext => [ext, ['archive', 'Compressed archive']]),
+    ['ics', ['calendar', 'iCalendar File']], ['vcf', ['contact', 'vCard File']],
+  ]));
+  const FILE_KINDS = Object.freeze(['program', 'script', 'installer', 'macapp', 'diskimage', 'archive', 'shortcut', 'library', 'data', 'java',
+    'word', 'word-macro', 'sheet', 'sheet-macro', 'slides', 'pdf', 'text', 'web', 'mail', 'image', 'audio', 'video', 'certificate', 'calendar', 'contact', 'folder', 'unknown']);
+  // Types that run code when opened.
+  const RUNNABLE = Object.freeze(['program', 'script', 'installer', 'macapp', 'java']);
+  const extOf = name => (String(name).includes('.') ? String(name).slice(String(name).lastIndexOf('.') + 1).toLowerCase() : '');
+  // { type, label, ext } for a file name (or a node: a folder, an archive folder or an encrypted file).
+  function fileTypeOf(nodeOrName) {
+    const node = typeof nodeOrName === 'string' ? null : nodeOrName;
+    const name = node ? node.name : nodeOrName;
+    const ext = extOf(name);
+    if (node?.kind === 'folder' && !node.archive) return { type: 'folder', label: 'File folder', ext: '' };
+    if (node?.kind === 'folder') {
+      const labels = { zip: 'Compressed (zipped) Folder', rar: 'RAR archive', dmg: 'Disk Image', iso: 'Disc Image File', img: 'Disc Image File', usb: 'USB Drive', cd: 'CD Drive', share: 'Network location' };
+      return { type: ['zip', 'rar'].includes(node.archive) ? 'archive' : 'diskimage', label: labels[node.archive], ext: ['usb', 'cd', 'share'].includes(node.archive) ? '' : ext };
+    }
+    const known = FILE_TYPES[ext];
+    if (known) return { type: known[0], label: known[1], ext };
+    return { type: 'unknown', label: ext ? `${ext.toUpperCase()} File` : 'File', ext };
+  }
+  // The name a file manager shows: Windows hides a known extension (the double-extension trick); macOS hides .app only.
+  // showAll: the trainee turned on file name extensions (sys.showExtensions), so nothing is hidden.
+  function displayName(nodeOrName, os, showAll = false) {
+    const name = typeof nodeOrName === 'string' ? nodeOrName : nodeOrName.name;
+    if (showAll) return name;
+    if (typeof nodeOrName !== 'string' && nodeOrName.kind === 'folder' && !nodeOrName.archive) return name;
+    const ext = extOf(name);
+    const hide = os === 'macos' ? ext === 'app' : Object.hasOwn(FILE_TYPES, ext);
+    return hide && name.length > ext.length + 1 ? name.slice(0, -(ext.length + 1)) : name;
+  }
+  // The icon a file shows: its own type, or the type its author disguised it as (node.icon: an .exe drawn as a PDF).
+  const iconTypeOf = node => (node?.icon && FILE_KINDS.includes(node.icon) ? node.icon : fileTypeOf(node).type);
   const FS_OPS = Object.freeze(['mkdir', 'touch', 'rename', 'move', 'trash', 'restore', 'empty-trash', 'write', 'set-desktop-pos']);
   const MULTI_WINDOW_APPS = Object.freeze(['files', 'texteditor', 'stickies']);
+  // A Settings window may open on a named pane: payload { pane }. Each shell shows it its own way: startup is Windows
+  // Settings > Apps > Startup and macOS Login Items; privacy and network are the matching panes on both.
+  const SETTINGS_PANES = Object.freeze(['startup', 'privacy', 'network']);
   // Apps a profile may never remove: the desktop needs a file manager and a settings app.
   const CORE_APPS = Object.freeze(['files', 'settings']);
   // Synced app stores (SYNC-AUDIT.md §4): optional, absent means empty.
   const SYNCED_DATA = Object.freeze(['browser', 'media', 'photos', 'whiteboard', 'calculator', 'clock', 'terminal', 'stickies']);
-  const OPTIONAL_DATA = Object.freeze(['alarms', 'updates', 'mfa', 'processes', 'startup', 'screenshots', 'web', ...SYNCED_DATA]);
+  const OPTIONAL_DATA = Object.freeze(['alarms', 'updates', 'mfa', 'processes', 'startup', 'screenshots', 'web', 'programs', 'views', 'quota', 'flags', 'captured', 'net', ...SYNCED_DATA]);
   const UPDATE_STATUSES = Object.freeze(['available', 'installed']);
   const WINDOW_ID_INTENTS = Object.freeze(['close-window', 'focus-window', 'minimize', 'restore', 'maximize', 'fullscreen']);
   const DATA_OPS = Object.freeze({
@@ -76,6 +147,11 @@
     stickies: ['upsert', 'delete'],
   });
   const ID_RE = /^[a-z0-9-]{1,40}$/;
+  // An ocean key names one thing a trainee can see or touch, the same on both desktops (QUESTS.md §2): app:mail, mail:<id>,
+  // link:<mail id>, file:<node id>, page:<id>, choice:<choice id>, field:<page>:<n>, section:<page>:<n>, view:<id>,
+  // dialog:<kind>:<program or file id>, dialog-btn:<answer>, process:<name>, startup:<name>, notification:<id>, net.
+  const KEY_RE = /^[a-z][a-z-]{1,15}(:[^"'<>\u0000-\u001f]{1,140})?$/;
+  const isKey = value => typeof value === 'string' && KEY_RE.test(value);
   const ISO_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,3})?)?Z$/;
   const SCENE_URL_RE = /^scene:[a-z0-9-]{1,40}$/;
   const WEB_URL_RE = /^(https?:\/\/)?[a-z0-9.-]+\.(example|invalid)(\/[^\s]{0,160})?$/i;
@@ -97,7 +173,7 @@
     notes: [150, 60, 700, 440], texteditor: [210, 70, 580, 420], calendar: [120, 50, 760, 480], reminders: [200, 70, 600, 420],
     contacts: [220, 70, 560, 420], photos: [130, 50, 740, 480], media: [150, 60, 700, 460], calculator: [400, 120, 240, 360],
     clock: [260, 90, 480, 380], store: [120, 40, 780, 500], taskmanager: [180, 70, 640, 420], stickies: [640, 60, 240, 220],
-    whiteboard: [110, 40, 780, 500],
+    whiteboard: [110, 40, 780, 500], program: [250, 110, 500, 330],
   });
   // Neutral display names; each shell may show its native name instead.
   const APP_NAMES = Object.freeze({
@@ -145,7 +221,13 @@
     if (hasExactKeys(payload, ['folderId'])) return isId(payload.folderId);
     if (hasExactKeys(payload, ['fileId'])) return isId(payload.fileId);
     if (hasExactKeys(payload, ['messageId'])) return isId(payload.messageId);
+    if (hasExactKeys(payload, ['pane'])) return SETTINGS_PANES.includes(payload.pane);
     if (hasExactKeys(payload, ['url'])) return typeof payload.url === 'string' && SCENE_URL_RE.test(payload.url);
+    // A program window: the view it draws and, for a view with pages (a wizard, a document's stages), the page shown.
+    // flips: the checkboxes the trainee clicked, as '<page>.<n>' (n counts the page's checks in order).
+    if (hasKeys(payload, ['view'], ['page', 'flips'])) return isId(payload.view) && (!Object.hasOwn(payload, 'page') || isIntIn(payload.page, 0, 11))
+      && (!Object.hasOwn(payload, 'flips') || (Array.isArray(payload.flips) && payload.flips.length <= 24 && new Set(payload.flips).size === payload.flips.length
+        && payload.flips.every(key => typeof key === 'string' && /^\d{1,2}\.\d{1,2}$/.test(key))));
     return false;
   }
 
@@ -164,9 +246,11 @@
     dockAutohide: isBool, showBatteryPercent: isBool, increaseContrast: isBool,
     wifiNetwork: value => isLine(value, 40) && value.trim() !== '',
     locationServices: isBool, shareAnalytics: isBool, personalizedAds: isBool,
+    // Explorer View > Show > File name extensions; Finder View > Show All Filename Extensions.
+    showExtensions: isBool,
   });
   const SYS_OPTIONAL = Object.freeze(['wallpaperUrl', 'dockAutohide', 'showBatteryPercent', 'increaseContrast', 'wifiNetwork',
-    'locationServices', 'shareAnalytics', 'personalizedAds']);
+    'locationServices', 'shareAnalytics', 'personalizedAds', 'showExtensions']);
   const SYS_REQUIRED = Object.keys(SYS_CHECKS).filter(key => !SYS_OPTIONAL.includes(key));
 
   function sysProblem(sys) {
@@ -175,8 +259,15 @@
   }
 
   function nodeProblem(node, id, nodes, installed) {
-    if (!hasKeys(node, ['id', 'parentId', 'name', 'kind', 'mime', 'size', 'modified', 'trashed'], ['appId', 'contentId', 'desktopPos', 'encrypted'])) return 'fs-node';
+    if (!hasKeys(node, ['id', 'parentId', 'name', 'kind', 'mime', 'size', 'modified', 'trashed'], ['appId', 'contentId', 'desktopPos', 'encrypted', 'icon', 'program', 'hidden', 'archive', 'drive'])) return 'fs-node';
     if (Object.hasOwn(node, 'encrypted') && !(isBool(node.encrypted) && node.kind === 'file')) return 'fs-node';
+    // PROGRAMS.md §1: a disguised icon, the program a file runs, a hidden (system) file, a folder that is an archive or disk.
+    if (Object.hasOwn(node, 'icon') && !(node.kind === 'file' && FILE_KINDS.includes(node.icon))) return 'fs-node';
+    if (Object.hasOwn(node, 'program') && !(node.kind === 'file' && isId(node.program))) return 'fs-node';
+    if (Object.hasOwn(node, 'hidden') && !isBool(node.hidden)) return 'fs-node';
+    if (Object.hasOwn(node, 'archive') && !(node.kind === 'folder' && ARCHIVE_KINDS.includes(node.archive))) return 'fs-node';
+    // A drive (USB stick, CD, network share) sits at the top of the computer and has a short label: E:, USB, \\fileserver.
+    if (Object.hasOwn(node, 'drive') && !(node.kind === 'folder' && node.parentId === 'root' && ['usb', 'cd', 'share'].includes(node.archive) && isLine(node.drive, 40))) return 'fs-node';
     if (node.id !== id || !isId(id) || !NODE_KINDS.includes(node.kind) || !isBool(node.trashed) || !isTime(node.modified) ||
         !isIntIn(node.size, 0, 1e9) || !nullable(node.mime, value => isLine(value, 80))) return 'fs-node';
     if (id === 'root' ? node.parentId !== null || node.name !== '' : !isFileName(node.name) || !isId(node.parentId) || !nodes[node.parentId]) return 'fs-node';
@@ -252,18 +343,104 @@
   const mfaPromptOk = item => hasExactKeys(item, ['id', 'app', 'account', 'location', 'device', 'time', 'number']) && isId(item.id) &&
     isLine(item.app, 80) && isLine(item.account, 120) && fictionalAddresses(item.account) && isLine(item.location, 120) &&
     isLine(item.device, 80) && isTime(item.time) && nullable(item.number, value => isIntIn(value, 0, 999));
-  const processOk = item => hasKeys(item, ['id', 'name'], ['cpu', 'mem', 'publisher', 'suspicious', 'endChoice']) && isId(item.id) &&
+  // keylog: the process records what is typed and sends it (each key the trainee types then shows network activity).
+  const processOk = item => hasKeys(item, ['id', 'name'], ['cpu', 'mem', 'publisher', 'suspicious', 'endChoice', 'parent', 'command', 'net', 'disk', 'keylog']) && isId(item.id) &&
+    optional(item, 'keylog', isBool) &&
+    optional(item, 'parent', value => isLine(value, 80)) && optional(item, 'command', value => isLine(value, 300) && fictionalAddresses(value)) &&
+    optional(item, 'net', value => isLine(value, 80) && fictionalAddresses(value)) && optional(item, 'disk', value => isLine(value, 40)) &&
     isLine(item.name, 80) && (!Object.hasOwn(item, 'cpu') || (typeof item.cpu === 'number' && item.cpu >= 0 && item.cpu <= 100)) &&
     (!Object.hasOwn(item, 'mem') || (typeof item.mem === 'number' && item.mem >= 0 && item.mem <= 1e6)) &&
     (!Object.hasOwn(item, 'publisher') || isLine(item.publisher, 80)) && (!Object.hasOwn(item, 'suspicious') || isBool(item.suspicious)) &&
     (!Object.hasOwn(item, 'endChoice') || isId(item.endChoice));
   // Items the sandbox replay shows (SPEC §9.1): a startup or login item, and a screenshot the program drew under Wine.
-  const startupOk = item => hasExactKeys(item, ['id', 'name', 'command']) && isId(item.id) && isLine(item.name, 80) && isLine(item.command, 200);
+  // location: where it is registered (a Run key, a service, a scheduled task, a login item).
+  const startupOk = item => hasKeys(item, ['id', 'name', 'command'], ['location', 'publisher']) && isId(item.id) && isLine(item.name, 80) && isLine(item.command, 200) &&
+    optional(item, 'location', value => isLine(value, 160)) && optional(item, 'publisher', value => isLine(value, 80));
+
+  // ---- programs, views and dialogs (PROGRAMS.md) ----
+  // A view is a program's own window, drawn from data: a message box, a panel of rows and tables, a setup wizard, a ransom
+  // note with timers, a console, a document with a Protected View bar, a full-screen boot screen, a fake scan, a desktop
+  // character. Buttons carry actions the parent applies (view-action). No view has an input field.
+  const VIEW_LAYOUTS = Object.freeze(['message', 'panel', 'wizard', 'ransom', 'console', 'document', 'screen', 'scan', 'character', 'sheet', 'slides']);
+  const VIEW_ICONS = Object.freeze(['none', 'error', 'warning', 'info', 'question', 'shield', 'shield-ok', 'shield-bad', 'lock', 'program', 'gear', 'bug', 'disk', 'web', 'mail', 'money', 'user', 'character']);
+  const ACTION_RE = /^(close|next|back|none|done|page:\d{1,2}|check:\d{1,2}|run:[a-z0-9-]{1,40}|view:[a-z0-9-]{1,40}|open:[a-z0-9-]{1,40}|choice:[a-z0-9-]{1,40}|notify:[a-z0-9-]{1,40})$/;
+  const PROMPT_KINDS = Object.freeze(['open-warning', 'reputation', 'elevation']);
+  // firewall: a program opened a port to listen (Windows Security Alert / macOS "accept incoming network connections?").
+  const DIALOG_KINDS = Object.freeze([...PROMPT_KINDS, 'cant-open', 'properties', 'detected', 'autoplay', 'message', 'firewall']);
+  const ARCHIVE_KINDS = Object.freeze(['zip', 'rar', 'iso', 'img', 'dmg', 'usb', 'cd', 'share']);
+  const isColour = value => typeof value === 'string' && /^#[0-9a-fA-F]{6}$/.test(value);
+  const isAction = value => typeof value === 'string' && ACTION_RE.test(value);
+  const prose = (value, max) => isText(value, max) && fictionalAddresses(value);
+  const lineOf = max => value => isLine(value, max) && fictionalAddresses(value);
+  const listOf = (max, test) => value => Array.isArray(value) && value.length <= max && value.every(test);
+  const buttonOk = item => hasKeys(item, ['label'], ['action', 'primary']) && isLine(item.label, 40) && optional(item, 'action', isAction) && optional(item, 'primary', isBool);
+  // A field the trainee types into (QUESTS.md §3). There is no real input: each key types the next character of value, the
+  // fictional answer the scene wrote, so nothing the trainee knows can be entered. secret draws dots; reveal (with secret)
+  // draws the password in plain text, the way a tampered page might.
+  const fieldOk = item => hasKeys(item, ['label', 'value'], ['secret', 'reveal']) && isLine(item.label, 60) && isLine(item.value, 80) &&
+    item.value.length > 0 && fictionalAddresses(item.value) && optional(item, 'secret', isBool) && optional(item, 'reveal', isBool);
+  const sectionOk = item => hasKeys(item, [], ['heading', 'text', 'rows', 'table', 'items', 'checks', 'progress', 'timer', 'code', 'tone', 'note', 'fields']) &&
+    optional(item, 'fields', listOf(6, fieldOk)) &&
+    optional(item, 'heading', lineOf(160)) && optional(item, 'text', value => prose(value, 4000)) &&
+    optional(item, 'rows', listOf(40, row => Array.isArray(row) && row.length === 2 && isLine(row[0], 80) && lineOf(300)(row[1]))) &&
+    optional(item, 'table', value => hasExactKeys(value, ['columns', 'rows']) && listOf(6, lineOf(40))(value.columns) && value.columns.length > 0 &&
+      listOf(60, row => listOf(6, lineOf(300))(row) && row.length === value.columns.length)(value.rows)) &&
+    optional(item, 'items', listOf(40, lineOf(300))) &&
+    optional(item, 'checks', listOf(12, check => hasExactKeys(check, ['label', 'checked']) && lineOf(160)(check.label) && isBool(check.checked))) &&
+    optional(item, 'progress', value => isIntIn(value, 0, 100)) &&
+    optional(item, 'timer', value => hasExactKeys(value, ['label', 'seconds']) && isLine(value.label, 80) && isIntIn(value.seconds, 1, 30 * 86400)) &&
+    optional(item, 'code', value => prose(value, 4000)) && optional(item, 'tone', value => ['normal', 'good', 'bad', 'warn', 'injected'].includes(value)) &&
+    optional(item, 'note', lineOf(200));
+  const VIEW_PAGE_KEYS = ['heading', 'text', 'icon', 'sections', 'buttons', 'bar', 'lines', 'counter', 'image', 'balloon'];
+  const viewPageOk = page => optional(page, 'heading', lineOf(200)) && optional(page, 'text', value => prose(value, 4000)) &&
+    optional(page, 'icon', value => VIEW_ICONS.includes(value)) && optional(page, 'sections', listOf(12, sectionOk)) &&
+    optional(page, 'buttons', listOf(6, buttonOk)) &&
+    optional(page, 'bar', value => hasKeys(value, ['text'], ['button', 'action', 'tone']) && lineOf(240)(value.text) && optional(value, 'button', v => isLine(v, 40)) &&
+      optional(value, 'action', isAction) && optional(value, 'tone', v => ['info', 'warn', 'bad'].includes(v))) &&
+    optional(page, 'lines', listOf(60, lineOf(160))) &&
+    optional(page, 'counter', value => hasExactKeys(value, ['label', 'from', 'to']) && isLine(value.label, 160) && isIntIn(value.from, 0, 1e9) && isIntIn(value.to, 0, 1e9)) &&
+    optional(page, 'image', value => typeof value === 'string' && WALLPAPER_URL_RE.test(value) && !value.includes('..')) &&
+    optional(page, 'balloon', lineOf(300));
+  const viewOk = view => hasKeys(view, ['layout', 'title'], ['app', 'theme', 'size', 'fullscreen', 'pages', 'publisher', ...VIEW_PAGE_KEYS]) &&
+    VIEW_LAYOUTS.includes(view.layout) && isLine(view.title, 120) && optional(view, 'app', value => isLine(value, 60)) &&
+    optional(view, 'publisher', value => isLine(value, 80)) &&
+    optional(view, 'theme', value => hasKeys(value, [], ['bg', 'fg', 'accent', 'header']) && Object.values(value).every(isColour)) &&
+    optional(view, 'size', value => hasExactKeys(value, ['w', 'h']) && isIntIn(value.w, MIN_SIZE.w, WORK.w) && isIntIn(value.h, MIN_SIZE.h, WORK.h)) &&
+    optional(view, 'fullscreen', isBool) && viewPageOk(view) &&
+    optional(view, 'pages', listOf(12, page => hasKeys(page, [], VIEW_PAGE_KEYS) && viewPageOk(page)));
+  // A program: what opening a file does. prompts are the OS warnings shown first; then it may be caught by the antivirus
+  // (detected), or it runs: a process, a start-up entry, its own window (view), a notification, and it may delete itself.
+  const programOk = item => hasKeys(item, ['name', 'publisher', 'signed', 'prompts'], ['view', 'process', 'startup', 'selfDelete', 'notify', 'detected', 'description']) &&
+    isLine(item.name, 80) && nullable(item.publisher, value => isLine(value, 80)) && isBool(item.signed) &&
+    Array.isArray(item.prompts) && item.prompts.length <= 3 && item.prompts.every(kind => PROMPT_KINDS.includes(kind)) &&
+    optional(item, 'view', isId) && optional(item, 'selfDelete', isBool) && optional(item, 'detected', value => isLine(value, 80)) &&
+    optional(item, 'description', value => isLine(value, 120)) &&
+    optional(item, 'process', value => hasKeys(value, ['name'], ['cpu', 'mem', 'parent', 'command', 'net', 'keylog']) && isLine(value.name, 80) && optional(value, 'keylog', isBool) &&
+      optional(value, 'cpu', v => typeof v === 'number' && v >= 0 && v <= 100) && optional(value, 'mem', v => typeof v === 'number' && v >= 0 && v <= 1e6) &&
+      optional(value, 'parent', v => isLine(v, 80)) && optional(value, 'command', lineOf(300)) && optional(value, 'net', lineOf(80))) &&
+    optional(item, 'startup', value => hasKeys(value, ['name', 'command'], ['location']) && isLine(value.name, 80) && isLine(value.command, 200) && optional(value, 'location', v => isLine(v, 160))) &&
+    optional(item, 'notify', value => hasExactKeys(value, ['app', 'title', 'body']) && CANONICAL_APPS.includes(value.app) && isLine(value.title, 120) && prose(value.body, 600));
+  const dialogOptionOk = item => hasKeys(item, ['label', 'action'], ['sub']) && isLine(item.label, 80) && isAction(item.action) && optional(item, 'sub', value => isLine(value, 120));
+  const dialogOk = (item, world) => hasKeys(item, ['id', 'kind'], ['fileId', 'programId', 'step', 'threat', 'options', 'view']) && isId(item.id) &&
+    DIALOG_KINDS.includes(item.kind) && optional(item, 'fileId', id => isId(id) && Boolean(world.fs.nodes[id])) &&
+    optional(item, 'programId', id => isId(id) && Boolean(world.data.programs?.[id])) && optional(item, 'step', value => isIntIn(value, 0, 2)) &&
+    optional(item, 'threat', value => isLine(value, 80)) && optional(item, 'options', listOf(4, dialogOptionOk)) &&
+    optional(item, 'view', id => isId(id) && Boolean(world.data.views?.[id])) &&
+    (!PROMPT_KINDS.includes(item.kind) || Object.hasOwn(item, 'fileId') || Object.hasOwn(item, 'programId')) &&
+    (item.kind !== 'message' || Object.hasOwn(item, 'view'));
   const screenshotOk = item => hasExactKeys(item, ['id', 'caption', 'image']) && isId(item.id) && isLine(item.caption, 160) &&
     typeof item.image === 'string' && WALLPAPER_URL_RE.test(item.image) && !item.image.includes('..');
-  const webChoiceOk = choice => hasKeys(choice, ['label', 'choiceId'], ['style']) && isLine(choice.label, 60) && isId(choice.choiceId) &&
+  // goto: the page the browser shows after the button (a confirmation, the page behind a sign-in).
+  const webChoiceOk = choice => hasKeys(choice, ['label', 'choiceId'], ['style', 'goto']) && isLine(choice.label, 60) && isId(choice.choiceId) && optional(choice, 'goto', isId) &&
     (!Object.hasOwn(choice, 'style') || choice.style === 'primary' || choice.style === 'secondary');
-  const pageOk = page => hasKeys(page, ['title', 'url', 'body', 'choices'], ['brand', 'heading', 'insecure']) && isLine(page.title, 120) &&
+  // sections: content on the page (tone 'injected' marks what malware added); toolbars: adware toolbars; issuer: the
+  // certificate issuer shown under the address bar; warning: the browser's full-page warning (PROGRAMS.md §3b).
+  // fields: a sign-in form, submitted by the page's first button. requires: the sign-in page shown instead until the trainee
+  // has signed in there (data.web.sessions).
+  const pageOk = page => hasKeys(page, ['title', 'url', 'body', 'choices'], ['brand', 'heading', 'insecure', 'sections', 'toolbars', 'issuer', 'warning', 'fields', 'requires']) && isLine(page.title, 120) &&
+    optional(page, 'fields', listOf(8, fieldOk)) && optional(page, 'requires', isId) &&
+    optional(page, 'sections', listOf(8, sectionOk)) && optional(page, 'toolbars', listOf(4, value => isLine(value, 40))) &&
+    optional(page, 'issuer', value => isLine(value, 80)) && optional(page, 'warning', value => ['cert', 'deceptive', 'malware'].includes(value)) &&
     typeof page.url === 'string' && WEB_URL_RE.test(page.url) && isText(page.body, 4000) && fictionalAddresses(page.body) &&
     (!Object.hasOwn(page, 'brand') || isLine(page.brand, 60)) && (!Object.hasOwn(page, 'heading') || isLine(page.heading, 160)) &&
     (!Object.hasOwn(page, 'insecure') || isBool(page.insecure)) && Array.isArray(page.choices) && page.choices.length <= 6 && page.choices.every(webChoiceOk);
@@ -389,12 +566,32 @@
         listOk(data.mfa.prompts, mfaPromptOk))) return 'data-mfa';
     if (Object.hasOwn(data, 'processes') && !listOk(data.processes, processOk)) return 'data-processes';
     if (Object.hasOwn(data, 'startup') && !listOk(data.startup, startupOk)) return 'data-startup';
+    const record = (value, max, test) => isRecord(value) && Object.keys(value).length <= max && Object.entries(value).every(([id, item]) => isId(id) && test(item));
+    if (Object.hasOwn(data, 'programs') && !record(data.programs, 64, programOk)) return 'data-programs';
+    if (Object.hasOwn(data, 'views') && !record(data.views, 64, viewOk)) return 'data-views';
+    if (Object.hasOwn(data, 'programs') && Object.values(data.programs).some(item => item.view && !data.views?.[item.view])) return 'data-programs';
     if (Object.hasOwn(data, 'screenshots') && !(Array.isArray(data.screenshots) && data.screenshots.length <= 8 && listOk(data.screenshots, screenshotOk))) return 'data-screenshots';
-    if (Object.hasOwn(data, 'web') && !(hasKeys(data.web, ['pages'], ['favorites', 'homepage']) && isRecord(data.web.pages) &&
+    if (Object.hasOwn(data, 'web') && !(hasKeys(data.web, ['pages'], ['favorites', 'homepage', 'sessions', 'typed']) && isRecord(data.web.pages) &&
         Object.keys(data.web.pages).length <= 64 && Object.entries(data.web.pages).every(([id, page]) => isId(id) && pageOk(page)) &&
         (!Object.hasOwn(data.web, 'favorites') || (Array.isArray(data.web.favorites) && data.web.favorites.length <= 16 && data.web.favorites.every(favoriteOk))) &&
         // The page a new browser tab opens (replay: a hijacked homepage).
         (!Object.hasOwn(data.web, 'homepage') || (isSceneUrl(data.web.homepage) && Object.hasOwn(data.web.pages, data.web.homepage.slice(6)))))) return 'data-web';
+    if (Object.hasOwn(data, 'web')) {
+      const { pages } = data.web;
+      const signIn = id => pageFields(pages[id] ?? {}).length > 0;
+      if (Object.values(pages).some(page => (page.requires && !signIn(page.requires)) || page.choices.some(choice => choice.goto && !pages[choice.goto]))) return 'data-web';
+      if (Object.hasOwn(data.web, 'sessions') && !(Array.isArray(data.web.sessions) && data.web.sessions.length <= 16 && data.web.sessions.every(id => isId(id) && signIn(id)))) return 'data-web';
+      if (Object.hasOwn(data.web, 'typed') && !(isRecord(data.web.typed) && Object.entries(data.web.typed).every(([id, counts]) => pages[id] &&
+          Array.isArray(counts) && counts.length <= 14 && counts.every((n, at) => isIntIn(n, 0, pageFields(pages[id])[at]?.value.length ?? 0))))) return 'data-web';
+    }
+    // The shift's task counter (QUESTS.md §1), the trainee's flags, what a keylogger captured and how often it sent.
+    if (Object.hasOwn(data, 'quota') && !(hasExactKeys(data.quota, ['label', 'done', 'total']) && isLine(data.quota.label, 60) &&
+        isIntIn(data.quota.total, 1, 999) && isIntIn(data.quota.done, 0, data.quota.total))) return 'data-quota';
+    if (Object.hasOwn(data, 'flags') && !(Array.isArray(data.flags) && data.flags.length <= 64 && new Set(data.flags.map(item => item?.key)).size === data.flags.length &&
+        data.flags.every(item => hasExactKeys(item, ['key', 'label']) && isKey(item.key) && isLine(item.label, 120)))) return 'data-flags';
+    if (Object.hasOwn(data, 'captured') && !(Array.isArray(data.captured) && data.captured.length <= 24 &&
+        data.captured.every(item => hasExactKeys(item, ['label', 'value']) && isLine(item.label, 60) && isLine(item.value, 80) && fictionalAddresses(item.value)))) return 'data-captured';
+    if (Object.hasOwn(data, 'net') && !(hasExactKeys(data.net, ['sent']) && isCounter(data.net.sent))) return 'data-net';
     for (const store of SYNCED_DATA) if (Object.hasOwn(data, store) && !SYNCED_CHECKS[store](data[store])) return `data-${store}`;
     return null;
   }
@@ -445,7 +642,7 @@
 
   function worldProblem(world) {
     if (!hasKeys(world, ['v', 'revision', 'phase', 'user', 'sys', 'fs', 'windows', 'order', 'focusedId', 'overlays',
-      'notifications', 'dock', 'installed', 'data', 'scene'], ['sandbox'])) return 'shape';
+      'notifications', 'dock', 'installed', 'data', 'scene'], ['sandbox', 'dialogs'])) return 'shape';
     if (world.v !== 3 || !isCounter(world.revision) || !PHASES.includes(world.phase)) return 'header';
     const { user } = world;
     if (!hasExactKeys(user, ['id', 'name', 'short', 'email', 'avatar']) || !isId(user.id) || !isLine(user.name, 80) ||
@@ -461,8 +658,11 @@
     const ids = [];
     for (const win of world.windows) {
       if (!hasExactKeys(win, ['id', 'app', 'title', 'rect', 'mode', 'tile', 'payload']) || !isId(win.id) || ids.includes(win.id) ||
-          !world.installed.includes(win.app) || !isLine(win.title, 120) || rectProblem(win.rect) || !MODES.includes(win.mode) ||
+          !(world.installed.includes(win.app) || SYSTEM_APPS.includes(win.app)) || !isLine(win.title, 120) || rectProblem(win.rect) || !MODES.includes(win.mode) ||
           !nullable(win.tile, tile => TILES.includes(tile)) || !payloadOk(win.payload)) return 'window';
+      // A program window draws a view that exists; no other window carries a view.
+      if (Object.hasOwn(win.payload ?? {}, 'pane') && win.app !== 'settings') return 'window';
+      if ((win.app === 'program') !== Object.hasOwn(win.payload ?? {}, 'view') || (win.app === 'program' && !world.data?.views?.[win.payload.view])) return 'window';
       ids.push(win.id);
     }
     if (!Array.isArray(world.order) || world.order.length !== ids.length || new Set(world.order).size !== ids.length ||
@@ -481,12 +681,17 @@
     if (data) return data;
     if (world.data.terminal && world.fs.nodes[world.data.terminal.cwd]?.kind !== 'folder') return 'data-terminal';
     const { scene } = world;
-    if (!hasKeys(scene, ['phase', 'stepId', 'highlight'], ['focusApps', 'creature', 'intro']) || !isId(scene.phase) || !nullable(scene.stepId, isId) ||
+    // cue: what the guide points at next, as ocean keys in order (the shells glow the first one on screen; QUESTS.md §2).
+    if (!hasKeys(scene, ['phase', 'stepId', 'highlight'], ['focusApps', 'creature', 'intro', 'cue', 'fx']) || !isId(scene.phase) || !nullable(scene.stepId, isId) ||
+        (Object.hasOwn(scene, 'cue') && !nullable(scene.cue, value => Array.isArray(value) && value.length <= 8 && value.every(isKey))) || (Object.hasOwn(scene, 'fx') && !['none', 'low', 'high'].includes(scene.fx)) ||
         !nullable(scene.highlight, value => hasExactKeys(value, ['app', 'ref']) && CANONICAL_APPS.includes(value.app) && nullable(value.ref, isId))) return 'scene';
     if (Object.hasOwn(scene, 'focusApps') && !focusAppsOk(scene.focusApps)) return 'scene-focus-apps';
     if (Object.hasOwn(scene, 'creature') && !nullable(scene.creature, creatureOk)) return 'scene-creature';
     if (Object.hasOwn(scene, 'intro') && !nullable(scene.intro, introOk)) return 'scene-intro';
     if (Object.hasOwn(world, 'sandbox') && !nullable(world.sandbox, sandboxOk)) return 'sandbox';
+    // world.dialogs: OS prompts and modal boxes over the desktop (PROGRAMS.md §3), oldest first; synced across an OS swap.
+    if (Object.hasOwn(world, 'dialogs') && !(Array.isArray(world.dialogs) && world.dialogs.length <= 6 && uniqueIds(world.dialogs) &&
+        world.dialogs.every(item => dialogOk(item, world)))) return 'dialogs';
     return byteSize(world) <= WORLD_MAX_BYTES ? null : 'size';
   }
 
@@ -521,7 +726,7 @@
     const has = app => world.installed.includes(app);
     world.dock.pins = world.dock.pins.filter(has);
     world.dock.badges = Object.fromEntries(Object.entries(world.dock.badges).filter(([app]) => has(app)));
-    world.windows = world.windows.filter(win => has(win.app));
+    world.windows = world.windows.filter(win => has(win.app) || SYSTEM_APPS.includes(win.app));
     const ids = world.windows.map(win => win.id);
     world.order = world.order.filter(id => ids.includes(id));
     if (!ids.includes(world.focusedId)) world.focusedId = topWindowId(world);
@@ -686,6 +891,16 @@
     }
     if (kind === 'install' || kind === 'uninstall') return only(['app']) && app(value.app) ? { kind, app: value.app } : null;
     if (kind === 'scene-choice') return only(['choiceId']) && isId(value.choiceId) ? { kind, choiceId: value.choiceId } : null;
+    // QUESTS.md: a key typed into a page's field (it types the field's next character); a flag the trainee puts on something.
+    if (kind === 'page-type') return only(['page', 'field']) && isId(value.page) && isIntIn(value.field, 0, 13) ? { kind, page: value.page, field: value.field } : null;
+    if (kind === 'flag') return only(['key', 'label', 'on']) && isKey(value.key) && isLine(value.label, 120) && isBool(value.on) ? { kind, key: value.key, label: value.label, on: value.on } : null;
+    // PROGRAMS.md §4: open a file the way the OS would, show its properties, answer a dialog, press a button in a view.
+    if (kind === 'open-file' || kind === 'file-properties') return only(['fileId']) && isId(value.fileId) ? { kind, fileId: value.fileId } : null;
+    if (kind === 'dialog-answer') {
+      return only(['id', 'answer']) && isId(value.id) && typeof value.answer === 'string' && /^(run|cancel|ok|trash|option:[0-3])$/.test(value.answer)
+        ? { kind, id: value.id, answer: value.answer } : null;
+    }
+    if (kind === 'view-action') return only(['windowId', 'action']) && isId(value.windowId) && isAction(value.action) ? { kind, windowId: value.windowId, action: value.action } : null;
     return null;
   }
 
@@ -703,6 +918,32 @@
     const named = [raw.app, raw.name].filter(value => typeof value === 'string');
     return named.some(value => CULLED_APPS.includes(value)) ? 'culled-app' : 'invalid-intent';
   }
+
+  // ---- web forms and sign-in (QUESTS.md §3) ----
+
+  // A page's fields in typing order: the form's own, then those in its sections (injected marks a section malware added).
+  function pageFields(page) {
+    return [...(page.fields ?? []).map(field => ({ ...field, injected: false })),
+      ...(page.sections ?? []).flatMap(item => (item.fields ?? []).map(field => ({ ...field, injected: item.tone === 'injected' })))];
+  }
+  // The page a browser tab shows for a scene page: its sign-in page until the trainee has signed in there.
+  function shownPage(world, pageId) {
+    const pages = world.data.web?.pages ?? {};
+    const page = pages[pageId];
+    if (!page) return null;
+    return page.requires && pages[page.requires] && !(world.data.web.sessions ?? []).includes(page.requires) ? page.requires : pageId;
+  }
+  // How far each field of a page is typed: counts per field, 0 when nothing yet.
+  const typedOf = (world, pageId) => {
+    const page = world.data.web?.pages?.[pageId];
+    const counts = world.data.web?.typed?.[pageId] ?? [];
+    return page ? pageFields(page).map((_, at) => counts[at] ?? 0) : [];
+  };
+  const formComplete = (world, pageId) => {
+    const page = world.data.web?.pages?.[pageId];
+    const counts = typedOf(world, pageId);
+    return Boolean(page) && pageFields(page).every((field, at) => counts[at] >= field.value.length);
+  };
 
   // ---- reducer ------------------------------------------------------------------------------------------
 
@@ -746,12 +987,14 @@
     if (payload.folderId) return world.fs.nodes[payload.folderId]?.kind === 'folder' ? null : 'no-such-folder';
     if (payload.fileId) return world.fs.nodes[payload.fileId]?.kind === 'file' ? null : 'no-such-file';
     if (payload.messageId) return world.data.mail.messages.some(item => item.id === payload.messageId) ? null : 'no-such-message';
+    if (payload.view) return 'system-window';
     return null;
   }
 
   function reduceOpenApp(world, intent) {
     if (!world.installed.includes(intent.app)) return 'not-installed';
     const payload = intent.payload ?? null;
+    if (payload?.pane && intent.app !== 'settings') return 'invalid-intent';
     const problem = payloadProblem(world, payload);
     if (problem) return problem;
     const existing = MULTI_WINDOW_APPS.includes(intent.app) && payload
@@ -1153,6 +1396,15 @@
     browser.activeTabId = tab.id;
   }
 
+  // A scene tab is titled by the page it shows: behind a sign-in that is the sign-in page (shownPage), until the trainee signs in.
+  function retitleTabs(world) {
+    for (const tab of world.data.browser?.tabs ?? []) {
+      if (!SCENE_URL_RE.test(tab.url)) continue;
+      const title = world.data.web?.pages?.[shownPage(world, tab.url.slice(6)) ?? tab.url.slice(6)]?.title;
+      if (title && tab.title !== title) tab.title = title;
+    }
+  }
+
   function reduceDock(world, intent) {
     const { pins } = world.dock;
     const at = pins.indexOf(intent.app);
@@ -1172,6 +1424,399 @@
     return null;
   }
 
+  // ---- programs, views and dialogs (PROGRAMS.md §4) ----
+
+  // Opens (or focuses) the program window that draws a view, centred and sized by the view; a screen covers the desk.
+  function openView(world, viewId) {
+    const view = world.data.views?.[viewId];
+    if (!view) return 'no-such-view';
+    // A full-screen takeover (a fake CHKDSK, a ransom boot screen) replaces everything the OS was showing, its
+    // dialogs included: nothing from before the 'restart' stays on top of it.
+    if (view.layout === 'screen' || view.fullscreen) delete world.dialogs;
+    const existing = world.windows.find(win => win.app === 'program' && win.payload.view === viewId);
+    if (existing) {
+      focusWindow(world, existing);
+      return null;
+    }
+    if (world.windows.length >= MAX_WINDOWS) return 'too-many-windows';
+    const id = nextId('w-program', candidate => world.windows.some(win => win.id === candidate));
+    const size = view.size ?? ({ message: { w: 420, h: 200 }, character: { w: 300, h: 260 }, screen: { w: WORK.w, h: WORK.h },
+      sheet: { w: 700, h: 430 }, slides: { w: 720, h: 450 }, document: { w: 640, h: 440 } })[view.layout] ?? { w: 560, h: 380 };
+    const offset = (world.windows.filter(win => win.app === 'program').length % 4) * 22;
+    // Centred right of the guide card (bottom left, x < GUIDE_EDGE), like scene windows; a wider window keeps to the right edge.
+    const rect = clampRect({ x: GUIDE_EDGE + (WORK.w - GUIDE_EDGE - size.w) / 2 + offset, y: (WORK.h - size.h) / 2 - 30 + offset, w: size.w, h: size.h });
+    const win = { id, app: 'program', title: view.title, rect, mode: view.fullscreen || view.layout === 'screen' ? 'fullscreen' : 'normal', tile: null, payload: { view: viewId } };
+    world.windows.push(win);
+    focusWindow(world, win);
+    return null;
+  }
+
+  // A dialog joins the stack (newest last); the same prompt for the same file replaces the old one.
+  function pushDialog(world, dialog) {
+    const rest = (world.dialogs ?? []).filter(item => !(item.kind === dialog.kind && item.fileId && item.fileId === dialog.fileId));
+    world.dialogs = [...rest, { id: nextId('dlg', candidate => rest.some(item => item.id === candidate)), ...dialog }].slice(-6);
+  }
+
+  // A program runs: the antivirus may catch it first; otherwise its process, start-up entry, window and notification
+  // appear, and it may delete its own file. forward tells the parent a program ran (the fish guide may move on).
+  function runProgram(world, programId, fileId, stamp) {
+    const program = world.data.programs?.[programId];
+    if (!program) return { problem: 'no-such-program' };
+    if (program.detected) {
+      pushDialog(world, { kind: 'detected', programId, threat: program.detected, ...(fileId ? { fileId } : {}) });
+      return { forward: { kind: 'program-detected', programId, fileId: fileId ?? null } };
+    }
+    if (program.process) {
+      const processes = world.data.processes ??= [];
+      if (!processes.some(item => item.name === program.process.name)) {
+        const extra = Object.fromEntries(['parent', 'command', 'net', 'keylog'].filter(key => program.process[key]).map(key => [key, program.process[key]]));
+        processes.push({ id: nextId('p-run', candidate => processes.some(item => item.id === candidate)), name: program.process.name,
+          cpu: program.process.cpu ?? 3, mem: program.process.mem ?? 24, publisher: program.publisher ?? 'Unknown publisher', suspicious: true, ...extra });
+      }
+    }
+    if (program.startup) {
+      const startup = world.data.startup ??= [];
+      if (!startup.some(item => item.name === program.startup.name)) {
+        startup.push({ id: nextId('s-run', candidate => startup.some(item => item.id === candidate)), ...program.startup,
+          ...(program.publisher ? { publisher: program.publisher } : {}) });
+        startupNotice(world, program.startup.name, program.name, stamp);
+      }
+    }
+    if (program.notify && world.installed.includes(program.notify.app)) {
+      const item = { id: nextId('n-run', candidate => world.notifications.history.some(entry => entry.id === candidate)), ...program.notify, time: stamp };
+      world.notifications.history = [...world.notifications.history, item].slice(-MAX_HISTORY);
+      world.notifications.banners = [...world.notifications.banners, item].slice(-MAX_BANNERS);
+    }
+    if (program.selfDelete && fileId && world.fs.nodes[fileId]) world.fs.nodes[fileId].trashed = true;
+    if (program.view) {
+      const problem = openView(world, program.view);
+      if (problem) return { problem };
+    }
+    return { forward: { kind: 'program-run', programId, fileId: fileId ?? null } };
+  }
+
+  // What both OSes do when something registers itself to run at sign-in: Windows 11 posts a Startup App Notification and
+  // macOS 13+ posts "Background Items Added". One neutral banner from Settings stands for both.
+  function startupNotice(world, name, by, stamp) {
+    if (!world.installed.includes('settings')) return;
+    const item = { id: nextId('n-startup', candidate => world.notifications.history.some(entry => entry.id === candidate)), app: 'settings',
+      title: `New startup item: ${name}`.slice(0, 120),
+      body: `${by && by !== name ? `${by} added ${name}` : `${name} was added`} to the programs that start every time ${world.user.name} signs in. On Windows it is listed in Settings › Apps › Startup and in Task Manager; on a Mac, in System Settings › Login Items.`.slice(0, 600),
+      time: stamp };
+    world.notifications.history = [...world.notifications.history, item].slice(-MAX_HISTORY);
+    world.notifications.banners = [...world.notifications.banners, item].slice(-MAX_BANNERS);
+  }
+
+  // ---- the apps a file opens in (PROGRAMS.md §1) -----------------------------------------------------------------
+  // A spreadsheet, a presentation, a saved web page, a saved email, a certificate, a zip or a disc image opens in the app the
+  // OS would use (Excel or Numbers, PowerPoint or Keynote, the browser, Mail, the certificate viewer, the compressed folder,
+  // the mounted disc), drawn as a read-only program window built from the file. The app's name is the shell's
+  // (program-ui.js appName): the view stores a neutral one. Returns a view, or null when the type has no such app.
+  const DOC_TYPES = Object.freeze(['sheet', 'sheet-macro', 'slides', 'web', 'mail', 'certificate', 'calendar', 'contact', 'archive', 'diskimage']);
+  // Text that leaves a world view valid: one line, bounded, and no address outside the fictional domains.
+  const safeLine = (value, max) => String(value ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').replace(EMAIL_DOMAIN_RE, (match, domain) => (/\.(example|invalid)$/i.test(domain) ? match : ' at ' + domain)).slice(0, max);
+  const safeText = (value, max) => String(value ?? '').split('\n').map(line => safeLine(line, max)).join('\n').slice(0, max);
+  const baseName = name => String(name).replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim() || String(name);
+  // Rows of a CSV / TSV / semicolon file: up to 6 columns and 40 rows. null when the text is not a table.
+  function tableOf(text) {
+    const lines = String(text ?? '').split(/\r?\n/).filter(line => line.trim());
+    if (!lines.length) return null;
+    const sep = [',', '\t', ';'].find(mark => lines[0].includes(mark));
+    if (!sep) return null;
+    // Quoted cells may hold the separator ("1,400") and doubled quotes.
+    const split = line => {
+      const cells = [''];
+      let quoted = false;
+      for (let n = 0; n < line.length; n++) {
+        const ch = line[n];
+        if (ch === '"' && quoted && line[n + 1] === '"') { cells[cells.length - 1] += '"'; n++; }
+        else if (ch === '"') quoted = !quoted;
+        else if (ch === sep && !quoted) cells.push('');
+        else cells[cells.length - 1] += ch;
+      }
+      return cells.map(cell => safeLine(cell.trim(), 120));
+    };
+    const rows = lines.slice(0, 41).map(split);
+    const width = Math.min(6, Math.max(...rows.map(row => row.length)));
+    const fit = row => Array.from({ length: width }, (_, n) => row[n] ?? '');
+    return { columns: fit(rows[0]).map(cell => cell.slice(0, 40) || ' '), rows: rows.slice(1).map(fit) };
+  }
+  // A fictional table that fits the file's name, for a spreadsheet with no text of its own (budget.xlsx).
+  function sampleTable(name) {
+    const n = String(name).toLowerCase();
+    if (/budget|expense|cost|forecast|ledger|finance|tax/.test(n)) {
+      return { columns: ['Line', 'Q1', 'Q2', 'Q3', 'Q4', 'Total'], rows: [['Salaries', '41,200', '41,200', '42,800', '42,800', '168,000'],
+        ['Travel', '3,150', '2,480', '4,020', '3,600', '13,250'], ['Software', '1,900', '1,900', '2,150', '2,150', '8,100'],
+        ['Office', '6,000', '6,000', '6,000', '6,000', '24,000'], ['Training', '800', '1,250', '600', '1,400', '4,050'],
+        ['Total', '53,050', '52,830', '55,570', '55,950', '217,400']] };
+    }
+    if (/invoice|order|payment|billing/.test(n)) {
+      return { columns: ['Invoice', 'Customer', 'Date', 'Amount', 'Status'], rows: [['INV-1041', 'Contoso Foods', '2026-10-02', '1,240.00', 'Paid'],
+        ['INV-1042', 'Fabrikam Ltd', '2026-10-09', '3,815.50', 'Overdue'], ['INV-1043', 'Tailspin Toys', '2026-10-15', '612.00', 'Paid'],
+        ['INV-1044', 'Litware Inc', '2026-10-28', '2,090.00', 'Sent']] };
+    }
+    if (/contact|client|customer|staff|employee|payroll|people|team/.test(n)) {
+      return { columns: ['Name', 'Company', 'Email', 'Phone'], rows: [['Priya Shah', 'Northwind', 'priya.shah@northwind.example', '555-0141'],
+        ['Marcus Lee', 'Northwind', 'marcus.lee@northwind.example', '555-0177'], ['Ana Ruiz', 'Contoso Foods', 'ana.ruiz@contoso.example', '555-0102'],
+        ['Tom Becker', 'Fabrikam Ltd', 'tom.becker@fabrikam.example', '555-0190']] };
+    }
+    return { columns: ['Item', 'Owner', 'Due', 'Status'], rows: [['Draft', 'Dana', '2026-11-04', 'In progress'], ['Review', 'Priya', '2026-11-11', 'Not started'],
+      ['Sign-off', 'Marcus', '2026-11-18', 'Not started']] };
+  }
+  // Slides: blank-line separated blocks of the file's text (first line the title), or a short fictional deck.
+  function slidesOf(name, text) {
+    const blocks = String(text ?? '').split(/\n\s*\n/).map(block => block.trim()).filter(Boolean);
+    const slides = blocks.length ? blocks.slice(0, 12).map(block => { const [head, ...rest] = block.split('\n'); return { heading: safeLine(head, 200), text: safeText(rest.join('\n'), 1200) }; })
+      : [{ heading: baseName(name), text: 'Northwind Traders\n2026' }, { heading: 'Agenda', text: 'Where we are\nWhat changes next quarter\nQuestions' },
+        { heading: 'Next steps', text: 'Owners confirm dates by Friday\nShare the final deck with the team' }];
+    return slides.map(slide => (slide.text ? slide : { heading: slide.heading }));
+  }
+  const downloaded = (world, node) => {
+    for (let at = node; at; at = world.fs.nodes[at.parentId]) if (at.id === 'downloads') return true;
+    return (world.data.mail?.messages ?? []).some(message => message.attachments?.includes(node.id));
+  };
+  function docViewOf(world, node, type) {
+    // A Word file from the Internet or a mail opens in Office's Protected View, read-only, instead of the editor.
+    const word = (type === 'word' || type === 'word-macro') && downloaded(world, node);
+    if (!DOC_TYPES.includes(type) && !word) return null;
+    const text = (node.contentId && world.data.contents[node.contentId]?.text) || '';
+    const title = node.name.slice(0, 120);
+    if (word) {
+      const lines = text.split(/\r?\n/);
+      const page = { heading: safeLine(lines[0]?.trim() || baseName(node.name), 200), text: safeText(lines.slice(1).join('\n').trim() || 'This document has no text.', 4000) };
+      const bars = [{ text: 'PROTECTED VIEW  Be careful: files from the Internet can contain viruses. Unless you need to edit, it is safer to stay in Protected View.', button: 'Enable Editing', action: 'next' }];
+      if (type === 'word-macro') bars.push({ text: 'SECURITY WARNING  Macros have been disabled. This training copy has no macro to run.', button: 'Enable Content', action: 'next' });
+      return { layout: 'document', title: `${title} [Protected View]`.slice(0, 120), app: 'Document', pages: [...bars.map(bar => ({ bar, ...page })), page] };
+    }
+    if (type === 'sheet' || type === 'sheet-macro') {
+      const lines = text.split(/\r?\n/).filter(line => line.trim());
+      const table = tableOf(text) ?? (lines.length ? { columns: [safeLine(lines[0], 40)], rows: lines.slice(1, 41).map(line => [safeLine(line, 120)]) } : sampleTable(node.name));
+      const grid = { sections: [{ table }] };
+      // Office's own bars: a file from the Internet opens in Protected View, a macro workbook with its macros off.
+      const bars = [];
+      if (downloaded(world, node)) bars.push({ text: 'PROTECTED VIEW  Be careful: files from the Internet can contain viruses. Unless you need to edit, it is safer to stay in Protected View.', button: 'Enable Editing', action: 'next' });
+      if (type === 'sheet-macro') bars.push({ text: 'SECURITY WARNING  Macros have been disabled.', button: 'Enable Content', action: 'next' });
+      const view = { layout: 'sheet', title, app: 'Spreadsheet' };
+      return bars.length ? { ...view, pages: [...bars.map(bar => ({ bar, ...grid })), grid] } : { ...view, ...grid };
+    }
+    if (type === 'slides') return { layout: 'slides', title, app: 'Presentation', pages: slidesOf(node.name, text) };
+    if (type === 'web') {
+      const plain = text.replace(/<(script|style)[\s\S]*?<\/\1>/gi, ' ').replace(/<br\s*\/?>|<\/(p|div|h\d|li|tr)>/gi, '\n').replace(/<[^>]+>/g, ' ')
+        .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/[ \t]+/g, ' ').replace(/\n\s*\n+/g, '\n').trim();
+      const heading = /<title>([^<]{1,200})<\/title>/i.exec(text)?.[1]?.trim();
+      return { layout: 'document', title, app: 'Browser', heading: safeLine(heading || baseName(node.name), 200), text: safeText(plain || 'This page is blank.', 4000) };
+    }
+    if (type === 'mail') {
+      const [head, ...rest] = text.split(/\r?\n\r?\n/);
+      const field = key => new RegExp(`^${key}:\\s*(.+)$`, 'im').exec(head ?? '')?.[1];
+      const rows = [['From', field('From')], ['To', field('To')], ['Date', field('Date')]].filter(([, value]) => value).map(([label, value]) => [label, safeLine(value, 300)]);
+      return { layout: 'document', title, app: 'Mail', heading: safeLine(field('Subject') || baseName(node.name), 200),
+        // Headers first, then the message, as a mail app shows it.
+        sections: [...(rows.length ? [{ rows }] : []), { text: safeText((rows.length ? rest.join('\n\n') : text) || 'This message has no text.', 4000) }] };
+    }
+    if (type === 'certificate') {
+      const subject = safeLine(baseName(node.name), 80);
+      return { layout: 'panel', title: 'Certificate', app: 'Certificate', size: { w: 520, h: 330 }, icon: 'shield-bad', heading: 'Certificate information',
+        text: 'This CA root certificate is not trusted. To trust it, it would have to be installed in the Trusted Root Certification Authorities store.',
+        sections: [{ rows: [['Issued to', subject], ['Issued by', subject], ['Valid from', '01/01/2026 to 01/01/2036']] },
+          { note: 'A certificate that issued itself proves nothing about who made it. Installing one lets its owner pose as any website.' }],
+        buttons: [{ label: 'Install Certificate...', action: 'none' }, { label: 'OK', action: 'close', primary: true }] };
+    }
+    // An invitation or a contact card: the OS shows what it holds and offers to add it (Calendar / Contacts). Nothing is added.
+    if (type === 'calendar' || type === 'contact') {
+      const field = key => safeLine(new RegExp(`^${key}[^:\\n]*:(.+)$`, 'im').exec(text)?.[1]?.trim() ?? '', 200);
+      const when = value => (/^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2}))?/.exec(value) ?? []).slice(1).filter(Boolean);
+      const stamp = value => { const [y, m, d, hh, mm] = when(value); return y ? `${y}-${m}-${d}${hh ? ` ${hh}:${mm}` : ''}` : value; };
+      const rows = (type === 'calendar'
+        ? [['Event', field('SUMMARY')], ['Starts', stamp(field('DTSTART'))], ['Ends', stamp(field('DTEND'))], ['Where', field('LOCATION')], ['Organiser', field('ORGANIZER').replace(/^mailto:/i, '')]]
+        : [['Name', field('FN')], ['Company', field('ORG')], ['Email', field('EMAIL')], ['Phone', field('TEL')]]).filter(([, value]) => value);
+      const calendar = type === 'calendar';
+      return { layout: 'panel', title, app: calendar ? 'Calendar' : 'Contacts', size: { w: 480, h: 320 }, icon: 'info',
+        heading: calendar ? 'Add this event to your calendar?' : 'Add this card to your contacts?',
+        sections: [{ rows: rows.length ? rows : [['File', title]] }, ...(calendar && field('DESCRIPTION') ? [{ text: safeText(field('DESCRIPTION').replace(/\\n/g, '\n'), 600) }] : [])],
+        buttons: [{ label: 'Cancel', action: 'close' }, { label: calendar ? 'Add to Calendar' : 'Add to Contacts', action: 'close', primary: true }] };
+    }
+    const disc = type === 'diskimage';
+    return { layout: 'panel', title, app: disc ? 'Disc' : 'Archive', icon: 'disk', heading: disc ? `${title} opened as a drive` : title,
+      text: disc ? 'The disc image was mounted like a CD. It holds no files.' : 'This compressed folder is empty.',
+      buttons: [{ label: disc ? 'Eject' : 'Extract all', action: 'close' }, { label: 'Close', action: 'close', primary: true }] };
+  }
+
+  // Prompts first (PROGRAMS.md §2), then the program.
+  function startProgram(world, programId, fileId, stamp) {
+    const program = world.data.programs?.[programId];
+    if (!program) return { problem: 'no-such-program' };
+    if (program.prompts.length) {
+      pushDialog(world, { kind: program.prompts[0], programId, step: 0, ...(fileId ? { fileId } : {}) });
+      return { forward: { kind: 'program-prompt', programId, fileId: fileId ?? null } };
+    }
+    return runProgram(world, programId, fileId, stamp);
+  }
+
+  // Double-click: what the OS does with this file. Returns { problem } or { forward }.
+  function openFile(world, fileId, stamp) {
+    const node = world.fs.nodes[fileId];
+    if (!node || node.trashed || node.kind === 'app') return { problem: 'no-such-file' };
+    if (node.kind === 'folder') return { problem: reduceOpenApp(world, { app: 'files', payload: { folderId: node.id } }) };
+    if (node.program && world.data.programs?.[node.program]) return startProgram(world, node.program, node.id, stamp);
+    const { type } = fileTypeOf(node);
+    const doc = node.encrypted ? null : docViewOf(world, node, type);
+    if (doc) {
+      const viewId = `doc-${node.id}`.slice(0, 40);
+      const views = world.data.views ??= {};
+      if (!views[viewId] && Object.keys(views).length >= 64) return { problem: 'store-full' };
+      views[viewId] = doc;
+      return { problem: openView(world, viewId) };
+    }
+    if (node.encrypted || ['unknown', 'library', 'data'].includes(type)) {
+      pushDialog(world, { kind: 'cant-open', fileId: node.id });
+      return {};
+    }
+    // A script with no scene behaviour does what its OS does with it: a PowerShell script opens in the text editor (Windows
+    // never runs one on a double-click); a batch or shell script shows its console, each command echoed (nothing runs).
+    const ext = fileTypeOf(node).ext;
+    const text = (node.contentId && world.data.contents[node.contentId]?.text) || '';
+    if (type === 'script' && ext === 'ps1' && node.contentId) return { problem: reduceOpenApp(world, { app: 'texteditor', payload: { fileId: node.id } }) };
+    // A .reg file: Registry Editor asks first, then says the keys were added (nothing is changed here).
+    if (type === 'script' && ext === 'reg') {
+      const viewId = `reg-${node.id}`.slice(0, 40);
+      const views = world.data.views ??= {};
+      if (!views[viewId] && Object.keys(views).length >= 64) return { problem: 'store-full' };
+      const keys = text.split(/\r?\n/).map(line => line.trim()).filter(line => /^\[.+\]$|^".+"=|^@=/.test(line)).slice(0, 12);
+      const where = `C:\\Users\\${world.user.short}\\${node.parentId === 'downloads' ? 'Downloads' : node.parentId === 'desktop' ? 'Desktop' : 'Documents'}\\${node.name}`;
+      views[viewId] = { layout: 'message', title: 'Registry Editor', app: 'Registry Editor', size: { w: 520, h: 260 }, pages: [
+        { icon: 'warning', text: safeText(`Adding information can unintentionally change or delete values and cause components to stop working correctly. If you do not trust the source of this information in ${where}, do not add it to the registry.\n\nAre you sure you want to continue?`, 4000),
+          ...(keys.length ? { sections: [{ code: safeText(keys.join('\n'), 4000) }] } : {}),
+          buttons: [{ label: 'Yes', action: 'next' }, { label: 'No', action: 'close', primary: true }] },
+        { icon: 'info', text: safeText(`The keys and values contained in ${where} have been successfully added to the registry.\n\n(Training desktop: nothing was changed.)`, 4000),
+          buttons: [{ label: 'OK', action: 'close', primary: true }] }] };
+      return { problem: openView(world, viewId) };
+    }
+    if (type === 'script' && ['bat', 'cmd', 'sh', 'command'].includes(ext) && text.trim()) {
+      const viewId = `con-${node.id}`.slice(0, 40);
+      const views = world.data.views ??= {};
+      if (!views[viewId] && Object.keys(views).length >= 64) return { problem: 'store-full' };
+      const prompt = ['sh', 'command'].includes(ext) ? `${world.user.short}$` : `C:\\Users\\${world.user.short}>`;
+      const lines = text.split(/\r?\n/).map(line => line.trim()).filter(line => line && !/^(@?echo off|rem\b|::|#!)/i.test(line)).slice(0, 40);
+      views[viewId] = { layout: 'console', title: node.name.slice(0, 120), app: 'Console', size: { w: 640, h: 360 },
+        lines: [...lines.map(line => safeLine(`${prompt} ${line}`, 160)), ' ', safeLine('(Training desktop: the commands are shown, not run.)', 160)] };
+      const problem = openView(world, viewId);
+      return problem ? { problem } : { forward: { kind: 'program-run', programId: null, fileId: node.id } };
+    }
+    if (RUNNABLE.includes(type) || type === 'shortcut') {
+      // A program with no scene behaviour: the OS still warns about a downloaded program; then it only starts.
+      if (type !== 'script' && type !== 'shortcut' && node.parentId === 'downloads') {
+        pushDialog(world, { kind: 'open-warning', fileId: node.id, step: 0 });
+        return {};
+      }
+      return { forward: { kind: 'program-run', programId: null, fileId: node.id } };
+    }
+    // A PDF opens read-only in the document viewer (Edge on Windows, Preview on macOS), never in a text editor.
+    if (type === 'pdf') {
+      const viewId = `pdf-${node.id}`.slice(0, 40);
+      const text = (node.contentId && world.data.contents[node.contentId]?.text) || '';
+      const views = world.data.views ??= {};
+      if (!views[viewId] && Object.keys(views).length >= 64) return { problem: 'store-full' };
+      views[viewId] ??= { layout: 'document', title: node.name.slice(0, 120), app: 'PDF', icon: 'none', text: text.slice(0, 4000) };
+      return { problem: openView(world, viewId) };
+    }
+    const app = type === 'image' ? 'photos' : type === 'audio' || type === 'video' ? 'media' : 'texteditor';
+    return { problem: reduceOpenApp(world, { app, payload: { fileId: node.id } }) };
+  }
+
+  function answerDialog(world, intent, stamp) {
+    const dialog = (world.dialogs ?? []).find(item => item.id === intent.id);
+    if (!dialog) return { problem: 'no-such-dialog' };
+    world.dialogs = world.dialogs.filter(item => item !== dialog);
+    const node = dialog.fileId ? world.fs.nodes[dialog.fileId] : null;
+    if (PROMPT_KINDS.includes(dialog.kind)) {
+      if (intent.answer !== 'run') return { forward: { kind: 'program-cancelled', programId: dialog.programId ?? null, fileId: dialog.fileId ?? null } };
+      const program = dialog.programId ? world.data.programs[dialog.programId] : null;
+      const step = (dialog.step ?? 0) + 1;
+      if (program && step < program.prompts.length) {
+        pushDialog(world, { kind: program.prompts[step], programId: dialog.programId, step, ...(dialog.fileId ? { fileId: dialog.fileId } : {}) });
+        return {};
+      }
+      if (program) return runProgram(world, dialog.programId, dialog.fileId, stamp);
+      return { forward: { kind: 'program-run', programId: null, fileId: dialog.fileId ?? null } };
+    }
+    // Remove in the antivirus alert: the file goes, and a guide waiting on it (when remove) moves on.
+    if (dialog.kind === 'detected' && intent.answer === 'trash') {
+      if (node && !FIXED_FOLDERS.includes(node.id)) node.trashed = true;
+      return { forward: { kind: 'program-removed', programId: dialog.programId ?? null, fileId: dialog.fileId ?? null } };
+    }
+    if (dialog.kind === 'autoplay' && intent.answer.startsWith('option:')) {
+      const option = dialog.options?.[Number(intent.answer.slice(7))];
+      if (option) {
+        const result = viewAction(world, null, option.action, stamp);
+        return result.problem === 'unchanged' ? { forward: result.forward } : result;
+      }
+    }
+    return {};
+  }
+
+  // A button in a view (or an AutoPlay choice). win is the program window, or null.
+  function viewAction(world, win, action, stamp) {
+    const at = action.indexOf(':');
+    const verb = at < 0 ? action : action.slice(0, at);
+    const arg = at < 0 ? '' : action.slice(at + 1);
+    const view = win ? world.data.views?.[win.payload.view] : null;
+    const pages = view?.pages?.length ?? 0;
+    switch (verb) {
+      case 'none': return { problem: 'unchanged' };
+      case 'close':
+      case 'done':
+        if (!win) return { problem: 'unchanged' };
+        world.windows = world.windows.filter(item => item !== win);
+        world.order = world.order.filter(id => id !== win.id);
+        if (world.focusedId === win.id) world.focusedId = topWindowId(world);
+        return verb === 'done' ? { forward: { kind: 'view-done', view: win.payload.view } } : {};
+      // A checkbox on the page (an installer's pre-ticked offer): the trainee may untick it. The scene plays on as written.
+      case 'check': {
+        if (!win || !view) return { problem: 'unchanged' };
+        const page = win.payload.page ?? 0;
+        const current = pages ? view.pages[page] : view;
+        const checks = (current?.sections ?? []).flatMap(item => item.checks ?? []);
+        const n = Number(arg);
+        if (!(n < checks.length)) return { problem: 'unchanged' };
+        const key = `${page}.${n}`;
+        const old = win.payload.flips ?? [];
+        const flips = old.includes(key) ? old.filter(item => item !== key) : [...old, key].slice(-24);
+        const { flips: _drop, ...rest } = win.payload;
+        win.payload = flips.length ? { ...rest, flips } : rest;
+        const checked = flips.includes(key) ? !checks[n].checked : checks[n].checked;
+        return { forward: { kind: 'view-check', view: win.payload.view, page, check: n, label: checks[n].label, checked } };
+      }
+      case 'next':
+      case 'back':
+      case 'page': {
+        if (!win || !pages) return { problem: 'unchanged' };
+        const current = win.payload.page ?? 0;
+        const page = verb === 'page' ? Number(arg) : current + (verb === 'next' ? 1 : -1);
+        if (page < 0 || page >= pages || page === current) return { problem: 'unchanged' };
+        win.payload = { view: win.payload.view, ...(page ? { page } : {}), ...(win.payload.flips ? { flips: win.payload.flips } : {}) };
+        return { forward: { kind: 'view-page', view: win.payload.view, page } };
+      }
+      case 'run': return runProgram(world, arg, null, stamp);
+      case 'view': return { problem: openView(world, arg) };
+      case 'open': {
+        if (world.data.web?.pages?.[arg]) {
+          const problem = reduceOpenApp(world, { app: 'browser', payload: { url: `scene:${arg}` } });
+          if (!problem) openBrowserTab(world, `scene:${arg}`);
+          return { problem };
+        }
+        if (world.fs.nodes[arg]) return openFile(world, arg, stamp);
+        if (world.data.mail.messages.some(item => item.id === arg)) return { problem: reduceOpenApp(world, { app: 'mail', payload: { messageId: arg } }) };
+        if (CANONICAL_APPS.includes(arg)) return { problem: reduceOpenApp(world, { app: arg }) };
+        return { problem: 'no-such-target' };
+      }
+      case 'choice': return { forward: { kind: 'choose', choiceId: arg }, problem: 'unchanged' };
+      case 'notify': return { forward: { kind: 'view-notify', id: arg }, problem: 'unchanged' };
+      default: return { problem: 'invalid-intent' };
+    }
+  }
+
+
   // Applies one shell intent. `now` is the parent clock in ms. Returns the next world (revision + 1) when it changed.
   // A scene choice never edits the world; it is returned as `forward` for the CONTRACT-V2 scene model.
   function applyIntent(world, rawIntent, now) {
@@ -1183,13 +1828,40 @@
     const stampMs = new Date(Math.floor(now)).toISOString();
     const desktopOnly = !['set-phase', 'set-sys', 'notify-dismiss', 'notify-clear'].includes(intent.kind);
     if (desktopOnly && world.phase !== 'desktop') return reject(world, 'not-desktop');
-    if (intent.kind === 'scene-choice') return noop(world, { kind: 'choose', choiceId: intent.choiceId });
+    if (intent.kind === 'scene-choice') {
+      // A scene page's button: the first one submits its form (all fields typed; signing in), and a button may lead on to
+      // another page in the same tab. Any other choice (a V2 scene's) only goes to the scene model.
+      const forward = { kind: 'choose', choiceId: intent.choiceId };
+      const [pageId, page] = Object.entries(world.data.web?.pages ?? {}).find(([, item]) => item.choices.some(choice => choice.choiceId === intent.choiceId)) ?? [];
+      if (!page) return noop(world, forward);
+      const at = page.choices.findIndex(choice => choice.choiceId === intent.choiceId);
+      const fields = pageFields(page);
+      if (at === 0 && fields.length && !formComplete(world, pageId)) return reject(world, 'form-incomplete');
+      const draft = clone(world);
+      if (at === 0 && fields.length) draft.data.web.sessions = [...new Set([...(draft.data.web.sessions ?? []), pageId])].slice(-16);
+      const goto = page.choices[at].goto;
+      const browser = draft.data.browser;
+      const tab = browser?.tabs.find(item => item.id === browser.activeTabId);
+      if (goto && tab) Object.assign(tab, { url: `scene:${goto}`, title: draft.data.web.pages[goto].title });
+      retitleTabs(draft);
+      if (JSON.stringify(draft) === JSON.stringify(world)) return noop(world, forward);
+      const problem = worldProblem(draft);
+      if (problem) return reject(world, `invalid-result:${problem}`);
+      draft.revision = world.revision + 1;
+      return { ok: true, changed: true, world: draft, reason: null, forward };
+    }
     const draft = clone(world);
     let problem = null;
+    let forward = null;
     switch (intent.kind) {
       case 'open-app':
         problem = reduceOpenApp(draft, intent);
         if (!problem && intent.app === 'browser' && intent.payload?.url) openBrowserTab(draft, intent.payload.url);
+        // What the trainee now sees, for a guide waiting on it (QUESTS.md §4): a message, or a page (or its sign-in page).
+        if (!problem && intent.payload?.messageId) forward = { kind: 'mail-open', messageId: intent.payload.messageId };
+        if (!problem && intent.payload?.url && draft.data.web?.pages?.[intent.payload.url.slice(6)]) forward = { kind: 'page-open', page: intent.payload.url.slice(6), shown: shownPage(draft, intent.payload.url.slice(6)) };
+        // Any other app (Task Manager, Settings' start-up list): a guide can wait for the trainee to look (when open <app>).
+        if ((!problem || problem === 'unchanged') && !forward) forward = { kind: 'app-open', app: intent.app, ...(intent.payload?.pane ? { pane: intent.payload.pane } : {}) };
         break;
       case 'set-sys':
         if (Object.entries(intent.patch).every(([key, value]) => draft.sys[key] === value)) problem = 'unchanged';
@@ -1203,7 +1875,17 @@
         draft.overlays[intent.name] = intent.open;
         break;
       case 'fs': problem = reduceFs(draft, intent, stamp); break;
-      case 'data': problem = reduceData(draft, intent, stamp, stampMs); break;
+      case 'data': {
+        problem = reduceData(draft, intent, stamp, stampMs);
+        if (intent.store === 'mail' && intent.op === 'mark-read' && intent.item.read) forward = { kind: 'mail-open', messageId: intent.item.id };
+        // Switching tabs or following a link: the page the active tab now shows.
+        if (intent.store === 'browser' && intent.op === 'set-tabs') {
+          const url = intent.item.tabs.find(tab => tab.id === intent.item.activeTabId)?.url ?? '';
+          const was = world.data.browser?.tabs.find(tab => tab.id === world.data.browser.activeTabId)?.url;
+          if (url !== was && SCENE_URL_RE.test(url) && draft.data.web?.pages?.[url.slice(6)]) forward = { kind: 'page-open', page: url.slice(6), shown: shownPage(draft, url.slice(6)) };
+        }
+        break;
+      }
       case 'notify-dismiss': {
         const before = draft.notifications.banners.length;
         draft.notifications.banners = intent.id ? draft.notifications.banners.filter(item => item.id !== intent.id) : [];
@@ -1219,6 +1901,33 @@
         break;
       }
       case 'dock': problem = reduceDock(draft, intent); break;
+      case 'page-type': {
+        // One key: the field's next character. A keylogger running (a keylog process) records it and sends it on.
+        const page = draft.data.web?.pages?.[intent.page];
+        const field = page && pageFields(page)[intent.field];
+        if (!field) { problem = 'no-such-field'; break; }
+        const counts = typedOf(draft, intent.page);
+        if (counts[intent.field] >= field.value.length) { problem = 'unchanged'; break; }
+        counts[intent.field] += 1;
+        draft.data.web.typed = { ...(draft.data.web.typed ?? {}), [intent.page]: counts };
+        const complete = counts[intent.field] === field.value.length;
+        const logged = (draft.data.processes ?? []).some(item => item.keylog);
+        if (logged) {
+          draft.data.net = { sent: Math.min((draft.data.net?.sent ?? 0) + 1, MAX_COUNTER) };
+          if (complete) draft.data.captured = [...(draft.data.captured ?? []).filter(item => item.label !== field.label), { label: field.label, value: field.value }].slice(-24);
+        }
+        forward = { kind: 'page-type', page: intent.page, field: intent.field, complete, logged, form: formComplete(draft, intent.page) };
+        break;
+      }
+      case 'flag': {
+        const flags = draft.data.flags ?? [];
+        const at = flags.findIndex(item => item.key === intent.key);
+        forward = { kind: 'flag', key: intent.key, on: intent.on };
+        if (intent.on ? at >= 0 : at < 0) { problem = 'unchanged'; break; }
+        if (intent.on && flags.length >= 64) { problem = 'store-full'; break; }
+        draft.data.flags = intent.on ? [...flags, { key: intent.key, label: intent.label }] : flags.filter(item => item.key !== intent.key);
+        break;
+      }
       case 'install':
         if (draft.installed.includes(intent.app)) problem = 'unchanged';
         else draft.installed = CANONICAL_APPS.filter(app => app === intent.app || draft.installed.includes(app));
@@ -1231,15 +1940,37 @@
           filterInstalled(draft);
         }
         break;
+      case 'open-file':
+      case 'dialog-answer':
+      case 'view-action': {
+        let result;
+        if (intent.kind === 'open-file') result = openFile(draft, intent.fileId, stamp);
+        else if (intent.kind === 'dialog-answer') result = answerDialog(draft, intent, stamp);
+        else {
+          const win = draft.windows.find(item => item.id === intent.windowId && item.app === 'program');
+          result = win ? viewAction(draft, win, intent.action, stamp) : { problem: 'no-such-window' };
+        }
+        problem = result.problem ?? null;
+        forward = result.forward ?? (intent.kind === 'open-file' && !result.problem ? { kind: 'file-open', fileId: intent.fileId } : null);
+        break;
+      }
+      case 'file-properties': {
+        const node = draft.fs.nodes[intent.fileId];
+        if (!node || node.kind === 'app' || node.id === 'root') problem = 'no-such-file';
+        else pushDialog(draft, { kind: 'properties', fileId: node.id, ...(node.program && draft.data.programs?.[node.program] ? { programId: node.program } : {}) });
+        break;
+      }
       default: problem = reduceWindow(draft, intent);
     }
-    if (problem === 'unchanged') return noop(world);
+    if (problem === 'unchanged') return noop(world, forward);
     if (problem) return reject(world, problem);
+    if (draft.dialogs && !draft.dialogs.length) delete draft.dialogs;
     resetClosedApps(draft);
+    retitleTabs(draft);
     const next = worldProblem(draft);
     if (next) return reject(world, `invalid-result:${next}`);
     draft.revision = world.revision + 1;
-    return { ok: true, changed: true, world: draft, reason: null, forward: null };
+    return { ok: true, changed: true, world: draft, reason: null, forward };
   }
 
   // ---- canonical projection ------------------------------------------------------------------------------
@@ -1250,7 +1981,7 @@
   // It tolerates partial input: an absent store is empty and an absent optional setting takes its default.
 
   const SYS_DEFAULTS = Object.freeze({ wallpaperUrl: null, dockAutohide: false, showBatteryPercent: false, increaseContrast: false,
-    wifiNetwork: 'Northwind-Staff', locationServices: true, shareAnalytics: false, personalizedAds: false });
+    wifiNetwork: 'Northwind-Staff', locationServices: true, shareAnalytics: false, personalizedAds: false, showExtensions: false });
   const canonicalTime = time => (typeof time === 'string' && !Number.isNaN(Date.parse(time)) ? new Date(Date.parse(time)).toISOString() : null);
   const sortedKeys = record => Object.fromEntries(Object.entries(record ?? {}).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
   const pick = (item, keys) => Object.fromEntries(keys.map(key => [key, item[key]]));
@@ -1341,6 +2072,11 @@
   const api = Object.freeze({
     CANONICAL_APPS, CULLED_APPS, CORE_APPS, APP_NAMES, WORK, WORLD_MAX_BYTES, PHASES, ACCENTS, WALLPAPERS, OVERLAYS, TILES, FIXED_FOLDERS, FS_OPS,
     CREATURE_STATES, ATTACK_KINDS, SANDBOX_MODES, SANDBOX_STATUSES, SANDBOX_MAX_EVENTS,
+    SYSTEM_APPS, SETTINGS_PANES, FILE_TYPES, FILE_KINDS, RUNNABLE, VIEW_LAYOUTS, VIEW_ICONS, PROMPT_KINDS, DIALOG_KINDS, ARCHIVE_KINDS,
+    fileTypeOf, displayName, iconTypeOf, pageFields, shownPage, typedOf, formComplete, isKey,
+    // For authoring tools (the fish-scene compiler): the reducer steps a trainee's gesture runs, applied to a draft the
+    // caller owns and validates. Shells never call these; they send intents.
+    ops: Object.freeze({ openView, runProgram, startProgram, pushDialog, openFile, viewAction, openBrowserTab, startupNotice }),
     createWorld, validate, applyIntent, parseIntent, parseIntentMessage, mergeProfile,
     SYNCED_DATA, SYS_DEFAULTS, normalise, normaliseStore, emptyStore: store => EMPTY_SYNCED[store](),
   });

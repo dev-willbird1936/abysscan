@@ -1,0 +1,22 @@
+{
+  "family": "Chakra Petch",
+  "license": "SIL Open Font License 1.1",
+  "license_file": "OFL-ChakraPetch.txt",
+  "upstream": "https://github.com/m4rc1e/Chakra-Petch",
+  "distribution": "Google Fonts v13, unmodified Latin subsets; system fallback covers other characters",
+  "runtime": "Same-origin assets only; no Google Fonts network requests",
+  "files": [
+    {
+      "file": "ChakraPetch-Regular.woff2",
+      "source": "https://fonts.gstatic.com/s/chakrapetch/v13/cIf6MapbsEk7TDLdtEz1BwkWn6pg.woff2",
+      "bytes": 9756,
+      "sha256": "7d75be85dd1627e27ec151e9a3701e661bc4f8c2a93611bdd92f3a05d6bbd942"
+    },
+    {
+      "file": "ChakraPetch-SemiBold.woff2",
+      "source": "https://fonts.gstatic.com/s/chakrapetch/v13/cIflMapbsEk7TDLdtEz1BwkeQI51R5_F.woff2",
+      "bytes": 9968,
+      "sha256": "a5888696e9eb1b4bbbecc8eb3922b8369f49d4bddb72263e033cbd17f399be76"
+    }
+  ]
+}

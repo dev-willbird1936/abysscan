@@ -1,0 +1,348 @@
+# event-stream (2018). A popular open-source package was handed to a new maintainer, who added code to steal wallet keys.
+# A quest (QUESTS.md): the trainee is the one developer of a small company's wallet app, reviewing two dependency updates
+# from the build bot: the first is ordinary, the second is event-stream 3.3.6 with flatmap-stream inside. The victims in 2018
+# were the wallet's developers (who built with the poisoned package) and the users of the wallet they shipped; the company,
+# the people and the app here are invented.
+os macos
+user Dana Okafor
+about
+  | event-stream is an open-source package downloaded about two million times a week. Its original author handed it to a stranger who offered to help. In version 3.3.6 the new maintainer added a dependency, flatmap-stream, whose hidden, encrypted code woke up only when it was built into one particular bitcoin wallet app, and then sent away the private keys of wallets holding a lot of bitcoin.
+  | Nothing ever appeared on a screen. It lasted about two months, until a developer chasing a deprecation warning read flatmap-stream's code and reported it.
+  | Here the new maintainer's version and the harmful dependency arrive in one update, and the weeks between are squashed into one afternoon, to keep the training short.
+story
+  | You are Dana Okafor, the one developer at Northwind Traders. You maintain Northwind Pay, the wallet app that lets suppliers be paid in bitcoin. A build bot emails you each dependency update, and you review and merge it.
+  | It is mid-afternoon. You have done 2 of today's 5 tasks: two dependency updates reviewed. Three to go: the bot's next two updates, and a test build of the wallet.
+  | There are two files on your desktop that should not be there: a publish token and a customer's wallet backup. That is a bad habit, but support needed the backup to chase a bug.
+quota 2 5 Tasks done today
+
+# Dana's desk (soft flags: careless, but only here to keep the training simple).
+file Desktop/npm-token.txt
+  at 930 200
+  | Northwind npm publish token (training copy)
+  | Token: npm_TRAINING-0000-not-a-real-token
+  | Registry: registry.example
+file Desktop/customer-wallet-backup.txt
+  at 930 300
+  | Support ticket 4471: customer wallet backup (training copy)
+  | Restored on this laptop to reproduce a sync bug in Northwind Pay.
+  | Balance: 212.00 BTC
+  | Recovery words: not real, training copy only
+
+# The review site the bot's emails link to: the same layout every time, so its tells are easy to compare.
+page deps-home deps.northwind.example/reviews
+  title Dependency reviews
+  brand Northwind Dependency Review
+  favorite
+  heading Dependency reviews
+  | Updates found by the build bot arrive by email, with a link to their review.
+page merged-tidy deps.northwind.example/review/tidy-dates-2.4.2/merged
+  title Update merged
+  brand Northwind Dependency Review
+  heading tidy-dates 2.4.2 merged
+  | The update is in the main branch.
+  section The lockfile now says
+  code "tidy-dates": { "version": "2.4.2" }
+page held-tidy deps.northwind.example/review/tidy-dates-2.4.2/held
+  title Update held
+  brand Northwind Dependency Review
+  heading tidy-dates 2.4.2 held
+  | The update waits until you come back to it.
+page review-tidy deps.northwind.example/review/tidy-dates-2.4.2
+  title Review update: tidy-dates 2.4.2
+  brand Northwind Dependency Review
+  heading Review update: tidy-dates 2.4.1 to 2.4.2
+  | The build bot found a newer version of a package Northwind Pay uses. Read who published it and what it adds, then merge or hold.
+  section Who published it
+  row Package = tidy-dates
+  row Maintainer = Imani Reyes, the same as for the last 40 versions
+  row Maintainer since = March 2021
+  section What it adds
+  row New dependencies = none
+  row Files changed = 2 (a date format fix and its test)
+  row Weekly downloads = about 310,000
+  button Merge update -> merged-tidy
+  button Hold for later -> held-tidy
+
+# The Terminal after a normal install: the baseline for the next one.
+view tidy-install console
+  title northwind-pay: npm install
+  app Terminal
+  size 460x220
+  line northwind-pay $ npm install
+  line
+  line changed 1, audited 52 packages in 2s
+  line
+  line found 0 vulnerabilities
+  line northwind-pay $ npm ls --all
+  line northwind-pay 1.0.0
+  line ├── event-stream 3.3.5
+  line └── tidy-dates 2.4.2
+  line northwind-pay $
+
+# The bot's email: the same text for every update, only the package and its versions change.
+mail mail-tidy
+  from Northwind Build Bot <build-bot@northwind.example>
+  subject Dependency update to review: tidy-dates 2.4.1 to 2.4.2
+  link review-tidy
+  | Hi Dana,
+  |
+  | A new version of tidy-dates is ready for review in Northwind Pay.
+  |
+  | The link opens the review. Merge it or hold it.
+  |
+  | Northwind Build Bot
+
+step Task 3 of 5: a dependency update
+  look Mail: the build bot's message about tidy-dates
+  | A new dependency update has come in from the build bot. This one is ordinary. Review it the normal way, so you know what normal looks like.
+notify mail Northwind Build Bot
+  | Dependency update to review: tidy-dates 2.4.1 to 2.4.2
+
+step The link goes to your review site
+  look the link under the bot's message
+  when mail mail-tidy
+  | The email links to deps.northwind.example, your own review site. Hover over a link before you click it, to check where it goes.
+open mail-tidy
+
+step Read before you merge
+  look the two boxes: who published it, and what it adds
+  when visit review-tidy
+  move Read who published it and what it adds. If it looks right, click “Merge update”.
+  | The review page shows who published the update and what it adds. Same maintainer as before, and no new dependencies. That is what an ordinary update looks like.
+open review-tidy
+
+step Merge it
+  look the page that says the update is merged, and the Terminal beside it
+  when choose review-tidy any
+  | Done: the update is in the main branch. The install is ordinary: one package changed, nothing added, and no new name in the tree.
+choose review-tidy 1
+quota +1
+show tidy-install
+
+# The lure: the next update, from the same bot, looking the same.
+page opened-es deps.northwind.example/review/event-stream-3.3.6/opened
+  title Test app opened
+  brand Northwind Dependency Review
+  heading Test app opened
+  | Northwind Pay is running on this laptop.
+page built-es deps.northwind.example/review/event-stream-3.3.6/built
+  title Test build finished
+  brand Northwind Dependency Review
+  heading Test build finished
+  | The build took 6.4 seconds and printed no warnings. Open the test app to check that the wallet still syncs.
+  button Open Northwind Pay -> opened-es
+page merged-es deps.northwind.example/review/event-stream-3.3.6/merged
+  title Update merged
+  brand Northwind Dependency Review
+  heading event-stream 3.3.6 merged
+  | The update is in the main branch. Build a test release on this laptop to check it.
+  section The lockfile now says
+  code "event-stream": { "version": "3.3.6" }
+  code + "flatmap-stream": { "version": "0.1.1" }
+  button Build the test release -> built-es
+page held-es deps.northwind.example/review/event-stream-3.3.6/held
+  title Update held
+  brand Northwind Dependency Review
+  heading event-stream 3.3.6 held
+  | The update waits until you come back to it.
+page review-es deps.northwind.example/review/event-stream-3.3.6
+  title Review update: event-stream 3.3.6
+  brand Northwind Dependency Review
+  heading Review update: event-stream 3.3.5 to 3.3.6
+  | The build bot found a newer version of a package Northwind Pay uses. Read who published it and what it adds, then merge or hold.
+  section Who published it
+  row Package = event-stream
+  row Maintainer = ravi-lund, changed: the original author handed the package over
+  row Maintainer since = 12 days ago
+  section What it adds
+  row New dependencies = 1: flatmap-stream 0.1.1, first published 3 days ago
+  row Files changed = 2 (package.json and package-lock.json)
+  row Weekly downloads = about 2,000,000
+  button Merge update -> merged-es
+  button Hold for later -> held-es
+
+# The wallet app that the build produces. Fictional stand-in for the real wallet that was targeted.
+view pay-window panel
+  title Northwind Pay
+  app Northwind Pay
+  publisher Northwind Traders
+  size 400x300
+  heading Your wallet
+  icon money
+  section Balance
+  row Bitcoin = 212.00 BTC (the customer's backup from your desktop)
+  row Status = Synced
+  button Send -> none
+  button Receive -> none
+  button Close -> done primary
+
+# The app starts. Its hidden code sees a wallet over the threshold and sends the keys to a server that only looks like Northwind's.
+program pay-app Northwind Pay
+  publisher Northwind Traders
+  process northwind-pay
+  cpu 6
+  mem 180
+  parent Terminal
+  command northwind-pay/dist/Northwind Pay
+  net northwindpay-api.invalid:443
+  view pay-window
+
+# The install and the build on the laptop after the merge. The hidden code is encrypted and only wakes up inside the one app it targets.
+view build-output console
+  title northwind-pay: npm install, npm run build
+  app Terminal
+  size 460x250
+  line northwind-pay $ npm install
+  line added 1, changed 1, audited 54 packages in 2s
+  line found 0 vulnerabilities
+  line northwind-pay $ npm ls event-stream
+  line northwind-pay 1.0.0
+  line ├─┬ event-stream 3.3.6
+  line │ └── flatmap-stream 0.1.1
+  line northwind-pay $ npm run build
+  line > northwind-pay 1.0.0 build
+  line > node build.js
+  line bundling 208 modules...
+  line done in 6.4s, no warnings
+  line northwind-pay $
+
+# The second update's email: the same text as the first, for another package.
+mail mail-es
+  from Northwind Build Bot <build-bot@northwind.example>
+  subject Dependency update to review: event-stream 3.3.5 to 3.3.6
+  link review-es
+  | Hi Dana,
+  |
+  | A new version of event-stream is ready for review in Northwind Pay.
+  |
+  | The link opens the review. Merge it or hold it.
+  |
+  | Northwind Build Bot
+notify mail Northwind Build Bot
+  | Dependency update to review: event-stream 3.3.5 to 3.3.6
+
+step Task 4 of 5: the next update
+  look Mail: the build bot's next message, and its link
+  when mail mail-es
+  | Same sender, same layout, same link as the first one. This one is for event-stream, which is downloaded about two million times a week. Open the review and check it the way you checked the first.
+open mail-es
+close tidy-install
+
+step Second update: read before you merge
+  look the two boxes: who published it, and what it adds
+  when visit review-es
+  move Read who published it and what it adds, and compare it with the first update. Then click “Merge update”, or “Hold for later”.
+  | The page looks like the last one, but the package has a new owner, and this update adds a name nobody asked for. event-stream is downloaded about two million times a week, so there is pressure to merge it fast.
+open review-es
+
+step Second update: merge it?
+  look the lockfile box on the merged page: a new name under event-stream
+  when choose review-es any
+  move Look at the lockfile box on the page. Then click “Build the test release”.
+  | Here the update is merged, so you can see what it did. If you held it, that was the careful choice. Many teams merged it, because it is downloaded about two million times a week.
+  | The lockfile now lists flatmap-stream under event-stream: a name nobody asked for.
+choose review-es 1
+quota +1
+
+step Task 5 of 5: the test build
+  look the Terminal: the install, with flatmap-stream in its tree, then a build with no warning
+  when choose merged-es 1
+  | The install says no vulnerabilities, but its tree lists flatmap-stream under event-stream. When the app is built, the hidden code decrypts itself. It works only for this one app, so every other project that used the package saw nothing.
+  | The build finishes with no warning.
+choose merged-es 1
+run node
+  publisher Northwind Build Tools
+  trusted
+  cpu 1
+  mem 60
+  parent Terminal
+  command node build.js
+show build-output
+quota +1
+
+step The test app opens, and a connection is blocked
+  look the wallet window, and the “Connection blocked” notice
+  when choose built-es 1
+  | Your test app opened the wallet with the customer's backup from your desktop: 212 BTC, over the threshold. The hidden code reads the private key and tries to send it to the attackers. Here the connection is blocked. On a real wallet, that connection would have gone through.
+  | Only wallets with a lot of bitcoin were targeted, so an empty wallet would have stayed quiet. The app looks and works normally.
+choose built-es 1
+launch pay-app
+close build-output
+block northwindpay-api.invalid 443
+
+step A warning from the registry
+  look the email from the package registry's security team
+  when done pay-window
+  | You close the app, and nothing on any screen looks wrong. Then an email arrives from the package registry's security team.
+mail registry-notice
+  from Registry Security Team <security@registry.example>
+  subject Malicious package flatmap-stream in northwind-pay
+  | Hi Dana,
+  |
+  | The package flatmap-stream, which northwind-pay installs through event-stream, has been reported as malicious. It contains code that takes the private keys of cryptocurrency wallets.
+  |
+  | The registry has removed flatmap-stream. Please remove it from northwind-pay, and tell anyone who used a build made since version 3.3.6.
+  |
+  | Registry Security Team
+notify mail Registry Security Team
+  | Malicious package flatmap-stream in northwind-pay
+view npm-audit console
+  title northwind-pay: npm audit
+  app Terminal
+  size 460x220
+  line northwind-pay $ npm audit
+  line # npm audit report
+  line
+  line flatmap-stream  *
+  line Severity: critical
+  line Malicious Package in flatmap-stream
+  line fix available via `npm audit fix --force`
+  line Will install event-stream 3.3.5
+  line
+  line 1 critical severity vulnerability
+  line northwind-pay $
+
+step What the registry found
+  look the email, and npm audit in the Terminal
+  when mail registry-notice
+  move Open {Task Manager|Activity Monitor} and find the app that made the blocked connection.
+  | A developer chasing a deprecation warning had read flatmap-stream's code and reported it. The registry has pulled the package, and npm audit now names it as malicious.
+  | Northwind must now tell its users to move their funds.
+open registry-notice
+show npm-audit
+
+step Which program sent it?
+  look the running programs: the app that tried to reach the server
+  when open taskmanager
+  | The blocked connection came from one app on this laptop. The running-programs list shows which app it was. Flag it if it looks wrong.
+open taskmanager
+
+step What the hidden code took
+  look the animation, and the running-programs list behind it: the wallet app that sent the key
+  | The attackers never touched your laptop. They changed a package you trusted, and your own build carried it to every user of your wallet. On a real wallet, the keys went out with no warning on any screen.
+close npm-audit
+attack supply-chain-update
+  | event-stream 3.3.6, new maintainer
+  | flatmap-stream 0.1.1, new dependency
+  | hidden code wakes only inside the target app
+  | private keys of wallets over 100 BTC sent away
+
+flag hard section review-es 1
+  | The publisher changed 12 days ago. The original author handed the package to a stranger, and this update is that stranger's first.
+flag hard section review-es 2
+  | A new dependency nobody asked for. The hidden, encrypted code was inside flatmap-stream, not in event-stream.
+flag hard section merged-es 1
+  | The lockfile gained flatmap-stream. Reading what changes in a lockfile is how a new name gets noticed.
+flag hard notice taskmanager connection blocked
+  | The wallet app tried to reach a server that only looks like Northwind's. On a real wallet, that is where the private key would have gone.
+flag hard process northwind-pay
+  | The blocked connection came from this app: the hidden code trying to send the private key away.
+flag soft file Desktop/npm-token.txt
+  | A publish token in a text file on the desktop: anyone who runs code here can read it and publish as Northwind.
+flag soft file Desktop/customer-wallet-backup.txt
+  | A customer's wallet backup does not belong on a developer's laptop. The test app loaded it, which is why there was 212 BTC to take.
+
+lesson
+  | Read what changes when a dependency updates. A new maintainer and a new dependency, in the same release, are a reason to stop and look.
+  | Pin package versions and commit the lockfile, so a new name in it shows up in review. Run npm audit often, but it only knows about packages already reported, so read the update too.
+  | Never keep real customer data or secrets on a developer's laptop: a poisoned dependency runs with the same rights you have.

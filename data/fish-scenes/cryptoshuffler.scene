@@ -1,0 +1,333 @@
+# CryptoShuffler (2016-2017). It watched the clipboard and swapped any copied crypto address for the attacker's.
+# A quest (QUESTS.md): the trainee pays two suppliers in bitcoin, the first safely, the second after a "free" wallet tool.
+# From the write-ups (Kaspersky Daily blog, 31 Oct 2017; Securelist "Tales from the blockchain"): the clipboard swap, the address
+# check (a bitcoin address starts with 1 or 3), the registry autorun, the wallet list inside the program, the ~23 BTC total.
+# Not in them, so invented for this quest: how it spread, Dana, the suppliers, the wallet, the svchost32.exe name, the autorun
+# key, the fake setup error and the self-delete.
+os windows
+user Dana Okafor
+about
+  | CryptoShuffler has no window at all. It sits in memory and watches the clipboard. When you copy a bitcoin address, it swaps it for the attacker's own address.
+  | It finds an address by its shape: a bitcoin address starts with a 1 or a 3. It targeted other coins too, including Ethereum, Zcash, Monero, Dash and Dogecoin.
+  | Kaspersky reported in October 2017 that the attackers had collected slightly more than 23 bitcoin, about $140,000 at the exchange rate of the time. The write-ups do not say how it spread: this quest uses a cracked download, a common route for malware like this.
+  | You paste what looks like the address you copied, and the money goes to the wrong person. The victim is invented: an office assistant who pays suppliers in bitcoin.
+story
+  | You are Dana Okafor, operations assistant at Northwind Traders. Two small overseas suppliers will not take card or bank payments from the company, so you pay them in bitcoin from the company's wallet.
+  | It is mid-afternoon. You have sent 1 of today's 3 payments. Two to go, and both suppliers close their orders at 5 pm.
+  | The wallet's recovery words are in a text file on this desktop, left there by someone else.
+quota 1 3 Supplier payments sent today
+
+# Dana's desk (soft flag: careless, but only here to keep the training simple).
+file Desktop/wallet-recovery.txt
+  at 930 200
+  | Northwind company wallet (training copy)
+  | Recovery words: harbor tulip granite meadow copper lantern
+  | (These words are made up. A real set opens the whole wallet.)
+
+# The wallet: a page to paste the address into, a review page, and the result. Nothing real is typed.
+# Both payments use the same pages and the same wording; only the invoice number, the amount and the address differ.
+page send-1 quayside-wallet.example/send/invoice-4471
+  title Quayside Wallet: send bitcoin
+  brand Quayside Wallet
+  heading Send bitcoin
+  | Paste the address you copied, and enter the amount.
+  field Pay to address = 1TrainKz8Vr4Nq2Wd7Lm3Xc9Hb6Sp5Tg
+  field Amount (BTC) = 0.25
+  button Review payment
+page sent-1 quayside-wallet.example/send/invoice-4471/sent
+  title Payment sent
+  brand Quayside Wallet
+  heading Payment sent
+  | 0.25 BTC was sent to 1TrainKz8Vr4Nq2Wd7Lm3Xc9Hb6Sp5Tg. It will show as paid once the network confirms it.
+page held-1 quayside-wallet.example/send/invoice-4471/cancelled
+  title Payment cancelled
+  brand Quayside Wallet
+  heading Payment cancelled
+  | Nothing was sent. The payment is still waiting.
+page review-1 quayside-wallet.example/send/invoice-4471/review
+  title Quayside Wallet: review payment
+  brand Quayside Wallet
+  requires send-1
+  heading Review your payment
+  | Check the details. A bitcoin payment cannot be taken back.
+  section Check the address
+  row Pay to = 1TrainKz8Vr4Nq2Wd7Lm3Xc9Hb6Sp5Tg
+  row Amount = 0.25 BTC
+  row Network fee = 0.00004 BTC
+  button Send 0.25 BTC -> sent-1
+  button Cancel -> held-1
+
+mail pay-kestrel
+  from Priya Shah <priya.shah@northwind.example>
+  subject Payment 2 of 3: Kestrel Components (0.25 BTC)
+  sent 2026-11-02 13:52
+  link review-1
+  | Hi Dana,
+  |
+  | Kestrel's invoice 4471 is due today: 0.25 BTC. They sent us this address:
+  |
+  | 1TrainKz8Vr4Nq2Wd7Lm3Xc9Hb6Sp5Tg
+  |
+  | Copy it, then use the link to open the wallet and paste it in.
+  |
+  | Priya
+
+step Payment 2 of 3
+  look Mail: Priya's message with Kestrel's address
+  | Priya in Accounts has sent the next payment: 0.25 bitcoin to Kestrel Components. Do it the normal way, so you know what normal looks like.
+  | The message holds Kestrel's bitcoin address and a link to the company's wallet. Bitcoin addresses begin with 1 or 3 and are too long to read by eye, so compare more than the first few letters: the letters after the 1, and the end.
+notify mail Priya Shah
+  | Payment 2 of 3: Kestrel Components (0.25 BTC)
+
+step Paste the address
+  look the box “Pay to address” and the amount
+  when visit review-1
+  move This desktop has no clipboard, so keys stand in for pasting: click “Pay to address” and press any keys, then do the same in “Amount”, then click “Review payment”.
+  | The wallet asks for the address and the amount. Pasting is what you would do with the address you just copied.
+open review-1
+
+step Check, then send
+  look the address in “Pay to”, next to the one in Priya's message
+  when choose send-1 1
+  | The wallet shows what it is about to pay. Compare the letters after the 1, and the end, with Priya's message. They match, so send it.
+signin send-1
+
+step Payment 2 of 3 done
+  look the counter in the guide, then Mail: Marcus's new message
+  when choose review-1 1
+  | Sent. Two payments are done. Marcus has just written about the last one.
+choose review-1 1
+quota +1
+
+# The lure: a "free full version" of a paid wallet add-on, from a forum link.
+page fees coin-tools-forum.invalid/feesaver-pro-3
+  title FeeSaver Pro 3 FULL FREE (all coins, no licence)
+  brand Coin Tools Forum
+  heading FeeSaver Pro 3 FULL FREE (all coins, no licence)
+  | Cuts your network fees by up to 40%. Works with every wallet. Cracked by the Coin Tools team.
+  | FeeSaver_Pro_3_full_setup.exe (5.8 MB)
+  | Turn off your antivirus first, it is a false positive.
+  section Comments
+  item saved me 40 percent on fees, works great!!
+  item 10/10 no licence needed
+  item antivirus screams, ignore it, its a false positive
+  button Download (mirror 1)
+  button Download (mirror 2)
+view feesaver-error message
+  title FeeSaver Pro 3 Setup
+  icon error
+  | Setup could not start: a required component was not found.
+  | Training copy: this error is made up.
+  button OK -> close primary
+program cryptoshuffler FeeSaver_Pro_3_full_setup.exe
+  publisher none
+  signed no
+  prompt open-warning
+  description FeeSaver Pro 3 full setup
+  process svchost32.exe
+  cpu 1
+  mem 6
+  parent explorer.exe
+  command C:\Users\Dana\AppData\Roaming\svchost32.exe
+  startup svchost32 C:\Users\Dana\AppData\Roaming\svchost32.exe
+  location HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+  selfdelete
+mail fee-tip
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Cheaper fees on the last payment?
+  sent 2026-11-02 14:20
+  link fees
+  | Dana,
+  |
+  | The wallet's network fees are eating into these payments. A forum post says FeeSaver Pro cuts them by up to 40%, and the full version is free there. IT would take a week to licence it.
+  |
+  | Could you try it before the last payment? The link is below.
+  |
+  | Marcus
+notify mail Marcus Lee
+  | Cheaper fees on the last payment?
+
+step A tip from Marcus
+  look Marcus's message, and the link under it
+  when mail fee-tip
+  | Marcus wants lower fees on the last payment. The "free full version" Marcus found is a forum link, not the vendor's own page.
+  | Before you click it, hover over the link and read the address.
+open fee-tip
+
+step A page that promises the tool
+  look the address, and the description on the page
+  when visit fees
+  move Read the page, then press one of the two “Download” buttons.
+  | The address is coin-tools-forum.invalid: not the company portal and not the maker. The page says the tool is "cracked" and to turn off your antivirus first.
+  | Cracked tools passed around on forums are a common way malware reaches a PC. Comments praising a tool are easy to fake.
+open fees
+
+step Saved to Downloads
+  look the setup file in Downloads: FeeSaver_Pro_3_full_setup
+  when choose fees any
+  | The download is in Downloads. A crack site's file has no named maker. Open it, and read the warning before you run it.
+file Downloads/FeeSaver_Pro_3_full_setup.exe
+  program cryptoshuffler
+  size 5976064
+notify browser FeeSaver_Pro_3_full_setup.exe
+  | Download complete
+open Downloads
+
+step The warning almost nobody reads
+  look the warning: no named publisher, and it says it is a program
+  when prompt cryptoshuffler
+  | The publisher is unknown: nobody has a name to put on this program. The wallet you use is made by a named company; this tool is not.
+  | Most victims went ahead, as the page told them to.
+open Downloads/FeeSaver_Pro_3_full_setup.exe
+
+step Setup fails, or so it seems
+  look the error box
+  when run cryptoshuffler
+  cue view-btn:close app:taskmanager
+  move Click OK on the error, then open {Task Manager|Activity Monitor}.
+  | A fake error appears and you assume the install failed. That is the cover.
+  | Behind it, setup copied itself to svchost32.exe in the AppData folder and deleted the installer. CryptoShuffler has no window, so nothing else on the screen shows it.
+answer run
+show feesaver-error
+page send-2 quayside-wallet.example/send/invoice-1180
+  title Quayside Wallet: send bitcoin
+  brand Quayside Wallet
+  heading Send bitcoin
+  | Paste the address you copied, and enter the amount.
+  field Pay to address = 1TrainQv3Lm8ZpWc5xR2nHy7Ka4Bt9
+  field Amount (BTC) = 0.40
+  button Review payment
+page sent-2 quayside-wallet.example/send/invoice-1180/sent
+  title Payment sent
+  brand Quayside Wallet
+  heading Payment sent
+  | 0.40 BTC was sent to 1TrainQv3Lm8ZpWc5xR2nHy7Ka4Bt9. It will show as paid once the network confirms it.
+page held-2 quayside-wallet.example/send/invoice-1180/cancelled
+  title Payment cancelled
+  brand Quayside Wallet
+  heading Payment cancelled
+  | Nothing was sent. The payment is still waiting.
+page review-2 quayside-wallet.example/send/invoice-1180/review
+  title Quayside Wallet: review payment
+  brand Quayside Wallet
+  requires send-2
+  heading Review your payment
+  | Check the details. A bitcoin payment cannot be taken back.
+  section Check the address
+  row Pay to = 1TrainQv3Lm8ZpWc5xR2nHy7Ka4Bt9
+  row Amount = 0.40 BTC
+  row Network fee = 0.00004 BTC
+  button Send 0.40 BTC -> sent-2
+  button Cancel -> held-2
+
+step Still running
+  look {Task Manager|Activity Monitor}: the svchost32.exe row
+  when open taskmanager
+  | {Task Manager|Activity Monitor} lists svchost32.exe, a name close to the real svchost.exe, running from the AppData folder.
+  | A real svchost.exe runs from the system folder, never from AppData. This copy is CryptoShuffler.
+open taskmanager
+
+step It starts with the computer
+  look the start-up list: svchost32, with its AppData path
+  when open settings:startup
+  | The start-up list has svchost32 as well. The malware wrote itself into the registry to autoload, so it starts every time you sign in and comes back after every restart.
+  | Priya's last invoice has just arrived, with the wallet link as before.
+mail pay-halden
+  from Priya Shah <priya.shah@northwind.example>
+  subject Payment 3 of 3: Halden Freight (0.40 BTC)
+  sent 2026-11-02 14:41
+  link review-2
+  | Dana,
+  |
+  | Last one: Halden Freight's invoice 1180 is due today, 0.40 BTC. Their address:
+  |
+  | 1TrainHy4Fe7Mk2Wq9Cv5Lp8Rs3Tn6Dx
+  |
+  | Copy it and use the link to open the wallet, same as before.
+  |
+  | Priya
+notify mail Priya Shah
+  | Payment 3 of 3: Halden Freight (0.40 BTC)
+
+step Paste the address
+  look the link in Priya's last message, then the box “Pay to address”
+  when visit review-2
+  move Click “Pay to address” and press any keys to paste, then do the same in “Amount”, then click “Review payment”.
+  | The last payment of the day, 0.40 bitcoin to Halden Freight, with the wallet link as before. You copied Halden's address from Priya's message, the way you did for Kestrel.
+  | The same wallet, the same two boxes. Paste the address you just copied.
+open review-2
+
+step Check, then send
+  look the address in “Pay to”, next to the one in Priya's message
+  when choose send-2 1
+  | The wallet shows what it is about to pay. Compare the letters after the 1, and the end, with Priya's message, as you did for Kestrel.
+signin send-2
+
+step 3 of 3 sent
+  look the counter: the day's payments are done
+  when choose review-2 1
+  | The payment goes through. Nothing on the screen warned you before Send, and the address in “Pay to” was not Halden's: CryptoShuffler had swapped it on the clipboard as soon as Priya's address was copied.
+  | Bitcoin payments cannot be reversed. The wallet's receipt has just arrived.
+choose review-2 1
+quota +1
+mail receipt-2
+  from Quayside Wallet <receipts@quayside-wallet.example>
+  subject Payment sent: 0.40 BTC
+  sent 2026-11-02 14:42
+  | You sent 0.40 BTC to 1TrainQv3Lm8ZpWc5xR2nHy7Ka4Bt9.
+  | Network fee: 0.00004 BTC. It will show as paid once the network confirms it.
+  | Quayside Wallet
+notify mail Quayside Wallet
+  | Payment sent: 0.40 BTC
+
+step The wallet's receipt
+  look Mail: the wallet's receipt, and the address in it
+  when mail receipt-2
+  | The wallet sends a receipt for every payment. It names the address the money went to.
+  | Compare that address with the one in Priya's message: the letters after the 1, and the end.
+open receipt-2
+
+step Days later, Halden writes
+  look Mail: Halden's message, then the animation: the address that was copied, the address that was pasted
+  | Days later Halden writes: the 0.40 BTC never arrived, and the order was cancelled at 5 pm. The bitcoin went to the address on the review page, which was not Halden's.
+  | CryptoShuffler never touched the wallet or the bank. It only changed one string on the clipboard, and the wallet did exactly what it was told.
+  | The receipt's address is not the one in Priya's message. Clipboard swappers like this one carry the attacker's addresses inside the program, so money from many victims can land in the same few wallets.
+mail late
+  from Halden Freight <accounts@halden-freight.example>
+  subject Invoice 1180: payment not received
+  sent 2026-11-05 10:20
+  | Hello Dana,
+  |
+  | We have not received your 0.40 BTC payment for invoice 1180, and the order was cancelled at 5 pm. Could you check the address you sent it to?
+  |
+  | Halden Freight Accounts
+notify mail Halden Freight
+  | Invoice 1180: payment not received
+open late
+attack wallet-drain
+  | copied: 1TrainHy4Fe7Mk2Wq9Cv5Lp8Rs3Tn6Dx
+  | swapped on the clipboard, before the paste
+  | pasted: 1TrainQv3Lm8ZpWc5xR2nHy7Ka4Bt9
+  | 0.40 BTC sent. Bitcoin cannot be taken back.
+
+flag hard link fee-tip
+  | A "free full version" of paid software from a forum, not the maker's own page. Cracked downloads are a common way malware like this reaches a PC.
+flag hard page fees
+  | "Cracked", and "turn off your antivirus first": a real maker never asks for this.
+flag hard file Downloads/FeeSaver_Pro_3_full_setup.exe
+  | A setup from a crack site, with no named maker.
+flag hard dialog open-warning cryptoshuffler
+  | The publisher is unknown: nobody has a name to put on this program.
+flag hard process svchost32.exe
+  | CryptoShuffler running in the background, under a name close to the real svchost.exe, from the AppData folder.
+flag hard startup svchost32
+  | It added itself to the programs that start with the computer.
+flag hard section review-2 1
+  | The last check before Send: the "Pay to" address is not the one in Priya's message. CryptoShuffler swapped it on the clipboard.
+flag soft file Desktop/wallet-recovery.txt
+  | Wallet recovery words in a text file on the desktop: whoever reads them owns the wallet. Keep them offline, never in a file.
+
+lesson
+  | After you paste a payment address, compare at least 6 to 8 characters at the start, in the middle and at the end, or check the whole address.
+  | For a large payment, send a small test amount first and wait until the other side confirms it arrived.
+  | Do not run cracked or "free full version" downloads. A tool that asks you to turn off your antivirus has told you what it is.

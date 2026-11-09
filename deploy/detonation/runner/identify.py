@@ -14,13 +14,13 @@ import math
 import os
 import re
 
-import dnfile
-import lief
-import pefile
-
 import unwrap
 import unpack
-from runnerlib import finish, parse_args, run, tail
+
+# pefile, LIEF and dnfile are imported where they are used: the parsers in this file (LNK, DEX, Java class) stay testable and
+# importable without the static venv, and a host without them can still read a shell link or a Dalvik header.
+
+from runnerlib import finish, libmagic, parse_args, run, tail
 
 TEXT = 200
 MAX_SECTIONS = 40
@@ -76,7 +76,70 @@ def signature_status(path):
     return {"status": "invalid", "detail": text(tail(output) or "The signature does not verify.", 200)}
 
 
+EMBEDDED_MARKERS = [
+    bytes([0x4D, 0x5A]),                      # MZ: a PE inside
+    bytes([0x50, 0x4B, 0x03, 0x04]),          # a zip, jar or docx
+    bytes([0x7F, 0x45, 0x4C, 0x46]),          # an ELF
+    bytes([0x37, 0x7A, 0xBC, 0xAF, 0x27, 0x1C]),  # 7-Zip
+    bytes([0x52, 0x61, 0x72, 0x21]),          # RAR
+    bytes([0x1F, 0x8B]),                      # gzip
+    bytes([0xD0, 0xCF, 0x11, 0xE0]),          # an OLE document
+]
+EMBEDDED_TEXT = [b"#!", b"<?php", b"<script", b"<html", b"{\rtf", b"powershell", b"cmd.exe"]
+OVERLAY_MIN = 128  # a staged script is small: the marker check below decides, not the size
+OVERLAY_MAX = 64 * 1024 * 1024
+
+
+def looks_embedded(blob):
+    """True when the blob starts like something the sandbox can analyse in its own right."""
+    if not blob or len(blob) < 8:
+        return False
+    if any(blob.startswith(marker) for marker in EMBEDDED_MARKERS):
+        return True
+    head = blob[:64].lstrip().lower()
+    return any(head.startswith(marker) for marker in EMBEDDED_TEXT)
+
+
+def overlay_payload(path, dest, max_entries, max_bytes):
+    """Data appended after the last PE section: droppers and self-extractors put the next stage there.
+
+    Pure header arithmetic, no library: the section table gives the end of the mapped image, everything after it is overlay.
+    The bytes are stored as a child so they are typed, inspected and emulated in turn.
+    """
+    try:
+        with open(path, "rb") as handle:
+            data = handle.read(OVERLAY_MAX + 1024)
+    except OSError:
+        return None
+    if len(data) < 0x40 or data[:2] != bytes([0x4D, 0x5A]):
+        return None
+    e_lfanew = int.from_bytes(data[0x3C:0x40], "little")
+    if e_lfanew + 24 > len(data) or data[e_lfanew:e_lfanew + 4] != bytes([0x50, 0x45, 0x00, 0x00]):
+        return None
+    sections = int.from_bytes(data[e_lfanew + 6:e_lfanew + 8], "little")
+    optional = int.from_bytes(data[e_lfanew + 20:e_lfanew + 22], "little")
+    table = e_lfanew + 24 + optional
+    end = 0
+    for index in range(min(sections, 96)):
+        entry = table + index * 40
+        if entry + 40 > len(data):
+            return None
+        raw_size = int.from_bytes(data[entry + 16:entry + 20], "little")
+        raw_offset = int.from_bytes(data[entry + 20:entry + 24], "little")
+        end = max(end, raw_offset + raw_size)
+    overlay = data[end:]
+    if len(overlay) < OVERLAY_MIN or not looks_embedded(overlay):
+        return None
+    if len(overlay) > max_bytes:
+        overlay = overlay[:max_bytes]
+    out = unwrap.result("payload", offset=end, size=len(overlay))
+    out["entries"].append(unpack.store(dest, 0, "overlay.bin", overlay))
+    return out
+
+
 def pe_facts(path, data):
+    import pefile
+
     """Header, section, import, export and resource facts of a PE from pefile; raises on a file pefile cannot read."""
     pe = pefile.PE(data=data)
     try:
@@ -118,6 +181,8 @@ def pe_facts(path, data):
 
 
 def lief_facts(path):
+    import lief
+
     """Header facts from LIEF: the whole story for ELF and Mach-O, and the fallback when pefile cannot read a PE."""
     binary = lief.parse(path)
     if binary is None:
@@ -173,6 +238,8 @@ def wrapper_of(facts, data, packers):
 
 
 def dotnet_facts(path):
+    import dnfile
+
     """Metadata of a .NET assembly with dnfile: names, references, P/Invoke imports and resources. Never loads or runs it."""
     dn = dnfile.dnPE(path)
     tables = dn.net.mdtables
@@ -195,13 +262,195 @@ def dotnet_facts(path):
         module = name_of(getattr(getattr(getattr(row, "ImportScope", None), "row", None), "Name", ""))
         pinvoke.append({"dll": module, "function": function})
     assembly = rows("Assembly")
+    # The runtime version arrives as bytes (sometimes as a bytes repr), so it is decoded and trimmed before it reaches a report.
+    raw_runtime = getattr(dn.net.metadata.struct, "Version", "")
+    if isinstance(raw_runtime, bytes):
+        raw_runtime = raw_runtime.decode("utf-8", "replace")
+    runtime = re.sub(r"[\x00-\x1f]", "", str(raw_runtime)).strip()
+    runtime = re.sub(r"^b['\"]|['\"]$", "", runtime)[:40]
     return {
         "assembly": name_of(assembly[0].Name) if assembly else "", "version": f"{assembly[0].MajorVersion}.{assembly[0].MinorVersion}" if assembly else "",
-        "runtime": name_of(getattr(dn.net.metadata.struct, "Version", "")), "typeCount": len(types), "methodCount": len(methods),
+        "runtime": runtime, "typeCount": len(types), "methodCount": len(methods),
         "references": [name_of(row.Name) for row in rows("AssemblyRef")[:30]], "pinvoke": pinvoke[:40],
         "suspiciousPinvoke": sorted({item["function"] for item in pinvoke if SUSPICIOUS_PINVOKE.match(item["function"])})[:20],
         "resources": [name_of(row.Name) for row in rows("ManifestResource")[:20]],
         "oddNameRatio": round(odd / len(printable), 3) if printable else 0.0, "namesChecked": len(printable),
+    }
+
+
+LNK_MAGIC = bytes([0x4C, 0x00, 0x00, 0x00])
+
+
+def lnk_facts(path):
+    """Target, arguments and network path of a Windows shell link. Reads the structures only; the link is never followed.
+
+    Phishing attachments are shell links whose target is a host tool or a script host, so the strings they carry are the
+    evidence. Nothing here resolves the target or touches the path it names.
+    """
+    def ansi(at, limit=520):
+        stop = data.find(bytes([0]), at, at + limit)
+        return data[at:stop if stop != -1 else at + limit].decode("latin1", "replace")[:200]
+
+    def wide(at, limit=520):
+        stop = at
+        while stop + 1 < len(data) and stop < at + limit and data[stop:stop + 2] != bytes([0, 0]):
+            stop += 2
+        return data[at:stop].decode("utf-16-le", "replace")[:200]
+
+    data = open(path, "rb").read(1024 * 1024)
+    if len(data) < 0x4C or data[:4] != LNK_MAGIC:
+        return None
+    flags = int.from_bytes(data[0x14:0x18], "little")
+    unicode_strings = bool(flags & 0x80)
+    at = 0x4C
+    if flags & 0x1:
+        size = int.from_bytes(data[at:at + 2], "little")
+        at += 2 + size
+    facts = {"target": "", "arguments": "", "workingDir": "", "relativePath": "", "iconLocation": "", "networkPath": ""}
+    if flags & 0x2 and at + 0x1C <= len(data):
+        start = at
+        info_size = int.from_bytes(data[start:start + 4], "little")
+        header_size = int.from_bytes(data[start + 4:start + 8], "little")
+        info_flags = int.from_bytes(data[start + 8:start + 12], "little")
+        local_offset = int.from_bytes(data[start + 16:start + 20], "little")
+        network_offset = int.from_bytes(data[start + 20:start + 24], "little")
+        if info_flags & 0x1 and local_offset and start + local_offset < len(data):
+            facts["target"] = ansi(start + local_offset) if header_size < 0x24 else (wide(start + local_offset) or ansi(start + local_offset))
+        if info_flags & 0x2 and network_offset and start + network_offset + 12 <= len(data):
+            net = start + network_offset
+            name_offset = int.from_bytes(data[net + 8:net + 12], "little")
+            if name_offset:
+                facts["networkPath"] = ansi(net + name_offset)
+        at = start + info_size
+    for bit, key in ((0x4, "name"), (0x8, "relativePath"), (0x10, "workingDir"), (0x20, "arguments"), (0x40, "iconLocation")):
+        if not flags & bit or at + 2 > len(data):
+            continue
+        count = int.from_bytes(data[at:at + 2], "little")
+        at += 2
+        width = 2 if unicode_strings else 1
+        length = count * width
+        if at + length > len(data):
+            break
+        value = data[at:at + length].decode("utf-16-le" if unicode_strings else "latin1", "replace")[:400]
+        at += length
+        if key in facts:
+            facts[key] = value
+    # ExtraData blocks: the environment-variable block carries the expanded target as a fixed ANSI and Unicode string.
+    while at + 8 <= len(data):
+        block_size = int.from_bytes(data[at:at + 4], "little")
+        signature = int.from_bytes(data[at + 4:at + 8], "little")
+        if block_size < 4:
+            break
+        if signature == 0xA0000001 and at + 8 + 260 <= len(data):
+            extra = data[at + 8:at + 8 + 260].split(bytes([0]), 1)[0].decode("latin1", "replace")
+            if extra and not facts["target"]:
+                facts["target"] = extra[:200]
+        at += block_size
+    return {key: value for key, value in facts.items() if value}
+
+
+DEX_APIS = [
+    ("exec", re.compile(r"Ljava/lang/(?:Runtime;->exec|ProcessBuilder);?")),
+    ("sms", re.compile(r"SmsManager|sendTextMessage|sendMultipartTextMessage")),
+    ("identifiers", re.compile(r"getDeviceId|getSubscriberId|getSimSerialNumber|getLine1Number|getAccounts")),
+    ("loader", re.compile(r"DexClassLoader|PathClassLoader|InMemoryDexClassLoader|Ldalvik/system/BaseDexClassLoader")),
+    ("network", re.compile(r"Ljava/net/Socket;|HttpURLConnection|OkHttpClient|Ljava/net/URL;")),
+    ("crypto", re.compile(r"Ljavax/crypto/|Landroid/util/Base64;")),
+    ("admin", re.compile(r"DeviceAdminReceiver|setComponentEnabledSetting|Landroid/app/admin/")),
+    ("reflection", re.compile(r"Ljava/lang/reflect/|getDeclaredMethod")),
+]
+
+
+def dex_facts(data):
+    """What a Dalvik executable carries: version, class and method counts, and the API names that say what it can do.
+
+    Only the header and the string table are read; no instruction is decoded and nothing is loaded.
+    """
+    def uleb(at):
+        result = shift = 0
+        while at < len(data):
+            byte = data[at]
+            at += 1
+            result |= (byte & 0x7F) << shift
+            if not byte & 0x80:
+                break
+            shift += 7
+            if shift > 28:
+                break
+        return result, at
+
+    string_ids_size = int.from_bytes(data[0x38:0x3C], "little")
+    string_ids_off = int.from_bytes(data[0x3C:0x40], "little")
+    method_ids_size = int.from_bytes(data[0x58:0x5C], "little")
+    class_defs_size = int.from_bytes(data[0x60:0x64], "little")
+    read, found = 0, {name: [] for name, _ in DEX_APIS}
+    for index in range(min(string_ids_size, 4000)):
+        entry = string_ids_off + index * 4
+        if entry + 4 > len(data):
+            break
+        at = int.from_bytes(data[entry:entry + 4], "little")
+        _, at = uleb(at)
+        stop = data.find(bytes([0]), at, at + 512)
+        if stop == -1:
+            continue
+        value = data[at:stop].decode("utf-8", "replace")
+        read += 1
+        for name, pattern in DEX_APIS:
+            if len(found[name]) < 6 and pattern.search(value):
+                found[name].append(value[:120])
+    return {
+        "version": data[4:7].decode("ascii", "replace"), "strings": string_ids_size, "methods": method_ids_size,
+        "classes": class_defs_size, "readStrings": read, "apis": {name: values for name, values in found.items() if values},
+    }
+
+
+def class_facts(data):
+    """Name, bytecode version and carried strings of a compiled Java class: the constant pool only, nothing is loaded."""
+    major = int.from_bytes(data[6:8], "big")
+    count = int.from_bytes(data[8:10], "big")
+    at, next_index = 10, 1
+    pool = {}
+    while next_index < count and at + 1 < len(data):
+        tag = data[at]
+        at += 1
+        if tag == 1:
+            length = int.from_bytes(data[at:at + 2], "big")
+            at += 2
+            pool[next_index] = (tag, data[at:at + length])
+            at += length
+        elif tag in (7, 8, 16, 19, 20):
+            pool[next_index] = (tag, int.from_bytes(data[at:at + 2], "big"))
+            at += 2
+        elif tag == 15:
+            at += 3
+        elif tag in (3, 4, 9, 10, 11, 12, 17, 18):
+            at += 4
+        elif tag in (5, 6):
+            at += 8
+            next_index += 1
+        else:
+            break
+        next_index += 1
+    # `at` sits on access_flags, so this_class is the next u2.
+    this_index = int.from_bytes(data[at + 2:at + 4], "big") if at + 3 < len(data) else 0
+    entry = pool.get(this_index)
+    name = ""
+    if entry and entry[0] == 7:
+        raw = pool.get(entry[1])
+        if raw and raw[0] == 1:
+            name = raw[1].decode("utf-8", "replace")
+    readable = []
+    for tag, value in pool.values():
+        if tag != 1:
+            continue
+        shown = text(value.decode("utf-8", "replace") if isinstance(value, bytes) else str(value))
+        if 4 <= len(shown) <= 120 and re.search(r"[A-Za-z]{3}", shown) and shown not in readable:
+            readable.append(shown)
+    return {
+        "name": name.replace("/", "."), "path": name, "major": major,
+        "version": {45: "1.1", 46: "1.2", 47: "1.3", 48: "1.4", 49: "5", 50: "6", 51: "7", 52: "8", 53: "9", 54: "10", 55: "11",
+                    56: "12", 57: "13", 58: "14", 59: "15", 60: "16", 61: "17", 62: "18", 63: "19", 64: "20", 65: "21"}.get(major, str(major)),
+        "strings": readable[:20],
     }
 
 
@@ -228,7 +477,16 @@ def main():
     except Exception as error:
         identify["errors"].append(f"lief: {error.__class__.__name__}")
     if facts is None:
-        finish(args, identify={**identify, "format": "unknown"}, unwrap=None, dotnet=None)
+        # Not a PE or an ELF: libmagic still names it, which is all the report has for a script or a data file.
+        identify["magic"] = libmagic(args.file)
+        classinfo = None
+        if data[:4] == bytes([0xCA, 0xFE, 0xBA, 0xBE]):
+            identify["format"] = "class"
+            try:
+                classinfo = class_facts(data)
+            except Exception as error:  # a hostile or truncated pool must not fail the whole pass
+                identify["errors"].append(f"classfile: {error.__class__.__name__}")
+        finish(args, identify={**identify, "format": identify.get("format", "unknown")}, unwrap=None, dotnet=None, classinfo=classinfo)
     identify.update(facts)
     packers, high = packers_of(facts["sections"], data)
     identify["packers"], identify["highEntropyCode"] = packers, high
@@ -242,12 +500,16 @@ def main():
             unwrapped = unwrap.result(UNWRAPPABLE[kind], format=kind, stopped="entries" if max_entries == 0 else "bytes")
         else:
             unwrapped = unwrap.unwrap(UNWRAPPABLE[kind], args.file, unpack.destination(), max_entries, max_bytes, label=kind)
+    if unwrapped is None:
+        # Nothing recognisable as a wrapper: the payload may simply be appended after the last section.
+        unwrapped = overlay_payload(args.file, unpack.destination(), max_entries, max_bytes)
     dotnet = None
     if facts.get("dotnet"):
         try:
             dotnet = dotnet_facts(args.file)
         except Exception as error:
             dotnet = {"error": error.__class__.__name__}
+    identify["magic"] = libmagic(args.file)
     finish(args, identify=identify, unwrap=unwrapped, dotnet=dotnet)
 
 

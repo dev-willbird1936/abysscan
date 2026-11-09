@@ -15,11 +15,12 @@ const modules = name => import(pathToFileURL(join(ROOT, 'ui/job', name)).href);
 const readJson = path => JSON.parse(readFileSync(join(ROOT, path), 'utf8'));
 const fixture = name => readJson(`tests/fixtures/detonation/events/${name}.json`);
 
-const { applyEvent, createJobState, deepestFinding, depthMetres, pathText, receiptView, reportFromJobResponse, stageRows } = await modules('state.mjs');
-const { FINDINGS, FINDING_ORDER, FAMILIES, familyName, fishSprite } = await modules('creatures.mjs');
+const { applyEvent, createJobState, deepestFinding, depthMetres, pathText, receiptView, reportFromJobResponse, stageRows, verdictHeading, executionText } = await modules('state.mjs');
+const { ACTIONS, FINDINGS, FINDING_ORDER, FAMILIES, familyName, fishSprite } = await modules('creatures.mjs');
+const { indicators, hasIndicators } = await modules('indicators.mjs');
 const { SseParser, followEvents, createNetworkSource } = await modules('sse.mjs');
 const { isLocalHost } = await modules('mock.mjs');
-const { parseCsv } = await modules('report.mjs');
+const { exportReport, parseCsv, printableText, richText } = await modules('report.mjs');
 
 const EVENT_NAMES = new Set(['stage', 'typed', 'evidence', 'signal', 'finding', 'analysis-attempt', 'parser-attempt', 'coverage', 'verdict', 'explanation', 'receipt', 'report', 'error']);
 const STAGES = new Set(['received', 'typed', 'queued', 'detonating', 'collecting', 'analysing', 'explaining', 'verdict', 'tearing_down', 'done', 'failed']);
@@ -87,7 +88,7 @@ test('state folds the invoice stream: depth, findings, attempts, receipt', () =>
   assert.equal(state.finished, true);
   assert.deepEqual(stageRows(state).map(row => row.status), ['done', 'done', 'done', 'done', 'done', 'done']);
   assert.equal(stageRows(state)[3].label, 'Analysing (2/3)');
-  assert.equal(receiptView(state.receipt).headline, 'Sandbox destroyed · Host untouched');
+  assert.equal(receiptView(state.receipt).headline, 'Sandbox destroyed · Host canary unchanged');
 });
 
 test('deepest finding: deepest tier, then the first row of the design table (Jörmungandr before Kraken)', () => {
@@ -131,7 +132,7 @@ test('receipt card tells the truth when teardown or the canary check failed', ()
   assert.equal(changed.ok, false);
   assert.doesNotMatch(changed.headline, /untouched/);
   assert.equal(receiptView(null).ok, false);
-  assert.doesNotMatch(receiptView({}).headline, /destroyed · Host untouched/);
+  assert.doesNotMatch(receiptView({}).headline, /destroyed · Host canary unchanged/);
 });
 
 test('path text is future tense before the run and the recorded label after it', () => {
@@ -151,6 +152,40 @@ test('family names: neutral at Sunlight and Twilight, attack name from Midnight 
   assert.equal(familyName('file-changes', 'twilight'), 'File changes');
   assert.equal(familyName('file-changes', 'trench'), 'Extortion / destruction');
   assert.equal(familyName('mystery', 'trench'), 'mystery');
+  // A live verdict carries the attack name from Midnight down, not the family key: both must render.
+  assert.deepEqual(
+    [['theft-surveillance', 'midnight'], ['coordinated-abuse', 'abyss'], ['extortion-destruction', 'trench'], ['trusted-source-compromise', 'abyss'], ['unclassified', 'twilight']]
+      .map(([family, depth]) => familyName(family, depth)),
+    ['Theft / surveillance', 'Coordinated abuse', 'Extortion / destruction', 'Trusted-source compromise', 'Unclassified'],
+  );
+});
+
+test('model Markdown in the explanation: **x** is bold, other markers are dropped, nothing is parsed as markup', () => {
+  const node = tag => ({ tag, parts: [], set textContent(value) { this.parts = [value]; }, append(...items) { this.parts.push(...items); } });
+  const doc = { createElement: node };
+  const out = richText(doc, node('p'), '## Summary\nIt **plants itself** to run `again`, *quietly*. <b>x</b>');
+  const flat = out.parts.map(part => (typeof part === 'string' ? part : `[${part.tag}:${part.parts.join('')}]`)).join('');
+  assert.equal(flat, 'Summary\nIt [b:plants itself] to run again, quietly. <b>x</b>');
+});
+
+test('every finding has a plain-words action for the report', () => {
+  assert.deepEqual(Object.keys(ACTIONS), FINDING_ORDER);
+  for (const [id, text] of Object.entries(ACTIONS)) assert.match(text, /^[A-Z].{20,160}[.:]$/, id);
+});
+
+test('indicators: hosts, written, deleted and read files, programs, from the evidence fields', () => {
+  const evidence = fixture('invoice-py').events.filter(event => event.event === 'evidence').map(event => event.data);
+  const found = indicators([...evidence,
+    { source: 'trace', kind: 'connect', host: '198.51.100.9', port: 4444 }, { source: 'trace', kind: 'sendto', host: '198.51.100.9', port: 4444 },
+    { source: 'trace', kind: 'sendto', host: 'unknown', port: 0 }, { source: 'trace', kind: 'execve', path: '/bin/systemctl', argv: ['systemctl', '--user', 'enable', 'updater'] },
+    { source: 'diff', kind: 'deleted', path: '/home/dana/Documents/old.txt' }, { source: 'diff', kind: 'renamed', path: '/home/dana/a', to: '/home/dana/b' }]);
+  assert.deepEqual(found.hosts, ['203.0.113.7:443', '198.51.100.9:4444'], 'unique, no unknown');
+  assert.ok(found.filesWritten.includes('/home/dana/Documents/README_DECRYPT.txt') && found.filesWritten.includes('/home/dana/b'));
+  assert.deepEqual(found.filesDeleted, ['/bin/ls', '/home/dana/Documents/old.txt']);
+  assert.deepEqual(found.filesRead, ['/home/dana/.aws/credentials']);
+  assert.deepEqual(found.programsRun, ['systemctl --user enable updater']);
+  assert.equal(hasIndicators(indicators([])), false);
+  assert.equal(hasIndicators(indicators(null)), false);
 });
 
 test('creature table matches data/creatures.json', () => {
@@ -249,8 +284,46 @@ test('mock fixtures are accepted only from localhost', () => {
   for (const host of ['example.com', 'detonation.example.net', 'localhost.evil.test', '']) assert.equal(isLocalHost(host), false, host);
 });
 
+test('verdict headings and execution copy never turn uncertainty into safety or execution', () => {
+  for (const depth of ['sunlight', 'twilight', 'midnight', 'abyss', 'trench', null]) {
+    const state = createJobState(); state.depth = depth;
+    assert.doesNotMatch(verdictHeading(state), /safe/i);
+    if (depth === 'twilight') assert.match(verdictHeading(state), /inconclusive/i);
+    state.verdict = { depth, complete: false };
+    assert.match(verdictHeading(state), ['midnight', 'abyss', 'trench'].includes(depth) ? /Harmful behaviour observed/ : /inconclusive/i);
+  }
+  assert.match(executionText({ label: 'Inspected' }).detail, /not executed/);
+  assert.match(executionText({ label: 'Emulated' }).title, /emulation/);
+  assert.doesNotMatch(executionText({}).detail, /file runs/);
+});
+
+test('full report export contains verdict, coverage, actions and receipt but not bearer token or analysis code', () => {
+  const state = fold(fixture('invoice-py').events);
+  const report = { ...state.report, token: 'private-secret', analysis: { attempts: [{ code: 'private-code' }] } };
+  const data = exportReport({ report, state, jobId: 'j-review' });
+  assert.equal(data.verdict.depth, 'trench');
+  assert.ok(data.actions.length >= 5);
+  assert.equal(data.receipt.confirmed, true);
+  assert.ok(Array.isArray(data.coverage));
+  assert.doesNotMatch(JSON.stringify(data), /private-secret|private-code/);
+  const clean = createJobState(); clean.verdict = { depth: 'sunlight', complete: false };
+  assert.match(exportReport({ report: {}, state: clean, jobId: 'x' }).actions.join(' '), /unknown/);
+  assert.equal(exportReport({ report: {}, state: createJobState(), jobId: 'x' }).verdict.complete, false);
+});
+
+test('terminal jobs with no model attempts mark model stages as not run', () => {
+  const state = createJobState(); state.rank = 7; state.finished = true; state.typed = { label: 'Inspected' };
+  const rows = stageRows(state);
+  assert.equal(rows.find(row => row.key === 'detonating').label, 'Inspecting');
+  for (const key of ['analysing', 'explaining']) assert.equal(rows.find(row => row.key === key).status, 'skipped');
+  assert.equal(rows.find(row => row.key === 'teardown').status, 'failed');
+  state.receipt = { teardownConfirmed: true };
+  assert.equal(stageRows(state).find(row => row.key === 'teardown').status, 'done');
+});
+
 test('csv parser keeps quoted commas and empty cells', () => {
   assert.deepEqual(parseCsv('a,b\n"x,y",\n'), [['a', 'b'], ['x,y', '']]);
+assert.equal(printableText("x -> 'r\uFFFD|\u000f\uFFFD\uFFFDz'\n"), "x -> 'r[binary]|\\x0f[binary]z'\n");
 });
 
 // ---- source hygiene -----------------------------------------------------------------------------------------
@@ -317,8 +390,8 @@ async function launchBrowser() {
   try {
     const require = createRequire(import.meta.url);
     const { chromium } = require(process.env.PLAYWRIGHT_CORE || 'C:/Temp/pw-kimi/node_modules/playwright-core');
-    const shell = 'C:/Users/warcr/AppData/Local/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-win64/chrome-headless-shell.exe';
-    const full = 'C:/Users/warcr/AppData/Local/ms-playwright/chromium-1243/chrome-win64/chrome.exe';
+    const shell = 'C:/Users/<you>/AppData/Local/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-win64/chrome-headless-shell.exe';
+    const full = 'C:/Users/<you>/AppData/Local/ms-playwright/chromium-1243/chrome-win64/chrome.exe';
     const executablePath = process.env.CHROME_PATH || (existsSync(shell) ? shell : existsSync(full) ? full : undefined);
     return { browser: await chromium.launch(executablePath ? { executablePath } : {}) };
   } catch (error) {
@@ -393,7 +466,7 @@ browserTest('AT-26: invoice job shows the clam, two octopus attempts, the eat, t
     assert.ok(Number(log.bites.at(-1)) >= 2, `earlier findings bit first: ${log.bites}`);
     assert.deepEqual(log.eatenBy, ['system-wipe'], 'Jörmungandr eats the fish');
     assert.equal(log.overlay, true, 'camera-bite overlay played');
-    assert.equal(log.frame, '/desktop.html?job=j-mock-trench');
+    assert.equal(log.frame, '/desktop.html?job=mock-invoice-py', 'the replay of the job, which the mock names (mock.mjs)');
     assert.equal(log.replayShown, true);
 
     assert.match(await page.textContent('.jv-caption'), /Jörmungandr ate your file/);
@@ -403,13 +476,28 @@ browserTest('AT-26: invoice job shows the clam, two octopus attempts, the eat, t
     assert.equal(await page.getAttribute('.jv-attempt[data-n="2"]', 'data-state'), 'ok');
     assert.equal(await page.locator('.jv-stage-row[data-status="done"]').count(), 6);
     assert.equal(await page.locator('.jv-log-row').count() >= 9, true, 'evidence log');
-    assert.match(await page.textContent('#jv-receipt'), /Sandbox destroyed · Host untouched/);
+    assert.match(await page.textContent('#jv-receipt'), /Sandbox destroyed · Host canary unchanged/);
     assert.equal(await page.getAttribute('#jv-scene', 'data-species'), 'snake-eel');
     assert.equal(await page.$eval('.jv-clam', clam => getComputedStyle(clam).animationName), 'jv-clam-close', 'clam plays frames 0 to 7');
     assert.equal(await page.locator('.jv-fish.jv-swim').count(), 1, 'snake-eel has swim art');
 
     assert.match(await page.textContent('#jv-depth-badge'), /Trench/);
     assert.match(await page.textContent('#jv-verdict'), /Harmful behaviour proven/);
+    assert.match(await page.textContent('#jv-actions'), /Do not pay/);
+    const downloaded = page.waitForEvent('download');
+    await page.locator('#jv-report-download').click();
+    const stream = await (await downloaded).createReadStream();
+    const chunks = []; for await (const chunk of stream) chunks.push(chunk);
+    const exported = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+    assert.equal(exported.verdict.depth, 'trench');
+    assert.equal(exported.receipt.confirmed, true);
+    assert.equal(exported.actions.length, 5);
+    assert.doesNotMatch(JSON.stringify(exported), new RegExp(NET_TOKEN));
+    assert.equal(await page.textContent('#jv-octopus-status'), 'Complete');
+    assert.equal(await page.locator('#jv-actions .jv-actions li').count(), 5, 'one step per finding kind');
+    assert.match(await page.textContent('#jv-actions .jv-ioc'), /203\.0\.113\.7:443/);
+    assert.equal(await page.getAttribute('#jv-ioc-download', 'download'), 'j-mock-trench-indicators.json');
+    assert.ok(await page.$eval('#jv-actions', box => Boolean(box.compareDocumentPosition(document.querySelector('.jv-finding')) & Node.DOCUMENT_POSITION_FOLLOWING)), 'steps come before the findings');
     assert.equal(await page.locator('.jv-finding').count(), 5);
     assert.match(await page.textContent('.jv-finding[data-finding="system-wipe"]'), /Jörmungandr/);
     assert.equal(await page.getAttribute('.jv-finding[data-finding="system-wipe"] a', 'href'), '#rep-ev-9');
@@ -420,9 +508,9 @@ browserTest('AT-26: invoice job shows the clam, two octopus attempts, the eat, t
     assert.equal(await page.getAttribute('.jv-button[href="/"]', 'href'), '/');
     assert.equal(await page.locator('#jv-report >> text=Back to the ocean').count(), 1);
 
-    const frame = page.frames().find(item => item.url().includes('/desktop.html?job=j-mock-trench'));
+    const frame = page.frames().find(item => item.url().includes('/desktop.html?job=mock-invoice-py'));
     assert.ok(frame, 'desktop replay frame loaded');
-    assert.match(await frame.textContent('#stub'), /j-mock-trench/);
+    assert.match(await frame.textContent('#stub'), /mock-invoice-py/);
     assert.deepEqual(problems, [], 'zero console errors');
     assert.deepEqual(external, [], 'no request left the page origin');
   } finally { await context.close(); }
@@ -440,6 +528,26 @@ browserTest('Sunlight job skips the eat: the fish settles and the report says no
     assert.equal(log.replayShown, false);
     assert.match(await page.textContent('#jv-depth-badge'), /Sunlight/);
     assert.match(await page.textContent('#jv-verdict'), /No harmful behaviour observed/);
+    assert.match(await page.textContent('#jv-actions'), /No harmful behaviour was observed in the checks completed\. This does not establish that the file is safe\./);
+    assert.deepEqual(problems, []);
+  } finally { await context.close(); }
+});
+
+browserTest('?seen (from the ocean show) opens on the report: the empty live run never shows', async () => {
+  const { page, context, problems } = await openPage('/job.html?mock=clean-chart&speed=0.05&seen');
+  try {
+    assert.match(await page.textContent('#jv-opening'), /Opening the report/);
+    await page.evaluate(() => {
+      window.__early = false;
+      const check = () => { if (!document.getElementById('jv-grid').hidden && document.getElementById('jv-report').hidden) window.__early = true; };
+      check();
+      new MutationObserver(check).observe(document, { subtree: true, attributes: true, attributeFilter: ['hidden'] });
+    });
+    await page.waitForSelector('#jv-report:not([hidden]) .jv-chart', { timeout: 30000 });
+    assert.equal(await page.evaluate(() => window.__early), false, 'grid stayed hidden until the report');
+    assert.equal(await page.isHidden('#jv-opening'), true);
+    assert.equal(await page.isVisible('#jv-grid'), true, 'grid is back, above the report');
+    assert.equal(new URL(page.url()).searchParams.has('seen'), false, '?seen dropped from the address bar');
     assert.deepEqual(problems, []);
   } finally { await context.close(); }
 });
@@ -461,7 +569,7 @@ for (const [label, path, options] of [
       assert.match(await page.textContent('#jv-verdict'), /Harmful behaviour proven/);
       assert.equal(await page.locator('.jv-stage-row[data-status="done"]').count(), 6, 'stage list shown, all done');
       assert.equal(await page.locator('.jv-finding').count(), 5);
-      assert.match(await page.textContent('#jv-receipt'), /Sandbox destroyed · Host untouched/);
+      assert.match(await page.textContent('#jv-receipt'), /Sandbox destroyed · Host canary unchanged/);
       assert.equal(await page.getAttribute('#jv-scene', 'data-clam'), 'sunk');
       assert.equal(await page.$eval('.jv-clam', clam => getComputedStyle(clam).backgroundPositionX), '0px', 'clam stays on frame 0');
       assert.equal(await page.$eval('.jv-swim', canvas => canvas.getContext('2d').getImageData(0, 0, 64, 64).data.some((value, index) => index % 4 === 3 && value > 0)), true, 'fish frame 0 painted');
@@ -498,7 +606,7 @@ browserTest('network mode: bearer token only in headers, stream resumes with Las
       assert.ok(!item.path.includes(NET_TOKEN) && !(item.referer ?? '').includes(NET_TOKEN), 'token not in path or referer');
     }
     assert.match(await page.textContent('#jv-depth-badge'), /Trench/);
-    assert.match(await page.textContent('#jv-receipt'), /Sandbox destroyed · Host untouched/);
+    assert.match(await page.textContent('#jv-receipt'), /Sandbox destroyed · Host canary unchanged/);
     assert.equal(await page.locator('.jv-attempt').count(), 2);
     assert.deepEqual(problems, []);
   } finally { await context.close(); }
@@ -510,6 +618,9 @@ browserTest('network mode: a wrong token shows an invalid-link message, not job 
     await page.waitForSelector('#jv-notice:not([hidden])', { timeout: 15000 });
     assert.match(await page.textContent('#jv-notice'), /invalid or has expired/);
     assert.equal(await page.locator('#jv-report:not([hidden])').count(), 0);
+    assert.equal(await page.isVisible('#jv-grid'), false);
+    assert.equal(await page.isVisible('#jv-recovery'), true);
+    assert.equal(await page.getAttribute('#jv-recovery a', 'href'), '/#threat-search');
   } finally { await context.close(); }
 });
 

@@ -407,20 +407,6 @@
       "replace_with": "native rd_advanced_animation__custom_action loop of this still (rd_fast, $0.25) once balance allows; planned prompt: The serpent's body slowly ripples and slides along its ring while the spiked ridge shimmers; the head and the tail it bites stay joined. Keep one continuous ring body. Gentle seamless underwater idle loop in place. Use the uploaded character's EXACT silhouette, proportions, orientation and pixel-art style, no redesign. Extremely small motion; entire body stays centered and inside generous margins. No camera movement, rotation, zoom, scene, text or particles. Return to starting pose with no loop jump. Transparent background."
     },
     {
-      "output": "ui/abyss/pixel/creatures/giant-clam-spritesheet.png",
-      "output_sha256": "81bf6ab422d3b17674eb780e4a42994305f469d98e7e3d4e9129d3ff865197c0",
-      "licence": "RetroDiffusion provider terms apply; no CC0 claim",
-      "source": "ocean-style-prototypes/retrodiffusion-detonation-set/images/still-giant-clam-a1-01.png",
-      "source_sha256": "7230aa77b756aa8b1c9dcc3f9d1ac74464fec67f50f77182f71b664798354c20",
-      "transform": "procedural animation of RetroDiffusion still still-giant-clam-a1: local nearest-neighbour warp over 14 frames; union bounds scaled nearest-neighbour to fit 96 px, centred in a 128 px cell, global 24-colour palette, binary alpha",
-      "prompt": "One giant clam: wide fluted scalloped pale cream shell halves held open, showing a wavy iridescent blue-violet mantle with teal spots between the shell halves, front three-quarter view, hinge at the bottom. Isolated single creature facing left on a transparent background, 16-bit game sprite, crisp square pixel clusters, stepped contours, restrained deep-sea palette of dark teal, navy, cyan and cream with a dark outline, centered with generous empty margin, no scenery, no text, no border.",
-      "model": "rd_plus__retro (rd_plus); animation is procedural, not provider-native",
-      "date": "2026-10-07",
-      "seed": 521,
-      "cost_microdollars": 60000,
-      "replace_with": "native rd_advanced_animation__custom_action loop of this still (rd_fast, $0.25) once balance allows; planned prompt: The two shell halves start fully open showing the wavy mantle, then slowly close until completely shut and the mantle is hidden in the final frame. The hinge and the lower shell stay fixed. Smooth closing motion in place, entire clam stays centered and inside generous margins. No camera movement, rotation, zoom, scene, text or particles. Transparent background."
-    },
-    {
       "output": "ui/abyss/pixel/fish/pufferfish-swim.png",
       "output_sha256": "dab61b81d9a818def8db5e4938f3ffe14ae40e31cfafdeb8b782a5119f941202",
       "licence": "RetroDiffusion provider terms apply; no CC0 claim",
@@ -1880,6 +1866,15 @@
       "transform": "fitted to 44 px, 16 colours, hard alpha, lightness mapped onto the site's trench colour",
       "licence": "OpenAI generated output; no CC0 claim",
       "date": "2026-10-15"
+    },
+    {
+      "output": "ui/abyss/pixel/creatures/giant-clam-spritesheet.png",
+      "output_sha256": "c362f977a2aa01b9fddab5ea286426c54b5b1ece203a8c909734819e6530b79f",
+      "source": "tools/build-giant-clam.py",
+      "model": "drawn in code (no image generator)",
+      "transform": "14 frames, open to shut and back; 64 px design doubled into 128 px cells; palette of the earlier RetroDiffusion clam",
+      "licence": "project code output",
+      "date": "2026-10-30"
     }
   ]
 }

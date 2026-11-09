@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import test from 'node:test';
-import { DesktopEventHub } from '../backend/desktop-world-events.mjs';
+import { DesktopEventHub, parseDesktopEvent } from '../backend/desktop-world-events.mjs';
 import { evidenceToPatches, publish } from '../backend/detonation/replay.mjs';
 
 const WorldModel = createRequire(import.meta.url)('../ui/desktop/world-model.js');
@@ -162,6 +162,31 @@ test('a long replay is merged to fit the 32 events the hub remembers', () => {
   const { patches, world } = replay(evidence);
   assert.ok(patches.length <= 30);
   assert.equal(world.data.processes.length, 60);
+});
+
+test('publish judges each patch against the world the earlier ones left, so a replay that walks a tree is not refused', async () => {
+  // A real job produces patches that depend on each other: a later one names a file or a process an earlier one created.
+  // Checking every patch against the bare seed refused three of these with `fs-node`, which failed the whole replay.
+  const at = '2026-10-23T02:00:00.000Z';
+  const evidence = [];
+  const add = item => evidence.push({ id: `ev-${evidence.length + 1}`, at, ...item });
+  add({ source: 'identify', kind: 'identified', detail: 'libmagic: ELF 32-bit', item: 0 });
+  for (let n = 0; n < 6; n += 1) add({ source: 'trace', kind: 'file-write', path: `/tmp/bot-${n}`, detail: 'write', item: 0 });
+  for (let n = 0; n < 4; n += 1) add({ source: 'diff', kind: 'added', path: `/home/dana/Downloads/.unpacked/0/${n}.dat`, detail: 'new file', item: 0, seeded: false });
+  const patches = evidenceToPatches(evidence, { path: 'run', label: 'Executed on Linux' });
+  // Against the bare seed, at least one patch is refused: that is the bug this test pins.
+  let refused = 0;
+  let world = seed;
+  for (const patch of patches) {
+    try { parseDesktopEvent({ type: 'patch', patch }, seed); } catch { refused += 1; }
+    world = WorldModel.createWorld(world, patch);
+  }
+  assert.ok(refused > 0, 'the fixture must contain a patch that depends on an earlier one');
+  const hub = new DesktopEventHub();
+  const frames = { writeHead() {}, write() {}, on() {}, end() {} };
+  assert.ok(hub.subscribe('job-2', frames));
+  await publish('job-2', patches, { hub });
+  hub.close();
 });
 
 test('publish sends the patches in order to run=<jobId> through the hub or HTTP', async () => {

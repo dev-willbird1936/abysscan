@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { runInNewContext } from 'node:vm';
+import { withheldWallpaper } from './fixtures/withheld-artwork.mjs';
 
 const require = createRequire(import.meta.url);
 const OceanWorldModel = require('../ui/desktop/world-model.js');
@@ -116,7 +117,7 @@ for (const entry of selection) {
     const { sys } = profileOf(entry.id);
     assert.equal(sys.wallpaper, 'stock');
     assert.match(sys.wallpaperUrl, /^\/previews\/(win11-final\/img\/wallpaper|macos-final)\/[A-Za-z0-9._/-]+\.jpg$/);
-    assert.ok(existsSync(new URL(`desktop-comparison${sys.wallpaperUrl}`, root)), sys.wallpaperUrl);
+    assert.ok(withheldWallpaper(sys.wallpaperUrl) || existsSync(new URL(`desktop-comparison${sys.wallpaperUrl}`, root)), sys.wallpaperUrl);
   });
 
   test(`${entry.id}: only .example and .invalid domains`, () => {

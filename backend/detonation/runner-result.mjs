@@ -3,6 +3,8 @@
 // parsed defensively: anything unexpected is dropped, never thrown.
 import { emulationCoverage, mapEmulation } from './emulator.mjs';
 import { mapBrowser } from './browser.mjs';
+import { mapIdentify } from './identify.mjs';
+import { mapRtf } from './static.mjs';
 import { mapOffice, mapPdf, mapPs1 } from './static.mjs';
 
 export const MAX_DEPTH = 3; // SPEC 5.3: archives nested up to 3 levels are unpacked
@@ -11,7 +13,7 @@ export const MAX_UNPACKED_BYTES = 50 * 1024 * 1024;
 const MAX_HEAD_BYTES = 32 * 1024;
 const CHILD_PATH = /^\/home\/dana\/Downloads\/\.unpacked\/(0|[1-9]\d*)\/(0|[1-9]\d*)\.dat$/;
 const BASE64 = /^[A-Za-z0-9+/]*={0,2}$/;
-const STOP_REASONS = { entries: 'the remaining entry budget', bytes: 'the remaining byte budget', depth: 'the nesting depth limit', ratio: 'a compression ratio above 100:1', encrypted: 'an encrypted entry', error: 'an unreadable archive or invalid runner result' };
+const STOP_REASONS = { entries: 'the remaining entry budget', bytes: 'the remaining byte budget', depth: 'the nesting depth limit', ratio: 'a compression ratio above 100:1', encrypted: 'an encrypted entry', path: 'an entry name that tried to leave the extraction directory', error: 'an unreadable archive or invalid runner result', unavailable: 'a reader this format needs is not installed' };
 const HOST_URL = /^[a-z][a-z0-9+.-]*:\/\/(?:[^/@\s]*@)?(\[[^\]]+\]|[^/:?#\s]+)/i;
 const IPV4 = /^\d{1,3}(?:\.\d{1,3}){3}$/;
 
@@ -101,8 +103,29 @@ export function mapUnpack(unpack, { at, budget, itemIndex, depth }) {
   return { children: checked.children, stopped, evidence: [...unpackStopped(stopped, at), ...linkIndicators(unpack?.links, at)] };
 }
 
+const SIGNALS = { 1: 'SIGHUP', 2: 'SIGINT', 4: 'SIGILL', 6: 'SIGABRT', 7: 'SIGBUS', 8: 'SIGFPE', 9: 'SIGKILL', 11: 'SIGSEGV', 13: 'SIGPIPE', 14: 'SIGALRM', 15: 'SIGTERM', 24: 'SIGXCPU', 25: 'SIGXFSZ' };
+
 const runResult = (line, what, at) => {
-  if (Number.isSafeInteger(line.exitCode)) return { evidence: [], step: { step: 'run', status: 'done', detail: `${what}; exit code ${line.exitCode}.` } };
+  if (Number.isSafeInteger(line.exitCode)) {
+    // 126 and 127 are the shell saying it could not execute the file: a missing loader or interpreter means nothing ran, so the
+    // run is reported as stopped rather than done, and the verdict becomes incomplete.
+    if (line.exitCode === 126 || line.exitCode === 127) {
+      const detail = `The program did not start: the loader or interpreter it needs is not in the sandbox (exit code ${line.exitCode}).`;
+      return { evidence: [{ source: 'static', kind: 'emulation-stopped', detail, at, reason: 'run-failed' }], step: { step: 'run', status: 'failed', detail } };
+    }
+    // 128+n is the shell reporting a signal: the program ran and died. It must not read as a clean run, because "no harmful
+    // behaviour observed" would then be a claim about a run that never finished.
+    if (line.exitCode > 128 && line.exitCode < 160) {
+      const signal = line.exitCode - 128;
+      const name = Object.hasOwn(SIGNALS, signal) ? SIGNALS[signal] : `signal ${signal}`;
+      const detail = `The program ran and then died on ${name} (exit code ${line.exitCode}) before the run finished.`;
+      return {
+        evidence: [{ source: 'static', kind: 'emulation-stopped', detail, at, reason: 'run-crashed' }],
+        step: { step: 'run', status: 'failed', detail },
+      };
+    }
+    return { evidence: [], step: { step: 'run', status: 'done', detail: `${what}; exit code ${line.exitCode}.` } };
+  }
   const detail = 'The runner returned a missing or malformed exit code.';
   return {
     evidence: [{ source: 'static', kind: 'emulation-stopped', detail, at, reason: 'runner-invalid-result' }],
@@ -117,9 +140,19 @@ const runResult = (line, what, at) => {
 export function mapRunnerLine(kind, line, { at, sampleUrl, budget, itemIndex, depth }) {
   if (!line) return { evidence: [], steps: [{ step: kind === 'zip' || kind === 'eml' ? 'unwrap' : kind === 'exe' ? 'emulate' : 'run', status: 'failed', detail: 'The runner printed no result.' }], children: [] };
   switch (kind) {
-    case 'py': case 'sh': case 'node': {
+    case 'elf': {
+      // A binary that exits and leaves processes behind is hiding its work: the dwell in run.sh keeps the container alive long
+      // enough for those processes to act, and this reports what it left running.
+      const run = runResult(line, 'The program ran', at);
+      const survivors = Number(line.surviving) || 0;
+      const evidence = [...mapIdentify(line.identify, line.dotnet, { at, classinfo: line.classinfo }), ...run.evidence];
+      if (survivors > 0) evidence.push({ source: 'trace', kind: 'daemonised', detail: `The program exited and left ${survivors} process(es) running.`, at, processes: survivors });
+      return { evidence, steps: [run.step], children: [] };
+    }
+    case 'py': case 'sh': case 'perl': case 'php': case 'ruby': case 'lua': case 'java': case 'node': {
+      // The runner takes a static pass in the same container, so a script carries what it is (libmagic, headers) next to what it did.
       const run = runResult(line, 'The script ran', at);
-      return { evidence: run.evidence, steps: [run.step], children: [] };
+      return { evidence: [...mapIdentify(line.identify, line.dotnet, { at, classinfo: line.classinfo }), ...run.evidence], steps: [run.step], children: [] };
     }
     case 'ps1': {
       const evidence = mapPs1(line.static, { at });
@@ -192,7 +225,17 @@ export function mapRunnerLine(kind, line, { at, sampleUrl, budget, itemIndex, de
       const coverage = validEnvelope ? emulationCoverage(emulation) : { status: 'failed', detail: 'The emulator returned a missing or malformed completion report.' };
       return { evidence, steps: [{ step: 'emulate', ...coverage }], children: [] };
     }
-    case 'zip': case 'eml': {
+    case 'rtf': {
+      // An RTF carrier is unpacked like an archive, and its own markers stay in the report: the object may be harmless while the
+      // construction that forces it to update is not.
+      const { children, evidence, stopped } = mapUnpack(line.unpack, { at, budget, itemIndex, depth });
+      return {
+        evidence: [...mapRtf(line.unpack?.markers, { at }), ...evidence],
+        steps: [{ step: 'unwrap', status: stopped === 'error' && !children.length ? 'failed' : stopped ? 'stopped' : 'done', detail: stopped ? `Unpacked ${children.length} entries, then stopped: ${STOP_REASONS[stopped] ?? 'a limit'}.` : `Unpacked ${children.length} entries.` }],
+        children,
+      };
+    }
+    case 'zip': case 'eml': case 'msg': {
       const { children, evidence, stopped } = mapUnpack(line.unpack, { at, budget, itemIndex, depth });
       return {
         evidence,

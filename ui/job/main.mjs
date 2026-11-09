@@ -21,20 +21,41 @@ const TOKEN = /^[A-Za-z0-9._~+/=-]{8,512}$/;
 const JOB_PATH = /^\/job\/([A-Za-z0-9_-]{1,64})\/?$/;
 
 const state = createJobState();
-let skipped = false;
+// ?seen: the visitor comes from the ocean show, which already played this job out, so the view starts skipped. The flag is
+// dropped from the address bar so a copied link still plays the dive.
+let skipped = params.has('seen');
+if (skipped) {
+  const rest = new URLSearchParams(params);
+  rest.delete('seen');
+  history.replaceState(null, '', `${location.pathname}${rest.size ? `?${rest}` : ''}${location.hash}`);
+}
 let source = null;
 let settled = false;
 let replayMounted = false;
 
 doc.documentElement.dataset.rm = String(reduced);
-doc.documentElement.style.setProperty('--k', String(speed));
+doc.documentElement.style.setProperty('--k', skipped ? '0.001' : String(speed));
 
 const sleep = ms => (reduced || skipped ? Promise.resolve() : sleepFor(ms * speed));
 const scene = createScene($('jv-scene'), { doc, reduced, sleep });
 
-function notice(text) {
+function notice(text, recover = false) {
+  $('jv-opening').hidden = true;
   $('jv-notice').textContent = text;
   $('jv-notice').hidden = false;
+  if (recover) {
+    $('jv-grid').hidden = true;
+    $('jv-report').hidden = true;
+    $('jv-skip').hidden = true;
+    $('jv-recovery').hidden = false;
+    $('jv-recovery-title').focus();
+  }
+}
+
+// With ?seen the grid stays hidden until the report is drawn, so a finished job never flashes an empty live run.
+function revealGrid() {
+  $('jv-opening').hidden = true;
+  $('jv-grid').hidden = false;
 }
 
 // ---- serial animation queue ---------------------------------------------------------------------------------
@@ -42,7 +63,7 @@ let chain = Promise.resolve();
 let pending = 0;
 function enqueue(task) {
   pending += 1;
-  $('jv-skip').hidden = reduced;
+  $('jv-skip').hidden = reduced || skipped;
   chain = chain.then(task).catch(error => console.error(`Job view step failed: ${error?.message ?? error}`)).finally(() => {
     pending -= 1;
     if (pending === 0) $('jv-skip').hidden = true;
@@ -123,7 +144,7 @@ function refreshPanels(event) {
   renderStatus($('jv-status'), state);
   if (state.typed) scene.setFish(state.typed, pathText(state.typed, state.rank));
   if (state.rank >= 2) scene.closeClam();
-  if (event === 'analysis-attempt' || event === 'parser-attempt' || event === 'stage') renderOctopus(doc, $('jv-terminal'), $('jv-octopus-status'), state);
+  if (['analysis-attempt', 'parser-attempt', 'stage', 'explanation', 'receipt', 'report', 'error'].includes(event)) renderOctopus(doc, $('jv-terminal'), $('jv-octopus-status'), state);
   updateReplayLabel();
 }
 
@@ -155,39 +176,49 @@ async function finish() {
     verdict: state.verdict ?? { statement: state.error ? `The job failed: ${state.error}` : 'The job did not finish.', complete: false },
     evidence: state.evidence, analysis: { attempts: state.attempts }, explanation: state.explanation?.text, receipt: state.receipt,
   };
+  state.finished = true;
+  state.receipt ??= report.receipt;
+  if (Array.isArray(report.analysis?.attempts)) state.attempts = report.analysis.attempts;
+  refreshPanels('report');
   if (state.failed && !state.receipt) notice('The job failed before the sandbox receipt was issued.');
   settle();
-  await enqueue(() => renderReport(doc, $('jv-report'), { report, state, source, reduced }));
+  await enqueue(() => {
+    revealGrid();
+    return renderReport(doc, $('jv-report'), { report, state, source, reduced });
+  });
 }
 
 async function run() {
+  $('jv-retry').addEventListener('click', () => location.reload());
   $('jv-tab-ocean').addEventListener('click', () => showTab('ocean'));
   $('jv-tab-replay').addEventListener('click', () => showTab('replay'));
   renderStages(doc, $('jv-stages'), state);
   renderStatus($('jv-status'), state);
   renderOctopus(doc, $('jv-terminal'), $('jv-octopus-status'), state);
+  if (skipped) $('jv-opening').textContent = 'Opening the report…';
 
   if (mockName) {
     source = await createMockSource(mockName, { speed });
   } else {
     const match = JOB_PATH.exec(location.pathname);
     const token = location.hash.slice(1);
-    if (!match || !TOKEN.test(token)) { notice('This job link is incomplete. Open the full link you received after uploading.'); return; }
+    if (!match || !TOKEN.test(token)) { notice('This job link is incomplete. Open the full link you received after uploading.', true); return; }
     source = createNetworkSource({ jobId: match[1], token });
   }
+  if (!skipped) revealGrid();
   $('jv-jobid').textContent = `Job ${source.jobId}`;
   doc.title = `Job ${source.jobId} · Detonation Ocean`;
 
   try {
     await source.stream(handle, undefined, () => state.finished || (state.failed && state.receipt !== null), () => state.lastEventId);
   } catch (error) {
-    notice(error instanceof JobLinkError ? error.message : 'The connection to the job was lost.');
-    if (error instanceof JobLinkError && error.status < 500) return;
+    if (error instanceof JobLinkError && error.status < 500) { notice(error.message, true); return; }
+    notice('The connection was interrupted. The report below may be incomplete. Retry the link to reconnect.');
   }
   await finish();
 }
 
 run().catch(error => {
-  notice('The job view could not start.');
+  notice('The job view could not start. Check your connection and retry the link.', true);
   console.error(`Job view failed: ${error?.message ?? error}`);
 });

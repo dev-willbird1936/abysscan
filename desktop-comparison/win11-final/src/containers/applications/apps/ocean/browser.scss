@@ -1,0 +1,411 @@
+.br-app {
+  .br-tabs {
+    gap: 2px;
+    height: 40px;
+    padding: 6px 8px 0;
+    background: var(--oc-pane);
+    align-items: flex-end;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .br-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 34px;
+    width: 210px;
+    min-width: 90px;
+    padding: 0 6px 0 12px;
+    border-radius: 8px 8px 0 0;
+    color: var(--oc-text2);
+    flex-shrink: 1;
+
+    &:hover {
+      background: var(--oc-hover);
+    }
+    &[data-active="true"] {
+      background: var(--oc-layer);
+      color: var(--oc-text);
+      box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.06);
+    }
+  }
+  .br-fav {
+    width: 12px;
+    flex-shrink: 0;
+    color: var(--oc-accent);
+  }
+  .br-x {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    svg {
+      width: 10px;
+    }
+    &:hover {
+      background: var(--oc-press);
+    }
+  }
+  .br-plus {
+    width: 30px;
+    height: 30px;
+    margin-bottom: 2px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--oc-text);
+    flex-shrink: 0;
+    svg {
+      width: 11px;
+    }
+    &:hover {
+      background: var(--oc-hover);
+    }
+  }
+  .br-bar {
+    gap: 2px;
+    padding: 4px 8px;
+    background: var(--oc-layer);
+    flex-shrink: 0;
+  }
+  .br-address {
+    height: 32px;
+    margin: 0 6px;
+    padding: 0 12px;
+    gap: 8px;
+    border-radius: 16px;
+    background: var(--oc-input);
+    border: 1px solid var(--oc-stroke);
+
+    svg {
+      width: 12px;
+      flex-shrink: 0;
+    }
+    input {
+      height: 100%;
+      border: none;
+      outline: none;
+      background: transparent;
+      user-select: text;
+    }
+    &:focus-within {
+      border-color: var(--oc-accent);
+    }
+  }
+  .br-insecure {
+    color: var(--oc-danger);
+  }
+  .br-insecure-text {
+    font-size: 12px;
+    color: var(--oc-danger);
+    white-space: nowrap;
+    padding-right: 6px;
+    border-right: 1px solid var(--oc-stroke2);
+  }
+  .br-favbar {
+    gap: 2px;
+    height: 30px;
+    padding: 0 10px;
+    background: var(--oc-layer);
+    border-bottom: 1px solid var(--oc-stroke);
+    flex-shrink: 0;
+  }
+  .br-favitem {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    svg {
+      width: 11px;
+      color: var(--oc-text2);
+    }
+    &:hover {
+      background: var(--oc-hover);
+    }
+  }
+  .br-progress {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--oc-accent), transparent);
+    background-size: 50% 100%;
+    animation: br-load 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+  .br-view {
+    position: relative;
+    background: var(--oc-card);
+  }
+  .br-newtab {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 50px 24px;
+    gap: 22px;
+    background: radial-gradient(circle at 20% 0%, color-mix(in srgb, var(--oc-accent) 22%, transparent), transparent 60%),
+      radial-gradient(circle at 90% 100%, rgba(123, 63, 160, 0.18), transparent 55%), var(--oc-bg);
+  }
+  .br-greet {
+    font-size: 24px;
+    font-weight: 600;
+  }
+  .br-bigsearch {
+    width: min(520px, 90%);
+    height: 46px;
+    padding: 0 18px;
+    gap: 12px;
+    border-radius: 23px;
+    background: var(--oc-card);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    svg {
+      width: 15px;
+      color: var(--oc-text2);
+    }
+    input {
+      height: 100%;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 14px;
+      user-select: text;
+    }
+  }
+  .br-tiles {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+  .br-tile {
+    width: 92px;
+    padding: 12px 6px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background: color-mix(in srgb, var(--oc-card) 80%, transparent);
+    font-size: 12px;
+    &:hover {
+      background: var(--oc-card);
+    }
+  }
+  .br-tile-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    color: #fff;
+    background: var(--oc-accent);
+  }
+  // A full-page browser warning (PROGRAMS.md §3b) fills the view; OceanProgramUI draws it.
+  .br-site.br-warning {
+    display: flex;
+    flex-direction: column;
+    > div {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .opg {
+      flex: 1;
+    }
+  }
+  .br-site {
+    --br-brand: #1f4e8c;
+    min-height: 100%;
+    background: #f4f6f9;
+    color: #1b1b1b;
+    font-family: "Segoe UI", system-ui, sans-serif;
+  }
+  .br-site-bar {
+    height: 52px;
+    padding: 0 28px;
+    gap: 16px;
+    background: var(--br-brand);
+    color: #fff;
+    b {
+      font-size: 17px;
+      letter-spacing: 0.01em;
+    }
+  }
+  .br-site-body {
+    padding: 28px;
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0 0 16px;
+    }
+    h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0 0 8px;
+    }
+    p {
+      margin: 0 0 8px;
+      line-height: 1.55;
+    }
+    .oc-card {
+      background: #fff;
+      border-color: rgba(0, 0, 0, 0.08);
+      color: #1b1b1b;
+      padding: 16px 18px;
+    }
+  }
+  .br-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .br-a {
+    color: #0f5bb5;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .br-scene {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .br-scene-card {
+    width: min(460px, 100%);
+    padding: 28px 30px !important;
+  }
+  .br-choices {
+    margin-top: 18px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .br-choice {
+    height: 34px;
+    padding: 0 18px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    background: var(--br-brand);
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    &.secondary {
+      background: #fff;
+      color: #1b1b1b;
+      border-color: rgba(0, 0, 0, 0.2);
+    }
+    &:hover {
+      filter: brightness(1.08);
+    }
+  }
+  .br-foot {
+    margin-top: 16px;
+    color: #777;
+  }
+  .br-error {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    gap: 8px;
+    text-align: center;
+    h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 8px 0 0;
+    }
+    p {
+      max-width: 420px;
+      color: var(--oc-text2);
+      margin: 0;
+      word-break: break-word;
+    }
+  }
+  .br-error-icon {
+    width: 46px;
+    height: 46px;
+    color: var(--oc-text3);
+  }
+}
+@keyframes br-load {
+  from {
+    background-position: -50% 0;
+  }
+  to {
+    background-position: 150% 0;
+  }
+}
+
+.br-app {
+  .br-addr-btn {
+    border: none;
+    background: transparent;
+    color: var(--oc-text2);
+    width: 26px;
+    height: 24px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    svg {
+      width: 13px;
+    }
+    &:hover {
+      background: var(--oc-hover);
+    }
+    &[data-on="true"] {
+      color: var(--oc-accent);
+    }
+  }
+  .br-favempty {
+    font-size: 12px;
+    padding: 0 6px;
+  }
+  .br-history {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 24px 28px;
+  }
+  .br-history-head {
+    margin-bottom: 12px;
+  }
+  .br-history-row {
+    gap: 12px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    &:hover {
+      background: var(--oc-hover);
+    }
+    svg {
+      width: 13px;
+    }
+  }
+  .br-history-empty {
+    padding: 24px 10px;
+  }
+  .br-site[data-reader="true"] {
+    background: #f6f1e7;
+    color: #2b2b2b;
+    .br-site-bar {
+      display: none;
+    }
+    .br-scene-card {
+      max-width: 640px;
+      margin: 0 auto;
+      background: transparent;
+      box-shadow: none;
+      border: none;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 17px;
+      line-height: 1.6;
+    }
+  }
+}

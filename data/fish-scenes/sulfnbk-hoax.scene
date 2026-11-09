@@ -1,0 +1,325 @@
+# SULFNBK.EXE hoax (2001). A chain email told people a virus hid as a Windows file called SULFNBK.EXE, and to delete it.
+# A quest (QUESTS.md): the trainee closes IT's health-check tickets, closes one real ticket (a backup check), then meets a
+# chain email that begs Dana to delete a genuine Windows tool and pass the warning on. There is no malware: the quest is about not
+# overreacting. The office, the people and the intranet are made up.
+os windows
+user Dana Okafor
+about
+  | In 2001 a chain email warned that a virus called SULFNBK.EXE was hiding on your computer and would strike on 1 June. It told people to find the file, delete it and warn everyone they knew. Many people did, and the warning travelled round the world by itself.
+  | There was no virus. SULFNBK.EXE was a real Windows utility, a small tool that restores long file names. The only harm was the panic, the deleted file and the flood of forwards. The office, the people and the intranet here are made up.
+story
+  | You are Dana Okafor, office administrator at Northwind Traders. Marcus Lee in IT keeps a short daily list of computer health-check tickets on the intranet for you to close: check a backup, confirm the updates. Each one comes to you by email from IT.
+  | It is Monday morning. You have closed 4 of today's 6 tickets. Two to go.
+  | Your intranet details are in a text file on the desktop. That is a bad habit, but it keeps this training quick.
+quota 4 6 Health-check tickets closed today
+spotted reasons not to panic
+
+# Dana's desk: the details she copies from (a soft flag: careless, but only here to keep the training simple).
+file Desktop/intranet-login.txt
+  at 930 200
+  | Northwind Intranet: IT tickets
+  | Staff ID: dana.okafor
+  | Password: Cedar-2026!
+
+# The file the email names. It is a genuine, signed Windows tool that was always there, so nothing flags it.
+program sulfnbk SULFNBK.EXE
+  publisher Halyard Software Corporation
+  signed yes
+  description Restores long file names (a Windows utility)
+view sulfnbk-confirm message
+  title Confirm File Delete
+  icon question
+  | Are you sure you want to delete 'SULFNBK.EXE'?
+  button Yes -> done primary
+  button No -> close
+folder Home/Windows
+folder Home/Windows/Command
+file Home/Windows/Command/SULFNBK.EXE
+  program sulfnbk
+  size 29696
+
+# The IT tickets: a sign-in page, and the first ticket behind it.
+page intranet-login intranet.northwind.example/tickets/sign-in
+  title Northwind Intranet: sign in
+  brand Northwind Intranet
+  favorite
+  heading Sign in to IT tickets
+  | Welcome back. Sign in to see your health-check tickets.
+  field Staff ID = dana.okafor
+  field secret Password = Cedar-2026!
+  button Sign in
+page ticket5-done intranet.northwind.example/tickets/t5/closed
+  title Ticket 5 closed
+  brand Northwind Intranet
+  heading Ticket 5 closed
+  | Backup check recorded for NW-DANA-LT. Thank you, Dana.
+page ticket5-held intranet.northwind.example/tickets/t5/held
+  title Ticket 5 on hold
+  brand Northwind Intranet
+  heading Ticket 5 on hold
+  | Marcus is told, and will look at the backup.
+page ticket-5 intranet.northwind.example/tickets/t5
+  title Ticket 5 of 6: check last night's backup
+  brand Northwind Intranet
+  requires intranet-login
+  heading Ticket 5 of 6: check last night's backup
+  | IT asks you to confirm that your computer's backup ran.
+  section Request
+  row Computer = NW-DANA-LT (yours)
+  row Backup = Last night, 11:40pm
+  row Result = Finished, 0 files skipped
+  row Written by = Marcus Lee, IT
+  row Checked by = Grace Kim, IT manager
+  button Confirm the backup and close the ticket -> ticket5-done
+  button Hold and ask IT -> ticket5-held
+
+mail mail-t5
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Ticket 5: check last night's backup
+  sent 2026-11-02 08:38
+  link ticket-5
+  | Hi Dana,
+  |
+  | Ticket 5 is a quick one: a look at last night's backup on your computer. The ticket says what ran and when.
+  |
+  | The link opens it on the intranet.
+  |
+  | Marcus, IT
+
+step Ticket 5 of 6
+  look Mail: Marcus's message with the ticket link
+  | A new ticket has come in from Marcus, in IT. This one is routine. Do it the normal way, so you know what normal looks like.
+notify mail Marcus Lee
+  | Ticket 5: check last night's backup
+
+step The link goes to the intranet
+  look the link under Marcus's message
+  when mail mail-t5
+  | The email links to the company's own address, intranet.northwind.example, for a ticket you expect. Hover over a link before you click it, to check where it goes.
+open mail-t5
+
+step Sign in as usual
+  look the two boxes: Staff ID and Password, as on every visit
+  when visit ticket-5
+  move Copy the details from intranet-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The intranet asks you to sign in first. Two boxes: Staff ID and Password. Remember what a normal ticket looks like.
+open ticket-5
+
+step Check, then close
+  look the Request box: what ran, when, who wrote it and who checked it
+  when choose intranet-login 1
+  | You are in. This ticket says what to check, and who wrote it and who checked it. Marcus wrote it and Grace Kim, the IT manager, checked it, so it is safe to close.
+signin intranet-login
+
+step 5 of 6 done
+  look the counter in the guide: one ticket left
+  when choose ticket-5 any
+  | Done. One ticket is left. And another email has just arrived, from Ana in Sales.
+choose ticket-5 1
+quota +1
+
+# The lure: the chain email itself, forwarded by a worried colleague.
+mail alert
+  from Ana Ruiz <ana.ruiz@northwind.example>
+  subject FW: FW: FW: VIRUS WARNING - READ NOW
+  sent 2026-11-02 09:07
+  | PLEASE READ AND PASS ON. A new virus is on many computers and your antivirus will NOT find it. A friend who works with computers says it is real.
+  |
+  | It hides in a file called SULFNBK.EXE. To check, click Start, then Search, then Files and Folders, and look for SULFNBK.EXE. If you find it, DO NOT OPEN IT. Delete it, then empty the Recycle Bin.
+  |
+  | It sleeps until 1 June and then destroys your hard disk. Anyone who got this from you is at risk too: send this to everyone in your address book.
+  |
+  | ---------- Forwarded from a friend of a friend ----------
+  |
+  | Ana
+notify mail Ana Ruiz
+  | FW: FW: FW: VIRUS WARNING - READ NOW
+
+step A frightening warning
+  look the subject in capitals, and the last lines: "send this to everyone in your address book"
+  when mail alert
+  | Ana, in Sales, has passed on a virus warning. It sounds urgent: your antivirus "will not find it", it strikes on 1 June, and it tells you to delete a file now. It never says who first wrote it: only "a friend of a friend". Read it all the way down, and flag anything that looks wrong.
+open alert
+
+step The file is really there
+  look SULFNBK.EXE in the Windows folder, just as the email said
+  when open files
+  move Flag the file if it tells you whether the warning is true, then press Next to open its {Properties|Get Info} box.
+  | Dana follows the email and searches. The search turns up SULFNBK.EXE inside the Windows folder, just as the email said. That makes the email feel true. But finding a file is not the same as finding a virus.
+  | The email calls it a virus. Look at where the file lives, and who it belongs to, before you decide.
+open Home/Windows/Command
+
+step What Properties says
+  look the {Properties|Get Info} box: Type "Application", a named publisher, a valid signature
+  cue dialog-btn:ok view-btn:done view:sulfnbk-confirm
+  move Read the {Properties|Get Info} box and click OK. Then choose: “Yes” deletes the file the email names, “No” keeps it. (Either way, you can flag what you see.)
+  | The computer's own {Properties|Get Info} box calls it an Application from a named publisher, with a valid digital signature. Malware rarely has a valid signature from a named publisher: a good sign, not proof.
+  | The computer also asks whether you are sure you want to delete it. Nobody has checked the email yet.
+dialog properties Home/Windows/Command/SULFNBK.EXE
+show sulfnbk-confirm
+
+step Delete it, the email says
+  look the Confirm File Delete box: “Yes” or “No”
+  when done sulfnbk-confirm
+  move Click “Yes” to delete the file, or “No” to keep it.
+  | The email gave an order and a deadline, so it feels urgent. The computer asks if you are sure. Stop and check before you answer.
+  | Yes sends a genuine Windows file to the {Recycle Bin|Trash} on the strength of one forwarded email. Dana clicks Yes. If you clicked No, the file stays on a real computer: press Next to see what happens to someone who clicks Yes.
+answer ok
+press sulfnbk-confirm done
+delete Home/Windows/Command/SULFNBK.EXE
+open Home/Windows/Command
+
+# What the hoax does: nothing to the computers, everything to the people.
+mail forward
+  folder sent
+  from Dana Okafor <dana.okafor@northwind.example>
+  to Northwind All Staff <all-staff@northwind.example>
+  subject FW: FW: FW: FW: VIRUS WARNING - READ NOW
+  sent 2026-11-02 09:20
+  | Please read this and pass it on, just in case!
+  |
+  | A new virus is on many computers and your antivirus will NOT find it. It hides in a file called SULFNBK.EXE. Delete it, then empty the Recycle Bin. It sleeps until 1 June and then destroys your hard disk. Send this to everyone in your address book.
+mail panic-priya
+  from Priya Shah <priya.shah@northwind.example>
+  subject Re: VIRUS WARNING: I deleted it too
+  sent 2026-11-02 09:26
+  | Dana, thank you for the warning. I found SULFNBK.EXE on my PC and deleted it. I have also sent it to my sister and to the whole Accounts team, just in case.
+  |
+  | Is it safe to leave my computer on until 1 June? Should I switch it off?
+  |
+  | Priya
+notify mail Priya Shah
+  | Re: VIRUS WARNING: I deleted it too
+
+step Dana passes it on
+  look Sent: the warning went to all staff. Then Priya's reply
+  when mail panic-priya
+  | The hoax lives on forwards. Dana sent it to all staff, as it begged, and within minutes Priya has deleted the file and passed it on to her sister and to Accounts.
+  | Nobody has checked if it is true. A real alert would have come from IT or from security software, with a name behind it.
+open panic-priya
+
+# IT's answer. The hoax reference is defined first so IT's mail can link to it.
+page hoaxcheck hoax-reference.example/sulfnbk
+  title Hoax reference: SULFNBK.EXE warning
+  brand Hoax Reference
+  heading The SULFNBK.EXE virus warning is a hoax
+  | A chain email says a virus named SULFNBK.EXE is on your computer and tells you to delete it. This is false.
+  section What the file really is
+  row File = SULFNBK.EXE
+  row Part of = Windows (the Command folder)
+  row What it does = Restores long file names after a repair
+  row Signed by = A named publisher, with a valid signature
+  note The file is genuine. Deleting it is not needed and does not make your computer safer. If you deleted it, tell your IT team.
+  section Why the email is a hoax
+  item It says antivirus cannot find the virus, so you cannot check it
+  item It tells you to delete a file instead of scanning
+  item It tells you to forward it to everyone you know
+  item It gives a date to scare you into acting now
+mail it-note
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject About the SULFNBK.EXE warning
+  sent 2026-11-02 10:05
+  link hoaxcheck
+  | Dana, I have had a lot of calls about the SULFNBK.EXE warning. It is a hoax, and the file is a real part of Windows. It was never a virus.
+  |
+  | There is a page that explains how to spot this kind of hoax. Please do not send the warning on, and send any virus warning to me first. If you deleted the file, tell me and I will put it back.
+  |
+  | Marcus, IT
+notify mail Marcus Lee
+  | About the SULFNBK.EXE warning
+
+step IT answers
+  look Marcus's message and its link
+  when visit hoaxcheck
+  move Open Marcus's message about the SULFNBK.EXE warning and click its link.
+  | Marcus, in IT, says the warning is a hoax and the file is real. The link goes to a hoax reference page.
+  | It lists what the file is for, and the signs of the hoax: a virus nobody can check, a file to delete instead of a scan, a date to scare you, and "send this to everyone". Ana's email had all four.
+open hoaxcheck
+
+# The last real ticket.
+page ticket6-done intranet.northwind.example/tickets/t6/closed
+  title Ticket 6 closed
+  brand Northwind Intranet
+  heading Ticket 6 closed
+  | Update check recorded for NW-DANA-LT. Thank you, Dana.
+page ticket6-held intranet.northwind.example/tickets/t6/held
+  title Ticket 6 on hold
+  brand Northwind Intranet
+  heading Ticket 6 on hold
+  | Marcus is told, and will look at the updates.
+page ticket-6 intranet.northwind.example/tickets/t6
+  title Ticket 6 of 6: confirm the system updates
+  brand Northwind Intranet
+  requires intranet-login
+  heading Ticket 6 of 6: confirm the system updates
+  | IT asks you to confirm that your computer is up to date.
+  section Request
+  row Computer = NW-DANA-LT (yours)
+  row System updates = Up to date
+  row Restart waiting = No
+  row Written by = Marcus Lee, IT
+  row Checked by = Grace Kim, IT manager
+  button Confirm the updates and close the ticket -> ticket6-done
+  button Hold and ask IT -> ticket6-held
+mail mail-t6
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Ticket 6: confirm the system updates
+  sent 2026-11-02 10:20
+  link ticket-6
+  | Dana,
+  |
+  | Thank you for your patience with the warning. The last ticket of the day is on the intranet, and it is an ordinary one: a look at your system updates. The link opens it.
+  |
+  | Marcus, IT
+notify mail Marcus Lee
+  | Ticket 6: confirm the system updates
+
+step Back to work
+  look Mail: Marcus's message, then the Request box on the ticket
+  when visit ticket-6
+  | The last ticket is an ordinary one from Marcus. Its Request box names who wrote it and who checked it, like ticket 5. Check it, then close it.
+open ticket-6
+
+step 6 of 6, and the hoax is forgotten
+  look the counter: the shift is done
+  when choose ticket-6 any
+  | Every ticket is closed and the day looks normal. Press Next to see what one chain email cost the office.
+choose ticket-6 1
+quota +1
+
+step What the hoax did
+  look the animation: a warning that spread by itself
+  | No virus touched a single computer. The hoax spread because kind, worried people did what it asked. It cost the office a morning of calls, a Windows tool on several computers, and trust in the next real warning.
+attack mass-mail-worm
+  | to everyone in the address book
+  | SULFNBK.EXE deleted
+  | colleagues deleting it, then forwarding it
+  | no virus anywhere
+mail helpdesk
+  from Northwind IT <servicedesk@northwind.example>
+  subject Helpdesk: 23 messages about one hoax
+  sent 2026-11-02 11:30
+  | This morning the service desk took 23 calls and messages about the SULFNBK.EXE warning. Nobody had a virus. Nine people had deleted a real Windows file.
+  |
+  | Northwind IT
+notify mail Northwind IT
+  | Helpdesk: 23 messages about one hoax
+
+flag hard mail alert
+  | A frightening warning in capitals that asks to be sent to everyone. It never says who first wrote it: only "a friend of a friend". That is how a chain hoax is built.
+flag hard file Home/Windows/Command/SULFNBK.EXE
+  | The email calls it a virus, but it sits in the Windows folder and is a genuine Windows tool.
+flag hard dialog properties sulfnbk
+  | Type: Application, from a named publisher with a valid digital signature. Malware rarely has that: a good sign, not proof.
+flag hard mail panic-priya
+  | Priya deleted the file and forwarded the warning on, without checking. That is how the hoax spreads.
+flag hard section hoaxcheck 1
+  | The reference page says what the file really is: a genuine part of Windows, so there was nothing to delete.
+flag hard section hoaxcheck 2
+  | The signs of the hoax: a virus nobody can check, a file to delete instead of a scan, a scary date, "send this to everyone". Ana's email had all four.
+flag soft file Desktop/intranet-login.txt
+  | Passwords in a text file on the desktop: any program that runs can read them. Use a password manager.
+
+lesson
+  | Do not delete a file, or forward a virus warning, because an email tells you to. Ask IT first, and search the warning on a hoax-reference site.
+  | A real alert names who sent it, comes from IT or your security software, and does not ask you to pass it on. If a file looks suspicious, check its {Properties|Get Info}: a named publisher and a valid signature are good signs, not proof.

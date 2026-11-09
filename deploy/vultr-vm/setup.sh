@@ -186,24 +186,24 @@ step "Health check"
 health=""
 for _ in $(seq 1 60); do
   health="$(curl -fsS --max-time 3 http://127.0.0.1:4173/api/health 2>/dev/null || true)"
-  [[ "$health" == *'"acceptingJobs":true'* ]] && break
+  [[ "$health" == *'"ok":true'* ]] && break
   sleep 1
 done
 echo "controller (127.0.0.1:4173): ${health:-no answer}"
-if [[ "$health" != *'"acceptingJobs":true'* ]]; then
+if [[ "$health" != *'"ok":true'* ]]; then
   echo "journalctl -u detonation-ocean -n 30:" >&2
   journalctl -u detonation-ocean -n 30 --no-pager >&2 || true
-  die "/api/health did not report acceptingJobs:true (DETONATION_ENABLED must be true in $ENV_DIR/env)"
+  die "/api/health did not report ok:true (public file upload is retired, so acceptingJobs stays false; check journalctl -u detonation-ocean)"
 fi
 
 via_caddy=""
 for _ in $(seq 1 30); do
   via_caddy="$(curl -fsSk --max-time 5 --resolve "$host:443:127.0.0.1" "https://$host/api/health" 2>/dev/null || true)"
-  [[ "$via_caddy" == *'"acceptingJobs":true'* ]] && break
+  [[ "$via_caddy" == *'"ok":true'* ]] && break
   sleep 1
 done
 echo "through Caddy (https://$host): ${via_caddy:-no answer}"
-if [[ "$via_caddy" != *'"acceptingJobs":true'* ]]; then
+if [[ "$via_caddy" != *'"ok":true'* ]]; then
   if [ "$tls_internal" = 1 ]; then die "Caddy did not proxy /api/health"; fi
   echo "WARNING: no answer through Caddy yet. Let's Encrypt needs DNS for $host to point at this VM and ports 80/443 open; check: journalctl -u caddy -n 30" >&2
 fi

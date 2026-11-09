@@ -1,0 +1,294 @@
+# Flashback (2011-2012). The largest Mac infection of its time: a fake Flash installer, later a silent Java exploit.
+# A quest (QUESTS.md): the trainee organises a team offsite on a Mac, orders lunch safely, then meets Flashback on a recipe site.
+# The victim is invented: Flashback hit ordinary Mac users on ordinary websites, not one profession.
+os macos
+user Dana Okafor
+about
+  | Flashback first posed as a Flash Player installer that asked for the Mac's admin password. In 2012 it used an unpatched Java flaw on hacked websites, so visiting a page was enough.
+  | More than 600,000 Macs ran it. It hid in the browsers and rerouted clicks on search results through advertisers, who paid for each one. Dana's office job is invented: the real victims were ordinary Mac users.
+story
+  | You are Dana Okafor, office coordinator at Northwind Traders, working on your {PC|Mac}. On Friday the team has its offsite, and you are booking everything for it.
+  | It is mid-morning. You have finished 3 of today's 5 offsite jobs. Two to go: lunch, then a dessert for the bake-off.
+  | The logins you need are in text files on the desktop. That is a bad habit, but it keeps this training quick.
+quota 3 5 Offsite jobs done today
+
+# Dana's desk: the details she copies from (soft flag: careless, but only here to keep the training simple).
+file Desktop/harbor-login.txt
+  at 930 200
+  | Harbor Kitchen team orders
+  | Email: dana.okafor@northwind.example
+  | Password: Lunch-2026!
+
+# Job 4, the safe one: a caterer found through a search, ordered through its own site.
+page harbor-done harborkitchen.example/team-orders/done
+  title Order placed
+  brand Harbor Kitchen
+  heading Order placed
+  | Team lunch for 12, Friday 13 November: sandwich platters and salads, 186.00. A receipt is on its way.
+page harbor-cancelled harborkitchen.example/team-orders/cancelled
+  title Order cancelled
+  brand Harbor Kitchen
+  heading Order cancelled
+  | Nothing was ordered.
+page harbor-login harborkitchen.example/sign-in
+  title Harbor Kitchen: sign in
+  brand Harbor Kitchen
+  heading Sign in to team orders
+  | Welcome back. Sign in to order for your team.
+  field Email = dana.okafor@northwind.example
+  field secret Password = Lunch-2026!
+  button Sign in
+page harbor-order harborkitchen.example/team-orders/new
+  title Team lunch order
+  brand Harbor Kitchen
+  requires harbor-login
+  heading Team lunch order
+  | Check the order, then place it.
+  section Your order
+  row For = 12 people, Friday 13 November
+  row Menu = Sandwich platters and salads
+  row Total = 186.00
+  row Pay with = the company card on file
+  button Place order -> harbor-done
+  button Cancel -> harbor-cancelled
+page greenleaf greenleaf-catering.example/menus
+  title Greenleaf Catering
+  brand Greenleaf Catering
+  heading Greenleaf Catering
+  | Hot lunches for groups of 20 or more.
+page search-lunch findit.example/search?q=team+lunch+caterer
+  title findit: team lunch caterer
+  brand findit
+  favorite
+  heading Search: team lunch caterer
+  | 2 results for "team lunch caterer"
+  button Harbor Kitchen: team lunches (harborkitchen.example) -> harbor-order
+  button Greenleaf Catering (greenleaf-catering.example) -> greenleaf
+mail mail-lunch
+  from Priya Shah <priya.shah@northwind.example>
+  subject Friday lunch: can you book a caterer?
+  link search-lunch
+  | Hi Dana,
+  |
+  | Lunch for 12 on Friday, please. I searched for caterers and the first one looked fine. The link shows the same results.
+  |
+  | Priya
+notify mail Priya Shah
+  | Friday lunch: can you book a caterer?
+
+step Job 4 of 5: lunch
+  look the two results: each shows the site it leads to
+  when visit search-lunch
+  move Click the first result, Harbor Kitchen.
+  | Priya's message asks you to book lunch for 12. This job is real: do it the normal way, so you know what normal looks like.
+  | Its link opens a search for caterers. Each result names the site it goes to. Hover over a link before you click it, to check where it goes.
+open search-lunch
+
+step Sign in as usual
+  look the two boxes: Email and Password
+  when choose search-lunch 1
+  move Open harbor-login.txt on the desktop and copy the details: click a box and press any keys to type, then click “Sign in”.
+  | Harbor Kitchen's own address, harborkitchen.example, asks you to sign in first. Two boxes. Nothing on this site asks you to install anything.
+open harbor-order
+
+step Check, then order
+  look the order: people, day and total
+  when choose harbor-login 1
+  | You are in. Check the details against Priya's message, then place the order.
+signin harbor-login
+
+step Lunch is booked
+  look the counter in the guide: one job left
+  when choose harbor-order any
+  | Lunch is booked. One job to go. And another message from Priya has just arrived.
+choose harbor-order 1
+quota +1
+
+# The lure: a recipe site that says its video needs a Flash Player, and offers the installer itself.
+page recipes recipes-daily.example/desserts/lemon-tart-video
+  title Lemon tart (video) | Recipes Daily
+  brand Recipes Daily
+  heading Lemon tart for a crowd
+  | Serves 16. The video shows each step.
+  section Video plug-in
+  note To play this recipe video you need the latest Flash Player.
+  button Install Flash Player
+  button Not now
+view flashback-installer wizard
+  title Install Flash Player (training copy)
+  app Installer
+  publisher Example Media Tools
+  page Introduction
+  icon program
+  | Welcome to the Flash Player installer. It adds the plug-in that plays videos in your browser.
+  button Continue -> next primary
+  button Cancel -> close
+  page Install
+  icon gear
+  | Click Install to put the plug-in on this computer for all users. This will take a few seconds.
+  button Go Back -> back
+  button Install -> next primary
+  button Cancel -> close
+  page Summary
+  icon program
+  | The installation was successful.
+  button Close -> done primary
+program flashback Install Flash Player.pkg
+  publisher none
+  signed no
+  prompt open-warning
+  prompt elevation
+  description Flash Player installer
+  startup com.java.update.plist ~/.jupdate
+  location ~/Library/LaunchAgents
+  view flashback-installer
+mail mail-recipe
+  from Priya Shah <priya.shah@northwind.example>
+  subject A dessert for the bake-off (video)
+  link recipes
+  | Dana,
+  |
+  | For the bake-off I found a lemon tart that feeds a crowd. There is a video on the page that shows how it is done.
+  |
+  | Priya
+notify mail Priya Shah
+  | A dessert for the bake-off (video)
+
+step Job 5 of 5: a dessert
+  look Mail: Priya's message about the bake-off
+  when mail mail-recipe
+  | Priya found a recipe for the bake-off, with a video. She sent the link by mail, as before.
+open mail-recipe
+
+step The video needs a plug-in
+  look the recipe page: what does it say before the video plays?
+  when visit recipes
+  move Click “Install Flash Player” to watch the video.
+  | The page is a real recipe site, but it says its video needs the latest Flash Player, and it offers the installer itself. The caterer's site asked for nothing like it.
+open recipes
+
+step The installer is downloaded
+  look Downloads: Install Flash Player.pkg
+  when choose recipes 1
+  move Double-click Install Flash Player.pkg in Downloads.
+  | The browser saves Install Flash Player.pkg in Downloads. The name is the plug-in's, but the recipe site offered the file, not the plug-in's maker.
+file Downloads/Install Flash Player.pkg
+  program flashback
+  size 2097152
+open Downloads
+
+step The warning and the password
+  look the warning: who published the file, and what the installer asks for next
+  when prompt flashback
+  move Click {Run|Open} in the warning, then {Yes|OK} at the prompt.
+  | The warning says {Unknown Publisher|the developer is unidentified}. A real installer is signed, so it names its maker. This one does not.
+  | Then it asks for administrator permission to change the whole computer. A real Flash installer asked too, so most victims said yes. Flashback did not need it: it installs in your own folders anyway.
+open Downloads/Install Flash Player.pkg
+
+step The installer runs
+  look the installer window, and the start-up chip “starts with the {PC|Mac}” under this step
+  when run flashback
+  cue view-btn:next view-btn:done view:flashback-installer
+  move Click through the installer: Continue, Install, Close.
+  | The installer window looks ordinary, and the plug-in Dana wanted is never installed.
+  | Flashback had already added a start-up item, com.java.update.plist, that starts it at every login. Its helper file starts with a dot, so it is hidden.
+answer run
+answer run
+
+step The installer says it worked
+  look the start-up chip “starts with the {PC|Mac}”: it opens the start-up list
+  when done flashback-installer
+  | The installer says it worked and closes. Nothing new shows on the desktop, but Flashback is in place.
+file Home/.jupdate
+  hidden
+  size 41984
+update Java security update
+  kb Flashback fix
+  size 63 MB
+  status available
+page lemon-tart bakers-bench.example/lemon-tart
+  title Lemon tart for a crowd
+  brand Baker's Bench
+  heading Lemon tart for a crowd
+  | Serves 16. Press the pastry into the tin, bake blind for 15 minutes, then fill with the lemon custard.
+page ad-click adrouter.invalid/click?pub=3381&to=lemon-tart
+  title Bake Supply Outlet: cake tins 40% off
+  brand Bake Supply Outlet
+  heading Bake Supply Outlet
+  | Sponsored. Cake tins and baking sets, 40% off today only.
+  button Continue to the recipe -> lemon-tart
+page search-dessert findit.example/search?q=lemon+tart+for+a+crowd
+  title findit: lemon tart for a crowd
+  brand findit
+  favorite
+  heading Search: lemon tart for a crowd
+  | 2 results for "lemon tart for a crowd"
+  section Sponsored results
+  tone injected
+  item Cake tins and baking sets, 40% off: bakesupply.example
+  item Bake a tart in 10 minutes, no oven: quickbake-deals.example
+  button Lemon tart for a crowd (bakers-bench.example) -> ad-click
+  button Mini lemon tarts (partybakes.example) -> ad-click
+mail mail-dessert
+  from Priya Shah <priya.shah@northwind.example>
+  subject Last one: the bake-off recipe
+  link search-dessert
+  | Dana,
+  |
+  | Forget the video. This search should find the same tart. Pick one and send me the page.
+  |
+  | Priya
+notify mail Priya Shah
+  | Last one: the bake-off recipe
+
+step Not the page from the morning
+  look the search results: compare them with the lunch search
+  when visit search-dessert
+  move Click the first result, the lemon tart.
+  | The lunch search had two plain results. This one has a block of adverts above them that the lunch search did not have.
+open search-dessert
+
+step A click that took a detour
+  look the address bar: it is not the recipe site
+  when choose search-dessert any
+  move Click “Continue to the recipe” to carry on.
+  | You clicked a recipe, but the page is an advertiser's, at adrouter.invalid. Flashback sends each click on a search result through an advertising address first. The advertiser pays the attackers for the click.
+open ad-click
+
+step 5 of 5, or so Dana thinks
+  look the counter in the guide: the day's jobs are done
+  when choose ad-click 1
+  | The recipe opens and the page looks right. Nothing on the screen says anything is wrong. Press Next to see what Flashback has done.
+open lemon-tart
+quota +1
+
+step What Flashback did
+  look the animation: one {PC|Mac} in a crowd of 600,000
+  | Every search click on this {PC|Mac} now earns the attackers money. It is one of more than 600,000 that Flashback joined into one network.
+  | Later versions needed no installer at all: a hacked page and an out-of-date Java were enough. The fix is an update, in {Windows Update|Software Update}.
+attack spyware-surveillance
+  | search clicks sold to advertisers
+  | one machine joins a network of 600,000
+  | the owner sees nothing wrong
+block 203.0.113.40 80
+open updates
+
+flag hard section recipes 1
+  | A recipe page that asks you to install a plug-in before its video plays, and offers the installer itself. The caterer's site asked for nothing like it.
+flag hard file Downloads/Install Flash Player.pkg
+  | An installer offered by a recipe page, not by the plug-in's maker.
+flag hard dialog open-warning flashback
+  | The warning says {Unknown Publisher|the developer is unidentified}: a real installer is signed, so it names its maker.
+flag hard dialog elevation flashback
+  | An installer a web page offered, from an unknown developer, asking for full control of the computer.
+flag hard startup com.java.update.plist
+  | A “Java update” that starts at every login, installed by a Flash installer. Flashback added it.
+flag hard page ad-click
+  | A click on a search result led to an advertiser's address first. This is how Flashback was paid.
+flag soft file Desktop/harbor-login.txt
+  | A password in a text file on the desktop: any program that runs can read it. Use a password manager.
+
+lesson
+  | A web page that asks you to install a plug-in is not the plug-in's maker. Get plug-ins and updates from the maker, through {Windows Update|Software Update} or its own site, never from a page that asks.
+  | Flash is retired and no real page needs it. An installer a web page offered, from an unknown developer, that asks for administrator permission is a warning sign.
+  | Keep the computer, the browser and Java up to date, or remove Java if you do not need it. If search results change, or a click goes through another address, check the start-up list in {Startup apps|Login Items}.

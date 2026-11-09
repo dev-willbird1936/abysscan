@@ -41,7 +41,6 @@ const CHECKED_SOURCES = [
   'data/ocean-taxonomy.json',
   'data/ocean-menu-taxonomy.json',
   'tools/build-ocean-taxonomy.mjs',
-  'tools/retrodiffusion-family-depth-study.py',
   'docs/ocean-taxonomy.md',
   'docs/ocean-menu-taxonomy.md',
   'docs/VISION.md',

@@ -1,5 +1,7 @@
 // Detonation HTTP routes (docs/SPEC.md 4.2, 15.4). `handle` returns true when it answered the request, so server.mjs can
-// dispatch to it before its own routes. An upload reserves a slot (global and per-address caps) before its body is read, is
+// dispatch to it before its own routes. Public file upload is retired (the site searches known threats instead): POST /api/jobs
+// answers 410 unless DETONATION_UPLOADS=true (or `uploadsEnabled`, for tests), and /api/health then reports acceptingJobs:false.
+// When enabled, an upload reserves a slot (global and per-address caps) before its body is read, is
 // streamed to a temp file under a deadline with the size cap enforced as it arrives, and is parsed from that file without
 // dependencies; the job controller gets the byte range of the file part and streams it into its encrypted copy, so the upload
 // is never one buffer. The controller deletes the temp file once the job is accepted.
@@ -143,12 +145,13 @@ export async function parseMultipartFile(handle, size, boundary) {
 
 /**
  * `controller` defaults to a job controller built on first use from `env`; with DETONATION_ENABLED=true it is built
- * and started at once. `maxUploadBytes`, `maxConcurrentUploads`, `bodyDeadlineMs` and `uploadDir` (temp files of uploads
+ * and started at once. `uploadsEnabled` (default: DETONATION_UPLOADS=true) turns POST /api/jobs back on; otherwise it answers 410.
+ * `maxUploadBytes`, `maxConcurrentUploads`, `bodyDeadlineMs` and `uploadDir` (temp files of uploads
  * being received; default `<data dir>/uploads`, emptied when first used) are injectable for tests.
  */
 export function createDetonationRoutes({
   env = process.env, controller: provided, maxUploadBytes = MAX_UPLOAD_BYTES, maxConcurrentUploads = MAX_CONCURRENT_UPLOADS, bodyDeadlineMs = BODY_DEADLINE_MS,
-  publicOrigin: fixedOrigin, uploadDir: fixedUploadDir, ...controllerOptions
+  publicOrigin: fixedOrigin, uploadDir: fixedUploadDir, uploadsEnabled = env.DETONATION_UPLOADS === 'true', ...controllerOptions
 } = {}) {
   const uploadDir = fixedUploadDir ?? join(controllerOptions.dataDir || env.DETONATION_DATA_DIR || '/var/lib/detonation-ocean', 'uploads');
   let controller = provided;
@@ -260,12 +263,13 @@ export function createDetonationRoutes({
     const match = ROUTE_RE.exec(pathname);
     const name = pathname === '/api/jobs' ? 'create' : match ? 'job' : pathname === '/api/ocean' ? 'ocean' : pathname === '/api/health' && env.DETONATION_ENABLED === 'true' ? 'health' : null;
     if (!name) return false;
+    if (name === 'create' && !uploadsEnabled) { sendEarly(response, 410, 'File upload has been retired. Search a known threat instead.'); return true; }
     const post = name === 'create';
     if (!originAllowed(request, publicOrigin, post)) { sendEarly(response, 403, 'Trusted application origin required.'); return true; }
     if (request.method !== (post ? 'POST' : 'GET')) { sendEarly(response, 405, 'Method not allowed.', { Allow: post ? 'POST' : 'GET' }); return true; }
     if (post) { await createJob(request, response); return true; }
     if (name === 'ocean') { sendJson(response, 200, getController().oceanView()); return true; }
-    if (name === 'health') { sendJson(response, 200, { ok: true, buildId, ...getController().health() }); return true; }
+    if (name === 'health') { sendJson(response, 200, { ok: true, buildId, ...getController().health(), ...(uploadsEnabled ? {} : { acceptingJobs: false }) }); return true; }
     const jobs = getController();
     const token = bearerToken(request);
     const job = jobs.getJob(match[1]);

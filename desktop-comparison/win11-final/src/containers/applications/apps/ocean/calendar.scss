@@ -1,0 +1,138 @@
+.cl-app {
+  .cl-side {
+    width: 220px;
+  }
+  .cl-new {
+    margin: 4px 4px 8px;
+    height: 34px;
+  }
+  .cl-none {
+    padding: 4px 10px 8px;
+  }
+  .cl-agenda {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    border-radius: 5px;
+    flex-shrink: 0;
+
+    &:hover {
+      background: var(--oc-hover);
+    }
+  }
+  .cl-bar {
+    width: 4px;
+    align-self: stretch;
+    border-radius: 2px;
+    background: var(--oc-accent);
+  }
+  .cl-date {
+    width: 36px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 10px;
+    color: var(--oc-accent);
+    text-transform: uppercase;
+    b {
+      font-size: 16px;
+      color: var(--oc-text);
+      line-height: 1;
+    }
+  }
+  .cl-main {
+    background: var(--oc-card);
+  }
+  .cl-head {
+    gap: 4px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--oc-stroke);
+    .oc-h2 {
+      margin-left: 8px;
+    }
+  }
+  .cl-dow {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    div {
+      padding: 6px 8px;
+      font-size: 12px;
+      color: var(--oc-text2);
+    }
+  }
+  .cl-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-template-rows: repeat(6, minmax(0, 1fr));
+    border-top: 1px solid var(--oc-stroke);
+  }
+  .cl-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 4px 5px;
+    min-height: 0;
+    overflow: hidden;
+    border-right: 1px solid var(--oc-stroke);
+    border-bottom: 1px solid var(--oc-stroke);
+
+    &:hover {
+      background: var(--oc-hover);
+    }
+    &[data-out="true"] {
+      background: var(--oc-bg);
+      .cl-num {
+        color: var(--oc-text3);
+      }
+    }
+    &[data-sel="true"] {
+      box-shadow: inset 0 0 0 2px var(--oc-accent);
+    }
+  }
+  .cl-num {
+    font-size: 12px;
+    align-self: flex-start;
+    padding: 0 5px;
+    border-radius: 10px;
+    &[data-today="true"] {
+      background: var(--oc-accent);
+      color: var(--oc-on-accent);
+      font-weight: 600;
+    }
+  }
+  .cl-chip {
+    font-size: 11px;
+    padding: 1px 6px;
+    border-radius: 3px;
+    border-left: 3px solid var(--oc-accent);
+    background: color-mix(in srgb, var(--oc-accent) 16%, transparent);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &[data-invite="true"] {
+      border-left-style: dashed;
+      background: transparent;
+      outline: 1px dashed var(--oc-accent);
+    }
+  }
+}
+
+@container (max-width: 640px) {
+  .cl-app .cl-side {
+    width: 170px;
+  }
+}
+
+.oc-dialog .cl-notes,
+.cl-app .cl-notes {
+  width: 100%;
+  min-height: 72px;
+  margin-top: 10px;
+  resize: vertical;
+}
+.oc-dialog .cl-allday {
+  gap: 6px;
+  font-size: 13px;
+}

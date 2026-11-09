@@ -1,0 +1,407 @@
+# Sophos updater (September 2012). A bad definition update made an antivirus flag its own updater as malware ("Shh/Updater-B"). Shown here with a fictional vendor, Harbor Shield.
+# A quest (QUESTS.md): the trainee releases the day's delivery runs at a dispatch desk, does one run safely, then the antivirus on the PC
+# flags its own update programs, a colleague begs for Remove, and a stranger's email offers a "repair tool". There is no malware in the
+# alert: the quest is about not overreacting (not removing the antivirus's own signed files because an alert says so) and about not
+# trusting a "fix" that arrives by email. The company, the people, the dispatch desk and the antivirus vendor are made up.
+os windows
+user Dana Okafor
+about
+  | In September 2012 a faulty definition update for Sophos antivirus matched the product's own update programs, and some other companies' updaters, and called them malware (it named the threat "Shh/Updater-B"). Antivirus on many PCs quarantined or deleted them, so it could no longer fetch the fixed update.
+  | Nothing malicious was running. The harm came from the false alarm, and crooks often post fake "fixes" during antivirus mishaps like this. Here the product is a fictional one called Harbor Shield. The company, the people and the dispatch desk are made up.
+story
+  | You are Dana Okafor, dispatch coordinator at Northwind Traders. Each morning the warehouse loads the delivery vans, and you release each van's run to the loading dock in the company's dispatch portal once the load is checked.
+  | It is mid-morning. You have released 8 of today's 10 runs. Two to go. Harbor Shield, the antivirus on every PC in the office, updates itself several times a day.
+  | Your dispatch sign-in details are in a text file on the desktop. That is a bad habit, but it keeps this training quick.
+  | Flag what looks wrong, and what tells you the alert is false.
+quota 8 10 Delivery runs released today
+spotted reasons not to panic or trust a fake fix
+
+# Dana's desk: the details she copies from (a soft flag: careless, but only here to keep the training simple).
+file Desktop/dispatch-login.txt
+  at 930 200
+  | Northwind Dispatch Desk
+  | Staff ID: dana.okafor
+  | Password: Route-2026!
+
+# Harbor Shield's own program folder, in Dana's profile: the desktop shows every drive path under C:\Users, so it lives there.
+folder Home/AppData
+folder Home/AppData/Local
+folder Home/AppData/Local/Programs
+folder Home/AppData/Local/Programs/Harbor Shield
+
+# What the "programs" are: the antivirus's own signed update files, which its new definitions wrongly flag. Opening one raises the detection.
+program hs-updater Harbor Shield Updater
+  publisher Harbor Shield Software
+  signed yes
+  description Harbor Shield update component
+  detected Shh/Updater-B (training label)
+program hs-agent Harbor Shield Update Agent
+  publisher Harbor Shield Software
+  signed yes
+  description Harbor Shield background update agent
+  detected Shh/Updater-B (training label)
+file Home/AppData/Local/Programs/Harbor Shield/hs-updater.exe
+  program hs-updater
+  size 912384
+file Home/AppData/Local/Programs/Harbor Shield/hs-update-agent.exe
+  program hs-agent
+  size 655360
+
+# Yesterday's definitions, so Software Update shows what a normal one looks like.
+update Harbor Shield definitions 12.4.1
+  kb HS-12.4.1
+  size 3 MB
+  status installed
+
+# Harbor Shield's own alert: Remove is the button it recommends, and the one that breaks its updating.
+view hs-removed panel
+  title A PC that pressed Remove
+  app Harbor Shield
+  publisher Harbor Shield Software
+  icon error
+  heading Harbor Shield could not check for updates
+  | The update component is missing.
+  section What this PC shows now
+  tone bad
+  row Update component = Missing (hs-updater.exe was removed)
+  row Update agent = Missing (hs-update-agent.exe was removed)
+  row Definitions = Stuck at 12.4.2, the faulty list
+  row Fix = A repair from the vendor, because the PC cannot fetch it alone
+  button Close training view -> done primary
+view hs-alert panel
+  title Harbor Shield: threats found
+  app Harbor Shield
+  publisher Harbor Shield Software
+  icon shield-bad
+  heading 2 threats found: Shh/Updater-B
+  | Harbor Shield found 2 threats in its own program folder. Remove them now to keep your PC safe.
+  section What Harbor Shield found
+  columns File | Threat | Action
+  cells hs-updater.exe | Shh/Updater-B | Remove
+  cells hs-update-agent.exe | Shh/Updater-B | Remove
+  section Details
+  row Found by = Scheduled scan, definitions 12.4.2
+  row Recommended = Remove both files
+  button Remove both (recommended) -> view:hs-removed primary
+  button Keep the files -> done
+
+# The vendor's own notice, with the corrected definitions.
+page hs-fixed support.harborshield.example/notice/12-4-2/fixed
+  title Harbor Shield support: definitions 12.4.3 installed
+  brand Harbor Shield
+  heading Definitions 12.4.3 installed
+  | Harbor Shield fetched definitions 12.4.3 from its own update server. The false alarm has stopped. Your Harbor Shield files were never touched, and your PC was never in danger.
+page hs-notice support.harborshield.example/notice/12-4-2
+  title Harbor Shield: definitions 12.4.2 were wrong
+  brand Harbor Shield
+  heading Definitions 12.4.2 were wrong: what to do
+  | A faulty definition update wrongly flagged our own update files as Shh/Updater-B. It was a false alarm. Corrected definitions, 12.4.3, are out now.
+  section What went wrong
+  row Update = Definitions 12.4.2
+  row Wrongly flagged = hs-updater.exe and hs-update-agent.exe, Harbor Shield's own files
+  row Threat named = Shh/Updater-B (no such threat is on your PC)
+  row Fix = Definitions 12.4.3, out now
+  note The faulty list was withdrawn within hours. The files were clean all along.
+  section If you have not removed them
+  tone good
+  item Do nothing.
+  item Update Harbor Shield now, and the alert will stop.
+  section If you already removed them
+  tone warn
+  item Harbor Shield cannot update itself, so it cannot fetch the fix alone.
+  item Restore both files from Quarantine, or ask IT to reinstall the update component. Then update Harbor Shield.
+  item We never send a repair tool by email. Do not run one.
+  button Update Harbor Shield now -> hs-fixed
+
+# The dispatch desk: a sign-in page, and the runs behind it.
+page dispatch-login dispatch.northwind.example/runs/sign-in
+  title Northwind Dispatch: sign in
+  brand Northwind Dispatch
+  favorite
+  heading Sign in to the Dispatch Desk
+  | Welcome back. Sign in to release delivery runs.
+  field Staff ID = dana.okafor
+  field secret Password = Route-2026!
+  button Sign in
+page run9-sent dispatch.northwind.example/runs/R-309/released
+  title Run released
+  brand Northwind Dispatch
+  heading Run R-309 released
+  | The North route is on the loading dock list. Van NT-04 leaves at 11:30.
+page run9-held dispatch.northwind.example/runs/R-309/held
+  title Run held
+  brand Northwind Dispatch
+  heading Run R-309 held
+  | Nothing was released. Tom in the warehouse is told.
+page run-9 dispatch.northwind.example/runs/R-309
+  title Run R-309: waiting for release
+  brand Northwind Dispatch
+  requires dispatch-login
+  heading Run R-309: waiting for release
+  | A loaded van is waiting for you to release it.
+  section Run
+  row Route = North route, 14 stops
+  row Van = NT-04, driver Lena Park
+  row Parcels = 62, scanned at the dock
+  row Loaded by = Tom Reyes, warehouse
+  button Release to the dock -> run9-sent
+  button Hold and ask Tom -> run9-held
+
+mail mail-run9
+  from Priya Shah <priya.shah@northwind.example>
+  subject Run R-309 to release (North route)
+  sent 2026-11-02 10:04
+  link run-9
+  | Hi Dana,
+  |
+  | Tom has loaded van NT-04 for the North route and the parcels are scanned. The run is ready for you to release. The link opens it in the dispatch desk.
+  |
+  | Priya
+
+step Run 9 of 10
+  look Mail: Priya's message with the run link
+  | A new run has come in from Priya, in dispatch. It is routine. Release it the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Run R-309 to release (North route)
+
+step The link goes to the dispatch desk
+  look the link under Priya's message
+  when mail mail-run9
+  | The email links to the company's own address, dispatch.northwind.example. Hover over a link before you click it, to check where it goes.
+open mail-run9
+
+step Sign in as usual
+  look the two boxes: Staff ID and Password, as on every visit
+  when visit run-9
+  move Copy the details from dispatch-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The dispatch desk asks you to sign in first. Two boxes: Staff ID and Password. Remember what a normal morning looks like.
+open run-9
+
+step Check, then release
+  look the Run box: the route, the van, the parcels and who loaded it
+  when choose dispatch-login 1
+  | You are in. Check the route and the van against Priya's message, then release the run or hold it.
+signin dispatch-login
+
+# The lure: an update that lands quietly, then an alert about the antivirus's own files, and a colleague who has already given in.
+mail sam-urgent
+  from Sam Patel <sam.patel@northwind.example>
+  subject URGENT!! Harbor Shield says a VIRUS is in its updater - REMOVE IT NOW
+  sent 2026-11-02 10:31
+  | Dana, Harbor Shield just flagged two of its OWN files as Shh/Updater-B and says to remove them. A virus must have got into the updater!!
+  |
+  | I have clicked Remove on both. Do it too, before it spreads to the shared drive!
+  |
+  | Sam
+
+step 9 of 10 done
+  look the counter in the guide: one run left; and the banners: definitions updated, 2 threats found
+  when choose run-9 any
+  | Done. One run to go. In the background Harbor Shield has installed its usual definition update. Nothing looked different until now.
+  | At once Harbor Shield says it found 2 threats, both named Shh/Updater-B, and recommends Remove. Its alert is open behind your mail. A message from Sam has just arrived. Do not press anything yet.
+choose run-9 1
+quota +1
+update Harbor Shield definitions 12.4.2
+  kb HS-12.4.2
+  size 3 MB
+  status installed
+notify settings Harbor Shield definitions updated
+  | Your protection is up to date.
+notify settings 2 threats found: Shh/Updater-B
+  | In Harbor Shield's own program folder. Recommended action: remove.
+show hs-alert
+notify mail Sam Patel
+  | URGENT!! Harbor Shield says a VIRUS is in its updater - REMOVE IT NOW
+
+step Sam says remove it
+  look the capitals in the subject, and what Sam has done before he has checked anything
+  when mail sam-urgent
+  move Open your files (File Explorer, or Finder on a Mac), so you can look at the files the alert names.
+  | Sam, at the next desk, got the same alert. He writes in capitals and in a hurry, and he has already clicked Remove. He has not asked IT, or checked what the files are. He wants you to follow.
+  | A scare with a deadline is how a false alarm does its harm. Before you press Remove, find out what the files are. Flag what looks wrong, and what tells you the alert is false.
+open sam-urgent
+
+step Check what the file is
+  look the Properties box: Publisher "Harbor Shield Software", a valid signature, and the Harbor Shield folder it is in
+  when open files
+  cue dialog-btn:ok view-btn:done view:hs-alert
+  move Click OK in the Properties box. Then, in the Harbor Shield alert, click “Keep the files”.
+  | The folder the alert names is open now: Harbor Shield's own program folder. The two flagged files are its update component and its update agent.
+  | In Properties the file is from Harbor Shield Software, the same company that made the antivirus, with a valid digital signature. A virus would not normally carry the antivirus vendor's own signature, so the alert is more likely wrong than right.
+  | The alert is still waiting for your answer. Read the Properties box and click OK.
+open Home/AppData/Local/Programs/Harbor Shield
+show hs-alert
+dialog properties Home/AppData/Local/Programs/Harbor Shield/hs-updater.exe
+
+step Keep the files
+  look Sam's PC: Harbor Shield could not check for updates, the update component is missing
+  when done hs-alert
+  move Press “Close training view” when you have read what Sam's PC shows.
+  | Whichever you pressed, here is what Remove does. Sam pressed it; this is his screen.
+  | Harbor Shield has deleted its own update programs, so it cannot even fetch the fix. If you kept the files, Harbor Shield runs as before: on a real PC you would now ask IT.
+show hs-removed
+close files
+
+# A stranger's "fix" arrives with IT's real message. The first one is the dangerous one.
+step A stranger's fix
+  look the sender's address, harborshield-help.invalid, and the program attached to the message
+  when done hs-removed
+  move Marcus's message from IT is in the inbox too. Click it.
+  | Sam's PC is stuck, and a message has come to everyone offering a fix. It claims to be from Harbor Shield, but the address is not the vendor's, it attaches a program, and it tells you to switch off your antivirus first.
+  | Crooks send these during any antivirus mishap. Flag what looks wrong, and what tells you the alert is false. Then find the message from IT.
+mail fix-scam
+  from Harbor Shield Support <support@harborshield-help.invalid>
+  subject URGENT: your Harbor Shield is broken. Run the attached repair tool
+  sent 2026-11-02 10:44
+  attach Downloads/HarborShield-Repair.exe
+  | Dear user,
+  |
+  | Faulty definitions have broken your protection. To restore it, switch off your antivirus, then run the attached repair tool at once. Do not wait for IT.
+  |
+  | Harbor Shield Support Team
+mail it
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Faulty Harbor Shield update: do NOT remove its files
+  sent 2026-11-02 10:52
+  link hs-notice
+  | Hi all,
+  |
+  | This morning's Harbor Shield update wrongly flags its own update files as Shh/Updater-B. It is a false alarm. Sam removed the files and his PC can no longer update; I am restoring it now.
+  |
+  | Please do not remove anything Harbor Shield flags, and do not run any "repair tool" that comes by email. The vendor's page below names the problem and the fix.
+  |
+  | Marcus, IT
+notify mail Harbor Shield Support
+  | URGENT: your Harbor Shield is broken. Run the attached repair tool
+notify mail Marcus Lee
+  | Faulty Harbor Shield update: do NOT remove its files
+open fix-scam
+
+step IT answers
+  look the sender, Marcus in IT, and the link: it goes to the vendor's own address, support.harborshield.example
+  when mail it
+  move Click the link in Marcus's message to read the vendor's page.
+  | Marcus says the update was faulty and tells everyone to leave the files alone and not to run any repair tool from email. His link goes to the vendor's own address, not to a download.
+  | Flag what tells you the alert was false: a faulty update, and genuine files that nobody should remove.
+open it
+
+step The vendor's page
+  look the three boxes: what went wrong, if you have not removed them, and if you already did
+  when visit hs-notice
+  move Read the three boxes, then click “Update Harbor Shield now”.
+  | The page names the update, the files it got wrong and the fix. It has a box for people who have not removed the files, and one for people who already did.
+  | If you kept the files, you are in the first group: leave them alone and update Harbor Shield. Flag what tells you the alert was false: the vendor's own words.
+open hs-notice
+
+# Back to work: the last run, and a dispatch desk that has not changed.
+page run10-sent dispatch.northwind.example/runs/R-310/released
+  title Run released
+  brand Northwind Dispatch
+  heading Run R-310 released
+  | The South route is on the loading dock list. Van NT-07 leaves at 12:15.
+page run10-held dispatch.northwind.example/runs/R-310/held
+  title Run held
+  brand Northwind Dispatch
+  heading Run R-310 held
+  | Nothing was released. Tom in the warehouse is told.
+page run-10 dispatch.northwind.example/runs/R-310
+  title Run R-310: waiting for release
+  brand Northwind Dispatch
+  requires dispatch-login
+  heading Run R-310: waiting for release
+  | A loaded van is waiting for you to release it.
+  section Run
+  row Route = South route, 9 stops
+  row Van = NT-07, driver Omar Reyes
+  row Parcels = 41, scanned at the dock
+  row Loaded by = Tom Reyes, warehouse
+  button Release to the dock -> run10-sent
+  button Hold and ask Tom -> run10-held
+mail mail-run10
+  from Priya Shah <priya.shah@northwind.example>
+  subject Last one: run R-310 (South route)
+  sent 2026-11-02 11:10
+  link run-10
+  | Dana,
+  |
+  | Thanks for checking with IT before you touched anything. The last van is loaded and scanned. The link opens the run in the dispatch desk.
+  |
+  | Priya
+
+step Install the corrected definitions
+  look the confirmation page, and the banners: definitions 12.4.3 installed, and Priya's last run
+  when choose hs-notice 1
+  move Open Priya's last message in Mail and click its link.
+  | Updating Harbor Shield stops the alert for good. Your protection never went off, because Harbor Shield's files were left alone.
+  | The work does not stop for it. Priya has sent the last run.
+choose hs-notice 1
+update Harbor Shield definitions 12.4.3
+  kb HS-12.4.3
+  size 3 MB
+  status installed
+notify settings Harbor Shield definitions 12.4.3 installed
+  | The corrected definitions are installed. The update files are no longer flagged.
+notify mail Priya Shah
+  | Last one: run R-310 (South route)
+
+step Back to work
+  look Mail: Priya's last message, then the Run box on the page: the same rows as run 9
+  when visit run-10
+  move Check the route and the van, then click “Release to the dock”.
+  | Priya's last run, with a real link to the dispatch desk. You are still signed in, and the page looks just as it did for run 9.
+  | Nothing has been added to it, because nothing was ever wrong with this PC. Check the route and the van, then release the run.
+open run-10
+
+step 10 of 10 done
+  look the counter in the guide: the shift is done
+  when choose run-10 any
+  | Every run is released and your PC works as it always did. Press Next to see what one wrong update cost.
+choose run-10 1
+quota +1
+
+step What the false alarm cost
+  look the animation: a scare with no virus behind it
+  | No virus touched a single PC. The harm came from the alert, and from what people did next: antivirus that could no longer update, calls to IT, and a "repair tool" that was the real malware.
+  | Sam's PC is back after Marcus restored the files. Yours never stopped, because you looked at the file and at the sender before you pressed anything.
+attack scareware
+  | one wrong definition update
+  | the antivirus's own updater called a threat
+  | Sam pressed Remove: no more updates
+  | you kept the files: protection never stopped
+  | a stranger's "repair tool" was the real danger
+mail helpdesk
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Helpdesk: 17 PCs, one wrong update
+  sent 2026-11-02 11:50
+  | So far this morning the service desk has taken 17 calls about the Harbor Shield alert. No PC had a virus. Eleven people had removed the update files, and we restored those PCs.
+  |
+  | Two people also ran a "repair tool" from an email, and we are re-imaging those PCs. Please call us before you remove or run anything an alert or an email tells you to.
+  |
+  | Marcus, IT
+notify mail Marcus Lee
+  | Helpdesk: 17 PCs, one wrong update
+open helpdesk
+
+flag hard notice settings 2 threats found
+  | Two "threats" named at once, in the antivirus's own program folder, a moment after an update. That points to a bad update, not an infection.
+flag hard notice settings Harbor Shield definitions updated
+  | The threats appeared right after a definition update: the update is the likeliest cause.
+flag hard mail sam-urgent
+  | A colleague in capitals, telling you to remove files before anyone has checked them. Fear is not a source.
+flag hard dialog properties hs-updater
+  | Published and signed by Harbor Shield Software, the antivirus's own maker. A virus would not normally carry the antivirus vendor's signature.
+flag hard mail fix-scam
+  | A "fix" from an address that is not the vendor's, with a program attached, telling you to switch off your antivirus. A real vendor does none of these.
+flag hard file Downloads/HarborShield-Repair.exe
+  | A program that arrived by email, offered as a repair. This is what crooks post during any antivirus mishap: it is the real malware.
+flag hard mail it
+  | IT says the update was faulty, the files are genuine and nothing should be removed or run. News about a fault comes from IT or from the vendor.
+flag hard section hs-notice 1
+  | The vendor itself says definitions 12.4.2 wrongly flagged its own files, and that they were clean all along.
+flag soft file Desktop/dispatch-login.txt
+  | Passwords in a text file on the desktop: any program that runs can read them. Use a password manager.
+
+lesson
+  | A security tool can make mistakes, even flag its own files. Two alerts about the antivirus's own folder, right after an update, are a sign to pause and not to press Remove.
+  | Check who made the file and whether it is signed. Then look for the vendor's own notice, from the address you already use, and ask IT before you delete or restore anything.
+  | Never run a "repair tool" that arrives by email or from a search result, and never switch off your antivirus because a message says so. During an antivirus mishap those are the real malware.

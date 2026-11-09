@@ -9,6 +9,10 @@
 # Renderer licence texts: ui/abyss/manifest.json hashes the upstream CRLF bytes, and tools/refresh-abyss-manifest.mjs leaves those entries alone.
 ui/abyss/LICENSE-dioramas.txt text eol=crlf
 ui/abyss/LICENSE-lenis.txt text eol=crlf
+# Generated sprite metadata is hashed with CRLF bytes in ui/abyss/manifest.json.
+ui/abyss/pixel/provenance.json text eol=crlf
+ui/abyss/pixel/creatures/octopus-poses.json text eol=crlf
+ui/abyss/pixel/creatures/giant-clam.json text eol=crlf
 
 # Binary types: never converted.
 *.png binary

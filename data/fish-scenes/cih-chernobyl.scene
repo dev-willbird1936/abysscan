@@ -1,0 +1,325 @@
+# CIH / Chernobyl (1998). A Windows 95/98 virus that hid inside ordinary programs and, on 26 April, wiped the start of the disk.
+# A quest (QUESTS.md): the trainee looks after the front-office PC at a small firm and installs the programs staff ask for.
+# She puts on one ordinary tool from its maker's page, then a game demo a colleague got on a free-software disc. The demo is
+# the host: it plays fine while CIH rewrites the other programs without changing their size. Months later, on 26 April,
+# she runs one of them and the disk is wiped. The real spread was shared and pirated software, cover discs and one maker's
+# own driver disc; the office, the people and the programs here are invented. The maker's signature is a modern touch:
+# the file keeps its size, but a changed file no longer matches its maker's signature.
+os windows
+user Dana Okafor
+about
+  | CIH hid inside ordinary Windows programs, often pirated games and tools passed between friends. The infected program still ran normally and kept the same file size, so nobody noticed.
+  | It ran only on Windows 95, 98 and ME. On 26 April it overwrote the start of the hard disk, and on some PCs the BIOS chip too, so the computer would not start. Windows 11 cannot catch it; this is an illustration in a modern skin.
+  | Invented for this training: the office, the people, the game demo (Block Rush) and the Quillsoft tools. The signature check on the programs is a modern touch.
+story
+  | You are Dana Okafor, office administrator at Northwind Traders. You look after the front-office PC, and staff ask you to put on the programs they need. For anything from a maker, you use the maker's own download page.
+  | It is mid-afternoon in November. You have done 8 of your 10 requests. Two to go.
+  | Two text files on the desktop hold the spare admin login and a backup note. That is a bad habit, but it keeps this training quick.
+quota 8 10 Program requests done
+
+# Dana's desk (soft flags: careless, but only here to keep the training simple).
+file Desktop/spare-admin-login.txt
+  at 930 200
+  | Front-office PC (training copy)
+  | Spare administrator login
+  | User: northwind-admin
+  | Password: Harbour-Spare-2026!
+file Desktop/backup-note.txt
+  at 930 300
+  | Backups (training copy)
+  | Copy Documents to the D: drive on Fridays.
+  | D: is the second part of the same hard disk.
+
+# The wiper's payload: the screen after the disk was overwritten, and the cleaner window that runs it.
+view cih-dead screen
+  title Operating system not found
+  bg #000000
+  fg #c0c0c0
+  fullscreen
+  | Operating system not found.
+  | Insert a system disk and press any key.
+  | Some PCs showed nothing at all, because CIH also erased the BIOS chip.
+  button Back to the guide -> done primary
+view cih-cleaner panel
+  title Disk Cleaner 2.1
+  app Disk Cleaner
+  icon disk
+  heading Free up disk space
+  | Disk Cleaner found 1.2 GB you can clear.
+  section What it found
+  columns Item | Size
+  cells Temporary files | 640 MB
+  cells Old downloads | 410 MB
+  cells Recycle Bin | 150 MB
+  size 460x320
+  button Clean up now -> next primary
+  page Cleaning your disk
+  | Cleaning... please wait.
+  section Progress
+  progress 34
+  note The disk light stays on.
+  button Cancel -> done
+view cih-game message
+  title Block Rush demo
+  app Block Rush demo
+  icon program
+  | Welcome to the Block Rush level 1 demo. Press Start to play.
+  button Start -> none primary
+  button Quit -> done
+
+# Programs. The clean ones carry their maker's name and signature; the infected ones are the same files with CIH inside.
+program cleaner Disk Cleaner
+  publisher Quillsoft Software
+  signed yes
+  description Disk cleaner
+  view cih-cleaner
+program photo-tool Photo Tool
+  publisher Quillsoft Software
+  signed yes
+  description Photo editor
+program cleaner-cih Disk Cleaner
+  publisher none
+  signed no
+  prompt open-warning
+  description Disk cleaner
+  view cih-cleaner
+program photo-tool-cih Photo Tool
+  publisher none
+  signed no
+  prompt open-warning
+  description Photo editor
+program cih Block Rush demo
+  publisher none
+  signed no
+  prompt open-warning
+  description Game demo
+  view cih-game
+
+# A tool Dana put on earlier this month.
+file Downloads/photo-tool.exe
+  program photo-tool
+  size 212480
+
+# The maker's page for the tool, and the pages its buttons lead to.
+page cleaner-held quillsoft.example/disk-cleaner/later
+  title Install postponed
+  brand Quillsoft Software
+  heading Install postponed
+  | Disk Cleaner has not been installed. Come back to this page when you are ready.
+page cleaner-done quillsoft.example/disk-cleaner/installed
+  title Disk Cleaner installed
+  brand Quillsoft Software
+  heading Disk Cleaner 2.1 is installed
+  | The installer saved disk-cleaner.exe in Downloads. Windows checked it: Publisher Quillsoft Software, signature valid.
+page cleaner-page quillsoft.example/disk-cleaner
+  title Quillsoft Disk Cleaner 2.1
+  brand Quillsoft Software
+  heading Disk Cleaner 2.1
+  | Frees up space by clearing temporary files, old downloads and the Recycle Bin.
+  section Program details
+  row Product = Disk Cleaner
+  row Version = 2.1
+  row Made by = Quillsoft Software, signed
+  row Size = 98,304 bytes
+  button Install Disk Cleaner -> cleaner-done
+  button Not now -> cleaner-held
+
+mail mail-cleaner
+  from Priya Shah <priya.shah@northwind.example>
+  subject Disk Cleaner for the front-office PC (request 9 of 10)
+  link cleaner-page
+  | Hi Dana,
+  |
+  | The front-office PC is almost full again. Could you put Quillsoft's Disk Cleaner on it? The link goes to the maker's own page.
+  |
+  | Priya
+
+step Request 9 of 10
+  look Mail: Priya's message with the maker's link
+  | A new request has come in from Priya, in Accounts. It is the ordinary kind: a tool from a maker, with a link to the maker's page. Do it the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Disk Cleaner for the front-office PC (request 9 of 10)
+
+step The link goes to the maker
+  look the link under Priya's message
+  when mail mail-cleaner
+  | The email links to the maker's own address, quillsoft.example. Hover over a link before you click it, to check where it goes.
+open mail-cleaner
+
+step The maker's page
+  look the program details: who made it, and how big it is
+  when visit cleaner-page
+  move Read the program details, then click “Install Disk Cleaner”.
+  | The page says what you are getting: the product, the version, who made it and that it is signed, and how big it is: 98,304 bytes. Remember that number.
+open cleaner-page
+
+step Installed: 9 of 10
+  look the confirmation page: Publisher Quillsoft Software with a valid signature, and the counter in the guide
+  move Open Marcus's new message in Mail.
+  when choose cleaner-page 1
+  | Installed. The program is in Downloads, the same size the page promised: 98,304 bytes. Windows names its maker and finds the signature valid. That is what a program from a maker looks like.
+choose cleaner-page 1
+file Downloads/disk-cleaner.exe
+  program cleaner
+  size 98304
+quota +1
+
+# The lure: a game demo, a program from a friend's disc.
+mail demo
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Try this level before the shop has it
+  attach Downloads/game-demo.exe
+  | Hi Dana,
+  |
+  | A friend gave me a free-software disc. Level 1 of Block Rush is great. Could you put it on the front-office PC for lunch breaks? Just open the attachment.
+  |
+  | Marcus
+file Downloads/game-demo.exe
+  program cih
+  size 412672
+notify mail Marcus Lee
+  | Try this level before the shop has it
+
+step Request 10 of 10: a game demo
+  look the sender, and the attachment instead of a link
+  when mail demo
+  | From Marcus, and he means well. But it is a program from a disc, not a link to a maker, and nobody has named who made it. In 1998 and 1999 such discs and downloads spread CIH to millions of PCs. Flag anything that looks wrong.
+open demo
+
+step The warning that is easy to click past
+  look Publisher "Unknown Publisher", Type "Application"
+  when prompt cih
+  | Opening the file asks whether to run a program from an unknown publisher. Disk Cleaner named its maker. This one does not.
+  | A real game demo from a maker would name its publisher. Most victims clicked Run.
+open Downloads/game-demo.exe
+
+step The game works
+  look the Block Rush window: it plays like any demo
+  when run cih
+  move Press Quit to close the game, as Marcus would after a quick look.
+  | Block Rush starts and looks fine. That is how CIH stays hidden: the program it rode in on keeps working.
+answer run
+
+step It infects the other programs
+  look Properties of photo-tool.exe: still 212,480 bytes, but Digital signature: None
+  move Close the Properties window with OK. Then open Priya's new message in Mail.
+  when done cih-game
+  | After the game closed, CIH stayed in memory. Every program Windows opened after that got a copy, and kept its name, icon and size.
+  | Nothing on the screen looks different. The photo tool in Downloads is one of them: the Properties window shows what changed.
+  cue dialog-btn:ok mail:april app:mail
+file Downloads/disk-cleaner.exe
+  program cleaner-cih
+  size 98304
+file Downloads/photo-tool.exe
+  program photo-tool-cih
+  size 212480
+open Downloads
+dialog properties Downloads/photo-tool.exe
+# Five months later: 26 April, the trigger date.
+mail april
+  from Priya Shah <priya.shah@northwind.example>
+  subject Front-office PC is full again: please run Disk Cleaner
+  sent 2027-04-26 08:50
+  | Dana,
+  |
+  | The front-office PC has run out of space again. Please run the Disk Cleaner you put on last November. It is in Downloads.
+  |
+  | Priya
+notify mail Priya Shah
+  | Front-office PC is full again: please run Disk Cleaner
+
+step 26 April
+  look Mail: Priya's message, dated 26 April
+  move Open disk-cleaner.exe in Downloads.
+  when mail april
+  | Five months on, nothing has gone wrong, and the front-office PC seems fine. But today is 26 April, the day CIH was set to strike. Any infected program that runs today sets it off.
+  | Priya wants the cleaner you installed. Open it from Downloads.
+# Closes the Properties window from the last step, so later steps do not bring it back over the cleaner.
+answer ok
+open april
+
+step The cleaner asks something new
+  look the Open File - Security Warning: the maker's name has gone
+  when prompt cleaner-cih
+  | The confirmation page said Publisher Quillsoft Software, with a valid signature. Now Windows says Unknown Publisher.
+  | The file is the same size and has the same name. But CIH changed what is inside, and a changed file no longer matches its maker's signature.
+open Downloads/disk-cleaner.exe
+
+step Disk Cleaner starts
+  look the Disk Cleaner window
+  when run cleaner-cih
+  move Press “Clean up now”.
+  | The cleaner opens and looks exactly as it should: a list of what it can clear. Press Clean up now.
+answer run
+
+step The disk light stays on
+  look the Disk Cleaner window: its progress has stopped at 34%. Task Manager (Activity Monitor on a Mac) shows disk-cleaner.exe at 41% CPU
+  move Press Cancel to try to stop it.
+  when page cih-cleaner 2
+  | The cleaner says it is cleaning, but a cleaner does not write to the disk this hard. CIH is overwriting the start of the disk: the boot record, the file table and the partition list that say where every file is.
+  | Pressing Cancel changes nothing: the damage is done in seconds.
+run disk-cleaner.exe
+  parent explorer.exe
+  command C:\Users\Dana\Downloads\disk-cleaner.exe
+  cpu 41
+  mem 24
+  disk 100% (writing sector 0)
+# The cleaner is shown again on top of Task Manager, so its Cancel button can be pressed (a window already open stays under it).
+close cih-cleaner
+open taskmanager
+show cih-cleaner
+  page 1
+quota +1
+
+step The PC will not start
+  look the full-screen black message
+  move Nothing more to do: press Next in the guide to see what CIH did.
+  when done cih-cleaner
+  | The screen goes black and the PC restarts, but Windows is gone: the start of the disk is blank. Some PCs showed nothing at all, because CIH also erased the BIOS chip.
+  | Files can be recovered from the disk, but only by an expert. The Friday copy on D: is on the same disk, so it was out of reach too.
+notify taskmanager Restarting
+  | The PC is restarting.
+show cih-dead
+
+step What CIH did
+  look the animation: a demo that played fine, and the date it waited for
+  | CIH waited five months, inside programs that all looked normal. On 26 April every infected program that ran set it off, in office after office. A backup on another disk would have saved everything.
+close cih-dead
+close browser
+close mail
+close files
+close taskmanager
+wallpaper #000000
+  | Operating system not found.
+attack supply-chain-update
+  | a game demo from a friend's disc
+  | the game ran, CIH moved into memory
+  | every program opened after that got a copy
+  | file sizes and icons stayed the same
+  | 26 April: the trigger date arrived
+  | the start of the disk was overwritten
+  | the PC would not start
+
+flag hard mail demo
+  | A game, not a work program, attached instead of linked from its maker. Nobody named who made it.
+flag hard file Downloads/game-demo.exe
+  | A program, not a document. Properties shows Type "Application" and no publisher.
+flag hard dialog open-warning cih
+  | A game demo from a maker would name its publisher. Publisher: Unknown.
+flag hard file Downloads/disk-cleaner.exe
+  | The same name, icon and size (98,304 bytes) as the cleaner Dana installed, but CIH rewrote it. Its warning now says Unknown Publisher.
+flag hard file Downloads/photo-tool.exe
+  | The same name, icon and size (212,480 bytes), but Properties now shows Digital signature: None and Publisher: Unknown.
+flag hard dialog open-warning cleaner-cih
+  | In November the cleaner named Quillsoft Software on its confirmation page. Now it says Unknown Publisher: the file was changed.
+flag hard process disk-cleaner.exe
+  | Running at 41% CPU while its progress bar stays at 34%: it is busy with something other than cleaning.
+flag soft file Desktop/spare-admin-login.txt
+  | An admin password in a text file on the desktop: any program that runs can read it. Use a password manager.
+flag soft file Desktop/backup-note.txt
+  | A backup on the same disk is lost with the disk. Keep a copy on another disk, or off-site.
+
+lesson
+  | Do not run programs from discs or friends you cannot vouch for. Check that the publisher is named in the warning. A program that names its maker today and "Unknown Publisher" tomorrow has been changed.
+  | An infected program looks identical: the same name, icon and size. The warning and the maker's signature are what change.
+  | Keep a recent backup on a separate disk, and keep your system updated: Windows 11 is not affected, but old PCs were.

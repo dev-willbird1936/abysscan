@@ -83,6 +83,12 @@ Speakeasy items (`backend/detonation/emulator.mjs`): one `api-call` per API name
 | `download` | `url`, `filename` (the sample itself is not a download) | second-stage (download then run) |
 | `phishing-indicator` | `indicator` (a password field whose typed credential went nowhere) | phishing-unproven |
 | `dialog` | `dialogType`, `message` (`alert`, `confirm`, `prompt`, `beforeunload`; the harness dismisses it) | none (informational) |
+| `script` | `scripts`, `bytes` (inline scripts the page actually ran, with a hash of each) | none (informational) |
+| `exploit-indicator` (script text) | `indicator` = `script uses <name>`, `tool` = `wsh`, `preview`: batch, VBScript, JScript or HTA text that names `WScript.Shell`, `Scripting.FileSystemObject`, `ADODB.Stream` or `CreateObject`; the build cannot run these, so the intent is the evidence | `exploit-unproven` |
+| `suspicious` (script text) | `indicator` = `script download cradle`, `script persistence command`, `script runs a host tool`, `script self-deletion`, `url in script text`, `tool` = `wsh`, `preview` | `other-suspicious` |
+| `obfuscation` (script text) | `technique` = `encoded script text` for `fromCharCode`, `unescape`, `eval`, `-enc` or `chr(` | `obfuscation` |
+| `suspicious` (script error) | `indicator` = `script error`, `tool` = `chromium` | `other-suspicious` |
+| `exploit-indicator` (page markers) | `indicator` = `page uses <name>`, `tool` = `markers`: the page names `ActiveXObject`, `WScript.Shell`, `Scripting.FileSystemObject`, `Shell.Application`, `ADODB.Stream`, `XMLHTTP`, a registry write or `mshta`, which only the Windows scripting host can run | `exploit-unproven` |
 
 ### `wine` (`WINEDEBUG` log and prefix checks)
 
@@ -107,11 +113,16 @@ All have `indicator` (or `technique` / `tool`) text. Static evidence adds Twilig
 | `exploit-indicator` | `indicator` | `exploit-unproven` |
 | `phishing-indicator` | `indicator` | `phishing-unproven` |
 | `anti-analysis` | `technique` | `anti-analysis` |
+| `daemonised` | `processes` (the program exited and left this many running; the ELF dwell keeps the container alive so they can act) | `anti-analysis` |
 | `adware-indicator` | `indicator` | `adware` |
 | `admin-request` | `indicator` | `admin-request` |
 | `system-survey` | `indicator` | `system-survey` |
 | `hidden-command` | `tool`, `commandPreview` | `hidden-commands` |
 | `obfuscation` | `technique` | `obfuscated` |
+| `identified` | `tool` (`libmagic`, `dnfile`, `pefile`, `classfile`), `mime`, `assembly`, `className`: what the file is, in words — libmagic's description, a .NET assembly's or a Java class's name, version, runtime and member counts | none (informational) |
+| `suspicious` (import table) | `indicator` = `imports <group>`, `tool` = `pefile`: a PE or ELF import that names a group (`downloads or talks to the network`, `starts other programs`, `injects code into another process`, `reads credentials, keys or the clipboard`, `checks whether it is being watched`, `links a networking, TLS or packet-capture library`). An import is intent, not action | `other-suspicious` |
+| `suspicious` (.NET) | `indicator` = `embedded .NET resource`, `resources[]`, `tool` = `dnfile` | `other-suspicious` |
+| `suspicious` (OOXML) | `indicator` = `remote template or media reference`, `target`, `part`, `tool` = `ooxml`: the package holds a link and Word fetches the template or payload from the network when the document is opened (template injection) | `other-suspicious` |
 | `unsigned` | `reason` | `unsigned` (also from `identify`) |
 | `suspicious` | `indicator` | `other-suspicious` |
 
@@ -121,7 +132,8 @@ All have `indicator` (or `technique` / `tool`) text. Static evidence adds Twilig
 |---|---|---|
 | `type-mismatch` | `detectedType`, `claimedExtension` | `type-mismatch` |
 | `unsigned` | `reason` | `unsigned` |
-| `unsupported-type` | `detectedType` | `incomplete` |
+| `unsupported-type` | `detectedType` = `unknown`: the content could not be identified, so nothing ran. This is the only type gap that raises `incomplete` | `incomplete` |
+| `inspected-only` | `detectedType`: the type was identified and fully inspected (a text file, an image, a font), so there was nothing to run. Coverage is complete; the coverage step says `Inspected.` | none |
 
 ### `limits` (Docker and gVisor)
 
@@ -169,7 +181,7 @@ All have `indicator` (or `technique` / `tool`) text. Static evidence adds Twilig
 | `hidden-commands` | `hidden-command` |
 | `obfuscated` | `obfuscation` |
 | `unsigned` | `unsigned` |
-| `incomplete` | engine input `complete` false, inspect-only path, `limits` `oom`/`time`, `emulation-stopped`, `unsupported-type` |
+| `incomplete` | engine input `complete` false, `limits` `oom`/`time`, `emulation-stopped`, `unsupported-type` (unidentified content) |
 | `other-suspicious` | `suspicious` |
 
 ## Child items and coverage (M4)

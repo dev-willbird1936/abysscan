@@ -1,0 +1,266 @@
+# British Airways / Magecart (2018). About 22 lines of script on the real checkout page sent card details to a lookalike site.
+# A quest (QUESTS.md): the trainee books company travel online, pays safely once, then pays on a checkout the skimmer had changed.
+# Magecart never touched a customer's computer, so the angle is the customer's: an office manager paying with the company card.
+os windows
+user Dana Okafor
+about
+  | Nothing ran on the customer's computer and the page looked normal. Attackers had changed a script on the airline's own website, so every card entered at checkout was also sent to their lookalike domain.
+  | In 2018 about 22 lines of script were enough to copy the card details of hundreds of thousands of British Airways customers. Customers could not see it. This is an illustration: the airline and railway here are made up.
+story
+  | You are Dana Okafor, office manager at Northwind Traders. You book the sales team's travel on the company card, on each railway's and airline's own website.
+  | It is mid-afternoon. You have booked 2 of today's 4 trips. Two to go: a train to Leeds for Marcus, then flights to Lisbon for Priya and Marcus.
+  | The company card details are in a text file on the desktop. That is a bad habit, but it keeps this training quick.
+quota 2 4 Trips booked for the sales team
+
+# Dana's desk: the details she copies from (a soft flag: careless, but only here to keep the training simple).
+file Desktop/company-card.txt
+  at 560 500
+  | Northwind company card (training copy)
+  | Name on card: Dana Okafor
+  | Card number: 4000 0012 3456 7899
+  | Expiry date: 09/29
+  | Security code: 417
+
+# The safe task: a train ticket on the railway's own site.
+page rail-done pennine-rail.example/booking/confirmed
+  title Booking confirmed: Pennine Rail
+  brand Pennine Rail
+  heading Payment received
+  issuer Pennine Secure CA
+  | Your ticket is booked. Thank you for travelling with us.
+  | London to Leeds · Tuesday 17 November · 1 adult · 86.50 GBP
+page rail-pay pennine-rail.example/booking/payment
+  title Payment: Pennine Rail
+  brand Pennine Rail
+  heading Pay for your ticket
+  issuer Pennine Secure CA
+  | Check your trip, then enter the card details.
+  section Your trip
+  row Route = London to Leeds
+  row Date = Tuesday 17 November
+  row Passenger = 1 adult
+  row Total = 86.50 GBP
+  section Card details
+  field Name on card = Dana Okafor
+  field Card number = 4000 0012 3456 7899
+  field Expiry date = 09/29
+  field secret Security code = 417
+  button Pay now -> rail-done
+view rail-network console
+  title Developer tools: Network (training view)
+  app Browser
+  line GET pennine-rail.example/booking/payment 200
+  line GET pennine-rail.example/scripts/lib.min.js 200
+  line POST pennine-rail.example/api/pay 200 (the real payment)
+  button Close the list -> done primary
+mail mail-train
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Train to Leeds on 17 November (client visit)
+  link rail-pay
+  | Hi Dana,
+  |
+  | Can you book my train to Leeds for the client visit on Tuesday 17th? Pennine Rail is fine. The link goes straight to their payment page.
+  |
+  | Thanks, Marcus
+
+step Trip 3 of 4
+  look Mail: Marcus's message with the booking link
+  | A new request from Marcus: a train to Leeds for a client visit. This one is the ordinary kind. Book it the normal way, so you know what normal looks like.
+notify mail Marcus Lee
+  | Train to Leeds on 17 November (client visit)
+
+step The link goes to the railway
+  look the link under Marcus's message
+  when mail mail-train
+  | The email links to the railway's own address, pennine-rail.example. Hover over a link before you click it, to check where it goes.
+open mail-train
+
+step The payment page
+  look the address bar, the padlock and the four card boxes
+  when visit rail-pay
+  move Copy the details from company-card.txt on the desktop: click a box and press any keys to type, then click “Pay now”.
+  | The railway's payment page: the trip, the price and four card boxes. Remember what this page, and its padlock, look like.
+open rail-pay
+
+step Booked, and a look behind the page
+  look the network list: every request goes to pennine-rail.example
+  when choose rail-pay 1
+  move Read the list, then click “Close the list”.
+  | Booked. The list is a training view of every request the page made while you paid. All of them go to the railway's own address. This is what a normal checkout looks like.
+signin rail-pay
+quota +1
+show rail-network
+
+# The lure: the airline's own site, with one script changed.
+step Trip 4 of 4
+  look the counter in the guide: one trip left
+  when done rail-network
+  | Trip 3 of 4 is done. One trip left, and another email has just arrived.
+page confirmed-air meridian-air.example/booking/confirmed
+  title Booking confirmed: Meridian Air
+  brand Meridian Air
+  heading Payment received
+  issuer Meridian Secure CA
+  | Your booking is confirmed. Thank you for flying with us.
+  | London to Lisbon · Thursday 3 December · 2 adults · 368.40 GBP
+page pay-air meridian-air.example/booking/payment
+  title Payment: Meridian Air
+  brand Meridian Air
+  heading Pay for your booking
+  issuer Meridian Secure CA
+  | Check your flight, then enter the card details.
+  section Your flight
+  row Route = London to Lisbon
+  row Date = Thursday 3 December
+  row Passengers = 2 adults (Priya Shah, Marcus Lee)
+  row Total = 368.40 GBP
+  section Card details
+  field Name on card = Dana Okafor
+  field Card number = 4000 0012 3456 7899
+  field Expiry date = 09/29
+  field secret Security code = 417
+  button Pay now -> confirmed-air
+view page-network console
+  title Developer tools: Network (training view)
+  app Browser
+  line GET meridian-air.example/booking/payment 200
+  line GET meridian-air.example/scripts/lib.min.js 200 (modified: 22 lines added)
+  line POST meridian-air.example/api/pay 200 (the real payment)
+  line POST meridian-cdn.invalid/collect 200 (a copy of the card boxes)
+  button Close the list -> done primary
+mail mail-air
+  from Priya Shah <priya.shah@northwind.example>
+  subject Flights to Lisbon for the conference (Marcus and me)
+  link pay-air
+  | Hi Dana,
+  |
+  | Last one for today: two seats to Lisbon on Thursday 3 December for the conference, one for me and one for Marcus. Meridian Air is the cheapest. The link goes to their booking page.
+  |
+  | Priya
+notify mail Priya Shah
+  | Flights to Lisbon for the conference (Marcus and me)
+
+step Flights for Priya and Marcus
+  look the link under Priya's message
+  when mail mail-air
+  | Priya asks for the last booking of the day, with a link to the airline's own website. The same routine as the train: check the address, then open it.
+open mail-air
+
+step The airline's payment page
+  look the address bar, the padlock and the four card boxes: compare them with the railway's
+  when visit pay-air
+  move Pay the same way: copy the details from company-card.txt, click a box, press any keys to type, then click “Pay now”.
+  | The airline's payment page. The address is right, the padlock is valid and the page is laid out like the railway's. Nothing looks different.
+open pay-air
+
+step Booked: one line more
+  look the network list: a second request to meridian-cdn.invalid, and the “Connection blocked” banner
+  when choose pay-air 1
+  move Compare the list with the railway's, then click “Close the list”.
+  | Booked, and the payment went through. This time the list has a fourth line. The airline's own script had been changed, and it sent a second copy of the card boxes to meridian-cdn.invalid, a domain that is not the airline's.
+  | A real customer saw none of this, and the copy reached the attackers. This training desktop shows it as a notice.
+signin pay-air
+quota +1
+show page-network
+notify taskmanager Connection blocked: meridian-cdn.invalid
+  | A script on the page tried to send card details to meridian-cdn.invalid. On a real computer it went through.
+
+step What the script took
+  look the animation: the four things typed into the card boxes
+  when done page-network
+  | The script was about 22 lines in a file the airline already served. It copied the card boxes when you pressed Pay now.
+  | The airline's page, address and padlock never changed. The lookalike domain had a valid padlock of its own too.
+  | Hundreds of thousands of cards were taken this way over about two weeks. The attackers then spent them or sold them.
+attack data-exfil
+  | name on card
+  | card number
+  | expiry date
+  | security code
+  | to meridian-cdn.invalid
+mail breach-notice
+  from Meridian Air Customer Care <care@meridian-air.example>
+  subject Important: your payment card details may have been stolen
+  folder inbox
+  sent 2026-11-24 09:12
+  | Dear customer,
+  |
+  | Between 2 November and 19 November, card details entered on our website and app may have been taken. This included name, card number, expiry date and security code.
+  |
+  | Please check your statements and contact your bank or card issuer.
+  |
+  | Meridian Air Customer Care
+notify mail Meridian Air Customer Care
+  | Important: your payment card details may have been stolen
+
+step Two weeks later: the breach notice
+  look the email from the airline
+  when mail breach-notice
+  | The airline found the change and told its customers weeks later. The email says card details may have been taken and tells them to check their statements.
+open breach-notice
+page fraud-reported harbour-card.example/statements/reported
+  title Reported as fraud
+  brand Harbour Card
+  heading Thank you, the card is frozen
+  | The two payments are under review and a new card is on its way.
+page card-frozen harbour-card.example/statements/frozen
+  title Card frozen
+  brand Harbour Card
+  heading Card frozen
+  | No new payments will go through. Report the payments you do not recognise.
+page statement harbour-card.example/statements
+  title Company card statement
+  brand Harbour Card
+  heading Recent card payments
+  | Northwind company card, ending 7899.
+  section Statement
+  columns Date | Shop | Amount
+  cells 09 Nov | Pennine Rail | 86.50 GBP
+  cells 09 Nov | Meridian Air | 368.40 GBP
+  cells 11 Nov | Gadget Mart | 412.00 GBP
+  cells 11 Nov | Prepaid Cards Online | 250.00 GBP
+  note Dana did not make the last two payments.
+  button Report as fraud -> fraud-reported
+  button Freeze card -> card-frozen
+mail card-alert
+  from Harbour Card <alerts@harbour-card.example>
+  subject Card ending 7899: please review your recent payments
+  folder inbox
+  sent 2026-11-24 09:20
+  link statement
+  | Dear cardholder,
+  |
+  | Following a data incident at a travel supplier, we are asking cardholders to check their recent payments. Please review your statement and report any payment you do not recognise.
+  |
+  | Harbour Card Fraud Team
+notify mail Harbour Card
+  | Card ending 7899: please review your recent payments
+
+step Check the statement
+  look the two payments Dana did not make
+  when visit statement
+  move Read the statement, then click “Report as fraud”.
+  | Dana opens the card company's statement from the link in its email. The railway and the airline are hers. Two payments are not: someone used the stolen card two days later.
+open statement
+
+step Report it
+  look the confirmation: the card is frozen and the payments are under review
+  when choose statement 1
+  | Reporting the payments quickly lets the card company block the card and refund them. Dana tells the others who booked on that site in the same weeks.
+choose statement 1
+
+flag hard notice taskmanager Connection blocked
+  | A second copy of the card boxes was sent to meridian-cdn.invalid, a domain that is not the airline's. On a real computer it went through, and the page showed nothing.
+flag hard section pay-air 2
+  label The card boxes on the airline's payment page
+  | The script copied these boxes when Pay now was pressed: name, number, expiry date and security code. The address and padlock were the airline's own, so nothing looked wrong.
+flag hard mail breach-notice
+  | The airline telling its customers that card details entered on its site may have been stolen. Check your statement when you get one.
+flag hard section statement 1
+  label The two payments on the statement that were not Dana's
+  | Two payments here are not Dana's: someone used the stolen card two days later.
+flag soft file Desktop/company-card.txt
+  | Card details in a text file on the desktop: any program that runs can read them. Card numbers belong in no file at all.
+
+lesson
+  | This attack needed no mistake from the customer: the page, the address and the padlock were all genuine, and nothing ran on the computer. Check your card statements often, and use one-time or virtual card numbers where you can.
+  | Report unknown payments to your bank quickly. Websites can protect customers by listing the scripts they load and checking them with Subresource Integrity and a Content-Security-Policy.

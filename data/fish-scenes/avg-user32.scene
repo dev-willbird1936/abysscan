@@ -1,0 +1,389 @@
+# user32.dll false alarm (November 2008). An antivirus update called a core Windows file a banking trojan and offered to remove it.
+# A quest (QUESTS.md): the trainee approves the day's customer refunds at a returns desk, does one refund safely, then the antivirus
+# update lands, names a genuine Windows file as a banking trojan and recommends Remove, while a colleague begs for the same. There is
+# no malware: the quest is about not overreacting (not removing a signed Windows file because an alert says so). The company, the
+# people, the returns desk and the antivirus ("Harbourlight") are made up; the real incident hit home and office PCs alike.
+os windows
+user Dana Okafor
+about
+  | In November 2008 a virus-list update for a popular antivirus (here called Harbourlight) wrongly matched the genuine Windows file user32.dll and called it the PSW.Banker4.APSA trojan, a password-stealing banking program.
+  | The file was clean, and Windows cannot start without it. People who accepted the offer to remove it had PCs that would not start or kept restarting. The company, the people and the returns desk here are made up.
+story
+  | You are Dana Okafor, refunds clerk at Northwind Traders. Customers' refund requests come by email from Priya in customer care, and you approve each one in the company's returns desk before the money goes back to the customer's card.
+  | It is mid-afternoon. You have approved 8 of today's 10 refunds. Two to go. The Harbourlight antivirus watches every PC in the office.
+  | Your returns-desk sign-in details are in a text file on the desktop. That is a bad habit, but it keeps this training quick.
+quota 8 10 Refunds approved today
+spotted reasons not to panic
+
+# Dana's desk: the details she copies from (a soft flag: careless, but only here to keep the training simple).
+file Desktop/returns-login.txt
+  at 930 200
+  | Northwind Returns Desk
+  | Staff ID: dana.okafor
+  | Password: Refund-2026!
+
+# The drive and folders where the real file lives, with its neighbours. The platform has no C: drive kind, so it is shown as a drive.
+drive Local Disk (C:)
+  kind share
+  as C
+folder C/Windows
+folder C/Windows/System32
+file C/Windows/System32/kernel32.dll
+  size 1007616
+file C/Windows/System32/gdi32.dll
+  size 286208
+file C/Windows/System32/advapi32.dll
+  size 617472
+file C/Windows/System32/ntdll.dll
+  size 1393664
+file C/Windows/System32/notepad.exe
+  size 69120
+
+# Yesterday's virus list, so Software Update shows what a normal one looks like.
+update Harbourlight virus list 270.8.2
+  kb HL-270.8
+  size 2 MB
+  status installed
+
+# What the "program" is: the genuine, signed Windows library, which the antivirus flags. Opening it raises the detection.
+program avg-user32 user32.dll
+  publisher Contoso Windows
+  signed yes
+  description Multi-User Windows USER API Client Library
+  detected PSW.Banker4.APSA (Trojan horse)
+file C/Windows/System32/user32.dll
+  program avg-user32
+  size 811008
+
+# Harbourlight's own alert, in pages. Remove (the button it recommends) takes the file out and asks for a restart; the restart
+# shows the stop screen that Sam got. Keep the file closes the alert and does nothing. Defined before the steps that use it.
+view avg-alert message
+  title Harbourlight Antivirus: threat found
+  app Harbourlight Antivirus
+  publisher Harbourlight Software
+  size 460x340
+  icon shield-bad
+  heading Trojan horse found: PSW.Banker4.APSA
+  | Harbourlight found a password-stealing trojan in a Windows file. Remove it now.
+  section What Harbourlight found
+  row Threat = PSW.Banker4.APSA (Trojan horse)
+  row File = C:\Windows\System32\user32.dll
+  row Found by = Scheduled scan, virus list 270.9.0
+  button Remove (recommended) -> page:1 primary
+  button Keep the file -> done
+  page
+  heading Harbourlight removed user32.dll
+  icon warning
+  | Restart the PC to finish the removal.
+  button Restart now -> page:2 primary
+  button Restart later -> close
+  page
+  heading A problem has been detected and Windows has been shut down
+  icon error
+  | STOP: c000021a {Fatal System Error}
+  | The Windows Subsystem process ended unexpectedly. A file Windows needs to start is missing: C:\Windows\System32\user32.dll
+  button Restart -> page:3 primary
+  button Close training view -> close
+  page
+  heading Restarting...
+  icon bug
+  | Windows starts, cannot find user32.dll, stops and restarts. This repeats until the file is put back.
+  button Restart again -> page:2 primary
+  button Close training view -> close
+
+# The vendor's own notice, with the corrected list.
+page list-fixed support.harbourlight.example/virus-list-270-9/fixed
+  title Harbourlight support: list 270.9.1 installed
+  brand Harbourlight Software
+  heading Virus list 270.9.1 installed
+  | The false alarm has stopped. user32.dll was never touched, and Windows was never in danger.
+page vendor-fix support.harbourlight.example/virus-list-270-9
+  title Harbourlight support: virus list 270.9.0
+  brand Harbourlight Software
+  heading Virus list 270.9.0 was wrong
+  | Our update wrongly flagged the Windows file user32.dll as PSW.Banker4.APSA. It is a false alarm. A corrected virus list, 270.9.1, is out now.
+  section What went wrong
+  row Update = Virus list 270.9.0
+  row Wrongly flagged = user32.dll, a genuine Windows file
+  row Threat named = PSW.Banker4.APSA (no such trojan on your PC)
+  row Fix = Virus list 270.9.1, out now
+  note The wrong list was withdrawn within hours. The file was clean all along.
+  section If you have not removed it
+  tone good
+  item Do nothing.
+  item Install virus list 270.9.1 and the alert will stop.
+  section If the file was already removed
+  tone warn
+  item Windows will not start, or restarts again and again.
+  item Start the PC from a rescue disc and copy a good user32.dll back into the System32 folder.
+  item Then install virus list 270.9.1 and restart.
+  button Install virus list 270.9.1 -> list-fixed
+
+# The returns desk: a sign-in page, and the refunds behind it.
+page returns-login returns.northwind.example/refunds/sign-in
+  title Northwind Returns: sign in
+  brand Northwind Returns
+  favorite
+  heading Sign in to the Returns Desk
+  | Welcome back. Sign in to approve customer refunds.
+  field Staff ID = dana.okafor
+  field secret Password = Refund-2026!
+  button Sign in
+page ref9-paid returns.northwind.example/refunds/R-2291/approved
+  title Refund approved
+  brand Northwind Returns
+  heading Refund R-2291 approved
+  | 64.50 goes back to Lena Brooks' card within three working days.
+page ref9-held returns.northwind.example/refunds/R-2291/held
+  title Refund held
+  brand Northwind Returns
+  heading Refund R-2291 held
+  | Nothing was paid. Priya is told.
+page ref-9 returns.northwind.example/refunds/R-2291
+  title Refund R-2291: waiting for approval
+  brand Northwind Returns
+  requires returns-login
+  heading Refund R-2291: waiting for approval
+  | A customer refund is waiting for you.
+  section Refund
+  row Customer = Lena Brooks
+  row Order = 40117, returned damaged
+  row Amount = 64.50
+  row Refund to = the card the order was paid with
+  row Checked by = Priya Shah, customer care
+  button Approve the refund -> ref9-paid
+  button Hold and ask Priya -> ref9-held
+
+mail mail-ref9
+  from Priya Shah <priya.shah@northwind.example>
+  subject Refund R-2291 to approve (Lena Brooks)
+  sent 2026-11-02 14:02
+  link ref-9
+  | Hi Dana,
+  |
+  | Lena's damaged-goods return is checked and ready for your approval. The link opens it in the returns desk.
+  |
+  | Priya
+
+step Refund 9 of 10
+  look Mail: Priya's message with the refund link
+  | A new refund has come in from Priya, in customer care. It is routine. Approve it the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Refund R-2291 to approve (Lena Brooks)
+
+step The link goes to the returns desk
+  look the link under Priya's message
+  when mail mail-ref9
+  | The email links to the company's own address, returns.northwind.example. Hover over a link before you click it, to check where it goes.
+open mail-ref9
+
+step Sign in as usual
+  look the two boxes: Staff ID and Password, as on every visit
+  when visit ref-9
+  move Copy the details from returns-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The returns desk asks you to sign in first. Two boxes: Staff ID and Password. Remember what a normal day looks like.
+open ref-9
+
+step Check, then approve
+  look the Refund box: the customer, the order, the amount and who checked it
+  when choose returns-login 1
+  | You are in. Check the customer and the amount against Priya's message, then approve the refund or hold it.
+signin returns-login
+
+# The lure: the alert, and a colleague who has already given in to it.
+mail sam-urgent
+  from Sam Patel <sam.patel@northwind.example>
+  subject URGENT!! Harbourlight found a BANKING VIRUS in user32.dll - REMOVE IT NOW
+  sent 2026-11-02 14:17
+  | Dana, Harbourlight says there is a banking trojan in user32.dll and that it steals passwords!! Mine is being removed right now, I just clicked Remove.
+  |
+  | Do it too, before it sends your logins anywhere. It is the only thing the antivirus tells us to do, and you keep your returns-desk sign-in on the desktop!
+  |
+  | Sam
+
+step 9 of 10 done
+  look the counter in the guide: one refund left; and the banner: Trojan horse found
+  when choose ref-9 any
+  | Done. One refund to go. In the background your antivirus, Harbourlight, has installed its daily list of known viruses, as it does every day.
+  | A minute later a banner reports a "Trojan horse", PSW.Banker4.APSA, in C:\Windows\System32\user32.dll. It says the program steals banking passwords and recommends Remove. Your sign-in sits in a text file on the desktop, so your stomach drops.
+  | Do not press anything yet. A message from Sam has just arrived.
+choose ref-9 1
+quota +1
+update Harbourlight virus list 270.9.0
+  kb HL-270.9
+  size 2 MB
+  status installed
+notify settings Harbourlight: Trojan horse found
+  | PSW.Banker4.APSA in C:\Windows\System32\user32.dll. Recommended action: remove.
+notify mail Sam Patel
+  | URGENT!! Harbourlight found a BANKING VIRUS in user32.dll - REMOVE IT NOW
+
+step Sam says remove it
+  look the capitals in the subject, and what Sam is about to do before he has checked anything
+  when mail sam-urgent
+  move Open your files (File Explorer, or Finder on a Mac), so you can look at the file the alert names.
+  | Sam, at the next desk, got the same alert. He writes in capitals and in a hurry, and he has already clicked Remove. He has not checked what the file is, or asked IT. He wants you to follow.
+  | A scare with a deadline is how a false alarm does its harm. Before you press Remove, find out what user32.dll is. Flag anything that looks wrong.
+open sam-urgent
+
+step Open the folder the alert names
+  look user32.dll, between kernel32.dll, gdi32.dll and ntdll.dll: the other Windows files
+  when open files
+  | This is the folder the alert names. Windows keeps its own parts here, and user32.dll is one of them. It draws the windows and buttons you see.
+  | Its neighbours are the same kind of file, all part of Windows. Flag anything that looks wrong here.
+open C/Windows/System32
+
+step The file's Properties, and the alert
+  look the Properties box: Publisher "Contoso Windows", Type "Application extension", a valid digital signature
+  cue dialog-btn:ok view-btn:done
+  move Click OK in the Properties box. Then answer Harbourlight's alert.
+  | Here is the file's Properties: an "Application extension" from Contoso Windows, with a valid digital signature. A password-stealing trojan would not carry a valid signature, so the alert is more likely wrong than right.
+  | Harbourlight's alert has come up, and it is waiting for an answer. Read the Properties box first.
+dialog properties C/Windows/System32/user32.dll
+show avg-alert
+
+# Both answers are triggers on the alert, which is already open: Remove turns its page, Keep closes it.
+step You pressed Remove
+  look the Harbourlight window: the file is removed, and it asks you to restart
+  when page avg-alert 2
+  cue view-btn:page:2 view-btn:close link:it mail:it app:mail
+  move Press “Restart now”, then close the Harbourlight window and open Marcus's message in Mail.
+  | You pressed Remove. Harbourlight has taken user32.dll out of the Windows folder, and Windows finishes the job at the next restart.
+  | Press “Restart now” to see what Sam's PC showed. Marcus in IT has just written to everyone, so his message is in Mail.
+mail it
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Faulty antivirus list: do NOT remove user32.dll
+  sent 2026-11-02 14:21
+  link vendor-fix
+  | Hi all,
+  |
+  | This afternoon's Harbourlight update wrongly flags user32.dll, a genuine Windows file, as a banking trojan. Sam removed it and his PC will not start; I am repairing it from a rescue disc.
+  |
+  | Please do not remove or delete anything Harbourlight flags in the Windows folder, and do not switch the antivirus off. The vendor's page below names the problem and the fix.
+  |
+  | Marcus, IT
+notify mail Marcus Lee
+  | Faulty antivirus list: do NOT remove user32.dll
+
+step You kept the file
+  look Marcus's message in Mail: a fault in the antivirus update
+  when done avg-alert
+  cue link:it mail:it app:mail
+  move Open Marcus's message in Mail, and click its link to the vendor's page.
+  | You kept the file, and nothing happens: Windows runs as before. On a real PC you would now ask IT, and read the vendor's page.
+  | Marcus in IT has written to everyone about the alert. His message is in Mail.
+
+step IT answers
+  look the three boxes: what went wrong, if you have not removed it, and if you already did
+  when visit vendor-fix
+  move Read the three boxes, then click “Install virus list 270.9.1”.
+  | Marcus says the antivirus was wrong, and tells everyone to leave Windows files alone. His link goes to the vendor's own address, support.harbourlight.example, not to a download from a stranger.
+  | The page names the update, the file it got wrong and the fix. It has a box for people who have not removed the file, and one for people who already did.
+open vendor-fix
+
+# Back to work: the last refund, and a returns desk that has not changed.
+page ref10-paid returns.northwind.example/refunds/R-2292/approved
+  title Refund approved
+  brand Northwind Returns
+  heading Refund R-2292 approved
+  | 112.00 goes back to Omar Reyes' card within three working days.
+page ref10-held returns.northwind.example/refunds/R-2292/held
+  title Refund held
+  brand Northwind Returns
+  heading Refund R-2292 held
+  | Nothing was paid. Priya is told.
+page ref-10 returns.northwind.example/refunds/R-2292
+  title Refund R-2292: waiting for approval
+  brand Northwind Returns
+  requires returns-login
+  heading Refund R-2292: waiting for approval
+  | A customer refund is waiting for you.
+  section Refund
+  row Customer = Omar Reyes
+  row Order = 40156, wrong size
+  row Amount = 112.00
+  row Refund to = the card the order was paid with
+  row Checked by = Priya Shah, customer care
+  button Approve the refund -> ref10-paid
+  button Hold and ask Priya -> ref10-held
+mail mail-ref10
+  from Priya Shah <priya.shah@northwind.example>
+  subject Last one: refund R-2292 (Omar Reyes)
+  sent 2026-11-02 14:41
+  link ref-10
+  | Dana,
+  |
+  | Marcus has sent everyone a note about the antivirus alert. The last refund is checked and ready. The link opens it in the returns desk.
+  |
+  | Priya
+
+step Install the corrected list
+  look the confirmation page, and the banners: list 270.9.1 installed and Priya's last refund
+  when choose vendor-fix 1
+  | The vendor's first box is for people who kept the file: install the corrected list, and the alert stops for good.
+  | If you removed the file, the second box and Marcus's rescue disc come first. Either way the work goes on: Priya has sent the last refund.
+choose vendor-fix 1
+update Harbourlight virus list 270.9.1
+  kb HL-270.9.1
+  size 2 MB
+  status installed
+notify updates Harbourlight: virus list 270.9.1 installed
+  | The corrected list is installed. user32.dll is no longer flagged.
+notify mail Priya Shah
+  | Last one: refund R-2292 (Omar Reyes)
+
+step Back to work
+  look Mail: Priya's last message, then the Refund box on the page: the same rows as refund 9
+  when visit ref-10
+  | Priya's last refund, with a real link to the returns desk. You are still signed in, and the page looks just as it did for refund 9.
+  | Nothing has been added to it, because nothing was ever on this PC. Check the customer and the amount, then approve the refund.
+open ref-10
+
+step 10 of 10 done
+  look the counter in the guide: the shift is done
+  when choose ref-10 any
+  | Every refund is approved, and your PC works as it always did. Press Next to see what one wrong virus list cost.
+choose ref-10 1
+quota +1
+
+step What the false alarm cost
+  look the animation: a scare with no trojan behind it
+  | No trojan touched a single PC. The harm came from the alert, and from what people did next: PCs that would not start, calls to IT, a day of lost work.
+  | Sam's PC is back after Marcus's rescue disc. Every PC that kept the file kept running.
+attack scareware
+  | one wrong virus list
+  | user32.dll called a banking trojan
+  | Sam pressed Remove: PC would not start
+  | Keeping the file: Windows ran fine
+mail helpdesk
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Helpdesk: 23 PCs, one wrong virus list
+  sent 2026-11-02 16:10
+  | Today the service desk took 23 calls about the Harbourlight alert. No PC had a trojan. Six people had removed user32.dll, and we repaired those PCs from a rescue disc.
+  |
+  | Please call us before you remove anything from the Windows folder.
+  |
+  | Marcus, IT
+notify mail Marcus Lee
+  | Helpdesk: 23 PCs, one wrong virus list
+open helpdesk
+
+flag hard notice settings Trojan horse found
+  | A "banking trojan" named in a file inside the Windows folder, the moment after an update. That points to a bad virus list, not to an infection.
+flag hard mail sam-urgent
+  | A colleague in capitals, telling you to remove a file before anyone has checked it. Fear is not a source.
+flag hard file C/Windows/System32/user32.dll
+  | The alert calls this file a banking trojan, but it is one of Windows' own parts, with its neighbours.
+flag hard dialog properties avg-user32
+  | Type: Application extension, from a named publisher, with a valid digital signature. A password-stealing trojan would not carry a valid signature.
+flag hard mail it
+  | IT says the update was faulty, the file is genuine and nothing should be removed. Real news about a fault comes from IT or from the vendor.
+flag hard section vendor-fix 1
+  | The antivirus vendor itself says its virus list 270.9.0 wrongly flagged user32.dll, and that the file was clean all along.
+flag soft file Desktop/returns-login.txt
+  | Passwords in a text file on the desktop: any program that runs can read them. Use a password manager.
+
+lesson
+  | Antivirus can be wrong. Before you remove a detection in a system file, check what the file is: in the Windows folder, with a valid Windows signature, it is almost certainly genuine.
+  | Do not press Remove because an alert recommends it or a colleague tells you to. Keep the file, ask IT, and read the vendor's own page. A big false alarm is usually fixed within hours by a corrected virus list.
+  | If a PC will not start after a Windows file is removed, it needs IT and a rescue disc, not another restart.

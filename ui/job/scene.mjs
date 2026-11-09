@@ -27,7 +27,7 @@ export function createScene(root, { doc, reduced, sleep }) {
   const dot = el(doc, 'i', 'jv-gauge-dot');
   const readout = el(doc, 'p', 'jv-readout', 'Surface · 0 m');
   readout.setAttribute('aria-live', 'polite');
-  append(gauge, dot, readout);
+  gauge.append(dot);
 
   const pocket = el(doc, 'div', 'jv-pocket');
   const tag = el(doc, 'div', 'jv-fish-tag');
@@ -42,7 +42,7 @@ clam.dataset.pixelBg = '/ui/abyss/pixel/creatures/giant-clam-spritesheet.png'; /
 
   const caption = el(doc, 'p', 'jv-caption');
   caption.setAttribute('role', 'status');
-  append(root, water, gauge, pod, caption);
+  append(root, water, gauge, readout, pod, caption);
 
   let fish = null;
   let receiptCard = null;

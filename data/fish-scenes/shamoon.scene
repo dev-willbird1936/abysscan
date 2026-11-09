@@ -1,0 +1,341 @@
+# Shamoon (August 2012). A wiper: it destroyed the files and the start of the disk on tens of thousands of company PCs in one morning.
+# A quest (QUESTS.md): the trainee is a maintenance-records clerk at a pipeline company who closes work orders in the company portal.
+# Invented victim: the real attackers got in through a phishing email, spent weeks stealing admin passwords, then pushed Shamoon to
+# every PC over the network and set it to wipe at 11:08 on a holiday morning. The clerk, the company and the portal here are made up,
+# and the weeks between the phishing mail and the wipe are squeezed into one step.
+os windows
+user Dana Okafor
+about
+  | Shamoon wiped the computers of a large energy company in one morning. An employee opened a phishing email, and that gave the attackers a first foothold. They spent weeks finding admin passwords, copied the wiper to every PC over the network, and set it to start at 11:08 on a holiday, when few people were at work.
+  | Once a PC was infected, nobody had to click anything more: the dropper set itself to start with Windows, and the wiper waited for the set time.
+  | Then it overwrote the files on each PC with a piece of one picture, wiped the start of the disk, and restarted it. Windows could not start again. There was no ransom note and no key: roughly 30,000 PCs had to be replaced. The clerk and the company here are invented.
+story
+  | You are Dana Okafor, maintenance-records clerk at Northwind Energy, a company that runs pipelines and pump stations. When a technician finishes a job, you check the inspector's note and close the work order in the Fieldwork portal.
+  | It is a Monday morning in early November. You have closed 6 of the 8 work orders in your queue. Two to go.
+  | Your portal sign-in is in a text file on the desktop. IT left the records server's admin login in a file there too. Both are bad habits.
+  | Along the way, flag anything that looks wrong.
+quota 6 8 Work orders closed
+
+# Dana's desk and her office (soft flags: careless, but only here to keep the training simple).
+file Desktop/portal-login.txt
+  at 930 200
+  | Fieldwork portal (training copy)
+  | User ID: dana.okafor
+  | Password: Fieldwork-2026!
+file Desktop/records-admin.txt
+  at 930 300
+  | Records server admin (training copy)
+  | Server: \\192.0.2.31\records
+  | Admin user: records-admin
+  | Password: Pipeline-Admin-2026!
+drive Northwind Records
+  kind share
+  as Records
+file Records/inspection-backup-2026-10.zip
+  size 4812800
+  | Training copy of last month's inspection records.
+
+# The Fieldwork portal: a sign-in page, and the work orders behind it.
+page portal-login fieldwork.northwind-energy.example/sign-in
+  title Fieldwork: sign in
+  brand Fieldwork by Northwind Energy
+  favorite
+  heading Sign in to Fieldwork
+  | Welcome back. Sign in to close your work orders.
+  field User ID = dana.okafor
+  field secret Password = Fieldwork-2026!
+  button Sign in
+page closed-7 fieldwork.northwind-energy.example/work-orders/WO-4471/closed
+  title Work order closed
+  brand Fieldwork by Northwind Energy
+  heading Work order closed
+  | WO-4471, valve inspection at Pump Station 3, is closed and filed.
+page back-7 fieldwork.northwind-energy.example/work-orders/WO-4471/returned
+  title Sent back
+  brand Fieldwork by Northwind Energy
+  heading Sent back to the technician
+  | WO-4471 goes back to the technician with a question about the inspector's note.
+page wo-7 fieldwork.northwind-energy.example/work-orders/WO-4471
+  title Close work order: WO-4471
+  brand Fieldwork by Northwind Energy
+  requires portal-login
+  heading Close work order: WO-4471
+  | A finished job is waiting for you to close it.
+  section Work order
+  row Job = Valve inspection, Pump Station 3
+  row Technician = Jon Alvarez
+  row Inspector's note = Passed, no leaks
+  row Finished = Monday, 9:40
+  button Close work order -> closed-7
+  button Send back to technician -> back-7
+
+mail mail-wo7
+  from Priya Shah <priya.shah@northwind.example>
+  subject Work order WO-4471 ready to close (Pump Station 3)
+  sent 2026-11-02 10:12
+  link wo-7
+  | Hi Dana,
+  |
+  | Jon has finished the valve inspection at Pump Station 3 and the inspector passed it. The link opens the work order in Fieldwork.
+  |
+  | Priya
+
+step Work order 7 of 8
+  look Mail: Priya's message with the work order link
+  | A new work order is ready, from Priya in Operations. This one is ordinary. Close it the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Work order WO-4471 ready to close (Pump Station 3)
+
+step The link goes to Fieldwork
+  look the link under Priya's message
+  when mail mail-wo7
+  | The email links to the company's own portal, northwind-energy.example. Hover over a link before you click it, to check where it goes.
+open mail-wo7
+
+step Sign in as usual
+  look the two boxes: User ID and Password, as on every visit
+  when visit wo-7
+  move Copy the details from portal-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The portal asks you to sign in first. Two boxes: User ID and Password. Remember what this page looks like.
+open wo-7
+
+step Check, then close
+  look the job and the inspector's note
+  when choose portal-login 1
+  | You are in. Check the inspector's note, then close the work order or send it back.
+signin portal-login
+
+step 7 of 8 done
+  look the counter in the guide: one work order left
+  when choose wo-7 any
+  | Done. One to go. And another email has just arrived, in the same inbox, with the same sort of subject line.
+choose wo-7 1
+quota +1
+
+# The lure: a "PDF" roster that is a program. In the real attack the phishing email gave the attackers their first foothold.
+program shamoon-foothold Staff-holiday-roster.pdf
+  publisher none
+  signed no
+  prompt open-warning
+  description Holiday roster
+  selfdelete
+mail roster
+  from HR Office <hr@northwind-staff.invalid>
+  subject Holiday shift roster: confirm your shifts by Friday
+  sent 2026-11-02 10:41
+  attach Downloads/Staff-holiday-roster.pdf.exe
+  | Dear colleague,
+  |
+  | The roster for the long weekend is attached. Please open it, check your shifts and reply by Friday.
+  |
+  | HR Office
+file Downloads/Staff-holiday-roster.pdf.exe
+  icon pdf
+  program shamoon-foothold
+  size 152576
+notify mail HR Office
+  | Holiday shift roster: confirm your shifts by Friday
+
+step A roster from HR
+  look the sender's address, and the attachment
+  when mail roster
+  | Everyone wants to see the long-weekend roster, so this looks routine. But the address ends in northwind-staff.invalid, not northwind.example, and Dana has never had a roster from HR as an attachment like this. Windows hides the end of the file name: it is really Staff-holiday-roster.pdf.exe, a program.
+open roster
+
+step The warning almost nobody reads
+  look Publisher "Unknown Publisher", Type "Application"
+  when prompt shamoon-foothold
+  | A real PDF never asks this. Windows wants to know whether to run a program from an unknown publisher. Most people click Run, to see their shifts.
+open Downloads/Staff-holiday-roster.pdf.exe
+
+# The trainee's click starts the foothold; it contacts the attackers' server, which this training desktop blocks.
+step Nothing seems to happen
+  look the pointer: busy for a moment, then nothing; the Connection blocked notice in the top right
+  when run shamoon-foothold
+  | No roster opens. The program deletes itself and quietly contacts the attackers' server, so they can reach Dana's PC from outside.
+  | The “Connection blocked” banner shows only because this training desktop has no network. On a real network nothing warned anyone. Dana shrugs: the file must be damaged.
+answer run
+block 203.0.113.60 443
+
+# Weeks later: a new shift, a new work order, and a service that nobody installed.
+page closed-8 fieldwork.northwind-energy.example/work-orders/WO-4480/closed
+  title Work order closed
+  brand Fieldwork by Northwind Energy
+  heading Work order closed
+  | WO-4480, pressure test at Pump Station 7, is closed and filed.
+page back-8 fieldwork.northwind-energy.example/work-orders/WO-4480/returned
+  title Sent back
+  brand Fieldwork by Northwind Energy
+  heading Sent back to the technician
+  | WO-4480 goes back to the technician with a question about the test report.
+page wo-8 fieldwork.northwind-energy.example/work-orders/WO-4480
+  title Close work order: WO-4480
+  brand Fieldwork by Northwind Energy
+  requires portal-login
+  heading Close work order: WO-4480
+  | A finished job is waiting for you to close it.
+  section Work order
+  row Job = Pressure test, Pump Station 7
+  row Technician = Mei Tan
+  row Inspector's note = Passed, report attached
+  row Finished = Wednesday, 10:30
+  button Close work order -> closed-8
+  button Send back to technician -> back-8
+# The first piece. It installs as a Windows-sounding service and then waits for its set time.
+program shamoon-dropper Distributed Link Tracking Server
+  publisher none
+  description Distributed Link Tracking Server (fake)
+  process trksrv.exe
+  cpu 1
+  mem 14
+  parent services.exe
+  command C:\Windows\System32\trksrv.exe
+  net 192.0.2.31:445
+  startup TrkSvr C:\Windows\System32\trksrv.exe
+  location HKLM\SYSTEM\CurrentControlSet\Services\TrkSvr
+
+# The second piece, run when the set time arrives. It does the damage with a raw-disk driver.
+program shamoon-wiper Disk defragmenter
+  publisher none
+  description dfrag.exe, the wiper
+  process dfrag.exe
+  cpu 78
+  mem 52
+  parent trksrv.exe
+  command C:\Windows\System32\dfrag.exe
+
+step Three weeks later
+  look the banner: a new start-up item; and the “1 program running” chip below, which shows it in Task Manager (Activity Monitor on a Mac)
+  move Click the “1 program running” chip to see the service, and flag what looks wrong. Then open Priya's new message in Mail.
+  | Three weeks pass. It is Wednesday 25 November, a little before eleven. A banner says a new start-up item was added to Dana's PC, one nobody asked for.
+  | The service is called TrkSvr, “Distributed Link Tracking Server”: a real Windows name, so it can look ordinary in a list.
+quota 7 8 Work orders closed
+launch shamoon-dropper
+mail mail-wo8
+  from Priya Shah <priya.shah@northwind.example>
+  subject Last one before the long weekend: WO-4480 (Pump Station 7)
+  sent 2026-11-25 11:01
+  link wo-8
+  | Dana,
+  |
+  | Mei's pressure test at Pump Station 7 is the last work order before the long weekend. Same as always: the link opens it in Fieldwork.
+  |
+  | Priya
+notify mail Priya Shah
+  | Last one before the long weekend: WO-4480 (Pump Station 7)
+
+step Priya's last work order
+  look Mail: Priya's message with the work order link
+  when mail mail-wo8
+  | Priya's last work order of the week is ordinary: the same sender and the same kind of link as the first. Nothing about the message is wrong.
+open mail-wo8
+
+step The last work order
+  look the work order: the same page as the first
+  when visit wo-8
+  move Check the inspector's note, then click “Close work order”.
+  | The page is the same as the first: same portal, same layout, same two buttons. Nothing about the work order is wrong. It is 11:07.
+open wo-8
+
+step 8 of 8, and then 11:08
+  look the files on the desktop and in Documents: each one is now 192 KB and will not open
+  when choose wo-8 any
+  move Click the “2 programs running” chip and flag the new program. Flag an overwritten file in the Documents window. Then press Next.
+  | You close the work order: 8 of 8, the shift is done. At that moment the clock reaches 11:08, and a second program, dfrag.exe, starts. It uses a disk driver to overwrite the files with a piece of one picture.
+  | The names stay the same, so nothing looks missing. But every file is now the same size and cannot be opened. This is not ransomware: there is no key and no demand.
+choose wo-8 1
+quota +1
+launch shamoon-wiper
+encrypt Documents
+encrypt Pictures
+encrypt Desktop
+encrypt Records/inspection-backup-2026-10.zip
+file Documents/Q3-report.docx
+  size 196608
+file Documents/budget.xlsx
+  size 196608
+file Documents/notes.txt
+  size 196608
+file Documents/photos-list.csv
+  size 196608
+file Documents/Client contacts.xlsx
+  size 196608
+file Documents/Contract draft.docx
+  size 196608
+file Documents/Invoice INV-1042.pdf
+  size 196608
+file Documents/Team offsite.pptx
+  size 196608
+file Pictures/holiday-01.png
+  size 196608
+file Pictures/holiday-02.png
+  size 196608
+file Desktop/todo.txt
+  size 196608
+file Desktop/Expenses October.xlsx
+  size 196608
+file Desktop/portal-login.txt
+  size 196608
+file Desktop/records-admin.txt
+  size 196608
+file Records/inspection-backup-2026-10.zip
+  size 196608
+notify files Files overwritten
+  | 3 folders and the records server. Same names, same size, no readable content. There is no copy to restore on this network.
+open Documents
+
+# The last screen: the PC restarts and the disk no longer starts Windows.
+view shamoon-boot screen
+  title Restarting
+  fullscreen
+  bg #000000
+  fg #c0c0c0
+  | Operating system not found.
+  | Reboot and select the proper boot device, or insert boot media and press a key.
+  button Continue -> done primary
+
+step The PC no longer starts
+  look the black screen
+  | Last, the driver overwrote the start of the disk, then restarted the PC. The screen goes black with a plain text line from the PC's firmware.
+  | There is no note and no countdown. Windows is gone, and so is every other PC on the network that the attackers reached.
+show shamoon-boot
+
+step What Shamoon did
+  look the animation: one phishing email, then every PC on the network
+  when done shamoon-boot
+  | The same thing happened on about 30,000 PCs within hours. Nothing was stolen and nothing was sold: the point was to destroy. The company had to buy new PCs and rebuild from the few backups the attackers could not reach.
+press shamoon-boot done
+attack network-worm
+  | one phishing email opens the door
+  | stolen admin passwords
+  | trksrv.exe copied to every PC
+  | the clock reaches 11:08
+  | files overwritten, disk start wiped
+  | about 30,000 PCs unable to start
+
+flag hard mail roster
+  | A "roster" from an address that ends .invalid instead of northwind.example, with an attachment where a link would be the normal way.
+flag hard file Downloads/Staff-holiday-roster.pdf.exe
+  | A program with a PDF icon. Windows hides the .exe at the end of its name.
+flag hard dialog open-warning shamoon-foothold
+  | A roster never asks to run as a program. Publisher: Unknown.
+flag hard notice taskmanager connection blocked
+  | A program that was just opened contacted an outside address at once: the attackers' server.
+flag hard process trksrv.exe
+  | Shamoon waiting in the background under a Windows-sounding service name, talking to another PC on the network.
+flag hard startup TrkSvr
+  | A service that nobody installed, set to start every time Windows does.
+flag hard process dfrag.exe
+  | The wiper: a program named like a Windows disk tool, started by trksrv.exe, using most of the processor to overwrite the disk.
+flag hard file Documents/Q3-report.docx
+  label The overwritten Q3-report.docx
+  | The name is unchanged, but its size is the same as every other overwritten file, and it will not open: Shamoon overwrote it with a picture.
+flag soft file Desktop/portal-login.txt
+  | A password in a text file on the desktop: any program that runs can read it. Use a password manager.
+flag soft file Desktop/records-admin.txt
+  | An admin password on an everyday PC. Shamoon spread on admin passwords the attackers had stolen: keep admin accounts off everyday PCs.
+
+lesson
+  | A wiper cannot be undone, so only backups kept offline help. A copy on the same network is wiped with the rest.
+  | Limit admin rights on the network, so one stolen account cannot reach every PC. Watch for a service or file with a Windows-sounding name in the wrong place.
+  | The first step was a roster with a PDF icon. Turn on file name extensions, and check Properties: Type "Application" means a program, not a document.

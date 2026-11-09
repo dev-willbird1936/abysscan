@@ -1,0 +1,3 @@
+Generated the remaining 29 compositions with native `image_gen.imagegen` and copied each staged PNG unchanged. The approved sunlight pilot remains intact.
+
+All 30 expected files now exist: five depth PNGs in each of the six style folders. No tool failures occurred. Transparency verification for the new images remains with the parent workflow.

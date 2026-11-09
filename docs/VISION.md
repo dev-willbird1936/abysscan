@@ -120,7 +120,7 @@ Nothing is deployed. No Vultr resource, inference call or RetroDiffusion call ha
 - A gated, offline-tested proof route runs the 2023 OAuth consent scene in a local Docker browser container and optionally sends screenshots to Serverless Inference.
 - `backend/vultr-agent-planner.mjs` asks the model for one fixed action ID per depth. It is mock-tested and not yet called by any route.
 - The other 29 scenes (including the worm) are scripted client-side scenes. They are not yet executed in a sandbox.
-- It is **not** a valid submission yet. See [`hackathon-vultr-proof.md`](hackathon-vultr-proof.md) and [`vultr-deployment.md`](vultr-deployment.md) for the gates and remaining steps.
+- It is **not** a valid submission yet. See `hackathon-vultr-proof.md` and `vultr-deployment.md` for the gates and remaining steps.
 
 ## 4. Flagship scene: Google Docs OAuth worm (2017)
 
@@ -139,7 +139,7 @@ Everything is fictional: invented brand, `.example` addresses, no real consent s
 - Original toy logic and synthetic data only. No malware, exploit payloads, real vulnerable software, real credentials, real accounts or public targets.
 - Loopback by default. Cloud only behind explicit server gates and separate approval.
 - No credential collection. No real camera access.
-- The macOS shell is built from an unlicensed Kimi mirror and is a private local evaluation asset; Win11React code is CC0 but its bundled artwork keeps its own rights. Resolve redistribution rights before the public deployment, or ship the project desktop instead.
+- Win11React code is CC0 but its bundled artwork keeps its own rights; the public repository withholds that artwork (see THIRD-PARTY.md).
 - Full rules: [`safety.md`](safety.md).
 
 ## 6. Where things are

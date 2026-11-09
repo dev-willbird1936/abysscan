@@ -1,0 +1,327 @@
+# Heartbleed (April 2014). A flaw in OpenSSL let anyone read slices of a web server's memory. The visitor's own computer showed nothing.
+# A quest (QUESTS.md): the trainee confirms supplier orders on a wholesaler's trade portal, does one safely, then lives through the clean-up and the copycat scam.
+# Heartbleed hit servers, so no office worker saw it happen. The company, the wholesaler's portal and the person here are invented; real sites were hit the same way: a tax agency lost ID numbers, a parenting forum lost passwords.
+os windows
+user Dana Okafor
+about
+  | Heartbleed (CVE-2014-0160, April 2014) was a bug in OpenSSL, the software that puts the padlock on a website. A stranger could send a server a "heartbeat" that claimed to be 64 KB long and get back 64 KB of the server's own memory: passwords, session cookies, even the site's private keys. It left no trace, and nothing showed on the visitor's computer.
+  | What visitors saw was the clean-up: "please change your password" mails from the real sites, and within days scammers copying them. This scene follows an invented office manager and an invented wholesaler.
+story
+  | You are Dana Okafor, office manager at Northwind Traders. You keep the office stocked by confirming orders on Harbour Wholesale's trade portal. Priya, in purchasing, prepares each one.
+  | This replay is set in April 2014, the week the news was full of Heartbleed. The date on this desktop is only the training clock.
+  | You have confirmed 6 of today's 8 orders. Two to go.
+  | Your portal sign-in is in a text file on the desktop, next to a list of the passwords you reuse. That is a bad habit, but it keeps this training quick.
+quota 6 8 Orders confirmed today
+
+# Dana's desk: the details she copies from (soft flags: careless, but only here to keep the training simple).
+file Desktop/harbour-login.txt
+  at 930 200
+  | Harbour Wholesale trade portal
+  | Email: dana.okafor@northwind.example
+  | Password: Quay-Pallet-26!
+file Desktop/passwords-i-reuse.txt
+  at 930 300
+  | Passwords I reuse (training copy)
+  | Quay-Pallet-26!  is my password for: Harbour portal, staff mail, expenses site
+  | Change them all some day
+
+# The wholesaler's portal: a sign-in page, and the order pages behind it.
+page portal-login harbour-wholesale.example/trade/sign-in
+  title Harbour Wholesale: sign in
+  brand Harbour Wholesale Trade
+  issuer Example Certificate Authority
+  favorite
+  heading Sign in to the trade portal
+  | Welcome back. Sign in to confirm your orders.
+  field Email = dana.okafor@northwind.example
+  field secret Password = Quay-Pallet-26!
+  button Sign in
+page done-7 harbour-wholesale.example/trade/orders/7/confirmed
+  title Order confirmed
+  brand Harbour Wholesale Trade
+  issuer Example Certificate Authority
+  heading Order 7 confirmed
+  | 40 reams of printer paper to Northwind Traders, 14 Quay Road. Delivery tomorrow.
+page held-7 harbour-wholesale.example/trade/orders/7/held
+  title Order held
+  brand Harbour Wholesale Trade
+  issuer Example Certificate Authority
+  heading Order 7 held
+  | Nothing will be sent until you confirm it.
+page order-7 harbour-wholesale.example/trade/orders/7
+  title Confirm order 7 of 8
+  brand Harbour Wholesale Trade
+  issuer Example Certificate Authority
+  requires portal-login
+  heading Confirm order 7 of 8
+  | An order prepared by Priya is waiting for your confirmation.
+  section Order
+  row Items = Printer paper, 40 reams
+  row Total = 386.00, on account
+  row Prepared by = Priya Shah
+  section Delivery
+  row Deliver to = Northwind Traders, 14 Quay Road
+  section Signed-in devices
+  row Dana's PC = 192.0.2.10, signed in just now
+  note Any device listed here can confirm orders.
+  button Confirm order -> done-7
+  button Hold order -> held-7
+
+mail mail-ord7
+  from Priya Shah <priya.shah@northwind.example>
+  subject Order 7 of 8 to confirm: printer paper
+  link order-7
+  | Hi Dana,
+  |
+  | The paper order is on the Harbour portal, ready for you to confirm. The link goes straight to it.
+  |
+  | Priya
+
+step Order 7 of 8
+  look Mail: Priya's message with the order link
+  | A new order has come in from Priya. This one is real. Its link goes to harbour-wholesale.example, the wholesaler's own address. Confirm it the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Order 7 of 8 to confirm: printer paper
+open mail-ord7
+
+step Sign in as usual
+  look the padlock and address, and the two boxes: Email and Password
+  when visit order-7
+  move Copy the details from harbour-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The portal asks you to sign in first. The padlock is green: the connection is private. Remember what this page normally looks like.
+open order-7
+
+step Check, then confirm
+  look the items, the total and the delivery address
+  when choose portal-login 1
+  | You are in. Check what Priya prepared, then confirm it or hold it.
+signin portal-login
+
+step 7 of 8 done
+  look the counter in the guide: one order left
+  when choose order-7 any
+  | Done. One order to go. And a new email has just arrived: it is about Heartbleed.
+choose order-7 1
+quota +1
+
+# The safe clean-up: the wholesaler's own notice and its own password page.
+page portal-home harbour-wholesale.example/trade/home
+  title Harbour Wholesale: trade portal
+  brand Harbour Wholesale Trade
+  issuer Example Certificate Authority
+  heading Trade portal
+  | Welcome back, Dana. Nothing needs your attention.
+page pw-done harbour-wholesale.example/trade/account/password-changed
+  title Password changed
+  brand Harbour Wholesale Trade
+  issuer Example Certificate Authority
+  heading Password changed
+  | Your new password is in use. Every other device that was signed in to your account has been signed out.
+page pw-change harbour-wholesale.example/trade/account/password
+  title Change your password
+  brand Harbour Wholesale Trade
+  issuer Example Certificate Authority
+  requires portal-login
+  heading Change your password
+  | We fixed the Heartbleed bug on our servers last week and installed a new security certificate. The fix is in, so a new password is safe now.
+  field secret Current password = Quay-Pallet-26!
+  field secret New password = Tidewater-0409!
+  button Change password -> pw-done
+mail pw-notice
+  from Harbour Wholesale <security@harbour-wholesale.example>
+  subject Important: please change your password
+  link pw-change
+  | Hello Dana,
+  |
+  | We fixed a security bug called Heartbleed on our servers and installed a new security certificate. We have no evidence your account was misused, but as a precaution please change your password.
+  |
+  | The page is in the trade portal, where you are signed in now. We will never ask for your password in an email.
+notify mail Harbour Wholesale
+  | Important: please change your password
+
+step The supplier's notice
+  look the sender address and the link under the message
+  when mail pw-notice
+  | Harbour Wholesale says it fixed Heartbleed and asks customers to change their password. The sender is harbour-wholesale.example and the link goes to the portal's own address. This one is real.
+open pw-notice
+
+step Change it the safe way
+  look the padlock, the address and the note that the fix is in
+  when visit pw-change
+  move Click the link under the message. On the portal's page, click a box and press any keys to type the old password and a new one, then click “Change password”.
+  | The portal's own page, with its own padlock, says the fix went in last week. Only now is a new password safe: before the fix, a new password could have been read from the server too.
+open pw-change
+
+step Password changed
+  look the counter: still 7 of 8, and a second Heartbleed mail in the inbox
+  when choose pw-change 1
+  | Done. You went to the supplier's own site and its own page asked. Every other device was signed out. Another Heartbleed mail has just arrived.
+signin pw-change
+
+# Dana has now done the right thing. The copycat arrives after.
+page lookalike harbour-reset.invalid/heartbleed
+  title Reset your password
+  brand Harbour Wholesale Trade
+  insecure
+  heading Your account is at risk from Heartbleed
+  section Confirm it is you
+  field Email = dana.okafor@northwind.example
+  field secret Current password = Tidewater-0409!
+  button Reset now -> portal-home
+mail pw-scam
+  from Harbour Wholesale <ops@harbour-reset.invalid>
+  subject URGENT: Heartbleed has exposed your Harbour account, reset now
+  link lookalike
+  | Your Harbour account was hacked through Heartbleed.
+  |
+  | Reset your password in the next hour or your account and your open orders will be closed.
+  |
+  | Reset my password:
+notify mail Harbour Wholesale
+  | URGENT: Heartbleed has exposed your Harbour account, reset now
+
+step A second mail, same news
+  look the sender address and the words “URGENT” and “reset now”
+  when mail pw-scam
+  | Scammers copied the real notice within days. Compare this sender, the link and the wording with the real notice, then flag anything that looks wrong. Dana has already changed her password.
+open pw-scam
+
+step The link goes somewhere else
+  look the address bar: the padlock, and the domain
+  when visit lookalike
+  move Click the link under the message. Reset the password as it says: click a box and press any keys to type the same details as before, then click “Reset now”.
+  | The page looks like the wholesaler's. Check the address bar and the padlock before you type anything. It asks for the password you changed a minute ago.
+open lookalike
+
+step It goes to the real portal
+  look Mail: Priya's last message, and the counter still at 7 of 8
+  when choose lookalike 1
+  | The password went to the attackers when you pressed the button. The page then sent you to the real portal, which looks fine, so you suspect nothing. The portal has since signed you out, and Priya's last order is waiting.
+signin lookalike
+
+# The password went to the attackers. The portal signs Dana out after a while; her last order is waiting.
+page portal-login harbour-wholesale.example/trade/sign-in
+  title Harbour Wholesale: sign in
+  brand Harbour Wholesale Trade
+  issuer Example Certificate Authority
+  favorite
+  heading Sign in to the trade portal
+  | Your session has ended. Please sign in again.
+  field Email = dana.okafor@northwind.example
+  field secret Password = Tidewater-0409!
+  button Sign in
+page done-8 harbour-wholesale.example/trade/orders/8/confirmed
+  title Order confirmed
+  brand Harbour Wholesale Trade
+  issuer Example Certificate Authority
+  heading Order 8 confirmed
+  | 12 toner cartridges to Unit 9, Dockside Lane. Delivery tomorrow.
+page held-8 harbour-wholesale.example/trade/orders/8/held
+  title Order held
+  brand Harbour Wholesale Trade
+  issuer Example Certificate Authority
+  heading Order 8 held
+  | Nothing will be sent until you confirm it.
+page order-8 harbour-wholesale.example/trade/orders/8
+  title Confirm order 8 of 8
+  brand Harbour Wholesale Trade
+  issuer Example Certificate Authority
+  requires portal-login
+  heading Confirm order 8 of 8
+  | The last order prepared by Priya is waiting for your confirmation.
+  section Order
+  row Items = Printer toner, 12 cartridges
+  row Total = 744.00, on account
+  row Prepared by = Priya Shah
+  section Delivery
+  row Deliver to = Unit 9, Dockside Lane
+  section Signed-in devices
+  row Dana's PC = 192.0.2.10, signed in just now
+  row Unknown device = 203.0.113.77, signed in 11 minutes ago
+  note Any device listed here can confirm orders.
+  button Confirm order -> done-8
+  button Hold order -> held-8
+signout portal-login
+mail mail-ord8
+  from Priya Shah <priya.shah@northwind.example>
+  subject Last order of the day: printer toner
+  link order-8
+  | Dana,
+  |
+  | The toner is the last order. Same as before: the link opens it in the Harbour portal.
+  |
+  | Priya
+notify mail Priya Shah
+  | Last order of the day: printer toner
+
+step The last order
+  look Mail: Priya's last message, and the link under it
+  when visit order-8
+  move Open Priya's last message in Mail, then click the link under it.
+  | Priya's last order of the day, with a link to the real portal like the first one. Open it.
+open mail-ord8
+open order-8
+
+step Sign in again
+  look the delivery address and the devices, compared with order 7
+  when choose portal-login 1
+  move Sign in again with your new password: click a box and press any keys to type, then click “Sign in”.
+  | The portal signed you out, so you sign in again. The padlock is the real one, and your new password works. Nothing else looks different. Compare the order with order 7 before you confirm it.
+open order-8
+signin portal-login
+
+step 8 of 8, or so Dana thinks
+  look the counter: the shift is done
+  when choose order-8 any
+  | If you confirmed it, the toner went to the attackers' address. Holding it, or checking the devices first, was the right call. Press Next to see what Heartbleed took, and what the scam took.
+choose order-8 1
+quota +1
+
+# The server's side of it: one heartbeat, and what came back. Nothing is sent; the lines are fiction.
+view heartbeat-leak console
+  title Harbour server: one heartbeat (training copy)
+  app Server log
+  size 600x300
+  line request  heartbeat  says: 65535 bytes   really sent: 1 byte
+  line reply    heartbeat  returned: 65535 bytes of memory (nobody checked)
+  line
+  line ...POST /trade/sign-in HTTP/1.1  Cookie: session=7f3a9c0d51b2e8c4...
+  line ...email=dana.okafor@northwind.example&password=Quay-Pallet-26!...
+  line ...GET /trade/orders/7 HTTP/1.1...
+  line ...email=a.novak@customer.example&password=(another customer's)...
+  line
+  line (Illustration for training: nothing was sent.)
+  button Close -> close primary
+
+step What Heartbleed took
+  look the animation and the server log: the old password and the session, read from the server's memory
+  | The bug handed out whatever sat in the server's memory, and that included Dana's old password and session, with no trace. Changing the password after the fix cut that off. The scam page then handed over the new one, and the attackers signed in as Dana and changed where the goods go.
+attack server-exploit-leak
+  | heartbeat: "send 64 KB"
+  | server replies with its memory
+  | old password and session cookie (useless after the change)
+  | scam page: the new password
+  | attacker changes the delivery address
+show heartbeat-leak
+
+flag hard mail pw-scam
+  | The same notice as the real one, from harbour-reset.invalid instead of harbour-wholesale.example, with a deadline and a threat.
+flag hard link pw-scam
+  | The link goes to harbour-reset.invalid, a lookalike address, not the portal.
+flag hard section lookalike 1
+  | A page that asks for the password you changed a minute ago, to “confirm it is you”.
+flag hard field lookalike 2
+  | The current-password box on the lookalike page. This is where the new password went to the attackers.
+flag hard section order-8 2
+  | The delivery address differs from the office's: order 7 went to 14 Quay Road, and this one goes to Unit 9, Dockside Lane.
+flag hard section order-8 3
+  | A device that is not yours is signed in to the account: someone else is in it, using the password typed on the lookalike page.
+flag soft file Desktop/harbour-login.txt
+  | A password in a text file on the desktop: any program that runs can read it. Use a password manager.
+flag soft file Desktop/passwords-i-reuse.txt
+  | One password on three sites: a leak from one site opens them all. Use a different password for each.
+
+lesson
+  | A flaw on a website's server can expose your password even when you did nothing wrong. Watch for the site's own notice, and change your password only after it says the fix is in.
+  | Open the site yourself, or follow the link in a mail only after you have checked the sender and the address. A “reset now” mail with a deadline and a different domain is a scam, whatever it says about Heartbleed.
+  | Use a different password on each site and turn on two-step sign-in, so one leak does not open the rest.

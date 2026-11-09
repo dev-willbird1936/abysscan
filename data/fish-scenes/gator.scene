@@ -1,0 +1,367 @@
+# Gator / GAIN (1998-2006). Came bundled with a free form-filling wallet; showed pop-up ads on top of competitors' websites.
+# A quest (QUESTS.md): the trainee books staff flights, does one booking safely, then installs a free form filler a colleague
+# recommends and meets Gator in its setup. The victim is invented: Gator hit anyone who wanted a free eWallet.
+os windows
+user Dana Okafor
+about
+  | Gator's free "eWallet" filled in web forms and remembered passwords for you. Its setup also installed an ad program, GAIN, that watched which sites you visited and covered them with pop-up ads from their competitors.
+  | Millions of home and office computers ran it. Dana's job here is invented: the real victims were anyone who wanted a free form filler.
+story
+  | You are Dana Okafor, travel coordinator at Northwind Traders. Each week you book staff flights on Skyroute Air's business booking site.
+  | It is mid-afternoon. You have booked 3 of today's 5 flights. Two to go.
+  | Your sign-in details and the travellers' passport numbers are in two text files on the desktop. That is a bad habit, but it keeps this training quick.
+quota 3 5 Flights booked today
+
+# Dana's desk: the details Dana copies from (soft flags: careless, but only here to keep the training simple).
+file Desktop/skyroute-login.txt
+  at 930 200
+  | Skyroute Air Business Booking
+  | User ID: dana.okafor
+  | Password: Window-2026!
+  | Company account: NT-4410
+file Desktop/passport-list.txt
+  at 930 300
+  | Staff passport numbers (training copy)
+  | Marcus Lee: X0012345
+  | Priya Shah: X0067890
+  | Dana Okafor: X0034567
+
+# The booking site: a sign-in page, and the flight pages behind it.
+page skyroute-login skyroute-air.example/business/sign-in
+  title Skyroute Air: business sign in
+  brand Skyroute Air Business
+  favorite
+  heading Sign in to Business Booking
+  | Welcome back. Sign in to book your staff flights.
+  field User ID = dana.okafor
+  field secret Password = Window-2026!
+  field Company account = NT-4410
+  button Sign in
+page booked-4 skyroute-air.example/business/booked/NT-0412
+  title Flight booked
+  brand Skyroute Air Business
+  heading Flight booked
+  | NT-0412, Marcus Lee, Harbor City to Lisbon on 16 November 2026. 412.00 charged to account NT-4410. Booked on 9 November 2026.
+page held-4 skyroute-air.example/business/held/NT-0412
+  title Booking not made
+  brand Skyroute Air Business
+  heading Booking not made
+  | NT-0412 was not booked. Nothing was charged.
+page trip-4 skyroute-air.example/business/book/NT-0412
+  title Book flight: NT-0412
+  brand Skyroute Air Business
+  requires skyroute-login
+  heading Book flight: NT-0412
+  | A staff flight is waiting for you to book.
+  section Flight
+  row Traveller = Marcus Lee
+  row Route = Harbor City to Lisbon
+  row Date = Monday 16 November 2026
+  row Fare = 412.00, economy
+  button Book flight -> booked-4
+  button Do not book -> held-4
+
+mail mail-trip4
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Flight to Lisbon on the 16th
+  link trip-4
+  | Hi Dana,
+  |
+  | Please book me on the Lisbon flight for the 16th. The fare is the one we agreed, and the link goes straight to the booking.
+  |
+  | Marcus
+
+step Flight 4 of 5
+  look Mail: Marcus's message with the booking link
+  | A new booking request has come in from Marcus. It is ordinary, so book it the normal way and you will know what a normal booking looks like.
+notify mail Marcus Lee
+  | Flight to Lisbon on the 16th
+
+step The link goes to the booking site
+  look the link under Marcus's message
+  when mail mail-trip4
+  | The link goes to Skyroute Air's own address, skyroute-air.example. Hover over a link before you click it, to check where it goes.
+open mail-trip4
+
+step Sign in as usual
+  look the three boxes: User ID, Password and Company account, as on every booking
+  when visit trip-4
+  move Copy the details from skyroute-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The site asks you to sign in first. Three boxes, typed out by hand every time. Remember what this page, and the pages after it, normally look like.
+open trip-4
+
+step Check, then book
+  look the traveller, the route and the fare
+  when choose skyroute-login 1
+  | You are in. Check the traveller and the fare against Marcus's message, then book it. Nothing covers the page: this is what a clean booking looks like.
+signin skyroute-login
+
+step Flight 4 of 5 done
+  look the counter in the guide: four flights booked
+  when choose trip-4 any
+  | Booked. One flight to go. And a colleague has just sent a tip about the retyping.
+choose trip-4 1
+quota +1
+
+# The lure: a free form filler, offered by a colleague. Its setup carries the ad program, which is installed only at Finish.
+view gator-setup wizard
+  title Wallet Freeware Setup
+  app Wallet Freeware Setup
+  publisher Wallet Freeware Inc.
+  page Welcome to the Free eWallet Setup
+  icon program
+  | This wizard installs the free eWallet. It fills in web forms and remembers your passwords for you.
+  button Next -> next primary
+  button Cancel -> close
+  page License Agreement
+  icon info
+  | Please read the following licence agreement before you choose I Agree.
+  line 1. Licence. Wallet Freeware Inc. gives you a free licence to use the eWallet on one computer.
+  line 9.4 You agree that the Software may install and run partner software on your computer.
+  line The partner software may display advertisements and may collect information about the websites you visit.
+  line 12. Ending the licence. You may stop using the Software at any time by uninstalling it.
+  button Back -> back
+  button I Agree -> next primary
+  button Cancel -> close
+  page Select components
+  icon gear
+  | Select the components to install.
+  section Components
+  check [x] Free eWallet (form filler and password wallet)
+  check [x] GAIN ad partner software (recommended)
+  line Clicking Install adds both items ticked above, and accepts the licence.
+  line That includes clause 9.4: partner software may display advertisements and collect the websites you visit.
+  button Back -> back
+  button Install -> next primary
+  button Cancel -> close
+  page Setup complete
+  icon shield
+  | The eWallet is installed and ready to use.
+  button Finish -> done primary
+# The tray app people wanted: it really did fill in forms.
+view gator-wallet panel
+  title eWallet
+  app eWallet
+  publisher Wallet Freeware Inc.
+  icon user
+  heading Your saved details
+  | The eWallet remembers your forms and passwords.
+  section Saved on this computer
+  row Name = Dana Okafor
+  row Email = dana.okafor@northwind.example
+  row Passwords = 14 saved
+  button Close -> close primary
+# The rival's pop-up that Gator opens over a travel site. The line at the bottom is Gator's own attribution.
+view gator-ad panel
+  title Advertisement
+  app Advertisement
+  icon web
+  size 440x300
+  heading Cheaper than Skyroute? Compare fares
+  | Before you book, compare: FareHopper has cheaper fares to the same city.
+  section FareHopper
+  tone warn
+  row Offer = Save 40% on fares today
+  line Ad shown by GAIN, the Gator network, for skyroute-air.example
+  button Close -> done primary
+# The download page for the free eWallet: the one place the bundle is described.
+page wallet-page wallet-freeware.example/ewallet
+  title Free eWallet: download
+  brand Wallet Freeware
+  heading Free eWallet 3.0
+  | Fills in web forms and remembers your passwords. Free, with no time limit.
+  section About this download
+  row Price = Free
+  row Size = 1.0 MB
+  row Includes = Partner software, described in the licence
+  button Download now
+# The setup program: it asks to run, shows its wizard, and installs the ad program only when Finish is pressed.
+program gator-setup Free eWallet Setup (ewallet-setup.exe)
+  publisher Wallet Freeware Inc.
+  signed yes
+  prompt open-warning
+  description Free eWallet Setup
+  view gator-setup
+mail mail-wallet
+  from Priya Shah <priya.shah@northwind.example>
+  subject A free tool that fills in forms for you
+  link wallet-page
+  | Hi Dana,
+  |
+  | I saw you retyping the traveller details again. At home I use a free eWallet: it fills in web forms and remembers passwords, so you never copy them from a text file. The download page is below.
+  |
+  | Priya
+notify mail Priya Shah
+  | A free tool that fills in forms for you
+
+step A tip about all that typing
+  look the sender and the link under Priya's message
+  when mail mail-wallet
+  | Priya suggests a free form filler, the kind a colleague would use at home. The program really does fill in forms, which is why it is easy to trust.
+  | The link does not go to Northwind's software portal. It goes to a download site.
+open mail-wallet
+
+step A free download page
+  look the details: Price, Size and Includes
+  when visit wallet-page
+  | The page is for a small program that is free and useful. Read the details before you press Download, and ask how a free program makes its money.
+open wallet-page
+
+step The setup arrives
+  look {the Open File warning: Publisher “Wallet Freeware Inc.”, Type “Application”|the warning: “ewallet-setup.exe” is a Windows program}
+  when choose wallet-page 1
+  cue dialog-btn:run view-btn:next view:gator-setup
+  move {Click Run, then Next twice.|In the warning, click “Show what it does”, then Next twice.}
+  | {Windows asks whether to run the setup. The publisher is a name nobody at Northwind knows.|The Mac warns that this is a Windows program: the training desktop shows what it did on the PC it was made for.}
+  | A signature only says who made the file, not what it installs. Nothing in the warning says that an ad program is inside.
+choose wallet-page 1
+file Downloads/ewallet-setup.exe
+  program gator-setup
+  size 1048576
+open Downloads/ewallet-setup.exe
+
+step The licence and the options
+  look the licence on page 2, and the options page: the second box is already ticked
+  when page gator-setup 3
+  cue view-btn:next view-btn:done view:gator-setup
+  move Click Install, then Finish.
+  | The licence on page 2 lets the partner software show ads and collect the websites you visit. That is clause 9.4, in the middle of the text.
+  | The options page offers "GAIN ad partner software", its box is ticked already, and Install accepts clause 9.4. Clicking Next without reading is what the bundle relied on.
+answer run
+press gator-setup next
+press gator-setup next
+
+step The eWallet works, and the ad program starts
+  look the eWallet window, and the start-up notice in the corner
+  when done gator-setup
+  move Click the “2 programs running” chip in the guide, or open {Task Manager|Activity Monitor} yourself.
+  | The eWallet opens, and it is real: it will fill in forms. That part was the bait.
+  | The ad partner software was installed with it. It has no window, and it starts every time {Windows|your Mac} does.
+press gator-setup next
+press gator-setup done
+program gator-ads Trickler (trickler.exe)
+  publisher Wallet Freeware Inc.
+  signed no
+  process trickler.exe
+  cpu 3
+  mem 22
+  parent ewallet-setup.exe
+  command C:\Program Files\Gator\trickler.exe
+  startup Trickler C:\Program Files\Gator\trickler.exe
+  location HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+launch gator-ads
+run gator.exe
+  cpu 2
+  mem 31
+  parent trickler.exe
+  command C:\Program Files\Gator\gator.exe
+show gator-wallet
+
+# Priya's next request arrives once the wallet is in the tray. The booking page it opens is new here, so it exists only now.
+page booked-5 skyroute-air.example/business/booked/NT-0523
+  title Flight booked
+  brand Skyroute Air Business
+  heading Flight booked
+  | NT-0523, Priya Shah, Harbor City to Madrid on 23 November 2026. 358.00 charged to account NT-4410. Booked on 9 November 2026.
+page held-5 skyroute-air.example/business/held/NT-0523
+  title Booking not made
+  brand Skyroute Air Business
+  heading Booking not made
+  | NT-0523 was not booked. Nothing was charged.
+page trip-5 skyroute-air.example/business/book/NT-0523
+  title Book flight: NT-0523
+  brand Skyroute Air Business
+  requires skyroute-login
+  heading Book flight: NT-0523
+  | A staff flight is waiting for you to book.
+  section Flight
+  row Traveller = Priya Shah
+  row Route = Harbor City to Madrid
+  row Date = Monday 23 November 2026
+  row Fare = 358.00, economy
+  button Book flight -> booked-5
+  button Do not book -> held-5
+mail mail-trip5
+  from Priya Shah <priya.shah@northwind.example>
+  subject Last flight for today: Madrid on the 23rd
+  link trip-5
+  | Dana,
+  |
+  | The last booking of the day is mine: Madrid on the 23rd. Same site as before, and the link opens the booking.
+  |
+  | Priya
+
+step Two programs you did not choose
+  look {Task Manager|Activity Monitor}: trickler.exe and gator.exe, both running
+  when open taskmanager
+  move Open Priya's last email and click the link.
+  | trickler.exe runs the ad program, and gator.exe runs under it. trickler.exe starts again every time {Windows|your Mac} does.
+  | Dana installed a form filler, not these. A new email from Priya has just arrived.
+open taskmanager
+notify mail Priya Shah
+  | Last flight for today: Madrid on the 23rd
+
+step A rival's ad covers the page
+  look the pop-up window on top of the Skyroute booking page
+  when visit trip-5
+  cue view-btn:done choice:trip-5-1
+  move Close the pop-up, then book the flight as usual.
+  | The booking page is the one you used a few minutes ago, but a window from a rival fare site, FareHopper, has opened on top of it. Gator saw which site you chose and picked the ad.
+  | The airline did not send it, and no site you opened did. It came from the program on this computer.
+open trip-5
+show gator-ad
+
+step Five of five: the day is done
+  look the counter in the guide: five flights booked
+  when choose trip-5 any
+  | Booked, five of five. The booking is real and correct. Press Next to see what Gator did on the way.
+choose trip-5 1
+quota +1
+
+step What Gator did
+  look the animation: the sites you visited and the ads Gator put on top of them
+  | The eWallet was free because Dana's browsing was the product. Gator wrote down every site Dana visited, and sold covering ads for those pages to competitors.
+  | Nothing was locked. The harm was the browsing that was watched and sold on, the pop-ups, a slower computer, and a program installed on the strength of a licence nobody read.
+attack spyware-surveillance
+  | free eWallet downloaded
+  | GAIN box already ticked
+  | trickler.exe starts at login
+  | every site Dana visits is noted
+  | rival pop-up covers the booking page
+block ads.gain-partner.invalid 80
+
+flag hard link mail-wallet
+  label The download link in Priya's email
+  | The link goes to a download site, not to Northwind's software portal. Check where a link goes before you click it.
+flag hard section wallet-page 1
+  label About this download: partner software
+  | The page admits the download includes partner software. That is how a free program is paid for.
+flag hard dialog open-warning gator-setup
+  label The setup's warning: a publisher nobody knows
+  | The setup is signed, but by a publisher nobody at Northwind knows. A signature says who made the file, not what it installs.
+flag hard line gator-setup clause 9.4
+  label Clause 9.4: ads and tracking, accepted by Install
+  | Clicking Install accepts clause 9.4: partner software may show ads and collect the websites you visit. A form filler should not need that to install.
+flag hard line gator-setup ticked above
+  label The ad program's box, ticked before you saw it
+  | Its box was ticked for you, and Install installs it. Clearing the box is the only way to say no.
+flag hard process trickler.exe
+  label trickler.exe: the ad program in the background
+  | The ad program was started by the setup. Dana installed a form filler, not this.
+flag hard startup Trickler
+  label Trickler: starts with the computer
+  | The ad program added itself to the programs that start every time {Windows|your Mac} does.
+flag hard line gator-ad GAIN, the Gator network
+  label The pop-up's own line: GAIN
+  | The pop-up came from GAIN, the ad network inside Gator, not from the airline. The program on this computer chose the page to cover.
+flag soft file Desktop/skyroute-login.txt
+  label The booking password in a text file
+  | A booking password in a text file on the desktop: any program that runs can read it. Use a password manager.
+flag soft file Desktop/passport-list.txt
+  label Passport numbers in a loose file
+  | Passport numbers in a loose text file. They belong in the company system only.
+
+lesson
+  | A free program pays for itself with your attention and data. Read the licence and the options page, and untick every box you did not come for, such as "partner software".
+  | A form filler does not need a partner. Use the one built into your browser, or a password manager your IT team recommends, and install software only from the company's portal.
+  | Pop-ups that know which site you are on mean adware is installed: remove it in {Settings > Apps|the Applications folder}, and run a scan.

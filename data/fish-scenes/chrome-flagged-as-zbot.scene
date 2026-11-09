@@ -1,0 +1,366 @@
+# Chrome flagged as Zbot (2011). An antivirus update wrongly named a trusted web browser as the Zbot banking trojan.
+# A quest (QUESTS.md): the trainee works a support-desk shift in a web helpdesk, closes one ticket safely, then the antivirus
+# removes the browser she has used for years. There is no malware: the quest is about not overreacting (no password panic, no
+# "safe" download from a stranger's link) and fixing it the vendor's way. The browser and the antivirus are fictional stand-ins:
+# Lumen Browser and Sentrix Antivirus. The company, the people and the sites are made up.
+os windows
+user Dana Okafor
+about
+  | In 2011 an antivirus definition update wrongly flagged the Chrome web browser as Zbot, a banking trojan, and removed it. Users found their browser gone, and many searched for a download of it on other sites.
+  | Nothing was infected. The antivirus made a mistake, called a false positive. This illustration uses a made-up browser (Lumen Browser) and a made-up antivirus (Sentrix Antivirus).
+  | The skill it teaches is how to judge an alert about a program you already trust, and how not to make things worse.
+story
+  | You are Dana Okafor, customer support agent at Northwind Traders. All day you answer customers' questions in the company's web helpdesk, in the browser that came with your PC. Your own everyday browser is Lumen Browser, which you have used for years. Sentrix Antivirus guards every PC in the office.
+  | It is mid-afternoon. You have closed 8 of today's 10 tickets. Two to go.
+  | Your helpdesk sign-in details are in a text file on the desktop. That is a bad habit, but it keeps this training quick.
+quota 8 10 Support tickets closed today
+spotted reasons not to panic
+
+# Dana's desk: the details she copies from (a soft flag: careless, but only here to keep the training simple).
+file Desktop/helpdesk-login.txt
+  at 930 200
+  | Northwind Helpdesk
+  | Staff ID: dana.okafor
+  | Password: Support-2026!
+
+# Dana's browser, as it has been for years: a signed program from its maker.
+program lumen Lumen Browser
+  publisher Lumen Software Ltd (fictional)
+  signed yes
+  description Lumen Browser
+  process lumen.exe
+  cpu 3
+  mem 210
+  parent explorer.exe
+  command C:\Program Files\Lumen\lumen.exe
+file Desktop/Lumen-Browser.exe
+  at 930 400
+  program lumen
+  size 1843200
+
+# The helpdesk: a sign-in page, and the tickets behind it.
+page helpdesk-login helpdesk.northwind.example/sign-in
+  title Northwind Helpdesk: sign in
+  brand Northwind Helpdesk
+  favorite
+  heading Sign in to the Helpdesk
+  | Welcome back. Sign in to answer your tickets.
+  field Staff ID = dana.okafor
+  field secret Password = Support-2026!
+  button Sign in
+page closed-4471 helpdesk.northwind.example/tickets/4471/closed
+  title Ticket 4471 closed
+  brand Northwind Helpdesk
+  heading Ticket 4471 closed
+  | Your reply to Hartley Foods about order 8812 was sent, and the ticket is closed.
+page passed-4471 helpdesk.northwind.example/tickets/4471/passed
+  title Ticket 4471 passed on
+  brand Northwind Helpdesk
+  heading Ticket 4471 passed to Priya
+  | Priya Shah has been asked to answer Hartley Foods.
+page ticket-4471 helpdesk.northwind.example/tickets/4471
+  title Ticket 4471 of 10: order status
+  brand Northwind Helpdesk
+  requires helpdesk-login
+  heading Ticket 4471: where is order 8812?
+  | A customer is waiting for an answer.
+  section Ticket
+  row Customer = Hartley Foods
+  row Question = When will order 8812 ship?
+  row Order status = Packed this morning, courier collects today
+  row Suggested reply = Your order 8812 ships today. Tracking follows by email.
+  button Send reply and close -> closed-4471
+  button Pass to Priya -> passed-4471
+
+mail mail-4471
+  from Priya Shah <priya.shah@northwind.example>
+  subject Ticket 4471: Hartley Foods (order 8812)
+  link ticket-4471
+  | Hi Dana,
+  |
+  | Hartley Foods are asking when order 8812 ships. It left the warehouse this morning, so the suggested reply is right. The link goes straight to the ticket.
+  |
+  | Priya
+
+step Ticket 9 of 10
+  look Mail: Priya's message with the ticket link
+  | A new ticket has come in from Priya, the team lead. This one is routine. Answer it the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Ticket 4471: Hartley Foods (order 8812)
+
+step The link goes to the helpdesk
+  look the link under Priya's message
+  when mail mail-4471
+  | The email links to the company's own address, helpdesk.northwind.example. Hover over a link before you click it, to check where it goes.
+open mail-4471
+
+step Sign in as usual
+  look the two boxes: Staff ID and Password, as on every visit
+  when visit ticket-4471
+  move Copy the details from helpdesk-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The helpdesk asks you to sign in first. Two boxes: Staff ID and Password. Remember what a normal day looks like.
+open ticket-4471
+
+step Check, then reply
+  look the Ticket box: the customer, the question and the suggested reply
+  when choose helpdesk-login 1
+  | You are in. Check that the reply matches the order status, then send it or pass the ticket on.
+signin helpdesk-login
+
+# The false alarm: the antivirus update names the browser and removes it.
+view sentrix-report panel
+  title Sentrix Antivirus
+  app Sentrix Antivirus
+  publisher Sentrix Security (fictional)
+  heading Threat found and removed
+  icon shield-bad
+  | The latest update flagged a program on this computer.
+  section What was found
+  row Threat = Trojan-Banker.Zbot.gen
+  row File = C:\Program Files\Lumen\lumen.exe
+  row Program = Lumen Browser
+  row Action = Moved to quarantine
+  row Update = Definitions 11.4.2
+  button OK -> done primary
+view sentrix-center panel
+  title Sentrix Antivirus
+  app Sentrix Antivirus
+  publisher Sentrix Security (fictional)
+  page Protection status
+  icon shield-bad
+  heading Definitions need updating
+  | The vendor has withdrawn definitions 11.4.2.
+  section Status
+  row Real-time shield = On
+  row Definitions = 11.4.2 (withdrawn)
+  row Files in quarantine = 1
+  button Update definitions -> next primary
+  button Close -> close
+  page Quarantine
+  icon shield-ok
+  heading Definitions 11.4.3 installed
+  | The corrected definitions are in place. Items set aside by 11.4.2 can be put back.
+  section Quarantine
+  columns Name | Threat | Signed by | Status
+  cells Lumen Browser | Trojan-Banker.Zbot.gen (withdrawn) | Lumen Software Ltd (valid) | Restore available
+  note Definitions 11.4.3 no longer detect this item.
+  section Details
+  row Original location = C:\Program Files\Lumen\lumen.exe
+  row Set aside by = Definitions 11.4.2
+  button Restore Lumen Browser -> done primary
+  button Close -> close
+program sentrix Sentrix Antivirus
+  publisher Sentrix Security (fictional)
+  signed yes
+  description Antivirus
+  view sentrix-center
+
+# A worried colleague, and the "safe" download he found.
+page mirror-installer lumen-browser-fast-download.invalid/setup
+  title Setup downloading
+  insecure
+  heading Training copy: stop here
+  | In real life this would be a program from a stranger's website. Nothing is downloaded here.
+  | You did not need a new browser: the one you had was fine, and the antivirus can put it back.
+page lumen-mirror lumen-browser-fast-download.invalid/get
+  title Lumen Browser: fast safe download
+  insecure
+  heading Get the safe Lumen Browser, fast
+  | Your Lumen Browser was removed? Download the new safe version from this fast mirror. Do it now, before your passwords are stolen.
+  button Download Lumen now -> mirror-installer
+step 9 of 10 done
+  look the Sentrix alert: what it names, and that it came right after an update
+  when choose ticket-4471 any
+  move Read the report in the Sentrix window, then click “OK”.
+  | Done. One ticket to go. And a window has just opened on screen: it is from the antivirus.
+choose ticket-4471 1
+quota +1
+notify settings Threat found: Trojan-Banker.Zbot.gen
+  | Sentrix Antivirus moved Lumen Browser to quarantine.
+show sentrix-report
+
+step The browser is gone
+  look Desktop: the Lumen Browser icon has gone
+  when done sentrix-report
+  | The antivirus named Lumen Browser, the browser you use every day, as a banking trojan, right after a definitions update, and moved it to quarantine. The Lumen Browser icon has gone from the desktop.
+  | Nothing else changed: no new process, no start-up entry. The only damage is the missing program, and the helpdesk still works in the browser that came with the computer. A colleague has already written.
+delete Desktop/Lumen-Browser.exe
+file Desktop/Sentrix Antivirus.exe
+  at 930 300
+  program sentrix
+  size 2461696
+open Desktop
+mail sam-panic
+  from Sam Patel <sam.patel@northwind.example>
+  subject URGENT!! Lumen is a BANKING TROJAN, change everything
+  link lumen-mirror
+  | Dana, Sentrix just deleted Lumen on my PC and says it was a banking trojan!!
+  |
+  | That means someone has been reading everything we typed. Change EVERY password you have today, and ring the bank. I am wiping my laptop tonight. IT has said nothing yet, so we are on our own.
+  |
+  | I found a new safe version of Lumen: the link is under this message. Get it before the weekend.
+  |
+  | Sam
+notify mail Sam Patel
+  | URGENT!! Lumen is a BANKING TROJAN, change everything
+
+step Sam is panicking
+  look the capital letters, what Sam tells you to do, and where his link goes
+  when mail sam-panic
+  move Open the browser, and click the Sentrix support bookmark on the favourites bar. Do not use Sam's link.
+  | Sam in Sales sees the same alert. He wants everyone to change every password, and sends a link to a "safe" copy of the browser. He has not checked the file, asked IT, or read the vendor's notice.
+  | Fear is how a false alarm does its harm. Do not follow the link. Flag anything that looks wrong.
+open sam-panic
+
+# The vendor's own notice, on a bookmark.
+page sentrix-notice support.sentrix.example/false-positive
+  title Sentrix Support: false positive in definitions 11.4.2
+  brand Sentrix
+  favorite
+  heading False positive in definitions 11.4.2
+  | Our definitions update 11.4.2 wrongly flagged Lumen Browser as Trojan-Banker.Zbot.gen. We have withdrawn it and we are sorry for the trouble.
+  section What happened
+  row Cause = update 11.4.2 listed a good program as a banking trojan
+  row Infection = none found
+  row Signature = Lumen Software Ltd, unchanged
+  row Result = Lumen Browser was moved to quarantine on some computers
+  row Fix = definitions 11.4.3, available now
+  section What to do
+  item Open Sentrix Antivirus.
+  item Press Update definitions, so you have 11.4.3.
+  item Open Quarantine and restore Lumen Browser. It is the same signed program as before.
+  section What not to do
+  item Do not download Lumen Browser from other websites. Its maker's installer is not needed: the copy you had is in quarantine.
+  item You do not need to change your passwords, or wipe your computer. Nothing was stolen.
+step The vendor's notice
+  look the sections: what happened, what to do, and what not to do
+  when visit sentrix-notice
+  move Read the page, then double-click “Sentrix Antivirus” on the desktop.
+  cue file:fs-sentrix-antivirus-exe-1b46e27b app:files
+  | Instead of a link in a worried email, use the bookmark for the vendor's own site, support.sentrix.example. It says the update was wrong and nothing was infected.
+  | The page says what to do (update, then restore) and what not to do. The "safe" copy of the browser is on the list of things to avoid.
+open sentrix-notice
+close mail
+
+step Open Sentrix
+  look the status page: Definitions 11.4.2 (withdrawn)
+  when run sentrix
+  move Click “Update definitions” in the Sentrix window.
+  cue view-btn:next view:sentrix-center
+  | The antivirus is still using the faulty definitions, so it would flag the browser again. Update first, then restore.
+launch sentrix
+
+step Check what it quarantined
+  look the Quarantine page: Lumen Browser, signed by Lumen Software Ltd
+  when page sentrix-center 2
+  move Click “Restore Lumen Browser” in the Sentrix window.
+  cue view-btn:done view:sentrix-center
+  | Definitions 11.4.3 are in. The list shows Lumen Browser, still "Trojan-Banker.Zbot.gen", but marked withdrawn, and signed by its maker with a valid signature.
+press sentrix-center next
+
+# Priya's last ticket, now that the browser question is settled.
+page closed-4472 helpdesk.northwind.example/tickets/4472/closed
+  title Ticket 4472 closed
+  brand Northwind Helpdesk
+  heading Ticket 4472 closed
+  | Your reply to Wingtip Cafe about order 8830 was sent, and the ticket is closed.
+page passed-4472 helpdesk.northwind.example/tickets/4472/passed
+  title Ticket 4472 passed on
+  brand Northwind Helpdesk
+  heading Ticket 4472 passed to Priya
+  | Priya Shah has been asked to answer Wingtip Cafe.
+page ticket-4472 helpdesk.northwind.example/tickets/4472
+  title Ticket 4472 of 10: delivery address
+  brand Northwind Helpdesk
+  requires helpdesk-login
+  heading Ticket 4472: change the delivery address
+  | A customer is waiting for an answer.
+  section Ticket
+  row Customer = Wingtip Cafe
+  row Question = Can order 8830 go to the new address?
+  row Order status = Not yet packed
+  row Suggested reply = Yes, we have changed the address on order 8830.
+  button Send reply and close -> closed-4472
+  button Pass to Priya -> passed-4472
+step Restore the browser
+  look Desktop: Lumen Browser is back
+  when done sentrix-center
+  move Open Mail, click the email “Last ticket: 4472 (Wingtip Cafe)”, then click its link.
+  | Restore puts the same file back where it was. Nothing was lost, and no password was ever at risk.
+file Desktop/Lumen-Browser.exe
+  at 930 400
+  program lumen
+  size 1843200
+open Desktop
+mail mail-4472
+  from Priya Shah <priya.shah@northwind.example>
+  subject Last ticket: 4472 (Wingtip Cafe)
+  link ticket-4472
+  | Dana,
+  |
+  | Wingtip Cafe want order 8830 sent to their new address. It has not been packed yet, so it is an easy one. The link opens the ticket.
+  |
+  | Priya
+notify mail Priya Shah
+  | Last ticket: 4472 (Wingtip Cafe)
+
+step Back to work
+  look the Ticket box: the customer, the question and the suggested reply
+  when visit ticket-4472
+  | Priya has sent the last ticket of the day. It is an ordinary one, with the same rows as before. Check the Ticket box, then reply.
+open ticket-4472
+
+step 10 of 10, and the shift is done
+  look the counter: the shift is done
+  when choose ticket-4472 any
+  | Every ticket is answered, and the false alarm cost nothing. Press Next to see what it did to people who panicked.
+choose ticket-4472 1
+quota +1
+
+step What the false alarm did
+  look the animation: a scare with no trojan behind it
+  | No banking trojan touched a single computer. The harm came from the alarm: lost time, and people who changed every password or downloaded a "safe" copy from a stranger's link.
+  | Sam wiped his laptop that night for nothing. Yours was back in minutes, because you went to the vendor.
+attack scareware
+  | no banking trojan on any PC
+  | Lumen removed by a bad update
+  | definitions 11.4.3 put it back
+  | Sam wiped his laptop for nothing
+  | a "safe" download waits for the panicked
+mail sentrix-apology
+  from Sentrix Support <support@sentrix.example>
+  subject Our apology: definitions 11.4.2
+  | Dear customer,
+  |
+  | Definitions 11.4.2 wrongly marked Lumen Browser as a banking trojan. If you updated to 11.4.3 and restored the browser from quarantine, nothing more is needed. You did not need to change any password.
+  |
+  | We now test every update against the most common programs before we send it. We are sorry.
+  |
+  | Sentrix Support
+notify mail Sentrix Support
+  | Our apology: definitions 11.4.2
+
+flag hard notice settings Threat found
+  label The alert, right after an update
+  | One alert, right after an update, about the browser you have used for years. That is a clue to check, not proof.
+flag hard mail sam-panic
+  label Sam's panicked email
+  | A worried colleague, in capitals, telling you to change every password and wipe things before anyone has checked. Fear is not a source.
+flag hard link sam-panic
+  label Sam's “safe download” link
+  | The link goes to lumen-browser-fast-download.invalid, not to the browser's maker. A "safe copy" from a stranger's link is how real malware gets installed.
+flag hard section sentrix-notice 1
+  label The vendor's notice: what happened
+  | The vendor says the update was wrong, nothing was infected, and the browser's signature is unchanged: the "threat" is its mistake.
+flag hard section sentrix-notice 3
+  label The vendor's notice: what not to do
+  | The vendor says nothing was stolen, so no password needs changing: the alarm is its own mistake, not a theft.
+flag soft file Desktop/helpdesk-login.txt
+  | Passwords in a text file on the desktop: any program that runs can read them. Use a password manager.
+flag soft file Desktop/Sentrix Antivirus.exe
+  | A shortcut to the antivirus on the desktop is here so you can open it in training. Normally it runs in the tray.
+
+lesson
+  | An alert is a clue, not a verdict. If it names a program you trust, and came right after an update, check the vendor's own notice before you act. Look at the program's signature: a valid one from its known maker points to a mistake.
+  | Use a bookmark or type the address yourself for the vendor's site, never a link in a worried email. Do not change every password, wipe the PC or download a "safe copy" because someone is frightened.
+  | If it was a mistake, update the definitions and restore the item from quarantine. If you cannot tell, ask your IT team.

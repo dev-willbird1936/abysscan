@@ -1,0 +1,322 @@
+# Target / BlackPOS (2013). Hackers phished an air-conditioning contractor, used its login to reach a retailer's network, and planted a card-stealing program on the tills.
+# A quest (QUESTS.md): the trainee bills jobs through a retailer's supplier portal, does one safely, then meets the contractor's malware (Citadel) in the next email.
+os windows
+user Dana Okafor
+about
+  | Illustration: the real BlackPOS ran on checkout tills, which have no desktop. Here the desktop is the contractor's office PC, where the attack began. The contractor, Northwind Mechanical, and the retailer, Harbourline Stores, are fictional stand-ins.
+  | The attackers began with a phishing email to the air-conditioning contractor, not to the retailer. A banking trojan on its PC stole the login for the retailer's supplier portal. From the portal the attackers reached the tills and copied about 40 million card numbers.
+  | Reports say the contractor's PC was infected with Citadel, a Zeus offshoot. The malware shown here is Citadel.
+story
+  | You are Dana Okafor, billing coordinator at Northwind Mechanical, an air-conditioning contractor that looks after the shops of Harbourline Stores.
+  | When a repair is done you send its invoice through Harbourline's supplier portal. Harbourline pays nothing that is not in the portal.
+  | It is mid-afternoon. You have sent 3 of today's 5 job invoices. Two to go.
+  | Your portal sign-in and the company's bank details are in text files on the desktop. That is a bad habit, but it keeps this training quick.
+quota 3 5 Job invoices sent today
+
+# Dana's desk: the details she copies from (soft flags: careless, but only here to keep the training simple).
+file Desktop/portal-login.txt
+  at 930 200
+  | Harbourline Supplier Portal
+  | User ID: dana.okafor
+  | Password: Chiller-2026!
+file Desktop/bank-details.txt
+  at 930 300
+  | Northwind Mechanical: bank details for payments (training copy)
+  | Account name: Northwind Mechanical Ltd
+  | Account number: 00-1234567
+  | Sort code: 99-88-77
+
+# The retailer's supplier portal: a sign-in page, and the job pages behind it.
+page portal-login portal.harbourline.example/suppliers/sign-in
+  title Harbourline Suppliers: sign in
+  brand Harbourline Suppliers
+  favorite
+  heading Supplier sign-in
+  | Billing, project tracker and contract downloads for approved suppliers.
+  field User ID = dana.okafor
+  field secret Password = Chiller-2026!
+  button Sign in
+page sent-4471 portal.harbourline.example/suppliers/billing/sent
+  title Invoice sent
+  brand Harbourline Suppliers
+  heading Invoice sent
+  | Job 4471, Store 118: invoice 2,480.00 sent to Harbourline Accounts on 9 November 2026.
+page saved-4471 portal.harbourline.example/suppliers/billing/saved
+  title Invoice saved
+  brand Harbourline Suppliers
+  heading Invoice saved for later
+  | Job 4471 is saved as a draft. Nothing has been sent to Harbourline Accounts.
+page job-4471 portal.harbourline.example/suppliers/jobs/4471
+  title Send invoice: job 4471
+  brand Harbourline Suppliers
+  requires portal-login
+  heading Send invoice: job 4471
+  | A finished repair is ready to be billed.
+  section Job
+  row Store = Store 118, Harbourline Stores
+  row Work = Replace rooftop unit fan motor
+  row Purchase order = HL-PO-77120
+  row Amount = 2,480.00
+  button Send invoice -> sent-4471
+  button Save for later -> saved-4471
+
+mail mail-4471
+  from Harbourline Suppliers <no-reply@portal.harbourline.example>
+  subject Job 4471 is ready to bill (Store 118)
+  link job-4471
+  | Hello Dana,
+  |
+  | Job 4471 at Store 118 has been signed off by the store manager. You can send your invoice in the supplier portal.
+  |
+  | Harbourline Supplier Portal
+
+step Job 4 of 5
+  look Mail: the message from the supplier portal
+  | A new job is ready to bill. This one is real. Do it the normal way, so you know what normal looks like.
+notify mail Harbourline Suppliers
+  | Job 4471 is ready to bill (Store 118)
+
+step Sign in as usual
+  look the link under the message, then the two boxes: User ID and Password
+  when visit job-4471
+  move Open the message, click its link, then copy the details from portal-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The link goes to the retailer's own address, portal.harbourline.example. Hover over a link before you click it, to check where it goes.
+  | The portal asks you to sign in first: two boxes, User ID and Password. Remember what this page normally looks like.
+open job-4471
+
+step Check, then send
+  look the store, the purchase order and the amount
+  when choose portal-login 1
+  | You are in. Check the store and the amount match the job email, then send the invoice.
+signin portal-login
+
+step 4 of 5 done
+  look the counter in the guide: one invoice left
+  when choose job-4471 any
+  | Sent. One invoice to go. And another email has just arrived.
+choose job-4471 1
+quota +1
+
+# The lure: a "scanned document" that is a program.
+view scan-damaged message
+  title Document viewer
+  icon error
+  | The file is damaged and could not be opened.
+  button OK -> done primary
+
+program citadel shared-scan.pdf
+  publisher none
+  signed no
+  prompt open-warning
+  description Scanned document
+  process svchost32.exe
+  cpu 3
+  mem 31
+  keylog yes
+  parent explorer.exe
+  command C:\Users\Public\svchost32.exe
+  startup WindowsServiceHost C:\Users\Public\svchost32.exe
+  location HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+  selfdelete
+  view scan-damaged
+mail scan
+  from Harbourline Store Services <jobs@harbourline-stores.invalid>
+  subject Shared document: site scan
+  attach Downloads/shared-scan.pdf.exe
+  | Hello,
+  |
+  | The site scan you asked for is attached. Please review it before you quote.
+  |
+  | Store Services
+file Downloads/shared-scan.pdf.exe
+  icon pdf
+  program citadel
+  size 212992
+notify mail Store Services
+  | Shared document: site scan
+
+step A "scan" nobody asked for
+  look the sender's address, and the attachment
+  when mail scan
+  | harbourline-stores.invalid is not Harbourline's domain (harbourline.example), and it sends a file where Harbourline sends portal links. {Windows hides the end of the file name|The name ends in .exe}: it is really shared-scan.pdf.exe, a program. Flag anything that looks wrong.
+open scan
+
+step The warning that was ignored
+  look {Publisher "Unknown Publisher", Type "Application"|the warning: a Windows program from an unidentified developer}
+  when prompt citadel
+  | A real PDF never asks this. {Windows wants to know whether to run a program from an unknown publisher|macOS wants to know whether to open a program from an unidentified developer}.
+  | The company PC only had a free scanner that is run by hand. Nothing watched it as the file ran.
+open Downloads/shared-scan.pdf.exe
+
+step A "damaged file", and a quiet thief
+  look the error box that opened
+  when run citadel
+  | The error box is a decoy: the file was never a document. Behind it, Citadel copied itself and deleted the attachment.
+  | From now on it records every key you press and collects the logins saved on the PC.
+answer run
+
+# The portal signs Dana out, as it does after a while; her last invoice is waiting.
+page portal-login portal.harbourline.example/suppliers/sign-in
+  title Harbourline Suppliers: sign in
+  brand Harbourline Suppliers
+  favorite
+  heading Supplier sign-in
+  | Your session has ended. Please sign in again.
+  field User ID = dana.okafor
+  field secret Password = Chiller-2026!
+  button Sign in
+page sent-4472 portal.harbourline.example/suppliers/billing/sent
+  title Invoice sent
+  brand Harbourline Suppliers
+  heading Invoice sent
+  | Job 4472, Store 205: invoice 1,915.50 sent to Harbourline Accounts on 9 November 2026.
+page saved-4472 portal.harbourline.example/suppliers/billing/saved
+  title Invoice saved
+  brand Harbourline Suppliers
+  heading Invoice saved for later
+  | Job 4472 is saved as a draft. Nothing has been sent to Harbourline Accounts.
+page job-4472 portal.harbourline.example/suppliers/jobs/4472
+  title Send invoice: job 4472
+  brand Harbourline Suppliers
+  requires portal-login
+  heading Send invoice: job 4472
+  | A finished repair is ready to be billed.
+  section Job
+  row Store = Store 205, Harbourline Stores
+  row Work = Clean and recharge walk-in cooler line
+  row Purchase order = HL-PO-77184
+  row Amount = 1,915.50
+  button Send invoice -> sent-4472
+  button Save for later -> saved-4472
+signout portal-login
+mail mail-4472
+  from Harbourline Suppliers <no-reply@portal.harbourline.example>
+  subject Job 4472 is ready to bill (Store 205)
+  link job-4472
+  | Hello Dana,
+  |
+  | Job 4472 at Store 205 has been signed off by the store manager. You can send your invoice in the supplier portal.
+  |
+  | Harbourline Supplier Portal
+notify mail Harbourline Suppliers
+  | Job 4472 is ready to bill (Store 205)
+
+step Close the error box, then look at the process
+  look the error box's OK, then {Task Manager|Activity Monitor}: svchost32.exe
+  when done scan-damaged
+  | Close the error box. Citadel has added itself to the programs that start with the computer, and it runs under a name that looks like a system process.
+open taskmanager
+
+step The last job, and a second sign-in
+  look the mail, then the portal's sign-in page: the same page as before
+  when visit job-4472
+  move Open the message, click its link, then copy the details from portal-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The portal's last job of the day, with a real link like the first one. The portal has signed you out, so you sign in again.
+  | The address and the page are the portal's own, and nothing on the page has changed. Watch the network sign in the corner as you type.
+open job-4472
+
+step Send the last invoice
+  look the network sign in the corner: it lit up with every key
+  when choose portal-login 1
+  | Signed in. The page looked just the same, but every key you pressed, your User ID and your password, was copied and sent out as you typed it.
+signin portal-login
+
+step 5 of 5, or so Dana thinks
+  look the counter: the shift is done
+  when choose job-4472 any
+  | Every invoice is sent, and nothing on the screen looks wrong. Press Next to see what Citadel took.
+choose job-4472 1
+quota +1
+
+step What the thief did with the login
+  look the animation: the login you typed, then the portal's security log
+  | Some weeks later, someone signs in to Harbourline's portal as Northwind Mechanical, with Dana's real password, from a new country. The portal only asks for a password, so it sees a normal supplier.
+  | This account was only meant for billing and project files. The retailer's network let it reach far more than that.
+page intruder portal.harbourline.example/suppliers/security-log
+  title Supplier portal: security log
+  brand Harbourline Suppliers
+  heading Supplier portal
+  | Billing, project tracker and contract downloads for approved suppliers.
+  section Sign-in notice
+  tone warn
+  row Account = Northwind Mechanical
+  row Sign-in from = 203.0.113.45 (new country)
+  row Password = ••••••••••
+  note The real password was copied from the contractor's PC. Nobody was asked for a second proof of identity.
+open intruder
+attack credential-phish
+  | {captured}
+  | portal login used from abroad
+  | no second proof asked
+
+step The tills start copying card numbers
+  look {Task Manager|Activity Monitor}: POSWDS.exe, the folder on the staging server, and the security console
+  | From the portal the attackers moved across the network and installed a service on the tills. It reads the checkout program's memory, where each card number is briefly plain text, even though it travels encrypted.
+  | A till has no desktop, so this training copy shows the process in {Task Manager|Activity Monitor} on this PC.
+  | Every few hours it drops what it found into a file on a staging server inside the retailer, ready to be sent out. The retailer's security tool has raised an alert about it.
+view soc-console panel
+  title Security console
+  app Threat monitor
+  publisher Harbourline Stores
+  size 560x340
+  icon warning
+  heading Alerts
+  section Open alerts
+  columns Severity | Alert | Hosts | Status
+  cells High | Malware.Binary: POSWDS.exe | 1 group: tills | Passed on: no action
+  cells Medium | Unusual FTP transfer from staging server | 1 | New
+  tone bad
+  note Raised and sent to the security team. Nobody has decided to act.
+  button Escalate -> done primary
+program poswds POSWDS
+  publisher none
+  signed no
+  process POSWDS.exe
+  cpu 18
+  mem 42
+  parent services.exe
+  command C:\Windows\System32\POSWDS.exe
+launch poswds
+drive Staging server
+  kind share
+  as STAGING
+file STAGING/winxml.dll
+  size 9437184
+  | Training copy: stands in for the stolen card data.
+open taskmanager
+open STAGING
+show soc-console
+
+step The alert nobody acted on
+  look the security console: the High alert, and its Escalate button
+  when done soc-console
+  | You passed the alert on, as the team did. It had been passed on twice already, and nobody removed the malware.
+  | The stolen card data was going out to servers abroad. Here the connection is blocked.
+close soc-console
+attack data-exfil
+  | dump copied to staging share
+  | sent out every few hours
+  | about 40 million cards
+block 203.0.113.60 21
+
+flag hard mail scan
+  | harbourline-stores.invalid is not Harbourline's domain (harbourline.example), and it sends a file where Harbourline sends portal links.
+flag hard file Downloads/shared-scan.pdf.exe
+  | A program with a PDF icon. {Windows hides the .exe at the end of its name|The name ends in .exe}.
+flag hard dialog open-warning citadel
+  | A scanned document never asks to run as a program. {Publisher: Unknown|The developer is unidentified}.
+flag hard process svchost32.exe
+  | Citadel running in the background, under a name made to look like a system process.
+flag hard startup WindowsServiceHost
+  | Citadel added itself to the programs that start every time you sign in.
+flag hard net
+  | Network activity with every key you pressed: a keylogger sending them out.
+flag soft file Desktop/portal-login.txt
+  | A password in a text file on the desktop: any program that runs can read it. Use a password manager.
+flag soft file Desktop/bank-details.txt
+  | Bank details belong in the finance system, not in a loose file on the desktop.
+
+lesson
+  | A "scanned document" that asks to run a program is not a document. {Turn on file name extensions, and check Properties: Type "Application" means a program|Show all extensions in Finder, and check Get Info: Kind "Application" means a program}.
+  | A supplier's login is only as safe as the supplier's PC. Give suppliers access to one system, never the whole network, and ask for a second proof of identity.
+  | Run real-time antivirus on every PC. An alert is not protection until a person acts on it, and encrypt card data from the moment the card is read, so a memory scraper finds nothing.

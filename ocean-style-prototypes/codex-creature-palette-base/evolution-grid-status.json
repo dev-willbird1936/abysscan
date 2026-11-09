@@ -1,0 +1,22 @@
+{
+  "schema": "evolution-grid-status-v1",
+  "depth_color_manifest": "../codex-creature-depth-evolution/depth-colors/depth-color-manifest.json",
+  "depth_color_manifest_sha256": "2828e36737dba619fe691a62074a550d1a6f7e77ad0a65bc6837dfe6ca7bdf51",
+  "qvl": {
+    "result": "pass",
+    "overall": 8.4,
+    "gate": 8.0,
+    "report": "docs/evidence/evolution-depth-color-qvl.md",
+    "note": "Independent colour review of the 30 variants. The manifest's own qvl field is left as recorded (pending); the pass is recorded here and bound to the manifest hash above."
+  },
+  "animation": {
+    "status": "pending",
+    "reviewed_manifest": null,
+    "planned_loops": 18,
+    "note": "No animation is generated or authorised. Play controls stay absent until a reviewed animation manifest exists."
+  },
+  "integration": {
+    "status": "pending-final-qa",
+    "note": "Candidate stills only. Final integration QA and promotion are not done."
+  }
+}

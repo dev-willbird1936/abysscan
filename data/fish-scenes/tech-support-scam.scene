@@ -1,0 +1,349 @@
+# Tech-support scam pop-up (2010s onwards). A web page pretends the PC is locked, then a "support" caller talks the victim into installing a remote-access program.
+# A quest (QUESTS.md): the trainee keeps an office stocked, does one order safely, then meets the pop-up while looking up a courier price.
+os windows
+user Dana Okafor
+about
+  | A tech-support scam starts with a web page that looks like a Windows warning and gives a phone number. Nothing is wrong with the computer. The harm starts when the victim calls and lets "support" connect with a remote-access program, then pays to have problems fixed that never existed.
+  | These pop-ups reach any office worker who browses. The victim here is invented: scam pop-ups were seen by people in every kind of job.
+story
+  | You are Dana Okafor, office manager at Northwind Traders. You keep the office running: toner, paper, couriers. You buy supplies with the company card.
+  | It is mid-afternoon. You have done 5 of today's 7 supplier jobs. Two to go: the printer toner, then a courier price for Marcus.
+  | The company card details are in a text file on the desktop. That is a bad habit, but it keeps this training quick.
+quota 5 7 Supplier jobs done today
+
+# Dana's desk: the details she copies from (a soft flag: careless, but only here to keep the training simple).
+file Desktop/company-card.txt
+  at 930 200
+  | Northwind company card (training copy)
+  | Name on card: Dana Okafor
+  | Card number: 4000 0012 3456 7899
+  | Security code: 318
+
+# The safe job: reorder toner from the usual supplier.
+page toner-done supplies-direct.example/orders/added
+  title Added to your order
+  brand Supplies Direct
+  heading Added to your order
+  | 2 x black toner cartridge T-410 will be delivered to Northwind Traders, floor 2, on Thursday.
+page toner-order supplies-direct.example/orders/toner
+  title Reorder: black toner
+  brand Supplies Direct
+  heading Reorder: black toner
+  | Your usual cartridge is ready to reorder.
+  section Your order
+  row Item = Black toner cartridge T-410
+  row Quantity = 2
+  row Price = 86.00
+  row Deliver to = Northwind Traders, floor 2
+  button Add to order -> toner-done
+mail mail-toner
+  from Priya Shah <priya.shah@northwind.example>
+  subject Printer toner is nearly out
+  link toner-order
+  | Hi Dana,
+  |
+  | The floor 2 printer is down to its last pages. Could you reorder two cartridges from Supplies Direct? The link goes to our usual order.
+  |
+  | Priya
+notify mail Priya Shah
+  | Printer toner is nearly out
+
+step Job 6 of 7: toner
+  look the address bar: the supplier's own address, with its padlock
+  when visit toner-order
+  move Check the order, then click “Add to order”.
+  | A new job from Priya: toner for the floor 2 printer. This one is ordinary. Do it the normal way, so you know what normal looks like.
+  | The link goes to supplies-direct.example, the supplier you always use. The page is quiet: an order, a price, one button. No alarms, no phone numbers.
+open mail-toner
+open toner-order
+
+step Toner ordered
+  look the order page and the counter in the guide: one job done
+  when choose toner-order any
+  move Open Mail, open Marcus's new message and click the link under it.
+  | The page was quiet: the supplier's own address, an order, a price and one button. That is what a normal page looks like. Done. One job to go.
+  | Marcus has just sent you the next one.
+open toner-order
+choose toner-order 1
+quota +1
+
+# The lure: a fake security alert from a price-comparison site. Its buttons lead on to the scam.
+page ts-scan pc-support-alert.invalid/scan
+  title Threat scan
+  insecure
+  heading 4 threats found
+  | Scan finished. Threats were found on this computer.
+  section Scan results
+  columns Threat | Location | Risk
+  cells Trojan.Banker | C:\Windows\System32 | Critical
+  cells Password stealer | Browser data | Critical
+  cells Remote hacker | Network | High
+  cells Spyware | Documents | High
+  button Call support
+  button Close
+page locked pc-support-alert.invalid/security
+  title Security alert
+  insecure
+  heading Your computer has been locked
+  | Error code 0x80073b01. Your files, passwords and banking details are at risk.
+  | Do not restart your computer. Call ClearLine Support now on +1 555 0100 (toll free).
+  section Security check
+  tone bad
+  row Threat = Trojan.Banker
+  row Your IP = 203.0.113.41
+  row Status = Blocked until you call
+  button Call support -> ts-scan
+  button Close
+page courier-rates parcel-compare.example/rates
+  title Courier prices
+  brand Parcel Compare
+  heading Compare courier prices
+  | Enter your parcel and see today's prices from six couriers.
+  section Your parcel
+  row From = Northwind Traders, Leeds
+  row To = Contoso Foods, Bristol
+  row Weight = 20 kg
+  button Show prices -> locked
+mail mail-courier
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Courier price for the Contoso parcel
+  link courier-rates
+  | Dana,
+  |
+  | Could you check what a courier would charge for the 20 kg parcel to Contoso? I use this comparison site. I only need the cheapest price.
+  |
+  | Marcus
+notify mail Marcus Lee
+  | Courier price for the Contoso parcel
+
+step Marcus wants a courier price
+  look the price comparison page that Marcus's link opened
+  when visit courier-rates
+  move Click “Show prices”.
+  | Marcus uses this price-comparison site, so the page looks like the one he meant. The trouble will come from the page itself.
+open courier-rates
+
+step A page says the PC is locked
+  look the page with the phone number and the "Not secure" address
+  when choose courier-rates 1
+  move Click “Call support” on the page.
+  | Instead of prices, the page now claims the computer is locked and gives a "support" number. A bad ad redirected it. Nothing is wrong with the computer.
+  | It is styled like a Windows warning, but it is only a web page. Flag anything that looks wrong.
+choose courier-rates 1
+
+step A scan that finds everything
+  look the scan results and the Call support button
+  when choose locked 1
+  move Click “Call support” on the scan page.
+  | The page runs a scan that looks real. It lists four threats, but a web page cannot look inside a computer.
+  | The only button that works says Call support.
+choose locked 1
+
+# The fake blue screen. It fills the screen, and its Close button does nothing.
+view ts-block screen
+  title Your computer has been blocked
+  bg #0a4fa8
+  fg #ffffff
+  accent #ffffff
+  fullscreen
+  heading :( Your computer has been blocked
+  | Stop code: 0x80073b01. Hackers may be taking your passwords. Do not restart or turn off your computer.
+  | Call ClearLine Support now on +1 555 0100. A technician will fix this for you.
+  section
+  timer Calling support in = 60
+  button Call support now -> done primary
+  button Close -> none
+
+step The fake blue screen
+  look the blue screen with the number and the countdown
+  when choose ts-scan 1
+  move Click “Call support now”. You dial the number: it goes to the scammers.
+  | Next comes a full-screen blue screen. The victim cannot find a way out and rings the number, which goes to the scammers.
+  | Its Close button does nothing. A victim who wants out has to end the browser in {Task Manager|Activity Monitor}.
+choose ts-scan 1
+show ts-block
+
+# The remote-access program the "technician" asks the caller to install. It is a real, signed tool: the trick is the caller.
+view ts-link wizard
+  title ClearLine Remote
+  app ClearLine Remote
+  page Let ClearLine Support see your screen?
+  icon question
+  | Agent "Kevin" asks to see your screen. Read the session code 482 913 to the agent.
+  section Session
+  row Session code = 482 913
+  row Agent = Kevin (ClearLine Support)
+  button Allow -> next primary
+  button Decline -> close
+  page Allow control of this computer?
+  icon warning
+  | Kevin asks to use your keyboard and mouse.
+  section Recommended options
+  check [x] Allow control of mouse and keyboard
+  check [x] Start ClearLine Remote with Windows (unattended access)
+  check [x] Blank my screen while connected
+  button Allow -> next primary
+  button Decline -> close
+  page Remote session active
+  icon bug
+  | Kevin can now see and control this computer.
+  section What happens next
+  row Remote control = On
+  row Your screen = Blanked
+  row Start with Windows = Yes
+  tone bad
+  button End session -> close
+
+program ts-remote ClearLineRemote-Setup
+  publisher ClearLine Software Ltd
+  signed yes
+  prompt open-warning
+  prompt elevation
+  description ClearLine Remote setup
+  view ts-link
+
+# The payment pages Kevin opens in the browser once he has control.
+page clearline-plan pay.clearline-support.invalid/plan
+  title Payment received
+  brand ClearLine Support
+  heading Thank you, Dana
+  | Your ClearLine Protection Plan is active. Kevin will keep your computer protected.
+  section Receipt
+  row Plan = ClearLine Protection Plan, 1 year
+  row Amount = 299.00 USD
+  row Card = ending 7899
+page clearline-pay pay.clearline-support.invalid/card
+  title ClearLine Support: card payment
+  brand ClearLine Support
+  heading Pay for your Protection Plan
+  | Amount due: 299.00 USD. Enter the card details Kevin asked you to use.
+  field Name on card = Dana Okafor
+  field Card number = 4000 0012 3456 7899
+  field secret Security code = 318
+  button Pay 299.00 USD -> clearline-plan
+
+step The caller asks for a program
+  look the file ClearLineRemote-Setup in Downloads, and the download notice
+  when done ts-block
+  move Open your Downloads folder and double-click “ClearLineRemote-Setup”.
+  | On the phone, "Kevin" sounds calm and friendly. He sends you to a site to download a "support tool". It is saved in Downloads.
+  | He says he can only fix the computer from inside it, and that you must open the file now.
+file Downloads/ClearLineRemote-Setup.exe
+  program ts-remote
+  size 3145728
+notify browser Download complete
+  | ClearLineRemote-Setup.exe was saved to Downloads.
+
+step The warning Kevin says to ignore
+  look {Publisher “ClearLine Software Ltd”, Type “Application”|the “is a Windows program” sheet}
+  when prompt ts-remote
+  cue dialog-btn:run
+  move Click {Run|Show what it does}, as Kevin says.
+  | {Windows|macOS} asks before a downloaded program runs. Kevin says the warning is normal and tells you to go ahead.
+open Downloads/ClearLineRemote-Setup.exe
+
+step Yes, yes, yes
+  look ClearLine Remote asking to share the screen
+  when run ts-remote
+  move Click Allow on both pages of the ClearLine Remote window.
+  | {Windows|macOS} asks twice: to run the file, and to let it make changes. Kevin tells you to say yes every time.
+  | Then the program asks to share your screen. Kevin says it only needs to see the problem.
+answer run
+answer run
+
+step Kevin takes over the computer
+  look the remote window, then {Task Manager|Activity Monitor} showing ClearLineRemote.exe
+  when page ts-link 3
+  move Check {Task Manager|Activity Monitor} and the start-up list (the chips below). Then copy the details from company-card.txt on the desktop: click a box, press any keys to type, then click “Pay 299.00 USD”.
+  | The program asks for the screen, then for control, with start-up access already ticked. Kevin can now use the computer, and it starts every time the computer does.
+  | Kevin opens {Event Viewer|Console} and calls its normal warnings "proof" of an attack. Then he says the fix costs 299.00 USD, and the payment page opens in your browser.
+  | While he works, the program sends your screen and every key you press to him.
+press ts-link next
+press ts-link next
+run ClearLineRemote.exe
+  cpu 6
+  mem 54
+  keylog yes
+  parent explorer.exe
+  command C:\Program Files\ClearLine Remote\ClearLineRemote.exe
+  publisher ClearLine Software Ltd
+startup ClearLineRemote C:\Program Files\ClearLine Remote\ClearLineRemote.exe --unattended
+  location HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+  publisher ClearLine Software Ltd
+notify settings ClearLine Remote
+  | A remote session is active. Your screen is shared. (Training copy.)
+open clearline-pay
+
+step Paying for a fix nobody needed
+  look the network sign in the corner: it lit up with every key
+  when choose clearline-pay 1
+  move Marcus is still waiting. Open Mail, open his first message and click the link under it.
+  | The payment page is on a support firm's own address. It wants the company card number and its security code, for a fix nobody needed.
+  | The company card is charged 299.00 USD for a problem that never existed. Kevin saw the card number and the code as you typed them, and the program sent each key.
+signin clearline-pay
+page rates-ok parcel-compare.example/rates/results
+  title Courier prices
+  brand Parcel Compare
+  heading Prices for your parcel
+  section Cheapest today
+  row Parcel Post = 11.40, 2 days
+  row Northline = 13.90, next day
+  row QuickWay = 17.25, next day
+page courier-rates parcel-compare.example/rates
+  title Courier prices
+  brand Parcel Compare
+  heading Compare courier prices
+  | Enter your parcel and see today's prices from six couriers.
+  section Your parcel
+  row From = Northwind Traders, Leeds
+  row To = Contoso Foods, Bristol
+  row Weight = 20 kg
+  button Show prices -> rates-ok
+
+step Marcus's link, again
+  look the price comparison page that Marcus's link opened
+  when visit courier-rates
+  move Click “Show prices”.
+  | Marcus is still waiting, so you open his link again. The same comparison site opens.
+open courier-rates
+
+step Back to the courier price
+  look the counter in the guide: both jobs done
+  when choose courier-rates any
+  | This time the prices load normally. Marcus has his answer, and nothing on the screen looks wrong.
+  | Press Next to see what the scam took.
+choose courier-rates 1
+quota +1
+
+step What the scam took
+  look the animation: the card and everything you typed after the program ran
+  | Kevin charged 299.00 USD for nothing. The program is still installed and starts every time the computer does, so he can sign in again whenever he likes, and often sells the same victim a second "plan".
+attack scareware
+  | {captured}
+  | 299.00 USD paid for nothing
+  | remote access left switched on
+block 192.0.2.77 443
+
+flag hard page locked
+  | A real computer warning is never a web page with a phone number. The address says “Not secure”.
+flag hard page ts-scan
+  | A web page cannot scan a computer, so the four threats it lists are made up.
+flag hard dialog open-warning ts-remote
+  | A stranger on the phone told you to install a remote-access tool. A real publisher name does not make the caller honest.
+flag hard process ClearLineRemote.exe
+  | A remote-access program running in the background: someone else can use this computer.
+flag hard startup ClearLineRemote
+  | It starts every time the computer does, so the access stays after the call ends.
+flag hard page clearline-pay
+  | A “support” firm charging the company card for a fix nobody asked for.
+flag hard field clearline-pay 2
+  | A card number asked for by a "support" caller: the real fix for a pop-up costs nothing.
+flag hard net
+  | Network activity with every key you pressed: the remote tool sending your keys and screen to Kevin.
+flag soft file Desktop/company-card.txt
+  | Card details in a text file on the desktop: a remote caller or any program that runs can read them.
+
+lesson
+  | Real companies never lock your browser or put a phone number in a warning. Leave the page: close the tab or the browser. Use {Task Manager|Activity Monitor} if the page will not close.
+  | Never let someone connect to your computer because a pop-up told you to call them, and never pay a caller who found problems you did not ask about.
+  | If you did, end the session, remove the program in {Settings|System Settings}, call your bank about the payment, and change your passwords.

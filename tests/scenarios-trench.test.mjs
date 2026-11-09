@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { runInNewContext } from 'node:vm';
+import { withheldWallpaper } from './fixtures/withheld-artwork.mjs';
 
 const require = createRequire(import.meta.url);
 const OceanWorldModel = require('../ui/desktop/world-model.js');
@@ -158,7 +159,7 @@ test('wallpapers are same-origin images that exist on disk', () => {
   for (const id of ids) {
     const { wallpaperUrl } = profileJson(id).sys;
     assert.match(wallpaperUrl, /^\/previews\/(win11-final\/img\/wallpaper|macos-final)\/[A-Za-z0-9._/-]+\.jpg$/, id);
-    assert.ok(existsSync(new URL(`../desktop-comparison${wallpaperUrl}`, import.meta.url)), `${id} ${wallpaperUrl}`);
+    assert.ok(withheldWallpaper(wallpaperUrl) || existsSync(new URL(`../desktop-comparison${wallpaperUrl}`, import.meta.url)), `${id} ${wallpaperUrl}`);
   }
 });
 

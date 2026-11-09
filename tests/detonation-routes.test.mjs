@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { request as httpRequest, createServer } from 'node:http';
-import { mkdtempSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, writeFileSync } from 'node:fs';
 import { open } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -14,7 +14,7 @@ import { answerContainerCall } from './fixtures/detonation/fake-container-calls.
 const ORIGIN = 'https://ocean.example';
 const SAMPLE = Buffer.from('#!/usr/bin/env python3\nprint("hello from the fake sample")\n');
 const SAMPLE_NAME = 'invoice-private-name.py';
-const ENV = { DETONATION_ENABLED: 'true', UPLOAD_ENCRYPTION_KEY: 'a1'.repeat(32) };
+const ENV = { DETONATION_ENABLED: 'true', DETONATION_UPLOADS: 'true', UPLOAD_ENCRYPTION_KEY: 'a1'.repeat(32) };
 const PNG = Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 13]), Buffer.from('IHDR'), Buffer.alloc(17)]);
 const NO_MODEL = { available: () => false, complete: async () => { throw new Error('no model'); } };
 
@@ -226,6 +226,23 @@ test('GET /api/health adds acceptingJobs and queueDepth when detonation is on', 
   } finally { await stop(); }
 });
 
+test('file upload is retired by default: POST /api/jobs answers 410 without starting a job, and health reports acceptingJobs false', async () => {
+  const { DETONATION_UPLOADS: _on, ...retiredEnv } = ENV;
+  const { port, controller, uploadDir, stop } = await start({ env: retiredEnv });
+  try {
+    const refused = await post(port);
+    assert.equal(refused.status, 410);
+    assert.match(json(refused).error, /retired/);
+    const noOrigin = upload();
+    assert.equal((await call(port, { method: 'POST', path: '/api/jobs', headers: { 'Content-Type': noOrigin.headers['Content-Type'] }, body: noOrigin.body })).status, 410);
+    assert.equal((await call(port, { path: '/api/jobs', headers: { Origin: ORIGIN } })).status, 410);
+    assert.equal(controller.health().queueDepth, 0);
+    assert.equal(existsSync(uploadDir) ? readdirSync(uploadDir).length : 0, 0, 'no upload was stored');
+    assert.deepEqual(json(await call(port, { path: '/api/health' })), { ok: true, buildId: 'abcd1234abcd1234', acceptingJobs: false, queueDepth: 0 });
+    assert.equal((await call(port, { path: '/api/ocean' })).status, 200, 'the ocean stays readable');
+  } finally { await stop(); }
+});
+
 test('events stream as SSE and replay from Last-Event-ID', async () => {
   const { port, controller, stop } = await start();
   try {
@@ -298,7 +315,9 @@ test('AT-15: /api/ocean shows nothing of a single job before the batch, then cou
     assert.deepEqual(before.creatures, []);
     controller.applyPending();
     const after = await call(port, { path: '/api/ocean' });
-    assert.deepEqual(json(after).creatures, [{ findingId: 'steal-credentials', eaten: 1 }]);
+    const [creature] = json(after).creatures;
+    assert.deepEqual([creature.findingId, creature.eaten, creature.recent.length], ['steal-credentials', 1, 1]);
+    assert.deepEqual(Object.keys(creature.recent[0]).sort(), ['day', 'depth', 'species', 'type']);
     assert.ok(!after.body.toString().includes(jobId));
     assert.ok(!after.body.toString().includes(SAMPLE_NAME));
   } finally { await stop(); }

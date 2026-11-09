@@ -1,0 +1,408 @@
+# WannaCry (12 May 2017). A worm: it arrived over the network (SMBv1, EternalBlue), with no click from the victim.
+# A quest (QUESTS.md): the trainee is a hospital clinic receptionist who confirms clinic lists, then the worm arrives mid-shift.
+# Invented victim: in England, dozens of hospital trusts were hit and about 19,000 appointments were cancelled.
+os windows
+user Dana Okafor
+about
+  | WannaCry arrived over the network with no click: an unpatched Windows file-sharing service let it in.
+  | It encrypted the documents, changed the wallpaper, opened its "Wana Decrypt0r" window and demanded bitcoin, then tried to spread to the next machines. In May 2017 it hit dozens of hospital trusts in England and about 19,000 appointments were cancelled. The clinic and the receptionist here are invented.
+story
+  | You are Dana Okafor, clinic receptionist at Northwind Community Hospital. Each afternoon you confirm tomorrow's clinic lists in the booking system, so the nurses can print them.
+  | You have confirmed 6 of the 8 lists. Two to go.
+  | Your booking sign-in is in a text file on the desktop, and so is the patient list for tomorrow. That is a bad habit, but it keeps this training quick.
+quota 6 8 Clinic lists confirmed
+
+# Dana's desk: soft flags, careless but only here to keep the training simple.
+file Desktop/booking-login.txt
+  at 930 200
+  | Northwind Clinic Bookings
+  | User ID: dana.okafor
+  | Password: Clinic-2026!
+file Desktop/clinic-patients.csv
+  at 930 300
+  | Clinic,Time,Patient,Phone
+  | Cardiology,09:00,Hannah Brooks,555 0142
+  | Cardiology,09:20,Omar Haddad,555 0177
+  | Orthopaedics,10:00,Linda Voss,555 0123
+  | Orthopaedics,10:20,Peter Nkemelu,555 0188
+
+# The two lists. Cardiology goes through the booking system; Orthopaedics is the Word file the clinic still keeps.
+file Documents/Clinic list - Orthopaedics.docx
+  | Orthopaedics clinic, tomorrow, Room 2
+  | 10:00 Linda Voss, knee review
+  | 10:20 Peter Nkemelu, hip follow-up
+  | 10:40 Grace Mwangi, cast removal
+file Documents/Clinic list - Cardiology.docx
+  | Cardiology clinic, tomorrow, Room 3
+  | 09:00 Hannah Brooks, heart check
+  | 09:20 Omar Haddad, blood pressure review
+
+# The booking system: a sign-in page and the Cardiology list behind it.
+page clinic-login bookings.northwind.example/clinics/sign-in
+  title Northwind Clinic Bookings: sign in
+  brand Northwind Clinic Bookings
+  favorite
+  heading Sign in to Clinic Bookings
+  | Welcome back. Sign in to confirm tomorrow's clinic lists.
+  field User ID = dana.okafor
+  field secret Password = Clinic-2026!
+  button Sign in
+page list-done bookings.northwind.example/clinics/lists/confirmed
+  title List confirmed
+  brand Northwind Clinic Bookings
+  heading List confirmed
+  | Tomorrow's Cardiology list was sent to Ward 4 for printing.
+page list-held bookings.northwind.example/clinics/lists/held
+  title List on hold
+  brand Northwind Clinic Bookings
+  heading List on hold
+  | Tomorrow's Cardiology list is on hold. The ward will not print it until you confirm it.
+page list-cardio bookings.northwind.example/clinics/lists/cardiology
+  title Confirm clinic list: Cardiology
+  brand Northwind Clinic Bookings
+  requires clinic-login
+  heading Confirm clinic list: Cardiology
+  | A clinic list is waiting for your confirmation.
+  section Clinic list
+  row Clinic = Cardiology, Room 3
+  row Day = Tomorrow
+  row Patients booked = 18
+  row Send to = Ward 4 printer
+  button Confirm and send -> list-done
+  button Hold this list -> list-held
+
+mail mail-cardio
+  from Priya Shah <priya.shah@northwind.example>
+  subject Cardiology list for tomorrow: please confirm
+  link list-cardio
+  | Hi Dana,
+  |
+  | Cardiology's list for tomorrow is ready in the booking system. The link opens it.
+  |
+  | Priya
+
+step List 7 of 8
+  look Mail: Priya's message with the booking link
+  | A new list has come in from Priya. This one is a normal one. Confirm it the usual way, so you know what a normal afternoon looks like.
+notify mail Priya Shah
+  | Cardiology list for tomorrow: please confirm
+
+step The link goes to the booking system
+  look the link under Priya's message
+  when mail mail-cardio
+  | The email links to the hospital's own booking address, bookings.northwind.example. Hover over a link before you click it, to check where it goes.
+open mail-cardio
+
+step Sign in as usual
+  look the two boxes: User ID and Password
+  when visit list-cardio
+  move Copy the details from booking-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The booking system asks you to sign in first. Two boxes, as on every visit.
+open list-cardio
+
+step Check, then confirm
+  look the clinic, the day and the number of patients
+  when choose clinic-login 1
+  | You are in. Check the clinic and the day, then confirm the list or hold it.
+signin clinic-login
+
+# IT's reminder: the fix for the flaw WannaCry used, waiting on this PC.
+page it-tonight it.northwind.example/updates/scheduled
+  title Restart scheduled
+  brand Northwind IT
+  heading Restart scheduled
+  | Your PC will install the update and restart at 22:00 tonight.
+page it-later it.northwind.example/updates/postponed
+  title Reminder set
+  brand Northwind IT
+  heading Reminder set
+  | We will remind you again tomorrow at 09:00.
+page it-restart it.northwind.example/updates/restart
+  title Restart needed: security update
+  brand Northwind IT
+  heading A security update is waiting on your PC
+  | Your PC has a Windows security update it has not installed yet. It needs a restart.
+  section Update
+  row Update = Security Update for Windows: file-sharing fix
+  row Waiting for = 8 weeks
+  row Restart takes = about 10 minutes
+  button Restart tonight at 22:00 -> it-tonight
+  button Remind me tomorrow -> it-later
+mail mail-it
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Security update waiting on your PC: restart needed
+  link it-restart
+  | Hi Dana,
+  |
+  | The security update for your PC has been waiting for 8 weeks. It needs a restart, which takes about 10 minutes. Please pick a time in the link below.
+  |
+  | Marcus, IT
+
+step 7 of 8 done
+  look the counter in the guide: one list left
+  when choose list-cardio any
+  | Done. One list to go. And a message from IT has just arrived.
+choose list-cardio 1
+quota +1
+update Security Update for Windows: file-sharing fix
+  kb KB4012212
+  size 12 MB
+  status available
+notify mail Marcus Lee
+  | Security update waiting on your PC: restart needed
+
+step A message from IT
+  look the sender and the link: both are northwind.example, the hospital's own domain
+  when mail mail-it
+  cue choice:it-restart-1 link:mail-it mail:mail-it app:mail
+  move In Marcus's message, click the link, then choose when to restart.
+  | Marcus is in IT, and the link goes to it.northwind.example, the hospital's own IT address. The update has been waiting for 8 weeks, and nothing bad has come of it yet. That is how it feels to put off an update.
+open mail-it
+
+step Later, or tonight
+  look the two buttons: restart tonight, or remind me tomorrow
+  when choose it-restart any
+  | The page offers a restart tonight at 22:00, or a reminder tomorrow. Either way, the update installs after this afternoon. Another message has just arrived: the last list.
+open it-restart
+choose it-restart 2
+open it-later
+
+# The last list is a Word file, so there is no booking link: Priya sends the file's name.
+mail mail-ortho
+  from Priya Shah <priya.shah@northwind.example>
+  subject Last one: Orthopaedics list for tomorrow
+  | Dana,
+  |
+  | The Orthopaedics list is still the Word file: "Clinic list - Orthopaedics" in Documents. Please check it and send it to Ward 4.
+  |
+  | Priya
+notify mail Priya Shah
+  | Last one: Orthopaedics list for tomorrow
+
+# The worm itself: installed as a Windows service, with no file the user ever sees.
+program mssecsvc Microsoft Security Center (2.0) Service
+  publisher none
+  signed no
+  process mssecsvc.exe
+  cpu 18
+  mem 46
+  parent services.exe
+  command C:\Windows\mssecsvc.exe -m security
+  startup mssecsvc2.0 C:\Windows\mssecsvc.exe -m security
+  location HKLM\SYSTEM\CurrentControlSet\Services\mssecsvc2.0
+
+# The ransom window: a red lock icon, no warning, and it opens by itself once the files are locked.
+view wana-nopay message
+  title Wana Decrypt0r 2.0
+  icon error
+  | You did not pay or we did not confirm your payment yet.
+  | (Training copy: no payment exists here.)
+  button OK -> close primary
+view wana-nodecrypt message
+  title Wana Decrypt0r 2.0
+  icon warning
+  | Your files are still encrypted. No key exists on this training desktop.
+  button OK -> close primary
+view wana-ransom ransom
+  title Wana Decrypt0r 2.0
+  app Wana Decrypt0r 2.0
+  bg #f2f2f2
+  fg #202020
+  accent #b00000
+  header #a40000
+  size 760x470
+  heading Ooops, your files have been encrypted!
+  icon lock
+  | Your important files are encrypted. Many of your documents, photos, videos and databases are no longer accessible.
+  section Payment will be raised on
+  timer Time left = 259200
+  section Your files will be lost on
+  timer Time left = 604800
+  section What Happened to My Computer?
+  | Your important files were encrypted on this computer. They can be recovered only with the private key, which is kept on a server.
+  section Can I Recover My Files?
+  | Yes. Send $300 worth of bitcoin to the address below. The price doubles after 3 days, and after 7 days the files are lost for ever.
+  section How Do I Pay?
+  row Bitcoin address = bc1q-training-example-not-a-real-address
+  note Nothing here is real. A training copy: no payment is taken and no key exists.
+  button Check Payment -> view:wana-nopay primary
+  button Decrypt -> view:wana-nodecrypt
+  button Copy -> none
+  button About bitcoin -> none
+  button How to buy bitcoins? -> none
+  button Contact Us -> none
+
+# The encryptor the service drops and starts, and the ransom program it runs.
+program tasksche tasksche.exe
+  publisher none
+  signed no
+  process tasksche.exe
+  cpu 64
+  mem 58
+  parent mssecsvc.exe
+  command C:\Windows\tasksche.exe /i
+program wanadecryptor @WanaDecryptor@.exe
+  publisher none
+  signed no
+  description Wana Decrypt0r 2.0
+  process @WanaDecryptor@.exe
+  cpu 6
+  mem 31
+  parent tasksche.exe
+  view wana-ransom
+
+# The worm arrives. Nothing in the message is wrong and nothing is clicked: it comes in over the file-sharing port.
+step Nothing was clicked
+  look the “Connection blocked” banner in the corner, and the new start-up item
+  when mail mail-ortho
+  move Open {File Explorer|Finder} from the {taskbar|Dock}: Priya asks you to check the Orthopaedics list.
+  | Priya's last list of the day is an ordinary message. While you read it, an infected computer on the hospital network reaches this one over file sharing (port 445): the old, unpatched service lets WannaCry in. No email, no download, no click.
+  | It installs itself as a service called "Microsoft Security Center (2.0) Service", a name chosen to look harmless. First it checks one web address: if that address answers, it stops. Here nothing answered, so it carried on.
+  | The “Connection blocked” banner only means this training desktop has no network. In the real outbreak, a researcher registered that address, which slowed the spread sharply.
+open mail-ortho
+block killswitch-check.invalid 80
+launch mssecsvc
+
+# The encryptor runs as soon as the list is opened in {File Explorer|Finder}: every file in Documents is locked.
+step Every file gets a new ending
+  look {File Explorer|Finder}: the Documents folder, where every file now ends in .WNCRY
+  when open files
+  move Double-click “Clinic list - Orthopaedics.docx.WNCRY” in Documents.
+  cue file:fs-clinic-list-orthopaedics-52bea499 app:files
+  | Every file in Documents gains .WNCRY and will not open.
+  | The booking system is on the server, so it still works; the Word list was on this PC.
+attack ransomware-encrypt
+  | Clinic list - Orthopaedics.docx
+  | Clinic list - Cardiology.docx
+  | Q3-report.docx
+  | budget.xlsx
+  | ...and 6 more files in Documents
+launch tasksche
+encrypt Documents .WNCRY
+file Desktop/@Please_Read_Me@.txt
+  at 820 200
+  | Q:  What's wrong with my files?
+  | A:  Ooops, your important files are encrypted.
+  |
+  | Q:  Is there a way to recover my files?
+  | A:  Yes. Send $300 worth of bitcoin to the address shown in the Wana Decrypt0r window.
+  |     The price doubles after 3 days. After 7 days the files are lost for ever.
+  |
+  | (Fictional training copy. Nothing on this desktop is real.)
+file Desktop/@WanaDecryptor@.exe
+  at 820 300
+  program wanadecryptor
+  size 245760
+open Documents
+
+# The locked list will not open, and the ransom window opens by itself: the next step plays after the trainee's own attempt.
+step It will not open: a window opens by itself
+  look the Wana Decrypt0r window, the new wallpaper, and the note and program on the desktop
+  | The list will not open: the computer says it cannot open the file, because it is locked. Then a Wana Decrypt0r window opens by itself, and the wallpaper turns black.
+  | It asks for $300 in bitcoin: the price doubles after 3 days, and after 7 days the files are lost for ever.
+launch wanadecryptor
+wallpaper #0b0b0b
+  | Ooops, your important files are encrypted.
+  | If you see this text, but don't see the "Wana Decrypt0r" window,
+  | then your antivirus removed the decrypt software
+  | or you deleted it from your computer.
+  | (Training illustration)
+
+step What is running
+  look {Task Manager|Activity Monitor}: mssecsvc.exe, tasksche.exe and @WanaDecryptor@.exe, all with no publisher
+  when open taskmanager
+  | Three programs the worm started are running. mssecsvc.exe is the service that keeps it going, tasksche.exe is the encryptor, and @WanaDecryptor@.exe is the ransom window's program.
+  | None of them has a publisher. While you look, Priya writes again: the Word files are locked on every PC.
+open taskmanager
+
+# Back to work: the booking system runs on the hospital's server, not on this PC, so Priya moves the last list there.
+page ortho-done bookings.northwind.example/clinics/lists/confirmed-ortho
+  title List confirmed
+  brand Northwind Clinic Bookings
+  heading List confirmed
+  | Tomorrow's Orthopaedics list was sent to Ward 4. The clinics will run on paper while the PCs are down.
+page ortho-held bookings.northwind.example/clinics/lists/held-ortho
+  title List on hold
+  brand Northwind Clinic Bookings
+  heading List on hold
+  | Tomorrow's Orthopaedics list is on hold. The ward will not print it until you confirm it.
+page list-ortho bookings.northwind.example/clinics/lists/orthopaedics
+  title Confirm clinic list: Orthopaedics
+  brand Northwind Clinic Bookings
+  requires clinic-login
+  heading Confirm clinic list: Orthopaedics
+  | A clinic list is waiting for your confirmation.
+  section Clinic list
+  row Clinic = Orthopaedics, Room 2
+  row Day = Tomorrow
+  row Patients booked = 12
+  row Send to = Ward 4 printer
+  button Confirm and send -> ortho-done
+  button Hold this list -> ortho-held
+mail mail-paper
+  from Priya Shah <priya.shah@northwind.example>
+  subject Orthopaedics list: use the booking system
+  link list-ortho
+  | Dana,
+  |
+  | Our Word files are locked on every PC, and IT is on its way. Do not open anything else. I have put the Orthopaedics list in the booking system, which runs on the server and still works. Please confirm it there and the ward will print it.
+  |
+  | Priya
+notify mail Priya Shah
+  | Orthopaedics list: use the booking system
+
+step Back to work, on the server
+  look the message from Priya: the booking system is on the server
+  when mail mail-paper
+  cue choice:list-ortho-1 link:mail-paper mail:mail-paper app:mail
+  move In Priya's message, click the link, then confirm the list.
+  | Priya says every PC with the Word files is locked, but the booking system runs on the hospital's server and still works. Her message is a real one.
+  | Dana is already signed in, so the list opens straight away. Go on: this is how the clinics kept running.
+open mail-paper
+
+step The last list, from the server
+  look the counter in the guide: 8 of 8
+  when choose list-ortho any
+  | Done: 8 of 8 lists are dealt with, and the clinics can print from the server. The Word file and the files on this PC are still locked, and the worm is still looking for the next PCs.
+open list-ortho
+choose list-ortho 1
+open ortho-done
+quota +1
+
+step It looks for the next PCs
+  look the two “Connection blocked” banners in the corner: 192.0.2.10 and 192.0.2.11, both on port 445
+  | The worm tries the same flaw on every machine it can reach, on port 445. A patched machine, or one with the old protocol turned off, is safe.
+  | Here those connections are blocked. In the real outbreak, hospitals had no such block: appointments were cancelled and ambulances were sent to other hospitals.
+attack network-worm
+  | 192.0.2.10
+  | 192.0.2.11
+  | the next PC
+  | the next hospital
+block 192.0.2.10 445
+block 192.0.2.11 445
+
+flag hard process mssecsvc.exe
+  | A service named to look like Windows security, from no known publisher: the worm itself.
+flag hard startup mssecsvc2.0
+  | The worm set itself to start again after every restart, with no one asking for it.
+flag hard process tasksche.exe
+  | Started by mssecsvc.exe, no publisher, unsigned: the encryptor.
+flag hard file Documents/Clinic list - Orthopaedics.docx.WNCRY
+  | The same name, with .WNCRY on the end: the file is locked and will not open.
+flag hard view wana-ransom
+  | A window that opened by itself, demands bitcoin and counts down: the ransom demand.
+flag hard file Desktop/@WanaDecryptor@.exe
+  | The ransom program: no publisher, no warning, and it opens the demand by itself.
+flag hard file Desktop/@Please_Read_Me@.txt
+  | The ransom note the worm leaves beside the locked files.
+flag hard notice taskmanager connection blocked
+  | Port 445 to other PCs: the worm looking for its next victim.
+flag soft file Desktop/booking-login.txt
+  | A sign-in in a text file on the desktop: anything that runs on this PC can read it. Use a password manager.
+flag soft file Desktop/clinic-patients.csv
+  | Patient names and phone numbers on the desktop belong on the hospital system, not in a loose file.
+
+lesson
+  | Install security updates, even when you are busy: Microsoft had fixed this flaw two months before WannaCry. A restart that takes ten minutes is cheaper than a ward on paper.
+  | Turn off old services you do not need (here SMBv1), keep patient files on the hospital system, and keep offline backups: WannaCry also deleted Windows' own shadow copies.
+  | This worm needed no click, so do not blame the person at the desk: a patched computer, a network that blocks port 445 between PCs, and offline backups are what stop it.

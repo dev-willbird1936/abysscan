@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>The Detonation Timeline — 50 attacks, 1989–2025</title>
+<title>Historical archive — The Abyss</title>
 <!-- No remote font requests: the page runs without external assets. -->
 <style>
 /* ───────────────────────────────────────────────────────────
@@ -490,15 +490,17 @@ body[data-mode="sev"] .band.doors{padding-left:22px;border-left:1px dashed var(-
   html{scroll-behavior:auto}
 }
 </style>
+<link rel="stylesheet" href="/ui/abyss/site.css">
 </head>
-<body>
+<body data-site="chamber">
+<nav class="operator-context" aria-label="Archive navigation"><a href="/">← The Abyss</a><span>Historical archive · synthetic training only</span><a href="/bestiary">Open the Bestiary →</a></nav>
 
 <div class="ghost" id="ghost" aria-hidden="true">1989</div>
 
 <header class="top">
   <div class="hero">
     <div>
-      <h1>We build a machine that looks like <em>yours</em>.</h1>
+      <h1>Explore the history. <em>Practise the lesson.</em></h1>
           <p class="sub">Fifty historically grounded experiences. <b>Twenty</b> have a human-triggered moment, <b>twenty-seven</b> are machine verifiers, and <b>three</b> are analyst or uncertain reconstructions. Every consequence is synthetic.</p>
     </div>
     <div class="tally">
@@ -1189,7 +1191,7 @@ function openDrawer(a, opener){
     `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Open source ${i+1} for ${esc(a.name)}">Reference ${i+1} ↗</a>`
   ).join('');
   const profileContext = a.id === OAUTH_ATTACK_ID && new URLSearchParams(window.location.search).get('profile') === 'deception-abyss'
-    ? '<p class="date-note">Selected profile: Deception · Abyss. This victim-action depth is separate from the historical SEV2 label above.</p>'
+    ? '<p class="date-note">Selected profile: Deception · Abyss. This training category is separate from the historical SEV2 label above.</p>'
     : '';
 
   $('#d-body').innerHTML = `

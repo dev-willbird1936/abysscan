@@ -1,0 +1,35 @@
+{
+  "name": "abysscan",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Abysscan training sandbox. Script surface for the canonical checks, builds and e2e harnesses. No npm dependencies; the Python and browser scripts have their own prerequisites. See tools/CHECKS.md.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "check": "node --test \"tests/*.test.mjs\" && node tools/check-fish-scenes.mjs",
+    "test": "node --test \"tests/*.test.mjs\"",
+    "test:portable": "node --test tests/release-integrity.test.mjs tests/detonation-jobs.test.mjs tests/detonation-ocean-state.test.mjs tests/detonation-bestiary.test.mjs",
+    "test:py": "python -m pytest tests",
+    "check:scenes": "node tools/check-fish-scenes.mjs",
+    "check:quest": "node tools/check-quest.mjs",
+    "start": "node tools/start-local-ocean.mjs",
+    "build": "node build.mjs",
+    "build:abyss-manifest": "node tools/refresh-abyss-manifest.mjs",
+    "build:pixel-normals": "python tools/build-pixel-normals.py",
+    "build:lit-ocean": "python tools/build-lit-ocean-sprites.py",
+    "build:macos": "node desktop-comparison/make-macos-final.mjs",
+    "pixel": "npm run build:pixel-normals && npm run build:abyss-manifest",
+    "e2e:desktops": "node tools/e2e/desktops-e2e.mjs",
+    "e2e:scenes": "node tools/e2e/all-scenes-e2e.mjs",
+    "e2e:fish": "node tools/e2e/fish-scenes-e2e.mjs",
+    "e2e:guide": "node tools/e2e/guide-follow-e2e.mjs",
+    "e2e:quests": "node tools/e2e/quest-sweep.mjs",
+    "e2e:quest": "node tools/e2e/quest-play-e2e.mjs",
+    "e2e:sync": "node tools/e2e/sync-e2e.mjs",
+    "e2e:site": "node tools/e2e/site-completion-e2e.mjs",
+    "e2e:scene-studio": "node tools/e2e/scene-studio-e2e.mjs",
+    "e2e:threats": "node tools/e2e/threat-search-e2e.mjs"
+  }
+}

@@ -1,0 +1,306 @@
+{
+  "expected": 30,
+  "valid": 30,
+  "images": [
+    {
+      "style": "minimal-silhouettes",
+      "depth": "01-sunlight",
+      "path": "assets\\minimal-silhouettes\\01-sunlight.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 153.23
+    },
+    {
+      "style": "minimal-silhouettes",
+      "depth": "02-twilight",
+      "path": "assets\\minimal-silhouettes\\02-twilight.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 48.39
+    },
+    {
+      "style": "minimal-silhouettes",
+      "depth": "03-midnight",
+      "path": "assets\\minimal-silhouettes\\03-midnight.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 10.01
+    },
+    {
+      "style": "minimal-silhouettes",
+      "depth": "04-abyss",
+      "path": "assets\\minimal-silhouettes\\04-abyss.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 7.82
+    },
+    {
+      "style": "minimal-silhouettes",
+      "depth": "05-trench",
+      "path": "assets\\minimal-silhouettes\\05-trench.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 7.58
+    },
+    {
+      "style": "paper-cut",
+      "depth": "01-sunlight",
+      "path": "assets\\paper-cut\\01-sunlight.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 127.58
+    },
+    {
+      "style": "paper-cut",
+      "depth": "02-twilight",
+      "path": "assets\\paper-cut\\02-twilight.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 33.33
+    },
+    {
+      "style": "paper-cut",
+      "depth": "03-midnight",
+      "path": "assets\\paper-cut\\03-midnight.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 6.9
+    },
+    {
+      "style": "paper-cut",
+      "depth": "04-abyss",
+      "path": "assets\\paper-cut\\04-abyss.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 4.49
+    },
+    {
+      "style": "paper-cut",
+      "depth": "05-trench",
+      "path": "assets\\paper-cut\\05-trench.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 3.39
+    },
+    {
+      "style": "watercolor",
+      "depth": "01-sunlight",
+      "path": "assets\\watercolor\\01-sunlight.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 159.19
+    },
+    {
+      "style": "watercolor",
+      "depth": "02-twilight",
+      "path": "assets\\watercolor\\02-twilight.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 42.89
+    },
+    {
+      "style": "watercolor",
+      "depth": "03-midnight",
+      "path": "assets\\watercolor\\03-midnight.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 8.79
+    },
+    {
+      "style": "watercolor",
+      "depth": "04-abyss",
+      "path": "assets\\watercolor\\04-abyss.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 5.96
+    },
+    {
+      "style": "watercolor",
+      "depth": "05-trench",
+      "path": "assets\\watercolor\\05-trench.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 4.63
+    },
+    {
+      "style": "pixel-art",
+      "depth": "01-sunlight",
+      "path": "assets\\pixel-art\\01-sunlight.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 125.05
+    },
+    {
+      "style": "pixel-art",
+      "depth": "02-twilight",
+      "path": "assets\\pixel-art\\02-twilight.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 39.51
+    },
+    {
+      "style": "pixel-art",
+      "depth": "03-midnight",
+      "path": "assets\\pixel-art\\03-midnight.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 8.01
+    },
+    {
+      "style": "pixel-art",
+      "depth": "04-abyss",
+      "path": "assets\\pixel-art\\04-abyss.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 4.59
+    },
+    {
+      "style": "pixel-art",
+      "depth": "05-trench",
+      "path": "assets\\pixel-art\\05-trench.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 3.52
+    },
+    {
+      "style": "field-guide",
+      "depth": "01-sunlight",
+      "path": "assets\\field-guide\\01-sunlight.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 114.74
+    },
+    {
+      "style": "field-guide",
+      "depth": "02-twilight",
+      "path": "assets\\field-guide\\02-twilight.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 27.5
+    },
+    {
+      "style": "field-guide",
+      "depth": "03-midnight",
+      "path": "assets\\field-guide\\03-midnight.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 6.09
+    },
+    {
+      "style": "field-guide",
+      "depth": "04-abyss",
+      "path": "assets\\field-guide\\04-abyss.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 5.26
+    },
+    {
+      "style": "field-guide",
+      "depth": "05-trench",
+      "path": "assets\\field-guide\\05-trench.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 4.06
+    },
+    {
+      "style": "screen-print",
+      "depth": "01-sunlight",
+      "path": "assets\\screen-print\\01-sunlight.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 129.82
+    },
+    {
+      "style": "screen-print",
+      "depth": "02-twilight",
+      "path": "assets\\screen-print\\02-twilight.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 34.48
+    },
+    {
+      "style": "screen-print",
+      "depth": "03-midnight",
+      "path": "assets\\screen-print\\03-midnight.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 9.33
+    },
+    {
+      "style": "screen-print",
+      "depth": "04-abyss",
+      "path": "assets\\screen-print\\04-abyss.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 8.91
+    },
+    {
+      "style": "screen-print",
+      "depth": "05-trench",
+      "path": "assets\\screen-print\\05-trench.png",
+      "width": 1600,
+      "height": 900,
+      "approximately_16_9": true,
+      "exact_16_9": true,
+      "mean_brightness": 7.19
+    }
+  ]
+}

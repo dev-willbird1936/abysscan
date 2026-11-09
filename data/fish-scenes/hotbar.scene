@@ -1,0 +1,350 @@
+# Hotbar (2001-2008). Free browser skins and email smileys, paid for by a toolbar that watched browsing and showed ads.
+# A quest (QUESTS.md): the trainee answers customer parcel questions, does one lookup safely, then installs the free smileys a
+# colleague recommends and meets Hotbar in its setup. The victim is invented: Hotbar hit anyone who wanted prettier email.
+os windows
+user Dana Okafor
+about
+  | Hotbar offered free skins for the browser and smileys for email. It came in a setup program that quietly added a toolbar to the browser and to the mail program.
+  | The toolbar watched the pages you visited and the words you searched for, and showed pop-up ads to match. Adware: it did not destroy anything, but it spied on browsing and was hard to remove. Dana's job here is invented: the real victims were anyone who wanted free smileys.
+story
+  | You are Dana Okafor, customer-care coordinator at Northwind Traders. Each day you answer customers who ask where their parcel is: you look it up on the courier's tracking page and email them the answer.
+  | It is mid-afternoon. You have answered 3 of today's 5 parcel questions. Two to go.
+  | The day's parcel numbers and customer addresses are in a text file on the desktop. That is a bad habit, but it keeps this training quick.
+  | Software comes only from Northwind's IT portal.
+quota 3 5 Customer replies sent
+
+# Dana's desk (soft flags: careless, but only here to keep the training simple).
+file Desktop/parcels-today.txt
+  at 930 200
+  | Parcels to chase today (training copy)
+  | Hannah Brooks, 14 Mill Lane: SW-204417
+  | Owen Reyes, 9 Quay Road: SW-205502
+  | Ines Moreau, 3 Orchard Close: SW-206130
+
+# The courier: a tracking page that asks for the number, and the parcel pages behind it.
+page track-form swiftline.example/parcels/track
+  title Swiftline Parcels: track a parcel
+  brand Swiftline Parcels
+  favorite
+  heading Track a parcel
+  field Tracking number = SW-204417
+  button Track parcel
+page shared-4471 swiftline.example/parcels/SW-204417/shared
+  title Status emailed
+  brand Swiftline Parcels
+  heading Status emailed
+  | The status of SW-204417 was emailed to hannah.brooks@customers.example today.
+page held-4471 swiftline.example/parcels/SW-204417/not-sent
+  title Nothing sent
+  brand Swiftline Parcels
+  heading Nothing sent
+  | The status of SW-204417 was not emailed. You can email it later from this page.
+page track-4471 swiftline.example/parcels/SW-204417
+  title Parcel SW-204417
+  brand Swiftline Parcels
+  requires track-form
+  heading Parcel SW-204417
+  | Here is where the parcel is now.
+  section Parcel
+  row Customer = Hannah Brooks, order 4471
+  row Status = Out for delivery
+  row Expected = Today, before 5 pm
+  row Last scan = Harbor City depot, 7:52 am
+  button Email this status to the customer -> shared-4471
+  button Do not send -> held-4471
+
+mail mail-4471
+  from Priya Shah <priya.shah@northwind.example>
+  subject Where is Hannah Brooks's parcel? (order 4471)
+  link track-4471
+  | Hi Dana,
+  |
+  | Hannah Brooks is asking where her parcel is. It went out with Swiftline: the tracking link is below. Can you check it and email her the status?
+  |
+  | Priya
+notify mail Priya Shah
+  | Where is Hannah Brooks's parcel? (order 4471)
+
+step The link goes to the courier
+  look the link under Priya's message
+  when mail mail-4471
+  | A new question has come in from Priya, in Sales. This one is plain and ordinary: do it the normal way, so you know what normal looks like.
+  | The email links to Swiftline's own address, swiftline.example. Hover over a link before you click it, to check where it goes.
+open mail-4471
+
+step Type the number as usual
+  look the one box: Tracking number, with nothing around the page but the courier's own header
+  when visit track-4471
+  move Copy the number from parcels-today.txt on the desktop: click the box and press any keys to type, then click “Track parcel”.
+  | The courier asks for the tracking number first. One box, one button. Remember what this page, and the page after it, normally look like.
+open track-4471
+
+step Check, then email the customer
+  look the status and the expected date
+  when choose track-form 1
+  | You have the parcel page. Check the status and the date, then email them to the customer. Nothing covers the page: this is what a clean lookup looks like.
+signin track-form
+
+step 4 of 5 done
+  look the counter in the guide: four replies sent
+  when choose track-4471 any
+  | Sent. One reply to go. And a colleague has just written about your emails.
+choose track-4471 1
+quota +1
+
+# The lure: free smileys. The setup program carries the toolbar.
+page skins smiley-skins.example
+  title Free browser skins and smileys
+  brand Smiley Bar
+  heading Make your browser and your mail fun!
+  | Hundreds of free skins and smileys. One click and they are yours.
+  section Free, supported by our sponsors
+  row Price = Free
+  row Paid for by = Advertising partners
+  row Includes = Smiley Bar toolbar for your browser and your mail program
+  button Get it free
+mail mail-smileys
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Free smileys for your emails :)
+  link skins
+  | Hi Dana,
+  |
+  | Your replies to customers are so serious! I put free smileys in my emails and the customers love them. They are free and it takes a minute. The link is below.
+  |
+  | Marcus
+notify mail Marcus Lee
+  | Free smileys for your emails :)
+
+# The setup wizard. Offers are pre-ticked and the small print is on page 2.
+view hotbar-setup wizard
+  title Smiley Bar Setup
+  app Smiley Bar Setup
+  publisher Skinworks Media Ltd
+  accent #e0457b
+  page Welcome
+  icon program
+  heading Add smileys and skins to your mail
+  | This will install Smiley Bar, with hundreds of free smileys and skins for your browser and email.
+  | Click Next to continue.
+  button Cancel -> close
+  button Next -> next primary
+  page Licence agreement
+  icon info
+  heading Please read the licence
+  | By installing, you agree that Smiley Bar may show you advertising and may record the web sites you visit and the words you search for, to choose ads for you.
+  button Back -> back
+  button Cancel -> close
+  button I agree -> next primary
+  page Choose your options
+  icon gear
+  heading Smiley Bar will be set up for you
+  section Selected for you
+  check [x] Add the Smiley Bar toolbar to my browser
+  check [x] Add the Smiley Bar button to my mail program
+  check [x] Show me special offers while I browse
+  check [x] Start Smiley Bar with Windows
+  button Back -> back
+  button Install -> next primary
+  page Installing
+  icon program
+  heading Smiley Bar is installed
+  section Done
+  progress 100
+  | Open your browser or your mail program to see your new toolbar.
+  button Finish -> done primary
+
+# A pop-up ad, shown while the trainee browses.
+view hotbar-popup message
+  title Special offer
+  app Internet ad
+  icon money
+  | Parcels late? Ship with QuickDrop and save 30% on your first delivery.
+  | Ads by Smiley Bar · Skinworks Media
+  button Claim now -> none
+  button Close -> done primary
+
+program hotbar Smiley Bar setup
+  publisher Skinworks Media Ltd
+  signed yes
+  prompt open-warning
+  description Smiley Bar installer
+  view hotbar-setup
+
+step A tip about your emails
+  look the sender and the link under Marcus's message
+  when mail mail-smileys
+  cue link:m-mail-smileys choice:skins-1
+  move Click the link under Marcus's message, read the small box on the page, then click “Get it free”.
+  | Marcus has noticed how plain your replies are. He suggests free smileys he uses himself. He means well, and the smileys really are free.
+  | The link does not go to Northwind's software portal. It goes to a download site.
+open mail-smileys
+
+step Opening the setup program
+  look {the Open File - Security Warning: Publisher "Skinworks Media Ltd", Type "Application"|the Mac alert: “smiley-bar-setup.exe” is a Windows program}
+  when choose skins 1
+  cue dialog-btn:run view-btn:next view:hotbar-setup
+  move In the warning, click {Run|Show what it does}. In the setup window, click Next, read the licence, then click I agree.
+  | The page says plainly that sponsors pay for the smileys. The download is a setup program, not a picture pack, and the computer asks whether to run it.
+  | The warning names a publisher, so many people clicked Run without a second thought. A name only says who made the file, not that it is safe.
+choose skins 1
+file Downloads/smiley-bar-setup.exe
+  program hotbar
+  size 1843200
+open Downloads/smiley-bar-setup.exe
+
+step The wizard with the boxes already ticked
+  look the setup wizard: the licence page, and the options page with four boxes ticked
+  when page hotbar-setup 3
+  cue view-btn:next view-btn:done view:hotbar-setup
+  move Read the four ticked boxes. Click one to untick it if you like, then click Install and Finish.
+  | The licence says ads, and that your browsing and searches are recorded. Few people read it. Then the options page: all four boxes ticked for you.
+  | To say no, clear the boxes before you click Install. Try one: the training carries on either way.
+answer run
+press hotbar-setup next
+press hotbar-setup next
+
+step Smiley Bar is installed
+  look {Task Manager|Activity Monitor}: hotbar.exe
+  when done hotbar-setup
+  | The smileys are there, and the toolbar is in the browser. hotbar.exe now runs in the background and starts with the computer.
+  | There was no warning. Another message from Priya has just arrived.
+press hotbar-setup next
+press hotbar-setup done
+run hotbar.exe
+  publisher Skinworks Media Ltd
+  cpu 3
+  mem 21
+  parent explorer.exe
+  command C:\Program Files\Smiley Bar\hotbar.exe
+  keylog yes
+startup SmileyBar "C:\Program Files\Smiley Bar\hotbar.exe" /tray
+  location HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+open taskmanager
+
+# Priya's next question arrives once Smiley Bar is installed. The pages it opens are new here, so they exist only now.
+page track-form swiftline.example/parcels/track
+  title Swiftline Parcels: track a parcel
+  brand Swiftline Parcels
+  favorite
+  toolbar Smiley Bar
+  heading Track a parcel
+  field Tracking number = SW-205502
+  button Track parcel
+  section Sponsored by Smiley Bar
+  tone injected
+  item Compare couriers and save on your next delivery
+  note Offers picked for you by Smiley Bar
+page shared-4472 swiftline.example/parcels/SW-205502/shared
+  title Status emailed
+  brand Swiftline Parcels
+  toolbar Smiley Bar
+  heading Status emailed
+  | The status of SW-205502 was emailed to owen.reyes@customers.example today.
+page held-4472 swiftline.example/parcels/SW-205502/not-sent
+  title Nothing sent
+  brand Swiftline Parcels
+  toolbar Smiley Bar
+  heading Nothing sent
+  | The status of SW-205502 was not emailed. You can email it later from this page.
+page track-4472 swiftline.example/parcels/SW-205502
+  title Parcel SW-205502
+  brand Swiftline Parcels
+  toolbar Smiley Bar
+  requires track-form
+  heading Parcel SW-205502
+  | Here is where the parcel is now.
+  section Parcel
+  row Customer = Owen Reyes, order 4472
+  row Status = Delayed at the depot
+  row Expected = Tomorrow
+  row Last scan = Harbor City depot, 8:40 am
+  button Email this status to the customer -> shared-4472
+  button Do not send -> held-4472
+  section Sponsored by Smiley Bar
+  tone injected
+  item Late parcel? Try QuickDrop, 30% off
+  item Parcel insurance picked for you
+  note Ads by Smiley Bar
+signout track-form
+mail mail-4472
+  from Priya Shah <priya.shah@northwind.example>
+  subject Last one for today: Owen Reyes's parcel (order 4472)
+  link track-4472
+  | Dana,
+  |
+  | Owen Reyes asked about his parcel. Same as before: the link opens it at the courier. Can you email him the status?
+  |
+  | Priya
+notify mail Priya Shah
+  | Last one for today: Owen Reyes's parcel (order 4472)
+
+step The last question
+  look Mail: Priya's last message
+  when mail mail-4472
+  | Priya's last question of the day, with a real Swiftline link like the first one. Open it.
+open mail-4472
+
+step A toolbar on the courier's page
+  look the toolbar above the page, and the sponsored offers under the box
+  when visit track-4472
+  move Type the number from parcels-today.txt as before: click the box and press any keys. Watch the page, and {the bottom-right corner|the top of the screen, under the menu bar}, while you type.
+  | The courier's address is the same, but the page is not the one you used an hour ago. A toolbar sits above it, and offers the courier never made are under the box.
+  | Smiley Bar sends the pages you open, and what you type into them, to its ad company: {the bottom-right corner|the top of the screen, under the menu bar} lights up with each key.
+open track-4472
+
+step Ads that match what you typed
+  look the pop-up on top of the parcel page, and the sponsored ads under the parcel details
+  when choose track-form 1
+  move Read the page and the pop-up. Then click “Close” in the pop-up.
+  | The parcel details are right, but a window has opened on top, and the page carries ads picked from the number you just typed.
+  | The courier did not send them. They came from the program on this computer.
+signin track-form
+show hotbar-popup
+
+step Close the ad and reply
+  look the parcel page under the pop-up: the same customer, status and date
+  when done hotbar-popup
+  | The pop-up is gone and the page is as it was. Closing it does not remove Smiley Bar: it will be back on the next page.
+  | Email the status to Owen, as you did for Hannah.
+
+step 5 of 5, or so Dana thinks
+  look the counter in the guide: the day is done
+  when choose track-4472 any
+  | Sent, five of five. The reply is right and the parcel page is real. Press Next to see what Smiley Bar did on the way.
+choose track-4472 1
+quota +1
+
+step What Smiley Bar did
+  look the animation: the pages you visited and what you typed after setup
+  | The smileys were free because Dana was the product. Smiley Bar wrote down the pages she visited and the words she typed, and sold matching ads against them.
+  | Nothing was stolen and nothing was locked. The harm was the pop-ups, the slow browser, and a toolbar installed on the strength of a licence nobody read.
+attack spyware-surveillance
+  | the browser
+  | the mail
+  | {captured}
+  | matching ads
+block ads.smileybar-partners.invalid 80
+
+flag hard link mail-smileys
+  | A tip to install a program from a download site, not from Northwind's software portal. Check where a link goes before you click it.
+flag hard section skins 1
+  | The page says advertisers pay for the smileys. A free program has to be paid for somehow.
+flag hard dialog open-warning hotbar
+  | A setup program from a publisher nobody at Northwind knows. A signed name only says who made the file, not that it is safe.
+flag hard process hotbar.exe
+  | Smiley Bar running in the background. Dana installed smileys, not this.
+flag hard startup SmileyBar
+  | Smiley Bar added itself to the programs that start every time the computer starts.
+flag hard section track-form 1
+  | Offers the courier never made, added to its own page. The toolbar put them there.
+flag hard section track-4472 2
+  | Ads picked from the number you typed, shown on the courier's parcel page. The courier did not add them.
+flag hard net
+  | Network activity as you type: Smiley Bar sends the pages you open, and what you type into them, to its ad company.
+flag soft file Desktop/parcels-today.txt
+  | Customer names, addresses and tracking numbers in a loose text file on the desktop: any program that runs can read it.
+
+lesson
+  | Free smileys, skins and cursors are often paid for by adware. Ask who pays, and read the licence page of any setup program: clear every box you did not choose.
+  | A friend's tip is not a safe source. Install software only from the company's portal, and hover over a link before you click it.
+  | If a toolbar or ads appear that you did not ask for, uninstall it in {Settings, then Apps|the Applications folder}, and run a scan.

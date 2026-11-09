@@ -36,7 +36,7 @@ class OlevbaTests(unittest.TestCase):
         result, calls = extract_olevba({"code": 2, "stdout": "", "stderr": "", "timedOut": False})
         self.assertFalse(result["ok"])
         self.assertEqual(result["error"], "olevba exited with code 2")
-        self.assertEqual(calls, [(["/test/python", "-m", "oletools.olevba", "--json", "--no-deobfuscate", "/in/sample.docx"], 20)])
+        self.assertEqual(calls, [(["/test/python", "-m", "oletools.olevba", "--json", "/in/sample.docx"], 20)])
 
     def test_empty_output_on_timeout_is_failed_even_with_zero_exit_code(self):
         for done in (

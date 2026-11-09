@@ -1,0 +1,302 @@
+# Comet Cursor (1997-2004). Free animated mouse pointers that also sent a tracking ID with the pages you visited.
+# A quest (QUESTS.md): Dana prints activity sheets for a family day, does one sheet safely, then a colleague's tip
+# sends Dana to a cursor site whose page will not show its sheet until the free cursor player is installed.
+# The victim is invented: Comet Cursor hit anyone who clicked Yes on a fun site, not one job.
+os windows
+user Dana Okafor
+about
+  | Comet Cursor was a free add-on that swapped the mouse pointer for a cartoon on websites that used it, popular on fan and children's sites. A page asked "install and run this?" and many visitors clicked Yes.
+  | Each copy had its own unique ID, sent to the company whenever a page loaded its cursor. The ID was the same on every site, so one company could follow one person across many sites. Spyware by later definitions, but not proven to do harm.
+  | Dana, the job and Northwind Traders are invented: the real victims were anyone who wanted a fun pointer. The setup pages are a training copy, not a copy of the real installer.
+story
+  | You are Dana Okafor, office coordinator at Northwind Traders. On Saturday the company holds a family day, and you are printing five free activity sheets for the children's table.
+  | It is Thursday afternoon. You have printed 3 of the 5 sheets. Two to go.
+  | A guest list and the second-floor printer code sit in two text files on the desktop. That is a bad habit, but it keeps this training quick.
+quota 3 5 Activity sheets printed
+
+# Dana's desk: the list is part of the job; the other two files are demo conveniences (soft flags).
+file Desktop/sheet-list.txt
+  at 930 400
+  | Family day: sheets for the children's table
+  | 1 Colouring: farm animals (done)
+  | 2 Word search: space (done)
+  | 3 Join the dots: castle (done)
+  | 4 Colouring: rocket
+  | 5 Dinosaur maze
+file Desktop/family-day-guests.txt
+  at 930 200
+  | Family day guests (training copy)
+  | Mia, 6, parent Ben Hartley, phone 555-0142
+  | Leo, 8, parent Sara Alder, phone 555-0177
+  | Nina, 5, parent Tom Fabri, phone 555-0163
+file Desktop/printer-code.txt
+  at 930 300
+  | Second-floor printer release code (training copy)
+  | Code: 4417
+
+# The safe sheet: a plain page that needs nothing installed.
+page printed-4 craft-corner.example/printed
+  title Sheet sent to the printer
+  brand Craft Corner
+  heading Sent to the printer
+  | Rocket colouring page, 1 sheet, A4. Collect it from the second-floor printer.
+page craft-sheet craft-corner.example/sheets/rocket
+  title Rocket colouring page
+  brand Craft Corner
+  heading Rocket colouring page
+  | A big rocket with stars to colour in. Ages 4 to 8.
+  section About this page
+  row Price = Free
+  row Needs = Nothing to install
+  row Sign-up = None
+  button Print sheet -> printed-4
+mail mail-sheet4
+  from Priya Shah <priya.shah@northwind.example>
+  subject Sheet 4 of 5: rocket colouring page
+  link craft-sheet
+  | Hi Dana,
+  |
+  | I found the rocket colouring page for the children's table. Craft Corner has it free: the link goes straight to the sheet.
+  |
+  | Priya
+
+step Sheet 4 of 5
+  look Mail: Priya's message with the sheet link
+  | A new sheet has come in from Priya, in Events. This one is an ordinary page. Print it the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Sheet 4 of 5: rocket colouring page
+
+step The link goes to Craft Corner
+  look the link under Priya's message
+  when mail mail-sheet4
+  | The email links to craft-corner.example, a plain craft site. Hover over a link before you click it, to check where it goes.
+open mail-sheet4
+
+step A page that just works
+  look the details: Needs "Nothing to install"
+  when visit craft-sheet
+  move Read the details, then click “Print sheet”.
+  | The sheet is on the page, ready to print. It needs no sign-up and nothing installed. Remember what a normal page looks like.
+open craft-sheet
+
+step Sheet 4 done
+  look the counter in the guide: 4 of 5
+  when choose craft-sheet any
+  | Printed. One sheet to go, and a colleague has just sent a tip.
+choose craft-sheet 1
+quota +1
+
+# The lure: a fun site that wants a program installed before it shows its page.
+# "No thanks" leads to a page that stops there, with a way back to the safe site.
+page no-thanks fun-cursors.example/no-thanks
+  title Pip's Cursor Club
+  brand Pip's Cursor Club
+  heading No problem
+  | The Dinosaur Maze stays hidden until the cursor player is installed.
+  button Back to Craft Corner -> craft-sheet
+page cursors fun-cursors.example
+  title Pip's Cursor Club
+  brand Pip's Cursor Club
+  heading Pick a printable sheet
+  | The Dinosaur Maze is waiting. This page uses custom cursors: install the free cursor player to see it.
+  section About the cursor player
+  row Price = Free
+  row Works in = Your browser, on pages that ask for it
+  row Needs = A small add-on, installed once
+  section Before you install
+  note Each copy of the player has its own ID number. The player, made by Comet Cursor Co, sends it to Comet's server whenever a page loads a cursor. See our privacy policy.
+  button Yes, install
+  button No thanks -> no-thanks
+mail mail-maze
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Sheet 5: dinosaur maze (Pip's Cursor Club)
+  link cursors
+  | Dana,
+  |
+  | My daughter's class used Pip's Cursor Club for a dinosaur maze, and the kids loved it. Start from this link and it sends you on to the maze.
+  |
+  | Marcus
+notify mail Marcus Lee
+  | Sheet 5: dinosaur maze (Pip's Cursor Club)
+
+step A tip for the last sheet
+  look the sender and the link under Marcus's message
+  when mail mail-maze
+  | Marcus found a dinosaur maze on a fan site, and means well: the site really has the maze. The link goes to fun-cursors.example, a fan site Dana has not used before.
+open mail-maze
+
+step The page wants a player
+  look the details and the line under "Before you install"
+  when visit cursors
+  move Read the page, small print included, before you press a button.
+  | The maze is behind a page that wants a program installed first. Craft Corner's page needed nothing: a web page does not need a program to show a sheet.
+  | The small print says each copy of the player has its own ID, sent to the company. It is one plain line.
+open cursors
+
+# The player is signed by its maker, so Windows' warning looks reassuring. The setup ticks its own boxes.
+view comet-install wizard
+  title Comet Cursor Setup
+  app Comet Cursor Setup
+  publisher Comet Cursor Co
+  accent #e8803a
+  page Welcome
+  icon program
+  heading Welcome
+  | This adds the free cursor player to your browser. Pages that use cursors will show them.
+  | Click Next to continue.
+  button Cancel -> close
+  button Next -> next primary
+  page Options
+  icon gear
+  heading Setup options
+  section Express setup
+  check [x] Always trust software from Comet Cursor Co
+  check [x] Show cursors on every page that offers them
+  button Back -> back
+  button Next -> next primary
+  page Installing
+  icon program
+  heading Installed
+  section Done
+  progress 100
+  | Your copy of the player is number 7f3a-example.
+  button Finish -> done primary
+program comet Comet Cursor player
+  publisher Comet Cursor Co
+  signed yes
+  prompt open-warning
+  description Free animated cursors for web pages
+  view comet-install
+
+step The browser asks to install it
+  look the Open File warning: Publisher "Comet Cursor Co", Type "Application"
+  when choose cursors 1
+  | “Yes, install” downloads a program. Before it runs, the computer asks whether to open it: this is that warning.
+  | The publisher is named and the file is signed, so it looks safe. A signature only says who made a program, not what else it does.
+file Downloads/CometCursor-Setup.exe
+  program comet
+  size 212992
+open Downloads/CometCursor-Setup.exe
+
+step Setup starts
+  look the Comet Cursor Setup window
+  when run comet
+  move Click Next in the setup window.
+  | After Run, a setup window opens. Nothing in it says what the player does once it is installed.
+answer run
+
+step Two boxes already ticked
+  look the Options page: both boxes ticked
+  when page comet-install 2
+  move Read the page, then click Next.
+  | “Always trust software from Comet Cursor Co” is ticked for you: later software from that company would not ask first.
+  | Showing cursors on every page is ticked too. Clicking Next keeps both ticked.
+press comet-install next
+
+step Setup finishes
+  look the Installed page: your copy's number
+  when page comet-install 3
+  move Click Finish.
+  | Setup says the player is installed. Its number, 7f3a-example, is the ID the small print described.
+press comet-install next
+
+# After setup: Pip's welcome page, and the maze on a partner site that also uses Comet Cursor.
+page printed-5 kids-games.example/printed
+  title Sheet sent to the printer
+  brand Kids Games
+  heading Sent to the printer
+  | Dinosaur maze, 1 sheet, A4. Collect it from the second-floor printer.
+page maze kids-games.example/dino-maze
+  title Dinosaur maze
+  brand Kids Games
+  heading Dinosaur maze
+  | Help the little dinosaur find its egg. Ages 5 to 9.
+  section About this page
+  row Price = Free
+  row Cursors by = Pip's Cursor Club
+  button Print sheet -> printed-5
+page cursors-on fun-cursors.example/welcome
+  title Pip's Cursor Club: welcome
+  brand Pip's Cursor Club
+  heading Pip is on!
+  | The cursor player is installed. On pages that use it, your pointer is now Pip the Spark.
+  section Pip the Spark
+  item Head: small orange teardrop with a white glint
+  item Tail: three dots, each smaller and fainter
+  item Works on pages that ask for it, until you remove it
+  button Get the Dinosaur Maze -> maze
+
+step Pip is on
+  look Pip's welcome page in the browser, and the notice from the browser
+  when done comet-install
+  | The browser says Comet Cursor is installed. On pages that use cursors, the pointer becomes an animated trail, and Pip is the one on this page. It looks harmless, which is why few people look closer.
+  | This desktop cannot swap the system pointer, so Pip is only described on the page. The small print on the earlier page is the only place that says what the player sends.
+notify browser Comet Cursor installed
+  | The cursor player is added to the browser.
+open cursors-on
+
+step On to the maze
+  look the “Connection blocked” notification
+  when choose cursors-on 1
+  move Read the maze page's details, then click “Print sheet”.
+  | Pip's page hands you on to the maze, on a partner site that uses Comet Cursor too. As the page loads its cursor, the player sends its ID to Comet's server.
+  | This desktop has no network, so the message shows as a blocked connection. On a real PC nothing would show.
+open maze
+block track.comet-cursor.invalid 80
+
+step 5 of 5, or so Dana thinks
+  look the counter in the guide: all five sheets are printed
+  when choose maze any
+  | The maze is printed and all five sheets are done. Dana sees nothing wrong on the screen. Press Next to see what the player told Comet.
+choose maze 1
+quota +1
+
+step Who the player told
+  look the table of cursor requests: the same ID on both pages
+  | Every page Dana opened that used a cursor sent the player's ID to Comet's server. The ID is the same on every site, so one company could follow one person across many sites.
+  | It only covered pages that used the cursors, and nothing proves it stole anything. The harm was being followed without being told clearly.
+page cursor-log track.comet-cursor.invalid
+  title Cursor requests (illustration)
+  heading What the cursor player sent
+  | The pages Dana opened after installing it, as the company's server saw them.
+  section Requests
+  tone bad
+  columns Page | Sent to | Cursor ID
+  cells fun-cursors.example | track.comet-cursor.invalid | 7f3a-example
+  cells kids-games.example | track.comet-cursor.invalid | 7f3a-example
+  note The same ID on both pages ties the visits to one person.
+  section Not in this log
+  tone good
+  item Only the page address and the cursor ID are listed
+  item Nothing proves the ID was used to harm anyone
+open cursor-log
+attack spyware-surveillance
+  | a unique ID for this copy
+  | fun-cursors.example visited
+  | kids-games.example visited
+  | same ID on both pages
+
+flag hard section cursors 2
+  label Small print: each copy has its own ID
+  | The small print says each copy of the player has its own ID that is sent to the company. A sheet needs no program, and no ID.
+flag hard choice cursors 1
+  label “Yes, install”: a page that needs a program
+  | A web page that needs a program installed just to show a sheet. Craft Corner's page needed nothing.
+flag hard dialog open-warning comet
+  label The Open File warning for CometCursor-Setup.exe
+  | A program downloaded from a fun site, to show a page: not a document or a picture. Signed by a named company is not the same as safe.
+flag hard notice taskmanager connection blocked
+  label “Connection blocked” as the maze loaded
+  | The player sending its ID to Comet's server when the page loaded its cursor.
+flag hard section maze 1
+  label A second site loads the same cursor player
+  | The maze gets its cursors from Pip's Cursor Club, the same player as Pip's page, so the same ID follows Dana across both sites.
+flag soft file Desktop/family-day-guests.txt
+  | Children's names and parents' phone numbers in a loose text file on the desktop. Keep them in the company system.
+flag soft file Desktop/printer-code.txt
+  | An access code in a text file on the desktop: any program that runs can read it.
+
+lesson
+  | A website never needs you to install a program to show its pages. Say no, and untick "always trust" boxes.
+  | A signed installer only says who made it. Free fun add-ons are often paid for by what they learn about you: read the small print.
+  | Remove programs you do not remember choosing from your computer's list of installed programs.

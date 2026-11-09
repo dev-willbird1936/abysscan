@@ -1,0 +1,83 @@
+{
+  "goal_delivery": {
+    "requested_coverage": "Six creature families \u00d7 five depth tiers = 30 variants.",
+    "families": [
+      "anglerfish",
+      "cookiecutter",
+      "isopod-host",
+      "octopus",
+      "siphonophore",
+      "viperfish"
+    ],
+    "depths": [
+      "sunlight",
+      "twilight",
+      "midnight",
+      "abyss",
+      "trench"
+    ],
+    "current_codex_base_generation_count": 6,
+    "current_offline_depth_png_variants": 30,
+    "current_retro_diffusion_calls_for_base_recolour_work": 0,
+    "retro_diffusion_only_claim": "Do not describe the current Codex-based PNG palette variants as RetroDiffusion output. Prior RetroDiffusion stills and animations are evidenced separately below.",
+    "current_static_depth_table_cells": 30,
+    "each_depth_cell_links_existing_retro_diffusion_animation": true,
+    "retro_diffusion_claim_qualification": "The 30 earlier RD still files are genuine RD outputs. The separately verified 30 RD-animation depth GIFs use six genuine RD-generated motion masters, one per family. The new 30 PNGs are clearly labelled Codex-base local palette derivatives."
+  },
+  "prior_retro_diffusion_still_study": {
+    "manifest": "retrodiffusion-family-depth-study/manifest.json",
+    "output_count": 30,
+    "unique_families": 6,
+    "depth_values": 5,
+    "source_hashes_verified": true,
+    "reserved_cost_usd": 1.8,
+    "reported_actual_cost_usd": 1.8,
+    "selection_limit": "Earlier candidate batch: its own review retained four and identified 26 for replacement/refinement; these originals remain separately labelled.",
+    "native_paid_request_count": 30,
+    "successful_charge_count": 30,
+    "unique_output_hashes": 30,
+    "unique_family_depth_cells": 30,
+    "family_labels": [
+      "Coordinated & automated abuse",
+      "Deception & impersonation",
+      "Extortion & destruction",
+      "Intrusion & weaknesses",
+      "Theft & surveillance",
+      "Trusted-source compromise"
+    ],
+    "depth_values_in_order": [
+      "sunlight",
+      "twilight",
+      "midnight",
+      "abyss",
+      "trench"
+    ],
+    "review_file": "retrodiffusion-family-depth-study/review.md"
+  },
+  "prior_retro_diffusion_animation_study": {
+    "manifest": "retrodiffusion-creature-animation/manifest.json",
+    "genuine_native_master_count": 6,
+    "local_depth_animation_derivative_count": 30,
+    "depth_values": 5,
+    "master_hashes_verified": true,
+    "derivative_hashes_verified": true,
+    "each_logical_gif_frames": 14,
+    "reserved_cost_usd": 1.5,
+    "reported_actual_cost_usd": 1.5,
+    "native_paid_request_count": 6,
+    "successful_charge_count": 6,
+    "unique_family_depth_cells": 30,
+    "cell_linked_from_current_viewer": true
+  },
+  "current_palette_bases": {
+    "provider": "Codex built-in image_gen.imagegen",
+    "native_bases": 6,
+    "native_hashes_verified": true,
+    "indexed_exact_rgb_bases": 6,
+    "binary_role_masks": 18,
+    "offline_still_depth_derivatives": 30,
+    "regional_palette_swap_smoke_test": "all six bases recoloured in memory; outline, detail colors and alpha preserved",
+    "browser_verification": "codex-creature-palette-base/browser-verification.json",
+    "delivery_zip": "codex-creature-palette-base/all-six-palette-bases.zip"
+  }
+}

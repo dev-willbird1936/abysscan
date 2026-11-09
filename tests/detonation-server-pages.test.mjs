@@ -108,7 +108,7 @@ test('static files for the new pages are served read-only with the right type', 
     ['/ui/job/main.mjs', 'ui/job/main.mjs', /^text\/javascript/], ['/ui/job/job.css', 'ui/job/job.css', /^text\/css/],
     ['/ui/bestiary/bestiary.js', 'ui/bestiary/bestiary.js', /^text\/javascript/], ['/ui/bestiary/render.js', 'ui/bestiary/render.js', /^text\/javascript/],
     ['/ui/abyss/pixel-fish.js', 'ui/abyss/pixel-fish.js', /^text\/javascript/], ['/ui/abyss/detonation-menu.js', 'ui/abyss/detonation-menu.js', /^text\/javascript/],
-    ['/ui/abyss/drop-panel.js', 'ui/abyss/drop-panel.js', /^text\/javascript/], ['/ui/abyss/retro-pixel.css', 'ui/abyss/retro-pixel.css', /^text\/css/],
+    ['/ui/abyss/threat-search.js', 'ui/abyss/threat-search.js', /^text\/javascript/], ['/ui/abyss/threat-search.css', 'ui/abyss/threat-search.css', /^text\/css/], ['/ui/abyss/retro-pixel.css', 'ui/abyss/retro-pixel.css', /^text\/css/],
     ['/ui/abyss/pixel/fish/barracuda-swim.png', 'ui/abyss/pixel/fish/barracuda-swim.png', /^image\/png/],
     ['/data/creatures.json', 'data/creatures.json', /^application\/json/], ['/data/fish.json', 'data/fish.json', /^application\/json/],
   ];
@@ -119,7 +119,7 @@ test('static files for the new pages are served read-only with the right type', 
     assert.equal(response.headers.get('x-content-type-options'), 'nosniff', path);
     assert.deepEqual(Buffer.from(await response.arrayBuffer()), readFileSync(join(ROOT, file)), path);
   }
-  for (const path of ['/data/attacks.json', '/data/personas.json', '/ui/job/', '/ui/job/nope.mjs', '/ui/job/..%2fmain.mjs', '/ui/job/main.mjs/x', '/job/', '/job/a/b']) {
+  for (const path of ['/data/attacks.json', '/data/personas.json', '/ui/abyss/drop-panel.js', '/ui/job/', '/ui/job/nope.mjs', '/ui/job/..%2fmain.mjs', '/ui/job/main.mjs/x', '/job/', '/job/a/b']) {
     assert.equal((await fetch(`${dev}${path}`)).status, 404, path);
   }
   assert.equal((await fetch(`${dev}/bestiary`, { method: 'POST' })).status, 404);
@@ -186,8 +186,8 @@ async function launchBrowser() {
   try {
     const require = createRequire(import.meta.url);
     const { chromium } = require(process.env.PLAYWRIGHT_CORE || 'C:/Temp/pw-kimi/node_modules/playwright-core');
-    const shell = 'C:/Users/warcr/AppData/Local/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-win64/chrome-headless-shell.exe';
-    const full = 'C:/Users/warcr/AppData/Local/ms-playwright/chromium-1243/chrome-win64/chrome.exe';
+    const shell = 'C:/Users/<you>/AppData/Local/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-win64/chrome-headless-shell.exe';
+    const full = 'C:/Users/<you>/AppData/Local/ms-playwright/chromium-1243/chrome-win64/chrome.exe';
     const executablePath = process.env.CHROME_PATH || (existsSync(shell) ? shell : existsSync(full) ? full : undefined);
     return { browser: await chromium.launch(executablePath ? { executablePath } : {}) };
   } catch (error) {

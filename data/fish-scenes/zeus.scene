@@ -1,0 +1,261 @@
+# Zeus (2007 onwards). A banking trojan that edited the bank's own sign-in page inside the victim's browser.
+# A quest (QUESTS.md): the trainee works an accounts-payable shift, does one invoice safely, then meets Zeus in the next.
+os windows
+user Dana Okafor
+about
+  | Zeus arrived as an email attachment: a program dressed up as a PDF. Once it ran, it added extra boxes to the real bank's sign-in page inside the victim's browser, asking for card details and PINs the bank never asks for, and sent everything typed to the attackers. In 2010 one Zeus gang took about $70 million from small businesses, councils and charities.
+story
+  | You are Dana Okafor, accounts-payable clerk at Northwind Traders. Each day you approve supplier invoices in the company's online banking.
+  | It is mid-afternoon. You have approved 8 of today's 10 invoices. Two to go.
+  | Your sign-in details are in two text files on the desktop. That is a bad habit, but it keeps this training quick.
+quota 8 10 Invoices approved today
+
+# Dana's desk: the details she copies from (soft flags: careless, but only here to keep the training simple).
+file Desktop/bank-login.txt
+  at 930 200
+  | Lakeshore Bank Business Online
+  | User ID: dana.okafor
+  | Password: Ledger-2026!
+file Desktop/company-card.txt
+  at 930 300
+  | Northwind company card (training copy)
+  | Card number: 4000 0012 3456 7899
+  | Card PIN: 4417
+  | Security answer (mother's maiden name): Hartley
+
+# The bank: a sign-in page, and the payment pages behind it.
+page bank-login lakeshore-bank.example/business/sign-in
+  title Lakeshore Bank: sign in
+  brand Lakeshore Bank Business
+  favorite
+  heading Sign in to Business Online
+  | Welcome back. Sign in to approve your payments.
+  field User ID = dana.okafor
+  field secret Password = Ledger-2026!
+  button Sign in
+page paid-2209 lakeshore-bank.example/business/payments/done
+  title Payment approved
+  brand Lakeshore Bank Business
+  heading Payment approved
+  | INV-2209 to Contoso Foods: 1,240.00, paid on 9 November 2026.
+page held-2209 lakeshore-bank.example/business/payments/held
+  title Payment held
+  brand Lakeshore Bank Business
+  heading Payment held for review
+  | INV-2209 is on hold. Accounts will check it with Contoso Foods.
+page inv-2209 lakeshore-bank.example/business/payments/INV-2209
+  title Approve payment: INV-2209
+  brand Lakeshore Bank Business
+  requires bank-login
+  heading Approve payment: INV-2209
+  | A supplier payment is waiting for your approval.
+  section Payment
+  row Payee = Contoso Foods
+  row Invoice = INV-2209, dated 2 November 2026
+  row Amount = 1,240.00
+  row Pay to = the account on file for Contoso Foods
+  button Approve and pay -> paid-2209
+  button Reject and hold -> held-2209
+
+mail mail-2209
+  from Priya Shah <priya.shah@northwind.example>
+  subject Invoice INV-2209 to approve (Contoso Foods)
+  link inv-2209
+  | Hi Dana,
+  |
+  | Contoso's invoice for the October dried goods is in the bank, ready for your approval. The link goes straight to it.
+  |
+  | Priya
+
+step Invoice 9 of 10
+  look Mail: Priya's message with the invoice link
+  | A new invoice has come in from Priya, in Accounts. This one is real. Approve it the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Invoice INV-2209 to approve (Contoso Foods)
+
+step The link goes to the bank
+  look the link under Priya's message
+  when mail mail-2209
+  | The email links to the bank's own address, lakeshore-bank.example. Hover over a link before you click it, to check where it goes.
+open mail-2209
+
+step Sign in as usual
+  look the two boxes: User ID and Password, as on every visit
+  when visit inv-2209
+  move Copy the details from bank-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The bank asks you to sign in first. Two boxes: User ID and Password. Remember what this page normally looks like.
+open inv-2209
+
+step Check, then approve
+  look the payee and the amount
+  when choose bank-login 1
+  | You are in. Check the payee and the amount against the invoice, then approve or reject it.
+signin bank-login
+
+step 9 of 10 done
+  look the counter in the guide: one invoice left
+  when choose inv-2209 any
+  | Done. One invoice to go. And another email has just arrived.
+choose inv-2209 1
+quota +1
+
+# The lure: a "PDF" that is a program.
+program zeus invoice-88213.pdf
+  publisher none
+  signed no
+  prompt open-warning
+  description Invoice viewer
+  process sdra64.exe
+  cpu 4
+  mem 38
+  keylog yes
+  parent winlogon.exe
+  command C:\Windows\System32\sdra64.exe
+  startup Userinit C:\Windows\System32\userinit.exe, C:\Windows\System32\sdra64.exe
+  location HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon
+  selfdelete
+mail overdue
+  from Accounts <billing@supplier-invoices.invalid>
+  subject Invoice 88213 overdue: pay today
+  attach Downloads/invoice-88213.pdf.exe
+  | Dear customer,
+  |
+  | Please find the overdue invoice attached and pay today to avoid a late fee.
+  |
+  | Accounts Receivable
+file Downloads/invoice-88213.pdf.exe
+  icon pdf
+  program zeus
+  size 148480
+notify mail Accounts
+  | Invoice 88213 overdue: pay today
+
+step An overdue invoice
+  look the sender, and the attachment instead of a link
+  when mail overdue
+  | From a supplier Dana does not know, with an attachment instead of a bank link. Windows hides the end of the file name: it is really invoice-88213.pdf.exe, a program. Flag anything that looks wrong.
+open overdue
+
+step The warning almost nobody reads
+  look Publisher "Unknown Publisher", Type "Application"
+  when prompt zeus
+  | A real PDF never asks this. Windows wants to know whether to run a program from an unknown publisher. Most victims clicked Run.
+open Downloads/invoice-88213.pdf.exe
+
+step Nothing seems to happen
+  look the pointer: busy for a moment, then nothing
+  when run zeus
+  | No window opens: that is the point. Zeus copies itself to sdra64.exe, deletes the attachment and adds itself to the Winlogon start-up entry. From now on it reads everything typed in the browser.
+answer run
+
+# The bank signs Dana out, as banks do after a while; her last invoice is waiting.
+page bank-login lakeshore-bank.example/business/sign-in
+  title Lakeshore Bank: sign in
+  brand Lakeshore Bank Business
+  heading Sign in to Business Online
+  favorite
+  | Your session has ended. Please sign in again.
+  field User ID = dana.okafor
+  field secret reveal Password = Ledger-2026!
+  section For your security, please also confirm
+  tone injected
+  field Card number = 4000 0012 3456 7899
+  field secret Card PIN = 4417
+  field Mother's maiden name = Hartley
+  note A new security step: we check your card on every sign-in.
+  button Sign in
+page paid-2210 lakeshore-bank.example/business/payments/done
+  title Payment approved
+  brand Lakeshore Bank Business
+  heading Payment approved
+  | INV-2210 to Fabrikam Ltd: 3,815.50, paid on 9 November 2026.
+page held-2210 lakeshore-bank.example/business/payments/held
+  title Payment held
+  brand Lakeshore Bank Business
+  heading Payment held for review
+  | INV-2210 is on hold. Accounts will check it with Fabrikam Ltd.
+page inv-2210 lakeshore-bank.example/business/payments/INV-2210
+  title Approve payment: INV-2210
+  brand Lakeshore Bank Business
+  requires bank-login
+  heading Approve payment: INV-2210
+  | A supplier payment is waiting for your approval.
+  section Payment
+  row Payee = Fabrikam Ltd
+  row Invoice = INV-1042, dated 9 October 2026
+  row Amount = 3,815.50
+  row Pay to = the account on file for Fabrikam Ltd
+  button Approve and pay -> paid-2210
+  button Reject and hold -> held-2210
+signout bank-login
+mail mail-2210
+  from Priya Shah <priya.shah@northwind.example>
+  subject Last one for today: INV-2210 (Fabrikam)
+  link inv-2210
+  | Dana,
+  |
+  | Fabrikam's invoice is the last one. Same as before: the link opens it in the bank.
+  |
+  | Priya
+notify mail Priya Shah
+  | Last one for today: INV-2210 (Fabrikam)
+
+step The last invoice
+  look Mail: Priya's last message
+  when mail mail-2210
+  | Priya's last invoice of the day, with a real bank link like the first one. Open it.
+open mail-2210
+
+step Signed out
+  look the sign-in page: it is not the page you saw earlier
+  when visit inv-2210
+  move Sign in again with the details from the desktop files. Watch the page, and the bottom-right corner, while you type.
+  | The bank signed you out, so sign in again. The address and the padlock are the bank's own. Compare the page with the one you saw a few minutes ago.
+open inv-2210
+
+step Approve the last one
+  look the network sign in the corner: it lit up with every key
+  when choose bank-login 1
+  | Signed in. You typed your password in plain sight, your card number, your PIN and your mother's maiden name: Zeus added those boxes, and sent each key as you pressed it.
+signin bank-login
+
+step 10 of 10, or so Dana thinks
+  look the counter: the shift is done
+  when choose inv-2210 any
+  | Every invoice is approved, and nothing on the screen looks wrong. Press Next to see what Zeus took.
+choose inv-2210 1
+quota +1
+
+step What Zeus took
+  look the animation: everything you typed after it ran
+  | Within the hour the attackers sign in as Dana, add a payee and move the money to a money mule: someone paid to pass it on abroad. The bank sees a normal sign-in, from the right password, PIN and card.
+attack credential-phish
+  | {captured}
+  | money sent to a mule account
+block 203.0.113.50 443
+
+flag hard mail overdue
+  | A supplier Dana does not know, with an attachment instead of a bank link.
+flag hard file Downloads/invoice-88213.pdf.exe
+  | A program with a PDF icon. Windows hides the .exe at the end of its name.
+flag hard dialog open-warning zeus
+  | A document never asks to run as a program. Publisher: Unknown.
+flag hard process sdra64.exe
+  | Zeus running in the background, under the name of a system file.
+flag hard startup Userinit
+  | Zeus added itself to the programs that start every time Windows does.
+flag hard section bank-login 1
+  | The bank never asks for a card PIN or a security answer at sign-in. Zeus added these boxes inside the browser.
+flag hard field bank-login 2
+  | The password box showed what you typed: the page had been changed.
+flag hard net
+  | Network activity with every key you pressed: a keylogger sending them.
+flag soft file Desktop/bank-login.txt
+  | Passwords in a text file on the desktop: any program that runs can read them. Use a password manager.
+flag soft file Desktop/company-card.txt
+  | Card numbers and PINs belong in no file at all.
+
+lesson
+  | An invoice that asks to run a program is not a document. Turn on file name extensions, and check Properties: Type "Application" means a program.
+  | Your bank never asks for your PIN or a security answer to sign in. A page that suddenly asks is a page that was changed, even when the padlock is real.
+  | Check payments in your bank's app or by phone. Two-step sign-in and payment confirmation on a separate device stop most of what Zeus did.

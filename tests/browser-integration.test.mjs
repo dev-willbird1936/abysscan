@@ -53,7 +53,7 @@ test('proof UI labels host Docker honestly and escapes server evidence labels', 
   assert.match(template, /Host Docker evidence · Vultr hosting is not verified/);
   assert.match(template, /Injected test evidence · not live/);
   assert.match(template, /Selected profile: Deception · Abyss/);
-  assert.match(template, /harm tier is separate from the historical SEV2 label/);
+  assert.match(template, /training category is separate from the historical SEV2 label/);
   assert.match(template, /\$\{esc\(evidenceLabel\)\}/);
   assert.doesNotMatch(template, /Vultr browser proof/);
 });

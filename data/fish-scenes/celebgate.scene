@@ -1,0 +1,281 @@
+# Celebgate (2014). Fake cloud-account security emails collected passwords; private photo backups were downloaded.
+# A quest (QUESTS.md): the trainee is an agency assistant who approves photo proofs, does one safely, then meets the fake "account locked" email.
+# The 2014 victims were mostly actors and models. The agency, the assistant and the actor here are invented.
+os macos
+user Dana Okafor
+about
+  | Celebgate began with emails that looked like the cloud provider's security team and said an account was locked. The sign-in page behind the link was a copy, and it collected the passwords.
+  | With a password, the attackers downloaded a full phone backup, private photos included. The owner saw nothing happen on their own screen.
+story
+  | You are Dana Okafor, assistant at Northwind Talent, a small agency. You look after the publicity photos of the actor Jules Marlowe.
+  | It is mid-afternoon. Priya, the publicist, shares the headshot proofs into your own cloud account, one at a time. You have approved 4 of today's 6. Two to go.
+  | The same account backs up your phone, private photos included. Your sign-in details are in a text file on the desktop. That is a bad habit, but it keeps this training quick.
+quota 4 6 Photo proofs approved today
+
+# Dana's desk: the details they copy from (soft flags: careless, but only here to keep the training simple).
+file Desktop/cloud-login.txt
+  at 930 200
+  | Cloud account (photos and phone backup)
+  | Account: dana.okafor@northwind.example
+  | Password: Violet-Harbor-14!
+file Desktop/phone-passcode.txt
+  at 930 300
+  | Dana's phone (training copy)
+  | Passcode: 4417
+  | Recovery question (first pet): Biscuit
+
+# The provider's own pages: a sign-in page, and the album proofs behind it.
+page cloud-signin cloud-account.example/sign-in
+  title Cloud account: sign in
+  brand Cloud account
+  favorite
+  heading Sign in to your photos
+  | Welcome back. Sign in to see your albums and backups.
+  field Account = dana.okafor@northwind.example
+  field secret Password = Violet-Harbor-14!
+  button Sign in
+page approved-5 cloud-account.example/albums/jules-headshots/approved
+  title Proof approved
+  brand Cloud account
+  heading Proof approved
+  | Proof 5 of 6 is approved for press. Priya has been told.
+page retouch-5 cloud-account.example/albums/jules-headshots/retouch
+  title Retouch requested
+  brand Cloud account
+  heading Retouch requested
+  | Proof 5 of 6 goes back to the photographer.
+page proof-5 cloud-account.example/albums/jules-headshots/proof-5
+  title Approve proof 5 of 6
+  brand Cloud account
+  requires cloud-signin
+  heading Approve proof 5 of 6
+  | A proof in a shared album is waiting for your approval.
+  section Proof
+  row Album = Jules Marlowe: spring headshots
+  row Photographer = Studio Lin
+  row Proof = 5 of 6, shared by Priya Shah
+  row Use = press kit
+  button Approve for press -> approved-5
+  button Request retouch -> retouch-5
+
+mail mail-proof5
+  from Priya Shah <priya.shah@northwind.example>
+  subject Headshot proof 5 of 6 to approve
+  link proof-5
+  | Hi Dana,
+  |
+  | Studio Lin has uploaded proof 5 of Jules's spring headshots to the shared album. The link goes straight to it.
+  |
+  | Priya
+
+step Proof 5 of 6
+  look Mail: Priya's message with the album link
+  | A new proof has come in from Priya. This one is real. Approve it the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Headshot proof 5 of 6 to approve
+
+step The link goes to the provider
+  look the link under Priya's message
+  when mail mail-proof5
+  | The email links to the provider's own address, cloud-account.example. Look at where a link goes before you click it.
+open mail-proof5
+
+step Sign in as usual
+  look the two boxes: Account and Password
+  when visit proof-5
+  move Copy the details from cloud-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The album asks you to sign in first. Two boxes: Account and Password. Remember what this page normally looks like.
+open proof-5
+
+step Check, then approve
+  look the album, the photographer and the use
+  when choose cloud-signin 1
+  | You are in. Check the proof, then approve it or ask for a retouch.
+signin cloud-signin
+
+step 5 of 6 done
+  look the counter in the guide: one proof left
+  when choose proof-5 any
+  | Done. One proof to go. And another email has just arrived.
+choose proof-5 1
+quota +1
+
+# The lure: a "security" email and a copy of the sign-in page.
+page verified cloud-account-verify.invalid/done
+  title Account verified
+  brand Cloud account
+  insecure
+  heading Thank you, your account is verified
+  | You can close this window.
+page verify cloud-account-verify.invalid/sign-in
+  title Verify your account
+  brand Cloud account
+  insecure
+  heading Sign in to keep your photos
+  | Your account will be locked in 24 hours unless you confirm your details.
+  | Accounts that are not verified are deleted, with their photos and backups.
+  field Account = dana.okafor@northwind.example
+  field secret Password = Violet-Harbor-14!
+  button Verify my account -> verified
+  button Forgot password?
+mail locked
+  from Cloud account security <security@cloud-account-verify.invalid>
+  subject Your account has been locked for security reasons
+  link verify
+  | Dear customer,
+  |
+  | We detected an unusual sign-in to your account and have locked it.
+  |
+  | To keep your photos and backups, verify your account within 24 hours: use the link below. Accounts that are not verified are deleted.
+  |
+  | Cloud account security team
+notify mail Cloud account security
+  | Your account has been locked for security reasons
+
+step A "security" email
+  look the sender's address and the deadline
+  when mail locked
+  | The message says the account is locked and must be verified within 24 hours, or the photos are lost. It comes from cloud-account-verify.invalid, not from the provider's own address. Flag anything that looks wrong.
+open locked
+
+step The link opens a sign-in page
+  look the address bar: “Not Secure”, and the domain
+  when visit verify
+  move Sign in with the details from cloud-login.txt, as you did a few minutes ago: click a box and press any keys to type, then click “Verify my account”.
+  | The page copies the provider's sign-in: the same two boxes. Only the address gives it away. It is not the provider's, and the connection is not secure.
+open verify
+
+step The page says "verified"
+  look the address bar: still cloud-account-verify.invalid
+  when choose verify 1
+  | The password went to the attackers when you pressed the button. The page then says "verified", so the victim suspects nothing.
+signin verify
+
+# Back to work: the provider signs Dana out, as it does after a while. The attackers' own computer is now signed in to Dana's account.
+page cloud-signin cloud-account.example/sign-in
+  title Cloud account: sign in
+  brand Cloud account
+  favorite
+  heading Sign in to your photos
+  | Your session has ended. Please sign in again.
+  field Account = dana.okafor@northwind.example
+  field secret Password = Violet-Harbor-14!
+  button Sign in
+page approved-6 cloud-account.example/albums/jules-headshots/approved
+  title Proof approved
+  brand Cloud account
+  heading Proof approved
+  | Proof 6 of 6 is approved for press. Priya has been told.
+page retouch-6 cloud-account.example/albums/jules-headshots/retouch
+  title Retouch requested
+  brand Cloud account
+  heading Retouch requested
+  | Proof 6 of 6 goes back to the photographer.
+page proof-6 cloud-account.example/albums/jules-headshots/proof-6
+  title Approve proof 6 of 6
+  brand Cloud account
+  requires cloud-signin
+  heading Approve proof 6 of 6
+  | The last proof in the shared album is waiting for your approval.
+  section Proof
+  row Album = Jules Marlowe: spring headshots
+  row Photographer = Studio Lin
+  row Proof = 6 of 6, shared by Priya Shah
+  row Use = press kit
+  section Signed-in devices
+  row This Mac = Dana's MacBook, now
+  row iPhone = Dana's phone, today
+  row Windows PC = 203.0.113.45, 4 minutes ago
+  tone warn
+  note These devices can see your photos and backups.
+  button Approve for press -> approved-6
+  button Request retouch -> retouch-6
+signout cloud-signin
+mail mail-proof6
+  from Priya Shah <priya.shah@northwind.example>
+  subject Last one for today: headshot proof 6 of 6
+  link proof-6
+  | Dana,
+  |
+  | Proof 6 is the last one. Same as before: the link opens it in the shared album.
+  |
+  | Priya
+notify mail Priya Shah
+  | Last one for today: headshot proof 6 of 6
+
+step The last proof
+  look Mail: Priya's last message
+  when mail mail-proof6
+  | Priya's last proof of the day, with a link to the provider's real address, like the first one. Open it.
+open mail-proof6
+
+step Signed out
+  look the sign-in page: it is the provider's real one
+  when visit proof-6
+  move Sign in again with the details from cloud-login.txt: click a box and press any keys to type, then click “Sign in”.
+  | The provider signed you out, so sign in again. This is the real page, and your password still works: the attackers did not change it. Nothing looks different.
+open proof-6
+
+step Approve the last one
+  look the list of signed-in devices under the proof
+  when choose cloud-signin 1
+  move Read the list of signed-in devices under the proof, then click “Approve for press”.
+  | You are in. Under the proof, the account lists the devices that are signed in: your Mac, your phone, and a Windows PC you have never used.
+signin cloud-signin
+
+step Proofs done, or so Dana thinks
+  look the counter: the shift is done
+  when choose proof-6 any
+  | Every proof is approved, and nothing on the screen looks wrong. Press Next to see what the password did.
+choose proof-6 1
+quota +1
+
+# The reveal: nothing shows on the victim's own screen, so the attack itself is what is shown. The provider's alert comes a little later.
+# Providers added alerts like this after Celebgate; the 2014 victims got none.
+step The password opens the backups
+  look the animation: the backup goes to their computer, not yours
+  | The attackers sign in from their own computer with your password, and download the phone's full backup, private photos included.
+  | Nothing appears on your screen while they do it. A little later the provider's alert arrives.
+attack credential-phish
+  | the cloud password
+  | the phone backup
+  | every private photo
+mail alert
+  from Cloud account <no-reply@cloud-account.example>
+  subject A new device signed in to your account
+  | A new device signed in to your account.
+  |
+  | Device: Windows PC
+  | Location: 203.0.113.45
+  |
+  | If this was not you, change your password now.
+notify mail Cloud account
+  | A new device signed in to your account
+
+step The provider's own alert
+  look the new mail: a device you do not know
+  when mail alert
+  | This one is the provider's own address, and it is true: a device you do not know has signed in. Providers added alerts like this after Celebgate; the 2014 victims got none.
+open alert
+
+flag hard mail locked
+  | Not the provider's address, with a 24-hour threat.
+flag hard link locked
+  | Leads to cloud-account-verify.invalid, not cloud-account.example.
+flag hard field verify 2
+  | A password box on a lookalike page marked Not Secure.
+flag hard page verified
+  | A thank-you page on the lookalike address: the password is already gone.
+flag hard section proof-6 2
+  | A device you never used is signed in: the attackers, with the password.
+flag hard mail alert
+  | The provider's alert: a device you do not know has signed in.
+flag soft file Desktop/cloud-login.txt
+  | A password in a text file: any program that runs can read it.
+flag soft file Desktop/phone-passcode.txt
+  | A passcode and a recovery answer belong in no file at all.
+
+lesson
+  | Never sign in from a link in an email that says your account is locked. Open the app, or type the address yourself.
+  | Check the address bar: a copy of a sign-in page lives at a different address, and the browser may call it “Not Secure”.
+  | Turn on two-step sign-in: a stolen password alone is then not enough to open a backup.

@@ -6,8 +6,10 @@ the syscall trace shows what the LibreOffice process (and any process a macro st
 """
 import json
 import os
+import re
 import sys
 import time
+import zipfile
 
 from runnerlib import finish, parse_args, run, tail
 
@@ -15,6 +17,11 @@ PROFILE = "/tmp/dt/lo"
 OUTPUT = "/tmp/dt/out"
 SOFFICE_SECONDS = 24
 MAX_ANALYSIS = 60
+MAX_XML = 2 * 1024 * 1024
+MAX_EXTERNAL = 20
+PART_NAME = re.compile(r"^[A-Za-z0-9_./-]+\.(?:xml|rels)$")
+EXTERNAL_TARGET = re.compile(r'Target="(?P<one>[^"]+)"[^>]*?TargetMode="External"|TargetMode="External"[^>]*?Target="(?P<two>[^"]+)"', re.I)
+ATTACHED_TEMPLATE = re.compile(r"<w:attachedTemplate[^>]*r:id=", re.I)
 
 # Macro security Low and VBA "Load" plus "Executable code" for Writer, Calc and Impress, in the profile this run uses.
 XCU = """<?xml version="1.0" encoding="UTF-8"?>
@@ -29,7 +36,9 @@ XCU = """<?xml version="1.0" encoding="UTF-8"?>
 
 
 def olevba(path):
-    done = run([sys.executable, "-m", "oletools.olevba", "--json", "--no-deobfuscate", path], 20)
+    # No --no-deobfuscate: this olevba has no such option, and passing one made every Office document report "olevba could not
+    # read the document". Deobfuscation is off unless --deobf is given, which is what the report wants.
+    done = run([sys.executable, "-m", "oletools.olevba", "--json", path], 20)
     text = done["stdout"]
     error = tail(done["stderr"])
     if not error:
@@ -80,6 +89,38 @@ def olevba(path):
     return result
 
 
+def ooxml(path):
+    """External references of an OOXML package: a template, image or OLE target pulled from the network when it is opened.
+
+    This is template injection: the document holds only a link, so a scanner that reads the package sees a clean body while
+    the victim's Word fetches and runs whatever the link serves. Only the package parts are read; nothing is opened here.
+    """
+    if not zipfile.is_zipfile(path):
+        return {"ok": True, "external": [], "attachedTemplate": False, "parts": 0}
+    external, attached, parts = [], False, 0
+    try:
+        package = zipfile.ZipFile(path)
+    except (OSError, zipfile.BadZipFile):
+        return {"ok": False, "external": [], "attachedTemplate": False, "parts": 0}
+    with package:
+        for info in package.infolist()[:500]:
+            name = info.filename
+            if not PART_NAME.match(name) or info.file_size > MAX_XML:
+                continue
+            parts += 1
+            try:
+                body = package.read(info).decode("utf-8", "replace")
+            except (OSError, RuntimeError, zipfile.BadZipFile):
+                continue
+            for found in EXTERNAL_TARGET.finditer(body):
+                target = (found.group("one") or found.group("two") or "").strip()
+                if target and re.match(r"[A-Za-z][A-Za-z0-9+.-]*://", target) and len(external) < MAX_EXTERNAL:
+                    external.append({"part": name[:120], "target": target[:300]})
+            if name.endswith("settings.xml") and ATTACHED_TEMPLATE.search(body):
+                attached = True
+    return {"ok": True, "external": external, "attachedTemplate": attached, "parts": parts}
+
+
 def libreoffice(path):
     os.makedirs(f"{PROFILE}/user", exist_ok=True)
     os.makedirs(OUTPUT, exist_ok=True)
@@ -100,8 +141,9 @@ def libreoffice(path):
 
 def main():
     args = parse_args(("ext",))
-    result = {"olevba": olevba(args.file), "libreoffice": libreoffice(args.file)}
+    result = {"olevba": olevba(args.file), "ooxml": ooxml(args.file), "libreoffice": libreoffice(args.file)}
     finish(args, office=result)
 
 
-main()
+if __name__ == "__main__":
+    main()

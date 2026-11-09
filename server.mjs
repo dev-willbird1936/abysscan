@@ -1,6 +1,7 @@
 import { createServer } from 'node:http';
 import { createHash } from 'node:crypto';
-import { lstatSync, readFileSync } from 'node:fs';
+import { existsSync, lstatSync, readFileSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, resolve } from 'node:path';
@@ -26,11 +27,25 @@ import { computeDesktopBuildId } from './backend/desktop-world-build.mjs';
 import { readAvatar } from './backend/desktop-avatars.mjs';
 import { runScenario, SANDBOX_MODES, vultrGateReport } from './backend/sandbox/controller.mjs';
 import { createDetonationRoutes } from './backend/detonation/routes.mjs';
+import { evidenceToPatches, publish as publishReplay } from './backend/detonation/replay.mjs';
+import { loadBase } from './backend/detonation/ocean-state.mjs';
+import { fishGuide, fishOfRun, fishPatches } from './backend/detonation/fish-replays.mjs';
+import { createQuestWriter } from './backend/detonation/quest-writer.mjs';
+import { createInferenceClient } from './backend/detonation/inference.mjs';
 import { loadScenarioKinds } from './backend/sandbox/scenarios.mjs';
+import { loadPublicShells, newShellToken, serveShellMount } from './backend/public-shells.mjs';
+import { createSceneStudioRoutes } from './backend/scene-studio-routes.mjs';
+import { createThreatRoutes } from './backend/threats/routes.mjs';
+import { createParallelClient } from './backend/threats/parallel.mjs';
+import { createThreatStore } from './backend/threats/store.mjs';
+import { createThreatSceneWriter, THREAT_DIR } from './backend/threats/scene-writer.mjs';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const LOOPBACK_PEERS = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1']);
 const MAX_JSON_BYTES = 2048;
+// Daily call ledgers live in the data directory; where it does not exist (a local checkout) the caps are kept in memory.
+const DATA_DIR = process.env.DETONATION_DATA_DIR || '/var/lib/detonation-ocean';
+const ledger = name => (existsSync(DATA_DIR) ? `${DATA_DIR}/${name}` : undefined);
 // Behind Caddy the peer is loopback and the last X-Forwarded-For entry is the address Caddy saw (same rule as backend/detonation/routes.mjs).
 function peerAddress(request) {
   const peer = request.socket.remoteAddress ?? '';
@@ -86,6 +101,7 @@ const DESKTOP_ASSETS = new Map([
   ['/world-model.js', { file: join(root, 'ui/desktop/world-model.js'), mime: 'text/javascript; charset=utf-8' }],
   ['/scenario-profile.js', { file: join(root, 'ui/desktop/scenario-profile.js'), mime: 'text/javascript; charset=utf-8' }],
   ['/scene-world.js', { file: join(root, 'ui/desktop/scene-world.js'), mime: 'text/javascript; charset=utf-8' }],
+  ['/program-ui.js', { file: join(root, 'ui/desktop/program-ui.js'), mime: 'text/javascript; charset=utf-8' }],
   ['/ocean-profiles.html', { file: join(root, 'ui/desktop/ocean-profiles.html'), mime: 'text/html; charset=utf-8' }],
   ['/ocean-profiles.css', { file: join(root, 'ui/desktop/ocean-profiles.css'), mime: 'text/css; charset=utf-8' }],
   ['/ocean-profiles.js', { file: join(root, 'ui/desktop/ocean-profiles.js'), mime: 'text/javascript; charset=utf-8' }],
@@ -214,6 +230,13 @@ function originIsAllowed(request, publicOrigin) {
   return Boolean(publicOrigin && request.headers.origin === publicOrigin && request.headers.host === new URL(publicOrigin).host);
 }
 
+// For read-only GETs (the fish guide, the event stream): a browser sends no Origin header on a same-origin GET, so on the public host a
+// request with no Origin and the public Host is the page itself. Anything cross-origin carries an Origin and must match as before.
+function readOriginIsAllowed(request, publicOrigin) {
+  if (originIsAllowed(request, publicOrigin)) return true;
+  return Boolean(publicOrigin && request.headers.origin === undefined && request.headers.host === new URL(publicOrigin).host);
+}
+
 function publicProofResult(proof) {
   const vision = proof?.vision;
   const decision = ['allow', 'deny'].includes(proof?.decision) ? proof.decision : null;
@@ -266,6 +289,10 @@ export function createAppServer({
   hackathonProofEnabled = process.env.VULTR_HACKATHON_PROOF_ENABLED === 'true' && visionGate(process.env).approved,
   publicOrigin: configuredPublicOrigin = parsePublicOrigin(process.env.APP_PUBLIC_ORIGIN),
   templateShellsEnabled: requestedTemplateShells = false,
+  sceneStudioEnabled: requestedSceneStudio = process.env.SCENE_STUDIO_ENABLED === 'true',
+  // DESKTOP_SHELLS_PUBLIC=true: serve the final Windows and macOS shells from this app's own origin (backend/public-shells.mjs), also in
+  // production, where the local preview server is off. Still off in hackathon-controller and Vultr-sandbox modes.
+  publicShells: requestedPublicShells = process.env.DESKTOP_SHELLS_PUBLIC === 'true',
   shellOrigin = DEFAULT_SHELL_ORIGIN,
   trainingSessionStore = new TrainingSessionStore(),
   desktopWorldDir = process.env.DESKTOP_WORLD_DIR,
@@ -276,7 +303,23 @@ export function createAppServer({
   sandboxRunner = runScenario,
   sandboxEnv = process.env,
   desktopEvents = new DesktopEventHub(),
-  detonation = createDetonationRoutes({ desktopHub: desktopEvents }),
+  oceanBase = loadBase(),
+  detonation = createDetonationRoutes({ desktopHub: desktopEvents, oceanBase }),
+  // Quest generation for uploaded fish: off unless QUEST_WRITER_ENABLED=true and Vultr inference is configured. It shares the
+  // detonation pipeline's daily call ledger.
+  inferenceClient = createInferenceClient({ env: process.env, capFile: ledger('inference-calls.log') }),
+  questWriter = createQuestWriter({ client: inferenceClient }),
+  // Threat search (backend/threats, docs/threat-search/CONTRACT.md): on when PARALLEL_API_KEY is set and Vultr inference is
+  // configured. It shares the inference client's daily ledger and keeps its own for Parallel calls.
+  threats = createThreatRoutes({
+    parallel: createParallelClient({ env: process.env, capFile: ledger('parallel-calls.log') }),
+    inference: inferenceClient,
+    writer: createThreatSceneWriter({ client: inferenceClient, dir: THREAT_DIR }),
+    store: createThreatStore({ dir: THREAT_DIR }),
+    base: oceanBase,
+    uploadsUi: process.env.UPLOADS_UI_ENABLED === 'true',
+    logger: line => console.log(line),
+  }),
   production = productionFlag(process.env),
 } = {}) {
   const publicOrigin = parsePublicOrigin(configuredPublicOrigin);
@@ -292,10 +335,37 @@ export function createAppServer({
   if (!SANDBOX_MODES.includes(sandboxMode)) throw new TypeError(`DESKTOP_SANDBOX_MODE must be one of: ${SANDBOX_MODES.join(', ')}.`);
   const activeSandboxRuns = new Map();
   const replaySubscribersByIp = new Map();
+  // A mock fixture (served on loopback outside production only) also gets its evidence replay, as a real job does, on run
+  // mock-<name>: ui/job/mock.mjs gives the fixture that replay id, so the desktop replay can be tried without an upload.
+  // Once per fixture: the hub keeps a run's last 32 events, and a second copy would push the seed patch out.
+  const mockReplays = new Set();
+  function publishMockReplay(name, body) {
+    if (mockReplays.has(name)) return;
+    mockReplays.add(name);
+    try {
+      const events = JSON.parse(body.toString('utf8')).events ?? [];
+      const path = events.find(item => item.event === 'typed')?.data?.path;
+      const patches = evidenceToPatches(events.filter(item => item.event === 'evidence').map(item => item.data), { path });
+      publishReplay(`mock-${name}`, patches, { hub: desktopEvents }).catch(error => console.warn(`Mock replay ${name}: ${error.message}`));
+    } catch (error) {
+      console.warn(`Mock replay ${name}: ${error.message}`);
+    }
+  }
   const buildId = computeDesktopBuildId(root);
-  const templateShellsEnabled = requestedTemplateShells === true && !hackathonControllerMode && !production && process.env.VULTR_SANDBOX_MODE !== 'vultr';
+  const sandboxModeAllowsShells = !hackathonControllerMode && process.env.VULTR_SANDBOX_MODE !== 'vultr';
+  const publicShells = requestedPublicShells === true && sandboxModeAllowsShells;
+  const publicShellFiles = publicShells ? loadPublicShells(root) : null;
+  const shellToken = publicShells ? newShellToken() : null; // the shells' unguessable path: /s/<token>/previews/...
+  const templateShellsEnabled = publicShells || (requestedTemplateShells === true && sandboxModeAllowsShells && !production);
   if (!SHELL_ORIGIN_RE.test(shellOrigin)) throw new TypeError('shellOrigin must be an http://127.0.0.1:<port> origin.');
-  const desktopCsp = `${DESKTOP_CSP}; frame-src 'self'${templateShellsEnabled ? ` ${shellOrigin}` : ''}`;
+  // Public shells are framed from this origin ('self'); the local ones come from the loopback shell server.
+  const desktopCsp = `${DESKTOP_CSP}; frame-src 'self'${templateShellsEnabled && !publicShells ? ` ${shellOrigin}` : ''}`;
+  if (requestedSceneStudio === true && !templateShellsEnabled) throw new TypeError('Scene Studio requires enabled desktop shells.');
+  if (requestedSceneStudio === true && production && !publicOrigin) throw new TypeError('Scene Studio in production requires APP_PUBLIC_ORIGIN.');
+  const sceneStudio = requestedSceneStudio === true ? createSceneStudioRoutes({ root, authorize: request =>
+    LOOPBACK_PEERS.has(request.socket.remoteAddress) && request.headers['sec-fetch-site'] !== 'cross-site' &&
+    (request.method === 'GET' ? readOriginIsAllowed(request, publicOrigin) : originIsAllowed(request, publicOrigin)),
+  }) : null;
   const vultrMode = !hackathonControllerMode && process.env.VULTR_SANDBOX_MODE === 'vultr';
   const createAdapter = adapterFactory ?? (vultrMode
     ? createApprovedVultrAdapterFactory({ env: process.env, oauthApp: personas.oauth_app })
@@ -317,7 +387,9 @@ export function createAppServer({
       return;
     }
 
+    if (sceneStudio && await sceneStudio.handle(request, response, pathname)) return;
     if (await detonation.handle(request, response, pathname, { publicOrigin, buildId })) return;
+    if (await threats.handle(request, response, pathname, { writeAllowed: originIsAllowed(request, publicOrigin), ip: peerAddress(request) })) return;
 
     if (production && PRODUCTION_DISABLED_ROUTES.has(pathname)) {
       sendJson(response, 404, { error: 'Not found.' });
@@ -333,9 +405,11 @@ export function createAppServer({
           sendJson(response, 500, { error: 'Run `node build.mjs` to generate the local page first.' });
           return;
         }
-        const html = production ? pageSource.replace(DO_ENV_META_RE, '<meta name="do-env" content="production">')
+        let html = production ? pageSource.replace(DO_ENV_META_RE, '<meta name="do-env" content="production">')
           : pageFile !== 'index.html' ? pageSource
           : pageSource.replace('<a href="#legend">Legend</a>', '<a href="/ocean-profiles.html">Creature matrix</a><a href="#legend">Legend</a>');
+        if (production) html = html.replace(/<p id="training-link"[^>]*>[\s\S]*?<\/p>/, '');
+        if (sceneStudio) html = html.replace('</nav>', '<a href="/scene-studio">Scene Studio</a></nav>');
         sendBody(response, Buffer.from(html), 'text/html; charset=utf-8', pageCsp(html, pageFile === 'index.html' ? RENDER_CSP : CSP));
         return;
       }
@@ -347,6 +421,7 @@ export function createAppServer({
       const mime = staticPath && STATIC_MIME[staticPath.slice(staticPath.lastIndexOf('.'))];
       const body = mime && readRegularFile(staticPath);
       if (body) {
+        if (mockName) publishMockReplay(mockName, body);
         sendBody(response, body, mime, CSP);
         return;
       }
@@ -646,7 +721,7 @@ export function createAppServer({
     }
 
     if (request.method === 'GET' && pathname === '/api/health') {
-      sendJson(response, 200, { ok: true, buildId });
+      sendJson(response, 200, { ok: true, buildId, acceptingJobs: false });
       return;
     }
 
@@ -667,6 +742,33 @@ export function createAppServer({
       return;
     }
 
+    // The step-by-step guide for a fish from the ocean's creature panel (backend/detonation/fish-replays.mjs fishGuide).
+    if (pathname === '/api/desktop/guide') {
+      if (request.method !== 'GET') {
+        response.setHeader('Allow', 'GET');
+        sendJson(response, 405, { error: 'Use GET.', code: 'METHOD_NOT_ALLOWED' });
+        return;
+      }
+      if (!readOriginIsAllowed(request, publicOrigin)) {
+        sendJson(response, 403, { error: 'Local origin required.', code: 'LOCAL_ORIGIN_REQUIRED' });
+        return;
+      }
+      const run = new URL(request.url, 'http://127.0.0.1').searchParams.get('run') ?? '';
+      const fish = RUN_ID_RE.test(run) && run.startsWith('fish-') ? fishOfRun(run, oceanBase) : null;
+      if (!fish) {
+        sendJson(response, 404, { error: 'Not found.' });
+        return;
+      }
+      // An uploaded fish with no quest yet: inference writes one in the background for the next visit (QUESTS.md §8).
+      if (!fish.scene && !fish.research) questWriter.request(fish);
+      try {
+        sendJson(response, 200, fishGuide(fish));
+      } catch {
+        sendJson(response, 503, { error: 'The guide could not be prepared.' });
+      }
+      return;
+    }
+
     // Live world events for one run: GET subscribes (Server-Sent Events), POST publishes {type:'patch'|'replace', ...}.
     if (pathname === '/api/desktop/events') {
       const params = new URL(request.url, 'http://127.0.0.1').searchParams;
@@ -681,7 +783,7 @@ export function createAppServer({
         return;
       }
       if (request.method === 'GET') {
-        if (!originIsAllowed(request, publicOrigin)) {
+        if (!readOriginIsAllowed(request, publicOrigin)) {
           sendJson(response, 403, { error: 'Local origin required.', code: 'LOCAL_ORIGIN_REQUIRED' });
           return;
         }
@@ -696,7 +798,25 @@ export function createAppServer({
           return;
         }
         const lastEventId = String(request.headers['last-event-id'] || params.get('last') || '').slice(0, 64);
-        if (!desktopEvents.subscribe(run, response, lastEventId, { 'X-Content-Type-Options': 'nosniff', 'Content-Security-Policy': CSP, 'Referrer-Policy': 'no-referrer' })) {
+        // A job's evidence replay (and a mock fixture's, mock-<name>) is a finished recording: a page opened after it was
+        // published gets all of it.
+        const fromStart = replay || run.startsWith('mock-') || run.startsWith('fish-');
+        // A fish from the ocean's creature panel (backend/detonation/fish-replays.mjs): published on first request, again if the
+        // hub let the run go. An id that names no fish gets 404 and no hub entry.
+        if (run.startsWith('fish-') && !desktopEvents.has(run)) {
+          const fish = fishOfRun(run, oceanBase);
+          if (!fish) {
+            sendJson(response, 404, { error: 'Not found.' });
+            return;
+          }
+          try {
+            await publishReplay(run, fishPatches(fish), { hub: desktopEvents });
+          } catch (error) {
+            sendJson(response, 503, { error: 'The replay could not be prepared.' });
+            return;
+          }
+        }
+        if (!desktopEvents.subscribe(run, response, lastEventId, { 'X-Content-Type-Options': 'nosniff', 'Content-Security-Policy': CSP, 'Referrer-Policy': 'no-referrer' }, { fromStart })) {
           sendJson(response, 503, { error: 'Too many subscribers for this run.', code: 'EVENTS_FULL' });
         } else if (replay) {
           replaySubscribersByIp.set(ip, (replaySubscribersByIp.get(ip) ?? 0) + 1);
@@ -786,9 +906,11 @@ export function createAppServer({
     if (request.method === 'GET' && pathname === '/api/desktop-templates/status') {
       sendJson(response, 200, {
         enabled: templateShellsEnabled,
-        source: templateShellsEnabled ? 'local-only final Windows and macOS shells (world contract v3)' : 'custom fallback desktop',
+        source: publicShells ? 'final Windows and macOS shells (world contract v3), served by this app'
+          : templateShellsEnabled ? 'local-only final Windows and macOS shells (world contract v3)' : 'custom fallback desktop',
         osModes: templateShellsEnabled ? ['win11-final', 'macos-final'] : ['windows-style', 'macos-style'],
-        ...(templateShellsEnabled ? { shellOrigin } : {}),
+        // Public shells: a path on this origin (/s/<token>), which the page frames them from.
+        ...(templateShellsEnabled ? { shellOrigin: publicShells ? `/s/${shellToken}` : shellOrigin } : {}),
       });
       return;
     }
@@ -844,6 +966,11 @@ export function createAppServer({
     if (request.method === 'GET' && pathname === '/favicon.ico') {
       response.writeHead(204, { 'Cache-Control': 'no-store' });
       response.end();
+      return;
+    }
+
+    if (publicShellFiles && pathname.startsWith('/s/')) {
+      serveShellMount(publicShellFiles, shellToken, request, response, pathname);
       return;
     }
 
@@ -908,6 +1035,7 @@ export function createAppServer({
   server.teardownOceanProfileSessions = () => oceanProfileSessions.dispose();
   server.once('close', server.teardownTrainingSessions);
   server.once('close', server.teardownOceanProfileSessions);
+  server.once('close', () => sceneStudio?.close());
   // Open event streams would keep close() waiting forever, so they end first.
   const closeServer = server.close.bind(server);
   server.close = callback => {
@@ -955,6 +1083,13 @@ if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.m
     console.error('PORT must be an integer from 1024 through 65535.');
     process.exitCode = 1;
   } else {
+    // Threat search's Parallel key: the environment (on the VM, /etc/detonation-ocean/env), else a local secrets file. Never printed.
+    if (!process.env.PARALLEL_API_KEY) {
+      try {
+        const key = readFileSync(process.env.PARALLEL_API_KEY_FILE || join(homedir(), '.config', 'abysscan', 'parallel-api-key.txt'), 'utf8').trim();
+        if (key) process.env.PARALLEL_API_KEY = key;
+      } catch { /* no key: threat search stays off */ }
+    }
     const templatePreview = await startLocalTemplatePreviewServer();
     const server = createAppServer({ templateShellsEnabled: templatePreview.enabled });
     server.listen(port, '127.0.0.1', () => {

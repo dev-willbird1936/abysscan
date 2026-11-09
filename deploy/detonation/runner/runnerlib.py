@@ -16,6 +16,35 @@ CHILD_PATH = re.compile(r"/home/dana/Downloads/\.unpacked/(0|[1-9][0-9]*)/(0|[1-
 STAGED_PATH = re.compile(r"/(?:tmp/dt|home/dana/Downloads)/sample\.[a-z0-9]{1,8}")
 
 
+RTF_TEXT_BYTES = 512 * 1024
+RTF_PREVIEW = 160
+RTF_HEAD = b"{" + bytes([92]) + b"rtf"
+# RTF carriers: an object that updates itself runs its OLE payload when the document opens, and the OLE datastore is the
+# Equation Editor exploit's hiding place.
+RTF_MARKERS = [
+    ("rtf-objupdate", re.compile(r"\\objupdate", re.I)),
+    ("rtf-embedded-object", re.compile(r"\\objemb|\\objclass", re.I)),
+    ("rtf-activex", re.compile(r"\\objocx", re.I)),
+    ("rtf-datastore", re.compile(r"\\\*?\\datastore", re.I)),
+]
+
+
+def rtf_scan(data):
+    """RTF carrier markers: `{hits: [{id, count, preview}]}`. Reads the text only; nothing is opened."""
+    if data[:5].lower() != RTF_HEAD:
+        return {"hits": []}
+    text = data[:RTF_TEXT_BYTES].decode("latin1")
+    hits = []
+    for name, pattern in RTF_MARKERS:
+        matches = list(pattern.finditer(text))
+        if not matches:
+            continue
+        start = max(matches[0].start() - 20, 0)
+        excerpt = text[start:start + RTF_PREVIEW].replace(chr(10), " ").replace(chr(13), " ")
+        hits.append({"id": name, "count": len(matches), "preview": excerpt})
+    return {"hits": hits}
+
+
 def open_regular(path, flags=os.O_RDONLY):
     """Opens a regular file without following links in any path component; callers own the returned handle."""
     parent = os.open("/", os.O_RDONLY | os.O_DIRECTORY)
@@ -95,6 +124,23 @@ def run(command, timeout, **kwargs):
         return {"code": 124, "stdout": out, "stderr": "", "timedOut": True}
     except OSError as error:
         return {"code": 127, "stdout": "", "stderr": error.__class__.__name__, "timedOut": False}
+
+
+def libmagic(path):
+    """What libmagic says the file is: `{description, mime}`, or None when it is not installed.
+
+    python3-magic is a system package while the tools run in /opt/venv, so it is called through the system interpreter.
+    It is the second opinion that catches what a header table misses: compound types, odd containers and files whose
+    name lies.
+    """
+    code = "import magic, sys; print(magic.from_file(sys.argv[1])); print(magic.from_file(sys.argv[1], mime=True))"
+    done = run(["/usr/bin/python3", "-c", code, path], 15)
+    if done["code"] != 0 or done["timedOut"]:
+        return None
+    lines = [line.strip() for line in (done["stdout"] or "").splitlines() if line.strip()]
+    if len(lines) < 2:
+        return None
+    return {"description": lines[0][:300], "mime": lines[1][:100]}
 
 
 def tail(text):

@@ -1,0 +1,564 @@
+{
+  "blocked": [],
+  "requests": [
+    "http://127.0.0.1:4380/parent.html?mode=standalone",
+    "http://127.0.0.1:4380/harness.js",
+    "http://127.0.0.1:4380/app/index.html",
+    "http://127.0.0.1:4380/app/ocean/shim.js",
+    "http://127.0.0.1:4380/app/assets/index.3c59e6ab.js",
+    "http://127.0.0.1:4380/app/assets/index.9b3d5901.css",
+    "http://127.0.0.1:4380/app/img/wallpaper/depth/sunlight.svg",
+    "http://127.0.0.1:4380/app/img/icon/ui/wifi.png",
+    "http://127.0.0.1:4380/app/img/icon/bin0.png",
+    "http://127.0.0.1:4380/app/img/icon/notepad.png",
+    "http://127.0.0.1:4380/app/img/icon/win/folder.png",
+    "http://127.0.0.1:4380/app/img/icon/explorer.png",
+    "http://127.0.0.1:4380/app/img/icon/edge.png",
+    "http://127.0.0.1:4380/app/img/icon/mail.png",
+    "http://127.0.0.1:4380/app/img/icon/teams.png",
+    "http://127.0.0.1:4380/app/img/icon/security.png",
+    "http://127.0.0.1:4380/app/img/icon/update.png",
+    "http://127.0.0.1:4380/app/img/icon/ui/bluetooth.png",
+    "http://127.0.0.1:4380/app/img/icon/ui/moon.png",
+    "http://127.0.0.1:4380/app/img/icon/ui/saver.png",
+    "http://127.0.0.1:4380/app/img/icon/ui/nightlight.png",
+    "http://127.0.0.1:4380/app/img/icon/ui/brightness.png",
+    "http://127.0.0.1:4380/app/img/icon/ui/audio2.png",
+    "http://127.0.0.1:4380/app/img/icon/ui/settings.png",
+    "http://127.0.0.1:4380/app/img/icon/weather.png",
+    "http://127.0.0.1:4380/app/img/icon/calendar.png",
+    "http://127.0.0.1:4380/app/img/icon/todo.png",
+    "http://127.0.0.1:4380/app/img/icon/settings.png",
+    "http://127.0.0.1:4380/app/img/icon/home.png",
+    "http://127.0.0.1:4380/app/img/icon/onenote.png",
+    "http://127.0.0.1:4380/app/img/icon/photos.png",
+    "http://127.0.0.1:4380/app/img/icon/groove.png",
+    "http://127.0.0.1:4380/app/img/icon/store.png",
+    "http://127.0.0.1:4380/app/img/icon/terminal.png",
+    "http://127.0.0.1:4380/app/img/icon/win/folder-sm.png",
+    "http://127.0.0.1:4380/app/img/icon/ui/minimize.png",
+    "http://127.0.0.1:4380/app/img/icon/ui/maxmin.png",
+    "http://127.0.0.1:4380/app/img/icon/ui/close.png",
+    "http://127.0.0.1:4380/app/img/icon/win/user.png",
+    "http://127.0.0.1:4380/app/img/icon/win/user-sm.png",
+    "http://127.0.0.1:4380/app/img/icon/win/desk-sm.png",
+    "http://127.0.0.1:4380/app/img/icon/win/docs-sm.png",
+    "http://127.0.0.1:4380/app/img/icon/win/down-sm.png",
+    "http://127.0.0.1:4380/app/img/icon/win/pics-sm.png",
+    "http://127.0.0.1:4380/app/img/icon/win/music-sm.png",
+    "http://127.0.0.1:4380/app/img/icon/win/thispc-sm.png",
+    "http://127.0.0.1:4380/app/img/icon/win/bin-em.png",
+    "http://127.0.0.1:4380/app/img/icon/win/desk.png",
+    "http://127.0.0.1:4380/app/img/icon/win/docs.png",
+    "http://127.0.0.1:4380/app/img/icon/win/down.png",
+    "http://127.0.0.1:4380/app/img/icon/win/music.png",
+    "http://127.0.0.1:4380/app/img/icon/win/pics.png",
+    "http://127.0.0.1:4380/app/assets/SettingsIcons.166d2107.woff2",
+    "http://127.0.0.1:4380/app/img/settings/System.webp",
+    "http://127.0.0.1:4380/app/img/settings/Bluetooth%20&%20devices.webp",
+    "http://127.0.0.1:4380/app/img/settings/Network%20&%20internet.webp",
+    "http://127.0.0.1:4380/app/img/settings/Personalisation.webp",
+    "http://127.0.0.1:4380/app/img/settings/Apps.webp",
+    "http://127.0.0.1:4380/app/img/settings/Accounts.webp",
+    "http://127.0.0.1:4380/app/img/settings/Time%20&%20language.webp",
+    "http://127.0.0.1:4380/app/img/settings/Accessibility.webp",
+    "http://127.0.0.1:4380/app/img/settings/Privacy%20&%20security.webp",
+    "http://127.0.0.1:4380/app/img/settings/Windows%20Update.webp",
+    "http://127.0.0.1:4380/app/img/icon/people.png",
+    "http://127.0.0.1:4380/app/img/icon/calculator.png",
+    "http://127.0.0.1:4380/app/img/icon/alarm.png",
+    "http://127.0.0.1:4380/app/img/icon/taskmanager.png",
+    "http://127.0.0.1:4380/app/img/icon/notes.png",
+    "http://127.0.0.1:4380/app/img/icon/board.png",
+    "http://127.0.0.1:4380/app/img/icon/ui/maximize.png",
+    "http://127.0.0.1:4380/app/img/icon/ui/sun.png",
+    "http://127.0.0.1:4380/app/img/icon/people.png",
+    "http://127.0.0.1:4380/app/img/icon/alarm.png",
+    "http://127.0.0.1:4380/app/img/icon/taskmanager.png",
+    "http://127.0.0.1:4380/app/img/icon/board.png",
+    "http://127.0.0.1:4380/app/img/icon/win/user.png",
+    "http://127.0.0.1:4380/app/img/icon/win/user-sm.png",
+    "http://127.0.0.1:4380/app/img/icon/win/desk-sm.png",
+    "http://127.0.0.1:4380/app/img/icon/win/docs-sm.png",
+    "http://127.0.0.1:4380/app/img/icon/win/down-sm.png",
+    "http://127.0.0.1:4380/app/img/icon/win/pics-sm.png",
+    "http://127.0.0.1:4380/app/img/icon/win/music-sm.png",
+    "http://127.0.0.1:4380/app/img/icon/win/thispc-sm.png",
+    "http://127.0.0.1:4380/app/img/icon/win/bin-em.png",
+    "http://127.0.0.1:4380/app/img/icon/win/desk.png",
+    "http://127.0.0.1:4380/app/img/icon/win/docs.png",
+    "http://127.0.0.1:4380/app/img/icon/win/down.png",
+    "http://127.0.0.1:4380/app/img/icon/win/music.png",
+    "http://127.0.0.1:4380/app/img/icon/win/pics.png",
+    "http://127.0.0.1:4380/app/img/icon/win/user.png",
+    "http://127.0.0.1:4380/app/img/icon/bin1.png",
+    "http://127.0.0.1:4380/app/img/icon/win/bin.png",
+    "http://127.0.0.1:4380/app/img/icon/bin0.png",
+    "http://127.0.0.1:4380/app/img/icon/ui/maximize.png",
+    "http://127.0.0.1:4380/app/img/wallpaper/depth/twilight.svg",
+    "http://127.0.0.1:4380/app/img/icon/ui/sun.png",
+    "http://127.0.0.1:4380/app/img/icon/win/user.png",
+    "http://127.0.0.1:4380/app/img/icon/win/user-sm.png",
+    "http://127.0.0.1:4380/app/img/icon/win/desk-sm.png",
+    "http://127.0.0.1:4380/app/img/icon/win/docs-sm.png",
+    "http://127.0.0.1:4380/app/img/icon/win/down-sm.png",
+    "http://127.0.0.1:4380/app/img/icon/win/pics-sm.png",
+    "http://127.0.0.1:4380/app/img/icon/win/music-sm.png",
+    "http://127.0.0.1:4380/app/img/icon/win/thispc-sm.png",
+    "http://127.0.0.1:4380/app/img/icon/win/bin-em.png",
+    "http://127.0.0.1:4380/app/img/icon/win/desk.png",
+    "http://127.0.0.1:4380/app/img/icon/win/docs.png",
+    "http://127.0.0.1:4380/app/img/icon/win/down.png",
+    "http://127.0.0.1:4380/app/img/icon/win/music.png",
+    "http://127.0.0.1:4380/app/img/icon/win/pics.png",
+    "http://127.0.0.1:4380/app/img/icon/ui/sun.png",
+    "http://127.0.0.1:4380/app/img/icon/board.png",
+    "http://127.0.0.1:4380/app/img/icon/people.png",
+    "http://127.0.0.1:4380/app/img/icon/calculator.png",
+    "http://127.0.0.1:4380/app/img/icon/alarm.png",
+    "http://127.0.0.1:4380/app/img/icon/taskmanager.png"
+  ],
+  "errors": [],
+  "apps": {
+    "files": {
+      "rendered": true,
+      "oceanRoot": true,
+      "expected": "Team budget 2027.txt"
+    },
+    "browser": {
+      "rendered": true,
+      "oceanRoot": true,
+      "expected": "Northwind account verification"
+    },
+    "mail": {
+      "rendered": true,
+      "oceanRoot": true,
+      "expected": "your password expires today"
+    },
+    "messages": {
+      "rendered": true,
+      "oceanRoot": true,
+      "expected": "Priya Shah"
+    },
+    "mfa": {
+      "rendered": true,
+      "oceanRoot": true,
+      "expected": "Approve sign-in?"
+    },
+    "updates": {
+      "rendered": true,
+      "oceanRoot": true,
+      "expected": "KB5099001"
+    },
+    "settings": {
+      "rendered": true,
+      "oceanRoot": false,
+      "expected": null
+    },
+    "terminal": {
+      "rendered": true,
+      "oceanRoot": true,
+      "expected": "Microsoft Windows"
+    },
+    "notes": {
+      "rendered": true,
+      "oceanRoot": true,
+      "expected": "Offsite ideas"
+    },
+    "texteditor": {
+      "rendered": true,
+      "oceanRoot": true,
+      "expected": "Welcome.txt"
+    },
+    "calendar": {
+      "rendered": true,
+      "oceanRoot": true,
+      "expected": "Stand-up"
+    },
+    "reminders": {
+      "rendered": true,
+      "oceanRoot": true,
+      "expected": "Comment on budget draft"
+    },
+    "contacts": {
+      "rendered": true,
+      "oceanRoot": true,
+      "expected": "Marcus Lee"
+    },
+    "photos": {
+      "rendered": true,
+      "oceanRoot": true,
+      "expected": "All photos"
+    },
+    "media": {
+      "rendered": true,
+      "oceanRoot": true,
+      "expected": "Neon Skyline"
+    },
+    "calculator": {
+      "rendered": true,
+      "oceanRoot": true,
+      "expected": "Standard"
+    },
+    "clock": {
+      "rendered": true,
+      "oceanRoot": true,
+      "expected": "World clock"
+    },
+    "store": {
+      "rendered": true,
+      "oceanRoot": true,
+      "expected": "Essential apps"
+    },
+    "taskmanager": {
+      "rendered": true,
+      "oceanRoot": true,
+      "expected": "Northwind Sync Helper"
+    },
+    "stickies": {
+      "rendered": true,
+      "oceanRoot": true,
+      "expected": "Call facilities about the badge reader"
+    },
+    "whiteboard": {
+      "rendered": true,
+      "oceanRoot": true,
+      "expected": null
+    }
+  },
+  "mutations": [
+    {
+      "name": "render files (expects \"Team budget 2027.txt\")",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "render browser (expects \"Northwind account verification\")",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "render mail (expects \"your password expires today\")",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "render messages (expects \"Priya Shah\")",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "render mfa (expects \"Approve sign-in?\")",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "render updates (expects \"KB5099001\")",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "render settings",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "render terminal (expects \"Microsoft Windows\")",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "render notes (expects \"Offsite ideas\")",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "render texteditor (expects \"Welcome.txt\")",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "render calendar (expects \"Stand-up\")",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "render reminders (expects \"Comment on budget draft\")",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "render contacts (expects \"Marcus Lee\")",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "render photos (expects \"All photos\")",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "render media (expects \"Neon Skyline\")",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "render calculator (expects \"Standard\")",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "render clock (expects \"World clock\")",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "render store (expects \"Essential apps\")",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "render taskmanager (expects \"Northwind Sync Helper\")",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "render stickies (expects \"Call facilities about the badge reader\")",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "render whiteboard",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "open-app intents create windows",
+      "ok": true,
+      "detail": "mail:820x500 photos:740x480 mfa:300x340 stickies:240x220 calculator:240x360"
+    },
+    {
+      "name": "set-sys theme switch restyles apps",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "mail mark-read via click",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "mail flag via button",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "mail link opens scene page in browser",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "mail compose + send (save-draft, move sent)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "explorer new folder + rename",
+      "ok": true,
+      "detail": "d-mvssafprxtkt"
+    },
+    {
+      "name": "explorer drag-drop move",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "explorer delete → trash",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "explorer restore from recycle bin",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "notepad save → fs write",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "terminal mkdir",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "terminal echo > file",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "to do toggle",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "to do add",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "chat append",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "notes add + edit",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "sticky add",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "people add contact",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "calendar new event",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "clock alarm toggle",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "authenticator deny → scene-choice deny",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "authenticator deny → prompt deleted",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "lure update install → scene-choice download",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "windows update install",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "store uninstall",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "store install",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "task manager lists app window",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "end task on suspicious process → its endChoice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "calculator 7×6 then MS/C/MR",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "typed external URL shows offline page, nothing loaded",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "highlighted lure link → scene-choice follow-link",
+      "ok": true,
+      "detail": "follow-link"
+    },
+    {
+      "name": "report on a non-highlighted mail sends no scene choice",
+      "ok": true,
+      "detail": "none"
+    },
+    {
+      "name": "report moves the mail to junk",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "scene page button → scene-choice report",
+      "ok": true,
+      "detail": "report"
+    },
+    {
+      "name": "world swap re-renders mail",
+      "ok": true,
+      "detail": "dark→light, accent #c30079"
+    },
+    {
+      "name": "world swap re-renders files",
+      "ok": true,
+      "detail": "dark→light, accent #c30079"
+    },
+    {
+      "name": "no reload during swaps",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "uninstalled app hidden from store library (W2 lacks whiteboard)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "iframe sandbox=\"allow-scripts\"",
+      "ok": true,
+      "detail": "allow-scripts"
+    },
+    {
+      "name": "zero non-loopback requests",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "zero console errors",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "swap": [
+    {
+      "app": "mail",
+      "ok": true,
+      "theme1": "dark",
+      "theme2": "light",
+      "accent2": "#c30079"
+    },
+    {
+      "app": "files",
+      "ok": true,
+      "theme1": "dark",
+      "theme2": "light",
+      "accent2": "#c30079"
+    }
+  ],
+  "sandbox": "allow-scripts",
+  "nonLoopback": []
+}

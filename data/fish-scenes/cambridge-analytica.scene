@@ -1,0 +1,330 @@
+# Cambridge Analytica (data taken 2014, revealed 2018). A personality quiz app took its users' and their friends' data.
+# A quest (QUESTS.md): the trainee picks up paid survey tasks, does one safely, then meets the quiz that asked for more than it needed.
+# The victim is invented: about 270,000 people were recruited through paid-survey sites, so Dana is a paid-task worker. Not a program: nothing is installed, so there is no process and no start-up item. The attack is a consent screen.
+os windows
+user Dana Okafor
+  email dana.okafor@homemail.example
+about
+  | About 270,000 people took a paid personality quiz that asked to log in with their social account. The app also took the data of their friends, about 87 million profiles in all, which were used to target political ads. The social network here is the fictional Friendnet.
+  | Dana's job in this training is invented: the quiz takers were recruited through paid-survey sites, so she picks up small paid tasks in her spare time.
+story
+  | You are Dana Okafor. You work at Northwind Traders, and on quiet afternoons you earn extra money with small paid tasks from SurveyJobs, a marketplace where companies and researchers pay a few dollars for answers.
+  | It is mid-afternoon. You have finished 8 of today's 10 tasks. Two to go. Each one pays into your SurveyJobs balance.
+  | You stay signed in to Friendnet all day, and your SurveyJobs and Friendnet details are in two text files on the desktop. That is a bad habit, but it keeps this training quick.
+quota 8 10 Paid tasks done today
+
+# Dana's desk: the details she copies from (soft flags: careless, but only here to keep the training simple).
+file Desktop/survey-login.txt
+  at 470 500
+  | SurveyJobs
+  | Email: dana.okafor@homemail.example
+  | Password: Teacup-Daily-26!
+file Desktop/friendnet-login.txt
+  at 640 500
+  | Friendnet (training copy)
+  | User: dana.okafor
+  | Password: Harbor-Quiet-26!
+
+# SurveyJobs: a sign-in page, and the paid task behind it.
+page survey-login survey-jobs.example/sign-in
+  title SurveyJobs: sign in
+  brand SurveyJobs
+  favorite
+  heading Sign in to SurveyJobs
+  | Welcome back. Sign in to start your next task.
+  field Email = dana.okafor@homemail.example
+  field secret Password = Teacup-Daily-26!
+  button Sign in
+page paid-9 survey-jobs.example/tasks/9/paid
+  title Task paid
+  brand SurveyJobs
+  heading Task 9 paid
+  | 1.00 USD was added to your SurveyJobs balance.
+page skipped-9 survey-jobs.example/tasks/9/skipped
+  title Task skipped
+  brand SurveyJobs
+  heading Task skipped
+  | It will come back to you later today.
+page survey-9 survey-jobs.example/tasks/9
+  title Task 9: Coffee habits
+  brand SurveyJobs
+  requires survey-login
+  heading Task 9: Coffee habits (1.00 USD)
+  | A café chain wants to know how people buy coffee. Two questions, about a minute.
+  section Your answers
+  row How many cups do you drink a day? = 2
+  row Where do you usually buy it? = The café near work
+  note This task asks only for answers. It asks nothing about your other accounts.
+  button Submit answers -> paid-9
+  button Skip this task -> skipped-9
+mail mail-t9
+  from SurveyJobs <tasks@survey-jobs.example>
+  subject Task 9 of 10 for you: coffee habits (1.00 USD)
+  link survey-9
+  | Hi Dana,
+  |
+  | A new task is waiting for you: two short questions about coffee, paid 1.00 USD. The link goes straight to it.
+  |
+  | SurveyJobs
+
+step Task 9 of 10
+  look Mail: the message from SurveyJobs with the task link
+  | A new task has come in from SurveyJobs. This one is ordinary. Do it the normal way, so you know what normal looks like.
+notify mail SurveyJobs
+  | Task 9 of 10 for you: coffee habits (1.00 USD)
+
+step The link goes to SurveyJobs
+  look the link under the message
+  when mail mail-t9
+  | The email links to SurveyJobs' own address, survey-jobs.example. Look at where a link goes before you click it.
+open mail-t9
+
+step Sign in as usual
+  look the two boxes: Email and Password, as on every visit
+  when visit survey-9
+  move Copy the details from the survey-login file on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | SurveyJobs asks you to sign in first. Two boxes: Email and Password. That is the only account the task needs.
+open survey-9
+
+step Answer the questions
+  look the two answers and the note under them: answers only
+  when choose survey-login 1
+  | You are in. The task asks two questions and nothing about your other accounts. Submit your answers.
+signin survey-login
+
+step 9 of 10 done
+  look the counter in the guide: one task left
+  when choose survey-9 any
+  | Done, and paid. One task to go. And another email has just arrived.
+choose survey-9 1
+quota +1
+
+# The lure: a "partner" quiz that wants a Friendnet login.
+page quiz-cancelled quiz-app.example/cancelled
+  title This Is Your Digital Life
+  heading No login, no quiz
+  | You did not log in, so the quiz did not get anything from your account.
+page quiz quiz-app.example/this-is-your-digital-life
+  title This Is Your Digital Life: personality quiz
+  heading Discover your personality
+  | A 10-minute research quiz. Log in with your Friendnet account to start, then answer the questions to claim your payment of 5 USD.
+  button Log in with Friendnet
+  button No thanks -> quiz-cancelled
+mail quiz-mail
+  from SurveyJobs Partner Tasks <partners@survey-jobs.example>
+  subject Partner task: 5 USD for a 10-minute research quiz
+  link quiz
+  | Hi Dana,
+  |
+  | Academic researchers are paying volunteers 5 USD to take a personality quiz. It takes about 10 minutes. You will need a Friendnet account.
+  |
+  | Start the quiz:
+notify mail SurveyJobs Partner Tasks
+  | Partner task: 5 USD for a 10-minute research quiz
+
+step A better-paid task
+  look the sender and the link: a partner, and a different site
+  when mail quiz-mail
+  | This task pays five times as much. The quiz is real and does what it says, and it is run by a research partner on its own site.
+  | The first link stayed on survey-jobs.example. Look at where this one goes.
+open quiz-mail
+
+step Log in with Friendnet
+  look the button: log in with an account that is not SurveyJobs
+  when visit quiz
+  move Click “Log in with Friendnet”.
+  | The quiz is on quiz-app.example, a site you have never used. To start, it wants you to log in with your Friendnet account instead of making a new one.
+open quiz
+
+# The consent screen: the real login page, with the friends' group set apart.
+page consent friendnet.example/dialog/oauth
+  title Friendnet: log in with Friendnet
+  brand Friendnet
+  heading This Is Your Digital Life wants to access your Friendnet account
+  | The app is run by quiz-app.example. If you continue, it receives:
+  section This app will receive
+  item Your public profile
+  item Your email address
+  item Your birthday
+  item Your current city
+  item Your page likes
+  section Also: your friends' information
+  item Your friends' birthdays
+  item Your friends' current cities
+  item Your friends' page likes
+  button Continue as Dana
+  button Cancel -> quiz-cancelled
+
+step What the app asks for
+  look the two lists: what the app receives, and the group “Also: your friends' information”
+  when choose quiz 1
+  move Read both lists. Press “Continue as Dana” to go on, or “Cancel” to stop.
+  | Friendnet shows what the app will receive. Read the second group. The app asks for your friends' birthdays, cities and likes too, and your friends will never see this screen.
+  | Cancel is the only moment anyone could stop this. Continue is what happened.
+open consent
+
+# The quiz itself: clicked answers only, about 120 questions.
+view quiz panel
+  title This Is Your Digital Life
+  app Personality quiz
+  size 520x260
+  page Question 1 of 120
+  heading Question 1 of 120
+  | I am the life of the party.
+  button Strongly disagree -> next
+  button Disagree -> next
+  button Neutral -> next
+  button Agree -> next
+  button Strongly agree -> next
+  page Question 2 of 120
+  heading Question 2 of 120
+  | I get stressed out easily.
+  button Strongly disagree -> next
+  button Disagree -> next
+  button Neutral -> next
+  button Agree -> next
+  button Strongly agree -> next
+  page Your result
+  heading You are curious and organised
+  icon user
+  | Thank you for taking part. Your payment code is QZ-4471.
+  | The questions measured five traits: openness, conscientiousness, extraversion, agreeableness and neuroticism.
+  button Finish -> done primary
+
+step Answering the questions
+  look the quiz window: one statement and five answers
+  when choose consent 1
+  cue view-btn:next view-btn:done view:quiz
+  move Click an answer on each question until Finish.
+  | The quiz is 120 clicked answers, and it scores five personality traits. Here it shows two questions and a result.
+  | Behind it, the app has already asked Friendnet for your profile and those of your 340 friends. Nothing on screen says so.
+show quiz
+
+step 10 of 10, or so Dana thinks
+  look the counter: the shift is done
+  when done quiz
+  | You have a result and a payment code, and every task is done. Nothing on the screen looks wrong. Press Next to see what the quiz took.
+quota +1
+
+# What the app collected, as an illustration. The data moved from Friendnet's servers to the researchers' server, not from Dana's computer.
+view collected panel
+  title What the quiz app received
+  app Illustration
+  size 560x460
+  heading Sent to data.digital-life-research.example (203.0.113.40)
+  icon bug
+  section Dana
+  row Profile = public profile, email
+  row Birthday and city = 14 June, Lakeside
+  row Page likes = 212 pages
+  section Her friends (340 in all)
+  columns Friend | Birthday | City | Page likes
+  cells Priya Shah | 3 March | Lakeside | 96
+  cells Marcus Lee | 22 August | Harbour Bay | 141
+  cells Aisha Bello | 9 January | Northfield | 58
+  cells Tomas Reyes | 30 November | Lakeside | 203
+  cells Mei Tanaka | 17 May | Eastgate | 77
+  tone bad
+  note Only Dana took the quiz. Her 340 friends never opened it. Across all quiz takers, about 87 million profiles were collected.
+  button Close -> done primary
+
+step What the quiz took
+  look the window: Dana's data, and her friends' under it
+  | The app sent Dana's profile and those of her 340 friends to the researchers' server. Only one of them took the quiz. Friendnet gave the data to the app, so no warning ever appeared on this computer.
+attack data-exfil
+  | Dana's profile
+  | her birthday and city
+  | her page likes
+  | 340 friends' profiles
+show collected
+
+# Years later: the profiles became personality scores used to target adverts.
+page feed friendnet.example/home
+  title Friendnet: Home
+  brand Friendnet
+  heading Your feed
+  | Priya Shah shared a photo. Marcus Lee commented on a post.
+  section Sponsored: Civic Alliance Party
+  | Roads, not taxes. Protect your town's budget this election.
+  note Why am I seeing this? Civic Alliance Party wants to reach people aged 25 to 54 who live near Lakeside.
+  section Sponsored: Together Forward
+  | Your neighbours are afraid for your street. Be ready to act.
+  note Why am I seeing this? Together Forward wants to reach people who live near Lakeside and are interested in local news.
+  section Sponsored: Fresh Basket groceries
+  | Free delivery on your first order.
+  note Why am I seeing this? Fresh Basket wants to reach people who shop for groceries near Lakeside.
+
+# 2018: the notice, and the connected apps list.
+page app-removed friendnet.example/settings/apps
+  title Friendnet: Apps and Websites
+  brand Friendnet
+  heading Apps and Websites
+  | This Is Your Digital Life was removed from your account.
+  section Connected apps
+  row Photo Collage Maker = Profile, photos. Last used last week
+  note Removing an app stops it reading your account from now on. It does not delete the data it already took.
+page notice friendnet.example/protecting-your-information
+  title Friendnet: Protecting your information
+  brand Friendnet
+  heading Protecting your information
+  | Some of your Friendnet information may have been shared with Cambridge Analytica by an app called This Is Your Digital Life.
+  section What may have been shared
+  row Your profile, birthday, city and likes = yes
+  row Your 340 friends' information = yes, through your login
+  note You allowed the app to read your friends' information when you logged in. Friends of yours who took it may have shared yours too.
+  button Remove This Is Your Digital Life -> app-removed
+  button Not now -> feed
+mail fn-notice
+  from Friendnet <security@friendnet.example>
+  subject Protecting your information
+  link notice
+  | Hi Dana,
+  |
+  | We want to tell you about an app you used called This Is Your Digital Life. Some of your information may have been shared with a third party.
+  |
+  | See what was shared and what you can do:
+
+step Years later: adverts made for her
+  look the three “Sponsored” posts and the “Why am I seeing this?” notes
+  when done collected
+  | The profiles were turned into personality scores and used to target political adverts.
+  | Ordinary adverts use the same tools. The difference is that these came from a quiz that took friends' data.
+  | Different people saw different messages from the same campaign, chosen by what frightened or persuaded them.
+  | A message from Friendnet has just arrived.
+open feed
+notify mail Friendnet
+  | Protecting your information
+
+step The notice
+  look the page “Protecting your information”: what may have been shared
+  when visit notice
+  move Open Friendnet's new message in Mail and click its link.
+  | In 2018 the news broke and Friendnet told users whether their data was affected. Dana took the quiz, and so her friends' data went with hers.
+open notice
+
+step Remove the app
+  look the button “Remove This Is Your Digital Life”
+  when choose notice 1
+  move Click “Remove This Is Your Digital Life”.
+  | The real defence is in Apps and Websites: remove apps you no longer use. It stops the app reading your account from now on, but it cannot take back what it already has.
+open app-removed
+
+flag hard link quiz-mail
+  | A task from a partner on a site you have never used (quiz-app.example), where the task before stayed on SurveyJobs.
+flag hard choice quiz 1
+  | A quiz that wants you to log in with your social account. A quiz needs answers, not your account.
+flag hard section consent 1
+  | A 5 USD quiz asking for your email, birthday, city and page likes. It needs none of them.
+flag hard section consent 2
+  | The app asks for your friends' information too, and they never see this screen. Only Cancel stops it.
+flag hard section feed 2
+  | A message built to frighten the people it was shown to. Different people got different adverts from the same campaign.
+flag soft file Desktop/survey-login.txt
+  | Passwords in a text file on the desktop: any program that runs can read them. Use a password manager.
+flag soft file Desktop/friendnet-login.txt
+  | A password in a text file on the desktop: any program that runs can read it.
+
+lesson
+  | Read what an app asks for before you log in with a social account. A quiz does not need your birthday, your city or your friends' data.
+  | Review Apps and Websites in your accounts and remove the ones you no longer use.
+  | Your friends' choices can expose you too, so ask which apps your account is connected to.

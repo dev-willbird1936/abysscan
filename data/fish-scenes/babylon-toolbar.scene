@@ -1,0 +1,320 @@
+# Babylon Toolbar (2010-2014). Came with a free translation program and took over every browser's home page and search.
+# A quest (QUESTS.md): the trainee is a purchasing assistant who reads supplier letters. She does one letter safely with the
+# company's own tool, then needs a free translator for a language it lacks and meets the bundled toolbar in its installer.
+# The victim is invented: the toolbar hit anyone who wanted a free translator, not one job.
+os windows
+user Dana Okafor
+about
+  | Babylon Toolbar came bundled with a free translation program. The installer offered it as a "recommended extra", already ticked.
+  | Once installed it changed the home page and search engine in every browser, put them back if you changed them, and was hard to remove. It was adware: annoying and profitable for its makers, but not destructive.
+  | The translator's maker (Babel Works), Dana, her job and Northwind are invented. The toolbar and its search are real, and the steps follow how they behaved.
+story
+  | You are Dana Okafor, purchasing assistant at Northwind Traders. Suppliers write from all over Europe, and part of your day is reading their letters in the language they were sent.
+  | It is mid-afternoon. You have read 3 of today's 5 supplier letters. The company's Language Desk page translates most of them. Two to go.
+  | During a pilot, IT lets you install tools yourself, and left a note about it on your desktop. That is a bad habit, but it keeps this training quick.
+quota 3 5 Supplier letters read today
+
+# Dana's desk: a note from IT (a soft flag: a demo convenience).
+file Desktop/it-note.txt
+  at 930 200
+  | IT pilot note
+  | During the pilot you can install tools you need yourself. No ticket needed.
+
+# The browser's normal home page, before the toolbar changes it.
+page intranet northwind.example/home
+  title Northwind Intranet
+  brand Northwind Traders
+  favorite
+  heading Northwind Intranet
+  | Welcome back. Notices: the Q4 offsite is on 2 December. Expense forms are due on Friday.
+homepage intranet
+
+# The safe round: the company's own translator, on its own address.
+page translated-4410 language-desk.northwind.example/translated
+  title Translation ready
+  brand Northwind Language Desk
+  heading Silva Embalagens, letter 4
+  | We confirm order 4410. Delivery is on 14 November.
+  section Checked by Language Desk
+  | Translated inside Northwind. The letter text stays on the company's servers.
+page lang-desk language-desk.northwind.example/translate
+  title Northwind Language Desk
+  brand Northwind Language Desk
+  favorite
+  heading Translate a letter
+  | Approved by IT. Portuguese, German, Spanish and French.
+  field Letter text = Confirmamos a encomenda 4410.
+  button Translate -> translated-4410
+mail mail-4410
+  from Priya Shah <priya.shah@northwind.example>
+  subject Letter 4 of 5: Silva Embalagens (Portuguese)
+  link lang-desk
+  | Hi Dana,
+  |
+  | Silva Embalagens wrote about order 4410, in Portuguese. The Language Desk will do it: the link opens it.
+  |
+  | Priya
+
+step Letter 4 of 5
+  look Mail: Priya's message about the Portuguese letter
+  | A new supplier letter is waiting, in Portuguese. Priya has sent the link to the company's own translator, as she does for each one.
+  | Do this one the normal way first, so you know what normal looks like.
+notify mail Priya Shah
+  | Letter 4 of 5: Silva Embalagens (Portuguese)
+
+step The link goes to the Language Desk
+  look the link under Priya's message
+  when mail mail-4410
+  | The link goes to language-desk.northwind.example, a Northwind address. Hover over a link before you click it, to check where it goes.
+open mail-4410
+
+step The company's translator
+  look the box on the Language Desk page
+  when visit lang-desk
+  move Click the box and press any keys to type the letter, then click “Translate”.
+  | The Language Desk is on a Northwind address and IT approved it. It has one box and one button, and nothing else to install.
+open lang-desk
+
+step Letter 4 read
+  look the counter in the guide: 4 of 5
+  when choose lang-desk 1
+  | The translation is ready and the letter text never left the company. One letter to go. And another email has just arrived.
+signin lang-desk
+quota +1
+
+# The lure: the free translator, installed from its own download page.
+view babylon-wizard wizard
+  title Translator Setup
+  app Babel Works Translator
+  publisher Babel Works Ltd
+  page Welcome to Translator Setup
+  icon program
+  | This will install the free translator on your computer. It looks up words and translates whole pages.
+  button Next -> next primary
+  button Cancel -> close
+  page License agreement
+  icon info
+  | Please read the licence before you continue.
+  section Terms
+  | By installing, you also agree to the terms of Babylon Toolbar and Babylon Search.
+  button Next -> next primary
+  button Back -> back
+  page Recommended extras
+  icon program
+  | We recommend these free extras.
+  section Install type
+  | ● Express install (recommended)     ○ Custom install (advanced)
+  section Recommended extras
+  check [x] Install the Babylon Toolbar
+  check [x] Make Babylon Search my home page in all browsers
+  check [x] Make Babylon Search my default search engine
+  check [x] Keep my browser settings protected
+  button Next -> next primary
+  button Back -> back
+  page Installing
+  icon gear
+  section Progress
+  progress 100
+  | The translator is installed. The Babylon Toolbar is installed. Your home page and search engine have been changed.
+  button Finish -> done primary
+# The installer is signed by its maker, so Windows' warnings look reassuring. The translator inside really is a translator.
+# The toolbar's service and its start-up entry come later, at Finish: nothing about it shows on the extras page.
+program babylon babylon-translator-setup.exe
+  publisher Babel Works Ltd
+  signed yes
+  prompt open-warning
+  prompt elevation
+  description Free translator installer
+  view babylon-wizard
+page babylon-dl-done translator-download.example/thanks
+  title Thanks for downloading
+  brand Babel Works
+  heading Thanks for downloading
+  | Your download has finished. Open babylon-translator-setup in your Downloads folder to start.
+page babylon-dl translator-download.example/free-translator
+  title Free translator
+  brand Babel Works
+  heading Translate any word or page, free
+  | 77 languages, including Slovak. Installs in one minute.
+  section What you get
+  item Look up any word with one click
+  item Translate whole web pages
+  item Free for personal use
+  section Before you download
+  note Express install also adds the Babylon Toolbar and Babylon Search. See the licence.
+  button Free download -> babylon-dl-done
+mail mail-slovak
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Kovac letter in Slovak: try this translator
+  link babylon-dl
+  | Dana,
+  |
+  | Priya says the Kovac letter landed on you. It is in Slovak and the Language Desk will not do Slovak.
+  |
+  | I used this free translator last year for the same supplier and it handled Slovak fine. The link goes to its download page.
+  |
+  | Marcus
+notify mail Marcus Lee
+  | Kovac letter in Slovak: try this translator
+
+step Letter 5 is in Slovak
+  look Mail: Marcus's tip with a download link
+  when mail mail-slovak
+  | The last letter is from Kovac Packaging, in Slovak, and the Language Desk does not do Slovak. A colleague has found a free translator that does.
+  | Marcus means well, and the translator is real. Free software is where this toolbar hid.
+open mail-slovak
+
+step A free translator
+  look the download page: the button, and the small print above it
+  when visit babylon-dl
+  | The page is not a Northwind address: it belongs to the translator's maker. Above the big Free download button is a short section of small print. Read it before you press the button.
+open babylon-dl
+
+step The installer arrives
+  look the new file in Downloads
+  when choose babylon-dl 1
+  | The download finished and the browser left the file in Downloads. It is a program, and installing it needs your permission.
+file Downloads/babylon-translator-setup.exe
+  program babylon
+  size 2457600
+open babylon-dl-done
+open Downloads
+
+step The computer asks twice
+  look the warning: Publisher “Babel Works Ltd”, then the permission prompt
+  when prompt babylon
+  cue dialog-btn:run dialog-btn:ok view-btn:next view:babylon-wizard
+  move Accept the warning, and the permission prompt after it. In Translator Setup, click Next until you reach the extras page.
+  | The warning shows the publisher, Babel Works Ltd. The installer is signed, so the warnings look reassuring.
+  | A signature only says who made a program, not that it carries nothing extra.
+open Downloads/babylon-translator-setup.exe
+
+step The installer ticks the boxes for you
+  look the Recommended extras page: four boxes already ticked
+  when page babylon-wizard 3
+  cue view-btn:next view-btn:done view:babylon-wizard
+  move Click Next to carry on, then Finish, as most people did.
+  | Setup opens like any installer: a welcome, a licence, then a page of recommended extras. Most people clicked Next on every page.
+  | Express install quietly adds the toolbar, a new home page, a new search engine, and a setting that "protects" them. You did not tick any of them. The way out was Custom install and unticking the boxes.
+answer run
+answer run
+# page:2 counts from 0 (the third page, the extras): on the extras page already, it does nothing.
+press babylon-wizard page:2
+
+step Finish, and the browser changes
+  look the toolbar across the top of the browser, the home page, and the start-up notice
+  when done babylon-wizard
+  move Click the search box and type the search, then click “Search”.
+  | Setup says the translator is installed. It also says the home page and search engine have been changed. Nobody asked you.
+  | The Babylon Toolbar now sits across the browser, and your home page is Babylon Search. Its service has started, and it has added itself to the programs that start with the computer.
+press babylon-wizard next
+press babylon-wizard done
+run BabylonToolbarsrv.exe
+  cpu 2
+  mem 31
+  parent explorer.exe
+  command C:\Program Files\BabylonToolbar\BabylonToolbarsrv.exe
+startup BabylonToolbar C:\Program Files\BabylonToolbar\BabylonToolbarsrv.exe
+  location HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+page kovac-prices kovac-packaging.example/prices
+  title Kovac Packaging: price list 2026
+  brand Kovac Packaging
+  toolbar Babylon Toolbar
+  heading Price list 2026
+  section Standard boxes
+  row 200 mm box = 0.42 each
+  row 300 mm box = 0.65 each
+  row 400 mm box = 0.98 each
+  note Prices in euro, for orders of 1,000 or more.
+page babylon-results babylon-search.invalid/results?q=kovac+packaging
+  title Babylon Search: kovac packaging price list
+  heading Babylon Search
+  brand Babylon Search
+  toolbar Babylon Toolbar
+  section Sponsored results
+  tone injected
+  item Compare cheap flights from 500 airlines
+  item Free games: play now
+  item Is your PC slow? Run a free check
+  section Results
+  item Kovac Packaging: price list 2026 (kovac-packaging.example)
+  item Kovac Packaging: about us
+  button Open: Kovac Packaging price list 2026 -> kovac-prices
+page babylon babylon-search.invalid
+  title Babylon Search
+  heading Babylon Search
+  brand Babylon Search
+  toolbar Babylon Toolbar
+  | Search the web · Translate a word · Weather · Deals
+  |
+  | Welcome to your new home page. It opens every time you start a browser.
+  field Search the web = kovac packaging price list
+  button Search -> babylon-results
+homepage babylon
+open babylon
+
+step Searching as usual
+  look the search box on the new home page
+  when choose babylon 1
+  | The translator reads the letter: Kovac asks you to confirm its 2026 prices for the standard boxes. Its price list is online, so you search for it, as you always do.
+  | The results page starts with three adverts. Every search now goes through this page.
+signin babylon
+
+step 5 of 5: the shift is done
+  look the counter in the guide: the shift is done
+  when choose babylon-results any
+  move Next morning the home page is Babylon Search again. Open the list of running programs (Task Manager, or Activity Monitor on a Mac).
+  | You open the real result and find the price list. Letter 5 is answered, and nothing on the screen looks broken.
+choose babylon-results 1
+quota +1
+
+step Setting it back does not last
+  look the notification, then the list of running programs
+  when open taskmanager
+  | Last night you changed your home page back. The toolbar's service set it to Babylon Search again at start-up, and a second program keeps watching it.
+  | The list of running programs shows two of the toolbar's programs, started by the toolbar, not by you.
+notify browser Home page changed in every browser
+  | Your home page was reset to Babylon Search. The toolbar's service restored it at start-up.
+run BabylonSearchGuard.exe
+  cpu 1
+  mem 12
+  parent BabylonToolbarsrv.exe
+  command C:\Program Files\BabylonToolbar\BabylonSearchGuard.exe
+
+step What the toolbar did
+  look the animation: every browser, every search
+  | For years this toolbar took over the home page and search of everyone who installed it. Every search went through its adverts and was recorded.
+  | The makers were paid for the adverts clicked and the searches sent. Nothing was stolen or locked: the harm was the control, and how hard it was to give back.
+  | Its guard also added itself to the programs that start with the computer, so the home page is put back every day.
+attack spyware-surveillance
+  | home page, every browser
+  | default search engine
+  | adverts above the results
+  | searches recorded
+startup BabylonSearchGuard C:\Program Files\BabylonToolbar\BabylonSearchGuard.exe
+  location HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+
+flag hard section babylon-dl 2
+  label Small print above the download button
+  | The small print above the download button names the toolbar and a new search engine. The translator is what you wanted; the rest is not.
+flag hard process BabylonToolbarsrv.exe
+  | The toolbar's service, running in the background since the install.
+flag hard startup BabylonToolbar
+  | The toolbar added itself to the programs that start every time the computer does.
+flag hard page babylon
+  label The new home page: Babylon Search
+  | The home page is Babylon Search. You never chose it: the installer's ticked box did.
+flag hard section babylon-results 1
+  label Adverts above the search results
+  | These adverts sit above the real search results, put there by the toolbar.
+flag hard notice browser home page changed in every browser
+  | After you changed your home page back, it was reset to Babylon Search: something keeps putting it back.
+flag hard process BabylonSearchGuard.exe
+  | A second program, started by the toolbar, that puts the home page back when you change it.
+flag soft file Desktop/it-note.txt
+  | Letting anyone install what they like without asking IT makes a bundled toolbar one click away.
+
+lesson
+  | Download software from its maker's own site. Read the install options, choose Custom install, and untick every extra you did not ask for. A signed installer only tells you who made it.
+  | The small print above a download button is where the extras are named. If a free program asks to change your home page or search, say no.
+  | If your home page keeps changing back, uninstall the toolbar and its search program in the list of installed programs, not just in the browser.

@@ -1,0 +1,89 @@
+{
+  "type": "original-passive-svg-v1",
+  "files": [
+    {
+      "name": "app-accounts.svg",
+      "sha256": "e9db394ba0c97404b69f7f0f0f51c4fd12fb936a9f4bdb6e13b91bd5a1c374c4"
+    },
+    {
+      "name": "app-browser-windows.svg",
+      "sha256": "0073f5a461806a292124299bf69349b49911aca850d2c495e748d056ed0a130d"
+    },
+    {
+      "name": "app-browser.svg",
+      "sha256": "f11482746f4d2e33b200111319529b145b560b4ec0064b615ff8545b863baf28"
+    },
+    {
+      "name": "app-files.svg",
+      "sha256": "839cc7e8c79c33875013c1377984e579af95eee56f742ed6eb1ec0014e039d51"
+    },
+    {
+      "name": "app-finder.svg",
+      "sha256": "c059b7766d5c6159ea18fead1556f396a59c20ad66403821d93369e148d4ac75"
+    },
+    {
+      "name": "app-inbox.svg",
+      "sha256": "cdd5b780fda4a389f77a3e261f76c63a47ae7144f401c52894a791c13e22c7a2"
+    },
+    {
+      "name": "app-launchpad.svg",
+      "sha256": "4428ef0d563b171de9a463240f408648e46e9b7b7ff3282379c898e9d973fb27"
+    },
+    {
+      "name": "app-logs.svg",
+      "sha256": "c8174aa6a6f62ed3c424244700c135071756337ef18b251c397753fddd81dbe7"
+    },
+    {
+      "name": "app-monitor.svg",
+      "sha256": "e7835cdd36329c9da2f170dcb8ec567aeac735092e4eb054ae06069d63eea277"
+    },
+    {
+      "name": "app-outbox.svg",
+      "sha256": "552d3b0cdb4808bec4c7c5697d4307786bd83ccb53a400e0afbd42a1cdc38ed5"
+    },
+    {
+      "name": "app-payments.svg",
+      "sha256": "cc7c4e2eeabd6b73e7f641a84bd6baded87943a519f1cfb4f84d2adad99043a5"
+    },
+    {
+      "name": "app-permissions.svg",
+      "sha256": "29925653614a52f08898b4ddc31520b13820a887db624dc798f407e8129aa98e"
+    },
+    {
+      "name": "app-services.svg",
+      "sha256": "990ed511f3335b70374fd8eefd1b23e11190e1a2231c296a53a7148508596241"
+    },
+    {
+      "name": "app-sessions.svg",
+      "sha256": "4219decd1cfa475b85f88a6199e89de8f8226997fcd5b98d92d35c8e85814f60"
+    },
+    {
+      "name": "app-training-center.svg",
+      "sha256": "a42a036f1050e48fea75e17475f3dcefd0f02938967f6ff58a090595b7ff2cb0"
+    },
+    {
+      "name": "app-training-guide.svg",
+      "sha256": "0856aae7d3974a5f1fb2ee5be47766c69aaeba3ea803f034d1eb25388de8e510"
+    },
+    {
+      "name": "app-transfers.svg",
+      "sha256": "a57462117c32169a9558537d127fa2dc2cfcfd3b1625cf34641bdf476d04b8ed"
+    },
+    {
+      "name": "app-updater.svg",
+      "sha256": "2a12b6fa35f29fec31c5c1a1292d0264295614e11e33123b1e0d98f986740296"
+    },
+    {
+      "name": "app-wallet.svg",
+      "sha256": "07501d16ba97119b1ab9ecf4e3f3745254c8e7660297c42b25aca754cae1c272"
+    },
+    {
+      "name": "sonoma-flow.svg",
+      "sha256": "6010ee58801d791fe49c0984b6e723e40467d0cee3da73f45165b26701dc27b7"
+    },
+    {
+      "name": "windows-bloom.svg",
+      "sha256": "e33a1109c39a01095abaf509466f7e12d11f32d0885a3f2b4fa9974a3784154e"
+    }
+  ]
+}

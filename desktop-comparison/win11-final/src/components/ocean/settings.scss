@@ -1,0 +1,296 @@
+// Settings controls bound to world.sys (Fluent-style toggles, sliders, swatches).
+.settingsApp .restWindow {
+  .accountAvatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 22px;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(135deg, var(--accent-dark, #4cc2ff), var(--accent-light, #0067c0));
+    flex-shrink: 0;
+
+    &.big {
+      width: 90px;
+      height: 90px;
+      font-size: 32px;
+    }
+  }
+
+  main .tilesCont .tile.oceanRow {
+    padding-right: 16px;
+
+    &::after {
+      display: none;
+    }
+  }
+
+  .rowControl {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .appGlyph {
+    display: grid;
+    place-items: center;
+  }
+
+  .oceanDevice {
+    width: 124px;
+    height: 70px;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .oceanPreview {
+    position: relative;
+    width: 360px;
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+
+    .previewWin {
+      position: absolute;
+      left: 22%;
+      top: 18%;
+      width: 56%;
+      height: 50%;
+      border-radius: 6px;
+      background: var(--acrylic-bg);
+      box-shadow: 0 4px 16px rgb(0 0 0 / 25%);
+      border-top: 10px solid var(--clrPrm);
+    }
+
+    .previewBar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 12%;
+      background: var(--acrylic-bg);
+    }
+  }
+
+  .wallGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 170px));
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .wallPick {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+    color: inherit;
+    text-align: left;
+
+    span {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 6px;
+      background-size: cover;
+      background-position: center;
+      box-shadow: 0 0 0 1px rgb(0 0 0 / 12%);
+    }
+
+    em {
+      font-style: normal;
+      opacity: 0.8;
+    }
+
+    &[data-selected="true"] span {
+      box-shadow:
+        0 0 0 2px var(--bg),
+        0 0 0 4px var(--clrPrm);
+    }
+  }
+
+  .swatches {
+    display: grid;
+    grid-template-columns: repeat(8, 30px);
+    gap: 6px;
+  }
+
+  .swatch {
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+
+    &[data-on="true"] {
+      box-shadow:
+        0 0 0 2px var(--bg),
+        0 0 0 4px rgb(var(--txt_clr-rgb));
+    }
+  }
+
+  .segmented {
+    display: flex;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid rgb(var(--txt_clr-rgb) / 15%);
+
+    button {
+      padding: 5px 16px;
+      font-size: 13px;
+      color: inherit;
+
+      &[data-on="true"] {
+        background: var(--clrPrm);
+        color: var(--alt-txt);
+      }
+    }
+  }
+
+  .oceanInput {
+    width: 240px;
+    height: 32px;
+    padding: 0 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    background: rgb(255 255 255 / 80%);
+    color: var(--dark-txt);
+    border-bottom: 1px solid var(--clrPrm);
+  }
+
+  .oceanBtn,
+  .updateTop .btn {
+    background: var(--clrPrm);
+    color: var(--alt-txt);
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 13px;
+
+    &:disabled {
+      opacity: 0.6;
+    }
+  }
+
+  .oceanSlider {
+    width: 200px;
+    accent-color: var(--clrPrm);
+  }
+
+  .oceanProgress {
+    width: min(100%, 1000px);
+    height: 3px;
+    margin: 10px 0;
+    border-radius: 2px;
+    overflow: hidden;
+    background: rgb(var(--txt_clr-rgb) / 10%);
+
+    span {
+      display: block;
+      width: 30%;
+      height: 100%;
+      background: var(--clrPrm);
+      animation: oceanIndeterminate 1.2s ease-in-out infinite;
+    }
+  }
+
+  .updateNote {
+    width: min(100%, 1000px);
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    border-left: 3px solid var(--clrPrm);
+    background: rgb(var(--txt_clr-rgb) / 4%);
+  }
+}
+
+body[data-theme="dark"] .settingsApp .restWindow .oceanInput {
+  background: rgb(255 255 255 / 6%);
+}
+
+@keyframes oceanIndeterminate {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(340%);
+  }
+}
+
+.oceanToggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: inherit;
+
+  .toggleTrack {
+    position: relative;
+    width: 40px;
+    height: 20px;
+    border-radius: 10px;
+    border: 1px solid rgb(var(--txt_clr-rgb) / 55%);
+    transition: background 0.15s ease;
+  }
+
+  .toggleKnob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgb(var(--txt_clr-rgb) / 75%);
+    transition: transform 0.15s ease;
+  }
+
+  &[data-on="true"] {
+    .toggleTrack {
+      background: var(--clrPrm);
+      border-color: var(--clrPrm);
+    }
+
+    .toggleKnob {
+      transform: translateX(20px);
+      background: var(--alt-txt);
+    }
+  }
+}
+
+body[data-theme="dark"] .settingsApp.oceanSettings main .tilesCont {
+  scrollbar-color: rgb(255 255 255 / 45%) transparent;
+}
+
+.settingsApp.oceanSettings {
+  position: relative;
+  height: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+
+  .restWindow main {
+    height: 100%;
+  }
+
+  // Short windows (1280x800) clip the last rows: an always-on thin scrollbar plus a bottom fade show there
+  // is more below. The fade sits over the 44px bottom padding once scrolled to the end.
+  main .tilesCont {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(0 0 0 / 45%) transparent;
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 40px), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 40px), transparent);
+  }
+
+  .embeddedUpdates {
+    position: relative;
+    width: min(100%, 1000px);
+    height: 420px;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+}

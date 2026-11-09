@@ -12,7 +12,7 @@ import re
 
 import identify
 import static
-from runnerlib import finish, parse_args, run
+from runnerlib import finish, libmagic, parse_args, rtf_scan, run
 
 BINWALK = "/usr/local/bin/binwalk"
 SCAN_BYTES = 8 * 1024 * 1024
@@ -28,6 +28,53 @@ RUN_KEY = re.compile(r"CurrentVersion\\Run", re.I)
 COMMAND = re.compile(r"\b(powershell|cmd\.exe|wscript|cscript|mshta|rundll32|regsvr32|schtasks|certutil|bitsadmin)\b", re.I)
 EMBEDDED_EXECUTABLE = re.compile(r"\b(PE32|PE32\+|ELF|Mach-O|MS-DOS executable|Windows executable|executable)\b", re.I)
 EMBEDDED_ARCHIVE = re.compile(r"\b(Zip archive|7-zip|RAR archive|gzip|bzip2|xz compressed|LZMA|cabinet|Microsoft Cabinet|ISO 9660|tar archive)\b", re.I)
+
+# Windows script constructs (batch, VBScript, JScript, HTA): the usual phishing payload, and the one family this build can only
+# read, because Wine is off. Each hit carries a name, a count and a preview of the line it was found on.
+WSH_MARKERS = [
+    ("wsh-object", re.compile(r"\b(?:WScript\.Shell|WScript\.Network|Scripting\.FileSystemObject|Shell\.Application|ADODB\.Stream|ActiveXObject|CreateObject)\b", re.I)),
+    ("download", re.compile(r"\b(?:URLDownloadToFile|XMLHTTP|Msxml2\.ServerXMLHTTP|WinHttp|InternetOpen|bitsadmin|certutil\s+-urlcache|Invoke-WebRequest|DownloadFile|DownloadString|curl\s|wget\s|ftp\s)\b", re.I)),
+    ("persistence", re.compile(r"(?:CurrentVersion\\+Run|schtasks\s+/create|\breg\s+add\b|Programs\\+Startup|net\s+user\s+\S+\s+/add|sc\s+create\s)", re.I)),
+    ("host-tool", re.compile(r"\b(?:powershell|cscript|wscript|mshta|rundll32|regsvr32|certutil|cmd\.exe|cmd\s+/c)\b", re.I)),
+    ("obfuscation", re.compile(r"String\.fromCharCode|\bunescape\s*\(|\beval\s*\(|FromBase64String|-enc(?:odedcommand)?\s|\bchr\s*\(", re.I)),
+    ("self-delete", re.compile(r"\bdel\s+%0|\bdel\s+\"?%~f0|\bselfdelete\b|ping\s+-n\s+\d+\s+127\.0\.0\.1\s*>\s*nul", re.I)),
+    # DOS-era batch infectors: a self-reference plus appending or copying its own text into other files.
+    ("batch-infect", re.compile(r"%0\b|%\*|copy\s+\S*\.bat|type\s+\S+>>\s*\S+|find\s+/i\s+\"[^\"]+\"<", re.I)),
+    ("stealth", re.compile(r"attrib\s+\S+\s+\+[hs]|\bctty\b|\bdebug\s*<", re.I)),
+    ("destroy", re.compile(r"\bdeltree\b|\bformat\s+[a-z]:|\bfdisk\b|\bdel\s+/[fqs]\b", re.I)),
+]
+WSH_TEXT_BYTES = 512 * 1024
+WSH_PREVIEW = 160
+
+
+
+def wsh_scan(data):
+    """Hits of the Windows script markers: `{hits: [{id, count, preview}], urls}`. Only reads the text; nothing is run."""
+    text = data[:WSH_TEXT_BYTES].decode("latin1")
+    hits = []
+    for name, pattern in WSH_MARKERS:
+        matches = list(pattern.finditer(text))
+        if not matches:
+            continue
+        first = matches[0]
+        line = text.rfind("\n", 0, first.start()) + 1
+        end = text.find("\n", first.end())
+        preview = text[line:end if end != -1 else first.end() + WSH_PREVIEW].strip()[:WSH_PREVIEW]
+        hits.append({"id": name, "count": len(matches), "preview": preview})
+    urls = sorted({match.group(0) for match in URL.finditer(text)})[:5]
+    return {"hits": hits, "urls": urls}
+
+
+SHORTCUT_MARKER = re.compile(rb"\[\s*InternetShortcut\s*\]", re.I)
+SHORTCUT_URL = re.compile(rb"^URL\s*=\s*(\S+)", re.I | re.M)
+
+
+def shortcut(data):
+    """The URL an Internet Shortcut points at: the file is nothing but that pointer, and the pointer is the payload."""
+    if not SHORTCUT_MARKER.search(data[:4096]):
+        return None
+    found = SHORTCUT_URL.search(data[:8192])
+    return {"url": found.group(1).decode("latin1", "replace")[:300]} if found else None
 
 
 def block_entropy(data):
@@ -88,6 +135,10 @@ def main():
         headers = None
     report = {
         "size": os.path.getsize(args.file), "head": base64.b64encode(data[:4096]).decode("ascii"), "entropy": entropy_profile(data), "strings": strings_of(data),
+        "magic": libmagic(args.file),
+        "wsh": wsh_scan(data), "rtf": rtf_scan(data),
+        "dex": identify.dex_facts(data) if data[:4].startswith(b"dex") else None, "shortcut": shortcut(data),
+        "lnk": identify.lnk_facts(args.file) if data[:4] == bytes([0x4C, 0x00, 0x00, 0x00]) else None,
         "binwalk": carve(args.file), "headers": headers, "yara": static.yara_scan(args.file, (headers or {}).get("format", "")),
     }
     finish(args, generic=report)

@@ -1,0 +1,308 @@
+# Facebook likejacking (2010). A "Play" button that was really a hidden Like, spreading the scam to friends. The social network here is a fictional stand-in.
+# A quest (QUESTS.md): the trainee thanks customer posts for a small shop, does one safely, then meets likejacking in a friend's video link.
+# The victim is invented: likejacking hit ordinary people who were signed in to the social network, which is exactly why the hidden Like worked.
+os windows
+user Dana Okafor
+about
+  | In 2010 a "shocking video" link in a friend's post led to a page with a big Play button. An invisible Like button sat exactly over it.
+  | One click liked the page as you and posted it to your friends, who clicked it too. Then the page asked you to update your video player or do a survey. The update was a toolbar installer that changed the home page.
+  | Dana's job in this training is invented: the scam hit ordinary people who were signed in to the social network, not one profession.
+story
+  | You are Dana Okafor, community assistant at Northwind Traders, a small online shop. Each day you thank customers who post about their orders on Peoplenet, the social network, from your own account.
+  | It is early afternoon. You have thanked 8 of today's 10 customer posts. Two to go. You stay signed in to Peoplenet all day.
+  | Your Peoplenet details are in a text file on the desktop. That is a bad habit, but it keeps this training quick.
+quota 8 10 Customer posts thanked today
+
+# Dana's desk (soft flag: careless, but only here to keep the training simple).
+file Desktop/peoplenet-login.txt
+  at 930 200
+  | Peoplenet (Northwind Traders)
+  | User: dana.okafor
+  | Password: Teapot-2026!
+
+# The safe task: a customer's post, a Like button you can see, a thank-you.
+page liked-9 peoplenet.example/northwind/posts/2291/liked
+  title Peoplenet: Liked
+  brand Peoplenet
+  heading You liked this post
+  | Tomas Berg will see: "Dana Okafor likes this."
+page skipped-9 peoplenet.example/northwind/posts/2291/skipped
+  title Peoplenet: Skipped
+  brand Peoplenet
+  heading Post skipped
+  | You can come back to Tomas Berg's post later.
+page post-9 peoplenet.example/northwind/posts/2291
+  title Peoplenet: Customer post
+  brand Peoplenet
+  favorite
+  heading Tomas Berg wrote on Northwind Traders
+  | "The teapot arrived this morning and it pours perfectly. Thank you, Northwind!"
+  | 6 people like this.
+  button Like and thank -> liked-9
+  button Skip for now -> skipped-9
+mail cust-9
+  from Priya Shah <priya.shah@northwind.example>
+  subject Customer post to thank: Tomas Berg (teapot)
+  link post-9
+  | Hi Dana,
+  |
+  | Tomas posted about a teapot on our page. The link goes straight to the post, ready for a Like and a thank-you.
+  |
+  | Priya
+
+step Customer post 9 of 10
+  look Mail: Priya's message with the customer's post
+  | A new customer post has come in from Priya, in Customer Service. This one is real. Thank it the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Customer post to thank: Tomas Berg (teapot)
+
+step The link goes to Peoplenet
+  look the link under Priya's message
+  when mail cust-9
+  | The email links to Peoplenet's own address, peoplenet.example. Hover over a link before you click it, to check where it goes.
+open cust-9
+
+step A Like you can see
+  look the Like and thank button under the post
+  when visit post-9
+  move Click “Like and thank” under Tomas's post.
+  | This is how a Like normally looks: a button with its name on it, in plain sight, on the social network's own page. Remember what it looks like.
+open post-9
+
+step Liked and thanked
+  look the counter in the guide: one post left
+  when choose post-9 any
+  | Done. One post to go. Another notification has just arrived: a friend shared something.
+choose post-9 1
+quota +1
+
+# The lure: a friend's "shocking video" link.
+page feed peoplenet.example/home
+  title Peoplenet: News feed
+  brand Peoplenet
+  heading News feed
+  | Marcus Lee shared a link: "OMG you won't believe what this girl did [VIDEO]".
+  | 14 friends like this. clip-zone.example
+  button Watch video
+page video clip-zone.example/watch
+  title OMG you won't believe what this girl did
+  heading Click Play to watch
+  | 3:12 · 2,481,903 views
+  button Play
+  section Hidden layer (shown for training)
+  tone warn
+  row Visible button = Play
+  row Invisible button on top = Like this page
+  note The social network's Like button, made see-through and placed over Play.
+mail share
+  from Peoplenet <notifications@peoplenet.example>
+  subject Marcus Lee shared a link
+  link feed
+  | Marcus Lee shared a link on Peoplenet:
+  |
+  | "OMG you won't believe what this girl did [VIDEO]"
+  |
+  | 14 friends like this.
+notify mail Peoplenet
+  | Marcus Lee shared a link
+
+step A friend's video
+  look the post in the feed, and the address under it
+  when visit feed
+  move Open the message from Peoplenet and click its link.
+  | Marcus Lee, a friend, shared a video link. A link from a friend feels safe, but Marcus did not write it. Marcus's account was tricked into sharing it. The headline is bait, and the video is on clip-zone.example, not on Peoplenet.
+open feed
+
+step The Play button
+  look the big Play button, and the note under it
+  when choose feed 1
+  move Click “Watch video”.
+  | The link opens a page with a video player and one big Play button. The address is no longer Peoplenet's. The picture is only a still image of a player.
+open video
+
+step One click
+  look the page after you press Play
+  when choose video 1
+  move Click “Play”.
+  | You are signed in to Peoplenet, so your click on Play lands on the invisible Like button over it. The social network posts that you like this link to all your friends. Nothing on screen says so. The video does not play.
+# The fake "video player update". Real scams used a program like this; the file is fictional and does nothing.
+view clipplayer-setup wizard
+  title Clip Player Update
+  app Clip Player Update
+  publisher ClipCodec Media Ltd
+  page Update your video player
+  icon program
+  | Your video player is out of date, so the video cannot play.
+  | Click Next to install the new player.
+  button Next -> next primary
+  button Cancel -> close
+  page Free extras
+  icon info
+  | Clip Player is free. Our partners help keep it that way.
+  section Optional offers
+  check [x] Install the Clipfinder toolbar
+  check [x] Make Clipfinder my home page and search
+  note Recommended
+  button Next -> next primary
+  button Cancel -> close
+  page Finished
+  icon shield-bad
+  | The new player is installed. Your video will start in a moment.
+  button Finish -> done primary
+program clipplayer Clip Player Update (clipplayer-update.exe)
+  publisher none
+  signed no
+  prompt open-warning
+  description Fake video player update
+  process clipcodec.exe
+  cpu 2
+  mem 21
+  parent explorer.exe
+  command C:\Users\Dana\AppData\Roaming\ClipCodec\clipcodec.exe
+  startup ClipCodecHelper C:\Users\Dana\AppData\Roaming\ClipCodec\clipcodec.exe
+  location HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+  view clipplayer-setup
+page survey clip-zone.example/update
+  title Player update needed
+  heading Your video player is out of date
+  | Install the update to watch, or complete a short survey to unlock the video.
+  button Download update
+  section Survey offer
+  row Prize = Free gift card
+  row Entry = Your phone number
+open survey
+
+step Install the update, or do a survey
+  look the page: the player is "out of date"
+  when choose survey 1
+  move Click “Download update”.
+  | The page says your video player is out of date. A real player never asks this on a video page. The update is a program, and the survey wants your phone number.
+file Downloads/clipplayer-update.exe
+  program clipplayer
+  size 311296
+open Downloads
+
+step The warning almost nobody reads
+  look Publisher "Unknown Publisher", Type "Application"
+  when prompt clipplayer
+  move Double-click “clipplayer-update” in Downloads.
+  | A video player update is a program from an unknown publisher. Your computer wants to know whether to run it. Most people clicked Run to see their video.
+open Downloads/clipplayer-update.exe
+
+step The setup, with two offers
+  look the setup window: Next, then the page with the two offers
+  when run clipplayer
+  cue view-btn:next view-btn:done view:clipplayer-setup
+  move Click Next on each page until Finish.
+  | The "update" plays no video. Its installer adds a toolbar and sets a new home page. It also adds a start-up entry, so it runs every time the computer starts.
+answer run
+
+# The effect: a changed home page and toolbar, and a friend who saw the post.
+page clipfinder-home search.clipfinder.example/home
+  title Clipfinder: search
+  brand Clipfinder
+  toolbar Clipfinder
+  heading Search with Clipfinder
+  | Search the web, weather, free games
+page liked-10 peoplenet.example/northwind/posts/2305/liked
+  title Peoplenet: Liked
+  brand Peoplenet
+  heading You liked this post
+  | Ines Moreau will see: "Dana Okafor likes this."
+page skipped-10 peoplenet.example/northwind/posts/2305/skipped
+  title Peoplenet: Skipped
+  brand Peoplenet
+  heading Post skipped
+  | You can come back to Ines Moreau's post later.
+page post-10 peoplenet.example/northwind/posts/2305
+  title Peoplenet: Customer post
+  brand Peoplenet
+  toolbar Clipfinder
+  heading Ines Moreau wrote on Northwind Traders
+  | "My second order and it came a day early. Thank you, Northwind!"
+  | 9 people like this.
+  section Sponsored by Clipfinder
+  tone injected
+  row Win = A free gift card
+  row Click to = Claim now
+  | Offer from Clipfinder partners
+  button Like and thank -> liked-10
+  button Skip for now -> skipped-10
+mail last-post
+  from Priya Shah <priya.shah@northwind.example>
+  subject Last one for today (and a link from you?)
+  link post-10
+  | Dana,
+  |
+  | Ines Moreau's post is the last one for today: the link goes straight to it.
+  |
+  | Also, a video link from you ("OMG you won't believe what this girl did") has shown up on my feed, and I clicked it before I thought. Did you post that?
+  |
+  | Priya
+notify mail Priya Shah
+  | Last one for today (and a link from you?)
+
+step A new home page
+  look the browser: a new home page and a toolbar
+  when done clipplayer-setup
+  | The browser has a new home page and a toolbar you did not ask for. Priya has written: a link from you has shown up in Priya's feed. Open the message.
+homepage clipfinder-home
+open clipfinder-home
+
+step Back to work
+  look the toolbar across the browser, and the adverts under the post
+  when visit post-10
+  move Open Priya's new message and click its link.
+  | The last customer post, and the page has changed: a toolbar across the top and adverts inside the post. Priya's message says a link from you went out that you never meant to send.
+open post-10
+
+step 10 of 10, or so Dana thinks
+  look the counter: the shift is done
+  when choose post-10 any
+  | Every post is thanked. But the Play click, the installer and the toolbar are still there. Press Next to see where that video link went.
+choose post-10 1
+quota +1
+
+step Where the link went
+  look the animation, and the wall behind it
+  | The click on Play liked the link as Dana, and Dana's friends saw it and clicked it too: that is how it spread. The "update" kept running after the video that never played.
+attack account-takeover-post
+  | Click hits hidden Like
+  | Posted as Dana
+  | Shown to Dana's friends
+  | They click it too
+  | Update offered, toolbar installed
+page wall peoplenet.example/dana
+  title Dana Okafor: Wall
+  brand Peoplenet
+  heading Dana Okafor
+  | Dana Okafor likes "OMG you won't believe what this girl did [VIDEO]". clip-zone.example
+  | Posted just now. Dana never meant to share it.
+block 203.0.113.60 80
+open wall
+
+flag hard page feed
+  | A "you won't believe" headline in a friend's post, pointing to a site that is not the social network. Friends' accounts get tricked into sharing these.
+flag hard choice video 1
+  | A Play button on a page that is not the social network, over a still picture: a hidden Like can sit on top.
+flag hard section survey 1
+  | A video page that says your player is out of date, then offers a program or a survey that wants your phone number. Real players never ask this.
+flag hard file Downloads/clipplayer-update.exe
+  | A program you downloaded from a video page, called an "update".
+flag hard dialog open-warning clipplayer
+  | The warning says the publisher is unknown. A video never needs you to run a program.
+flag hard process clipcodec.exe
+  | The "player" running in the background, started by the installer.
+flag hard startup ClipCodecHelper
+  | It added itself to the programs that start every time the computer starts.
+flag hard section post-10 1
+  | Adverts inside a customer's post, under a toolbar that was not there before. The installer added it.
+flag soft section video 1
+  | A training aid: on a real page the hidden Like cannot be seen, which is why nobody notices it.
+flag soft file Desktop/peoplenet-login.txt
+  | Passwords in a text file on the desktop: any program that runs can read them. Use a password manager.
+
+lesson
+  | Be careful with "you won't believe" links, even from friends. A friend's account may have been tricked into posting it. If a friend's post looks unlike them, ask them before you click.
+  | A video page that asks you to update your player is not a real player. Update software only from the maker's own site, and untick bundled offers in any installer.
+  | Companies later fixed this by stopping pages from hiding a Like button. Signing out of social networks when you are not using them also limits what a hidden click can do.

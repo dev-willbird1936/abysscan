@@ -34,7 +34,11 @@
   // ---- Ocean records ----------------------------------------------------------------------------------------
   const MAX_CREATURES = 22; // SPEC 9.7: more are listed in the Bestiary only
   const MAX_SCHOOLS = 24;
-  const BASE_SIZE = 0.7; // renderer units: a creature that has eaten one file is 0.7 x the renderer's nominal size
+  const BASE_SIZE = 0.7; // renderer units: the octopus and the fish schools are 0.7 x the renderer's nominal size
+  // A finding creature starts small and each file it eats makes it 14% bigger (x0.4 for one file, x2.1 from 14 files on).
+  const FIRST_SIZE = 0.4, GROWTH = 1.14, MAX_SIZE = 2.1;
+  const SCHOOL_BACK = 14, SCHOOL_SPREAD = 2.5; // schools sit this far behind the creatures, spread this much wider (see the patch tool)
+  const grownSize = (eaten) => Math.min(MAX_SIZE, FIRST_SIZE * GROWTH ** (Math.max(1, eaten) - 1));
   const SHEET_VECTOR = { cookiecutter: 'theft', anglerfish: 'phishing', siphonophore: 'botnet', viperfish: 'exploit', 'isopod-host': 'supply-chain', octopus: 'ransomware' };
   const sheetOf = (path) => /\/([a-z-]+)-(?:sunlight|twilight|midnight|abyss|trench)-spritesheet\.png$/.exec(path ?? '')?.[1];
   const hash = (text) => [...text].reduce((h, ch) => (Math.imul(h, 31) + ch.charCodeAt(0)) >>> 0, 7);
@@ -52,14 +56,17 @@
   ];
 
   // Trench creatures live in the first Trench band: the renderer's floor scene reads every Kraken in the deepest band.
-  function creatureRecord(entry, eaten) {
+  // The renderer draws a featured creature at a fixed share of the screen, so it scales that share by this: its size over the cap.
+  const fit = (a) => (a.kind === 'creature' ? a.sizeMul / MAX_SIZE : 1);
+
+  function creatureRecord(entry, { eaten, recent }) {
     const sprite = entry.sprite ?? entry.fallbackSprite ?? 'ui/abyss/pixel/creatures/viperfish-abyss-spritesheet.png';
     // The renderer needs a family for its hidden body; sheets without a legacy family take one by depth.
     const vector = SHEET_VECTOR[sheetOf(sprite)] ?? { midnight: 'theft', abyss: 'exploit', trench: 'ransomware' }[entry.depth] ?? 'exploit';
     return record({
       id: entry.findingId, anchor: entry.findingId, kind: 'creature', name: entry.creature, year: 8 + (hash(entry.findingId) % 85),
-      vector, sev: SEV[entry.depth] ?? SEV.abyss, sprite, eaten, plainWords: entry.plainWords,
-      sizeMul: BASE_SIZE * Math.min(3, 1 + Math.log2(Math.max(1, eaten))),
+      vector, sev: SEV[entry.depth] ?? SEV.abyss, sprite, eaten, recent: Array.isArray(recent) ? recent : [], plainWords: entry.plainWords,
+      sizeMul: grownSize(eaten),
     });
   }
 
@@ -73,8 +80,8 @@
     const entry = fishByName.get(school.species);
     return record({
       id: `school-${school.species}-${school.depth}`, anchor: `fish-${school.species}`, kind: 'school', name: `${titleCase(school.species)} school`,
-      year: 8 + (hash(school.species + school.depth) % 85), vector: 'bec', impact: 1, sev: SEV[school.depth] ?? SEV.sunlight,
-      school: { species: school.species, count: school.count, types: entry?.types ?? [], art: arts.get(school.species) ?? null }, sizeMul: BASE_SIZE,
+      year: 8 + (hash(school.species + school.depth) % 85), vector: 'bec', impact: 1, sev: SEV[school.depth] ?? SEV.sunlight, back: SCHOOL_BACK, spread: SCHOOL_SPREAD,
+      school: { species: school.species, count: school.count, types: entry?.types ?? [], art: arts.get(school.species) ?? null, known: Array.isArray(school.known) ? school.known : [], knownRefs: Array.isArray(school.knownRefs) ? school.knownRefs : [] }, sizeMul: BASE_SIZE,
     });
   }
 
@@ -110,7 +117,7 @@
     }, () => null);
   }
 
-  const getJson = (url) => fetch(url, { credentials: 'omit', signal: AbortSignal.timeout(4000) }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  const getJson = (url) => fetch(url, { credentials: 'same-origin', signal: AbortSignal.timeout(4000) }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
   const state = { records: [] };
 
   async function creatures() {
@@ -120,7 +127,7 @@
     const found = (Array.isArray(ocean?.creatures) ? ocean.creatures : [])
       .filter((item) => entries.has(item.findingId) && Number.isFinite(item.eaten) && item.eaten > 0)
       .sort((a, b) => b.eaten - a.eaten).slice(0, MAX_CREATURES)
-      .map((item) => creatureRecord(entries.get(item.findingId), item.eaten));
+      .map((item) => creatureRecord(entries.get(item.findingId), item));
     const schools = (Array.isArray(ocean?.schools) ? ocean.schools : [])
       .filter((school) => typeof school.species === 'string' && school.depth in SEV && SEV[school.depth] >= 4 && Number.isFinite(school.count) && school.count > 0)
       .sort((a, b) => b.count - a.count).slice(0, MAX_SCHOOLS);
@@ -145,12 +152,83 @@
   }
 
   const coarse = matchMedia('(pointer: coarse)').matches;
-  const hint = () => `${coarse ? 'Tap' : 'Click'} to open its Bestiary card`;
+  const hint = (a) => `${coarse ? 'Tap' : 'Click'} ${a?.kind === 'creature' ? 'to see the fish inside it' : a?.kind === 'school' ? 'to see the fish in this school' : 'to open its Bestiary card'}`;
 
   function open(a) {
     if (!a?.anchor) return false;
+    // A creature or a fish school opens the creature panel over the ocean (creature-panel.js); anything else its Bestiary card.
+    if ((a.kind === 'creature' || a.kind === 'school') && window.__creaturePanel) {
+      window.__creaturePanel.open(a, tier(a.sev));
+      return true;
+    }
     location.assign(`/bestiary#${encodeURIComponent(a.anchor)}`);
     return true;
+  }
+
+  // What a creature ate (GET /api/ocean `recent`: uploads newest first, then the base fish): a base fish by its name, an upload by its
+  // file type, or its species when the type is withheld. A school lists its well-known base members (`known`).
+  const fishKind = (fish) => fish.name ?? (fish.type ? `.${fish.type}` : titleCase(fish.species));
+  const ateLine = (a) => {
+    const kinds = [...new Set(a.kind === 'school' ? a.school.known : (a.recent ?? []).map(fishKind))];
+    if (!kinds.length) return '';
+    const day = a.recent?.[0]?.day;
+    return `${a.kind === 'school' ? 'incl.' : 'ate'} ${kinds.slice(0, 3).join(', ')}${kinds.length > 3 ? ` +${kinds.length - 3}` : ''}${day ? ` · last ${new Date(`${day}T00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' }).replace(' ', ' ')}` : ''}`;
+  };
+
+  // The name in a zone-card row; a creature that ate fish gets a second line saying which.
+  function rowName(a) {
+    const name = document.createElement('span');
+    name.className = 'nb-name';
+    name.textContent = a.name;
+    const line = ateLine(a);
+    if (line) {
+      const ate = document.createElement('small');
+      ate.className = 'nb-ate mono';
+      ate.textContent = line;
+      name.append(ate);
+    }
+    return name;
+  }
+
+  // The renderer pings whenever the pointer lands on a creature; pointing at another one within 3 s stays silent.
+  // The renderer's ping is a bright 1.1 kHz sonar bell: right for sunlit water, wrong in the dark. From Midnight down the sound gets
+  // lower, softer and slower the deeper the creature lives (sev 3 Midnight, 2 Abyss, 1 Trench): a distant sonar blip, a slow low pulse,
+  // then a deep swell with a sub tone and no top end. Sunlight and Twilight keep the bell.
+  const PING_COOLDOWN_MS = 3000;
+  const DEEP_VOICE = {
+    3: { f: 560, f2: 470, wave: 'sine', lp: 1100, peak: 0.14, attack: 0.03, decay: 1.1, echo: 0.42, echoGain: 0.38, sub: 0 },
+    2: { f: 250, f2: 180, wave: 'triangle', lp: 760, peak: 0.22, attack: 0.09, decay: 1.7, echo: 0.62, echoGain: 0.36, sub: 0.35 },
+    1: { f: 118, f2: 74, wave: 'triangle', lp: 560, peak: 0.32, attack: 0.22, decay: 2.6, echo: 0.9, echoGain: 0.3, sub: 0.6 },
+  };
+  let pingedAt = -Infinity;
+  // Plays the deep voice for a zone; false when the renderer did not lend its audio context (then the caller falls back to the bell).
+  function deepPing(audio, sev) {
+    const voice = DEEP_VOICE[sev], ctx = audio.ctx, out = audio.out;
+    if (!voice || !ctx || !out) return false;
+    const t = ctx.currentTime, end = t + voice.decay + 0.15;
+    const swell = ctx.createGain(), tone = ctx.createBiquadFilter(), echo = ctx.createDelay(1.5), feedback = ctx.createGain();
+    swell.gain.setValueAtTime(1e-4, t);
+    swell.gain.exponentialRampToValueAtTime(voice.peak, t + voice.attack);
+    swell.gain.exponentialRampToValueAtTime(1e-4, t + voice.decay);
+    tone.type = 'lowpass'; tone.frequency.value = voice.lp; tone.Q.value = 0.6;
+    echo.delayTime.value = voice.echo; feedback.gain.value = voice.echoGain;
+    swell.connect(tone); tone.connect(out); tone.connect(echo); echo.connect(feedback); feedback.connect(echo); feedback.connect(out);
+    const voices = [[voice.wave, voice.f, voice.f2, 1]];
+    if (voice.sub) voices.push(['sine', voice.f / 2, voice.f2 / 2, voice.sub]); // the sub tone an octave down
+    for (const [wave, from, to, level] of voices) {
+      const osc = ctx.createOscillator(), gain = ctx.createGain();
+      osc.type = wave; gain.gain.value = level;
+      osc.frequency.setValueAtTime(from, t); osc.frequency.exponentialRampToValueAtTime(to, t + voice.decay);
+      osc.connect(gain); gain.connect(swell); osc.start(t); osc.stop(end);
+    }
+    setTimeout(() => { for (const node of [swell, tone, echo, feedback]) node.disconnect(); }, (voice.decay + voice.echo * 6 + 1) * 1000);
+    return true;
+  }
+  function ping(audio, creature) {
+    const now = performance.now();
+    if (!audio.on || now - pingedAt < PING_COOLDOWN_MS) return;
+    pingedAt = now;
+    if (!deepPing(audio, creature?.a?.sev)) audio.ping();
   }
 
   const badge = (a) => (a.kind === 'creature' ? `×${a.eaten}` : a.kind === 'school' ? `×${a.school.count}` : '');
@@ -182,8 +260,9 @@
       card.closest('.zone')?.setAttribute('aria-label', `${name} ${word}`);
     }
     const found = state.records.filter((a) => a.kind === 'creature').length;
-    document.querySelector('.end-line').textContent = found ? 'Every creature here ate a real file.' : 'The ocean is waiting for its first file.';
-    document.querySelector('.end-sub').textContent = 'Nothing is shown about who uploaded what. Only counts, in batches.';
+    // The base fish (data/ocean-base.json) are named history; uploads join them without names.
+    document.querySelector('.end-line').textContent = found ? 'Explore historical illustrations and anonymous results from analysed uploads.' : 'The ocean is waiting for its first file.';
+    document.querySelector('.end-sub').textContent = 'It began with 60 well-known files and attacks, named. Uploads join them anonymously: only counts, and the type and day of the files creatures ate, in batches.';
     document.querySelector('.legend-lede').textContent = 'Depth is the tier: the deeper the water, the more harm the file did. Each form is a creature family.';
   }
 
@@ -204,6 +283,25 @@
     sub.textContent = `${info.depth} · ${info.meaning}`;
     item.append(name, sub);
     return item;
+  }
+
+  // Gauge labels sit at their zone's camera stop (stops[1..5] = Sunlight..Trench, renderer camera heights; range = the
+  // gauge's full depth), so the dot rests on the zone on screen. Stops move with what the ocean holds and can crowd, so
+  // a label that would overlap the one above is pushed down just enough, and the column is pushed back up off the floor.
+  function placeGauge(stops, range) {
+    const box = document.querySelector('.gauge');
+    const items = [...document.querySelectorAll('.gauge-zones li')].sort((a, b) => b.dataset.sev - a.dataset.sev);
+    const H = box?.clientHeight ?? 0;
+    const at = items.map((li) => Math.min(1, Math.max(0, -(stops[6 - li.dataset.sev]?.pos?.y ?? 0) / range)));
+    if (H > 0) {
+      const half = items.map((li) => li.offsetHeight / 2 / H), gap = 4 / H;
+      for (let i = 1; i < at.length; i++) at[i] = Math.max(at[i], at[i - 1] + half[i - 1] + half[i] + gap);
+      at[at.length - 1] = Math.min(at[at.length - 1], 1 - half[at.length - 1]);
+      for (let i = at.length - 2; i >= 0; i--) at[i] = Math.min(at[i], at[i + 1] - half[i + 1] - half[i] - gap);
+    }
+    items.forEach((li, i) => li.style.setProperty('--p', at[i].toFixed(3)));
+    // Label heights change once the pixel font loads: place again then (the renderer re-runs this on resize).
+    if (!placeGauge.fonts) placeGauge.fonts = document.fonts?.ready.then(() => placeGauge(stops, range));
   }
 
   // ---- Section snap -----------------------------------------------------------------------------------------
@@ -278,5 +376,19 @@
     });
   }
 
-  window.__menu = { isProduction, production, tier, tiers: TIERS, meaning, creatures, meta, hint, open, badge, zones, gaugeItem, state };
+  // The renderer supplies distance to the current camera band. Re-sort after any jump, including a jump straight
+  // to the Trench; waiting for one fixed intermediate band would deadlock. Thumbnail export deliberately loads all.
+  function waitForNearby(records, distance) {
+    if (new URLSearchParams(location.search).has('bake-thumbs') || records.some(record => distance(record.band) <= 1.5)) return Promise.resolve();
+    return new Promise(done => {
+      const check = () => {
+        if (records.some(record => distance(record.band) <= 1.5)) { removeEventListener('scroll', queue); done(); }
+      };
+      const queue = () => requestAnimationFrame(check);
+      addEventListener('scroll', queue, { passive: true });
+      queue();
+    });
+  }
+
+  window.__menu = { waitForNearby, isProduction, production, tier, tiers: TIERS, meaning, creatures, meta, hint, open, badge, rowName, ping, fit, zones, gaugeItem, placeGauge, state };
 })();

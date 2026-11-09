@@ -118,7 +118,9 @@ test('the deepest complete child keeps its finding when a sibling is incomplete'
   });
   const job = await run(harness, ZIP, 'bundle.zip');
   assert.equal(job.state, 'done', job.error ?? '');
-  assert.deepEqual([job.report.verdict.depth, job.report.verdict.complete], ['midnight', false]);
+  // SPEC §290: a ransom note is Trench on its own, so the deepest child sets the depth while the complete sibling's
+  // steal-credentials finding still reaches the job verdict.
+  assert.deepEqual([job.report.verdict.depth, job.report.verdict.complete], ['trench', false]);
   assert.deepEqual(job.report.verdict.findings.map(finding => finding.id).sort(), ['encrypt', 'steal-credentials']);
   assert.ok(job.report.verdict.signals.includes('incomplete'));
   assert.ok(job.report.evidence.some(item => item.item === 2 && item.reason === 'emulator-timeout'));
@@ -130,12 +132,13 @@ test('a clean child run completes the archive: Sunlight is possible though the u
   assert.deepEqual([job.report.verdict.depth, job.report.verdict.complete, job.report.verdict.signals], ['sunlight', true, []]);
 });
 
-test('an entry the build does not run (a PNG) is inspected only and makes the verdict incomplete', async () => {
+test('an entry the build does not run (a PNG) is inspected only and the verdict still counts as complete', async () => {
   const harness = setup({ plan: ctx => (ctx.itemIndex === 0 ? { children: [child('a.py', PY, { parentIndex: ctx.itemIndex, entryIndex: 0 }), child('pic.png', PNG, { parentIndex: ctx.itemIndex, entryIndex: 1 })] } : {}) });
   const job = await run(harness, ZIP, 'bundle.zip');
-  const item = job.report.evidence.find(evidence => evidence.kind === 'unsupported-type');
+  const item = job.report.evidence.find(evidence => evidence.kind === 'inspected-only');
   assert.deepEqual([item.item, item.detectedType], [2, 'png']);
-  assert.deepEqual([job.report.verdict.depth, job.report.verdict.complete, job.report.verdict.signals], ['twilight', false, ['incomplete']]);
+  // Nothing more could be done with a PNG than inspecting it, so its inspection is complete coverage, not a gap.
+  assert.deepEqual([job.report.verdict.depth, job.report.verdict.complete, job.report.verdict.signals], ['sunlight', true, []]);
   assert.deepEqual(harness.calls.map(call => call.kind), ['zip', 'py', undefined], 'the PNG still goes to the runner as `inspect`');
   assert.deepEqual(events(job, 'coverage').at(-1), { item: 2, parent: 0, steps: [{ step: 'identify', status: 'done', detail: 'Identified as png: Inspected.' }, { step: 'run', status: 'skipped', detail: 'Inspected only: this type is not run.' }] });
 });
@@ -218,7 +221,14 @@ test('an exe is typed `emulate` and labelled Emulated; a coverage event is sent 
 test('runnerKind: scripts, documents, pages, executables and archives have a kind; inspect-only types and large files do not, except archives', () => {
   const kind = (detectedType, path = 'run') => runnerKind({ detectedType, path });
   assert.deepEqual(['py', 'sh', 'js-node', 'ps1', 'html', 'svg', 'pdf', 'docx', 'xlsm', 'doc', 'pptx'].map(type => kind(type)), ['py', 'sh', 'node', 'ps1', 'html', 'svg', 'pdf', 'office', 'office', 'office', 'office']);
+  // The image ships every interpreter, so a perl, php, ruby or lua script is run rather than only inspected.
+  assert.deepEqual(['perl', 'php', 'ruby', 'lua'].map(type => kind(type)), ['perl', 'php', 'ruby', 'lua']);
+  // A compiled Java class runs on the JVM; the class name is read from the file so a packaged class still resolves.
+  assert.equal(kind('class'), 'java');
   assert.equal(kind('exe', 'emulate'), 'exe');
-  assert.deepEqual([kind('zip', 'inspect'), kind('eml', 'inspect')], ['zip', 'eml']);
+  assert.deepEqual([kind('zip', 'inspect'), kind('eml', 'inspect'), kind('msg', 'inspect'), kind('rtf', 'inspect')], ['zip', 'eml', 'msg', 'rtf']);
+  // Every container 7zz opens takes the zip path: the JAR and APK containers and the archive formats added for the long tail.
+  assert.deepEqual(['jar', 'apk', '7z', 'rar', 'tar', 'gz', 'bz2', 'xz', 'zst', 'lz4', 'cab', 'iso', 'deb', 'rpm', 'ar', 'cpio'].map(type => kind(type, 'inspect')), Array(16).fill('zip'));
+  assert.equal(kind('elf'), 'elf');
   assert.deepEqual([kind('py', 'inspect'), kind('html', 'inspect'), kind('exe', 'inspect'), kind('bat', 'wine'), kind('png', 'inspect'), kind('vbs', 'wine')], [undefined, undefined, undefined, undefined, undefined, undefined]);
 });

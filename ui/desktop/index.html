@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="./desktop.css">
   <script src="./desktop-model.js" defer></script>
   <script src="./world-model.js" defer></script>
+  <script src="./program-ui.js" defer></script>
   <script src="./ocean-scenes.js" defer></script>
   <script src="./ocean-scenarios/sunlight.js" defer></script>
   <script src="./ocean-scenarios/twilight.js" defer></script>
@@ -16,10 +17,12 @@
   <script src="./ocean-scenarios/trench.js" defer></script>
   <script src="./scenario-profile.js" defer></script>
   <script src="./ocean-fx.js" defer></script>
+  <script src="/ui/abyss/pixel-lit.js" defer></script>
   <script src="./scene-world.js" defer></script>
   <script src="./desktop.js" defer></script>
+  <link rel="stylesheet" href="/ui/abyss/site.css">
 </head>
-<body data-session-state="profile-loading" data-os="windows" data-depth="none">
+<body data-site="desktop" data-session-state="profile-loading" data-os="windows" data-depth="none">
   <div id="ocean-stage" class="ocean-stage">
     <div id="template-shell-host" class="template-shell-host" aria-label="Fictional Windows and macOS training desktops">
       <iframe id="windows-shell-frame" title="Windows training desktop" sandbox="allow-scripts" allow="camera 'none'; microphone 'none'; geolocation 'none'; display-capture 'none'; clipboard-read 'none'; clipboard-write 'none'" referrerpolicy="no-referrer" data-active="true"></iframe>
@@ -36,6 +39,20 @@
       <p id="intro-line" class="intro-line"></p>
       <p id="intro-next" class="intro-next"></p>
       <button id="intro-dismiss" class="intro-button" type="button">Got it <span class="intro-key">Esc</span></button>
+    </section>
+
+    <section id="ocean-guide" class="ocean-guide" aria-labelledby="guide-title" hidden>
+      <p class="guide-top"><span id="guide-eyebrow" class="guide-eyebrow"></span> <span id="guide-count" class="guide-count"></span><button id="guide-hide" class="guide-hide" type="button" title="Hide the guide (the Guide button brings it back)" aria-label="Hide the guide">Hide</button></p>
+      <div id="guide-hud" class="guide-hud" hidden></div>
+      <h2 id="guide-title" class="guide-title"></h2>
+      <div id="guide-step" class="guide-step"></div>
+      <div id="guide-activity" class="guide-activity" aria-label="What it has done so far" hidden></div>
+      <ol id="guide-dots" class="guide-dots" aria-hidden="true"></ol>
+      <div class="guide-actions">
+        <button id="guide-back" class="ocean-button ghost" type="button">Back</button>
+        <button id="guide-next" class="ocean-button" type="button">Next</button>
+        <button id="guide-all" class="guide-all" type="button">Show it all</button>
+      </div>
     </section>
 
     <p id="ocean-status" class="ocean-status" role="status">Loading the creature desktop…</p>
@@ -55,7 +72,7 @@
         <p class="ocean-eyebrow">TRAINING ONLY · BEFORE YOU ENTER</p>
         <h1 id="gate-title">Enter the desktop</h1>
         <p id="gate-summary" class="ocean-lede"></p>
-        <ul class="ocean-points">
+        <ul id="gate-points" class="ocean-points">
           <li><strong>What happens.</strong> You sit at a fictional Windows or macOS lock screen and sign in as a pretend user (nothing is typed). A short scripted scene plays a lure, your choice, and a creature animation that shows the attack on pretend files and accounts.</li>
           <li><strong>You stay in control.</strong> Take the safe path, restart, or switch between Windows and macOS at any time; the desktop is the same, only its look changes.</li>
           <li><strong>The camera is drawn.</strong> The creature bite is a visual effect only.</li>
@@ -68,7 +85,7 @@
         </label>
         <div class="ocean-card-actions">
           <button id="gate-enter" class="ocean-button" type="button" disabled>Enter the desktop</button>
-          <a class="ocean-button ghost" href="/ocean-profiles.html">Back to the matrix</a>
+          <a id="gate-back" class="ocean-button ghost" href="/ocean-profiles.html">Back to the matrix</a>
         </div>
       </section>
     </div>
@@ -85,6 +102,8 @@
       </span>
       <a id="ocean-proof-link" class="ocean-link" href="/chamber.html?demo=oauth-2023&amp;profile=deception-abyss" hidden>OAuth exercise</a>
       <button id="ocean-brief" class="ocean-link" type="button" aria-controls="ocean-intro" title="Show the scenario brief again" hidden>Brief</button>
+      <button id="ocean-guide-toggle" class="ocean-link" type="button" aria-controls="ocean-guide" aria-expanded="true" hidden>Guide</button>
+      <button id="ocean-fx-toggle" class="ocean-link" type="button">Effects: low</button>
       <button id="ocean-restart" class="ocean-link" type="button">Restart</button>
       <a id="ocean-exit" class="ocean-link" href="/ocean-profiles.html">Exit</a>
     </aside>

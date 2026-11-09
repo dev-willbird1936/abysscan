@@ -1,0 +1,368 @@
+# svchost.exe antivirus false alarm (April 2010). A faulty definitions update, DAT 5958, flagged the genuine Windows file svchost.exe as a virus and quarantined it.
+# A quest (QUESTS.md): the trainee releases delivery runs at a haulage firm's dispatch desk, does one run safely, then the antivirus
+# update lands, calls a Windows file a virus and takes the PC off the network. There is no malware: the quest is about not
+# overreacting. The firm, the people, the dispatch system and the antivirus ("Harbor Shield") are made up.
+os windows
+user Dana Okafor
+about
+  | In April 2010 a security vendor shipped a faulty definitions update, number 5958. It mistook svchost.exe, a genuine and digitally signed Windows file, for a virus and moved it to quarantine. The faulty update hit PCs running Windows XP SP3.
+  | Those PCs lost their network, showed a shutdown countdown and restarted again and again. The file was clean; the antivirus was wrong. Offices and shops were stuck until IT put the file back. Here the antivirus is called Harbor Shield, and the firm, the people and the dispatch system are made up too. The desktop shows a newer Windows than XP.
+story
+  | You are Dana Okafor, dispatch coordinator at Northwind Traders. Every afternoon you release the delivery runs in the dispatch system, so the drivers can load their trucks and leave.
+  | It is mid-afternoon on a busy day. You have released 8 of today's 10 runs. Two to go.
+  | Your dispatch sign-in is in a text file on the desktop. That is a bad habit, but it keeps this training quick.
+quota 8 10 Delivery runs released today
+spotted reasons not to panic
+
+# Dana's desk: the details she copies from (a soft flag: careless, but only here to keep the training simple).
+file Desktop/dispatch-login.txt
+  at 930 200
+  | Northwind Dispatch
+  | Staff ID: dana.okafor
+  | Password: Haulage-2026!
+
+# Yesterday's antivirus update, so the update list shows what a normal one looks like.
+update Antivirus definitions 5957
+  kb DAT-5957
+  size 3 MB
+  status installed
+
+# The PC's drive and folders. The platform has no fixed-disk kind, so a share drive stands in for C:.
+drive Local Disk (C:)
+  kind share
+  as C
+folder C/Windows
+folder C/Windows/System32
+file C/Windows/System32/kernel32.dll
+  size 1007616
+file C/Windows/System32/advapi32.dll
+  size 617472
+
+# The genuine Windows file. It is signed by Microsoft, and it should never be removed.
+program svchost Generic Host Process for Windows Services
+  publisher Microsoft Windows
+  signed yes
+  description Host process for Windows services
+
+# Harbor Shield's quarantine, set up with the PC: the copy it moved out of the Windows folder. It is in place before the
+# alert, so the file does not show up later as a new-file chip that opens over the alert.
+folder C/Quarantine
+file C/Quarantine/svchost.exe
+  program svchost
+  size 20992
+
+# Harbor Shield's alert, raised after the update. Its recommended button deletes the file for good; the other keeps it.
+view shield-alert message
+  title Harbor Shield: threat found
+  app Harbor Shield
+  publisher Harbor Shield Software
+  icon shield-bad
+  heading Virus found and quarantined
+  | W32/Wecorl.a was found in C:\Windows\System32\svchost.exe. The file was moved to quarantine.
+  section What Harbor Shield found
+  row Threat = W32/Wecorl.a
+  row File = C:\Windows\System32\svchost.exe
+  row Action = Moved to quarantine, automatically
+  button Delete permanently (recommended) -> page:1 primary
+  button Keep it in quarantine -> done
+  page
+  heading Deleted from quarantine
+  icon warning
+  | svchost.exe has been deleted for good. Harbor Shield cannot restore it, so IT would have to copy it back by hand.
+  button OK -> done primary
+
+# The System Shutdown box Windows showed once the file was gone.
+view shutdown-countdown message
+  title System Shutdown
+  icon warning
+  heading Windows must now restart
+  | Windows must now restart because the Remote Procedure Call (RPC) Service terminated unexpectedly.
+  section
+  timer Restarting in = 60
+  button OK -> done primary
+
+# The dispatch system: a sign-in page, and the delivery runs behind it.
+page dispatch-login dispatch.northwind.example/runs/sign-in
+  title Northwind Dispatch: sign in
+  brand Northwind Dispatch
+  favorite
+  heading Sign in to Dispatch
+  | Welcome back. Sign in to release your delivery runs.
+  field Staff ID = dana.okafor
+  field secret Password = Haulage-2026!
+  button Sign in
+page run9-released dispatch.northwind.example/runs/9/released
+  title Run 9 released
+  brand Northwind Dispatch
+  heading Run 9 released
+  | Run 9, Harbour Road to Eastgate, was released to Tom Reyes. The truck leaves at 15:30.
+page run9-held dispatch.northwind.example/runs/9/held
+  title Run 9 on hold
+  brand Northwind Dispatch
+  heading Run 9 on hold
+  | The truck waits. Priya is told.
+page run-9 dispatch.northwind.example/runs/9
+  title Release delivery run 9 of 10
+  brand Northwind Dispatch
+  requires dispatch-login
+  heading Release delivery run 9 of 10
+  | A planned run is waiting for you to release it.
+  section Run
+  row Route = Harbour Road to Eastgate
+  row Stops = 7
+  row Driver = Tom Reyes, truck 4
+  row Leaves = 15:30
+  row Planned by = Priya Shah, dispatch manager
+  button Release the run -> run9-released
+  button Hold and ask Priya -> run9-held
+page run10-released dispatch.northwind.example/runs/10/released
+  title Run 10 released
+  brand Northwind Dispatch
+  heading Run 10 released
+  | Run 10, Quayside to Millbrook, was released to Amira Hassan. The truck leaves at 16:45.
+page run10-held dispatch.northwind.example/runs/10/held
+  title Run 10 on hold
+  brand Northwind Dispatch
+  heading Run 10 on hold
+  | The truck waits. Priya is told.
+page run-10 dispatch.northwind.example/runs/10
+  title Release delivery run 10 of 10
+  brand Northwind Dispatch
+  requires dispatch-login
+  heading Release delivery run 10 of 10
+  | A planned run is waiting for you to release it.
+  section Run
+  row Route = Quayside to Millbrook
+  row Stops = 5
+  row Driver = Amira Hassan, truck 2
+  row Leaves = 16:45
+  row Planned by = Priya Shah, dispatch manager
+  button Release the run -> run10-released
+  button Hold and ask Priya -> run10-held
+
+# The vendor's page about the faulty update, linked from IT's message.
+page vendor-fix support.harborshield.example/dat-5958
+  title Harbor Shield support: DAT 5958 problem
+  brand Harbor Shield
+  heading Update 5958 has been withdrawn
+  | Update 5958 wrongly flagged the Windows file svchost.exe. Do not restart the PC again and again.
+  section What went wrong
+  row Update = Virus definitions 5958
+  row Wrongly flagged = svchost.exe, a genuine Windows file
+  row Effect = The file is quarantined, the network stops, the PC restarts again and again
+  note The update was withdrawn within hours. The file was clean all along.
+  section What to do
+  item Restore svchost.exe from quarantine, or copy it from another PC with the same Windows version.
+  item Install the corrected update, number 5959.
+  item Call your IT team if the PC has no network.
+  button Download the fix
+
+mail mail-run9
+  from Priya Shah <priya.shah@northwind.example>
+  subject Run 9 of 10: Harbour Road to Eastgate
+  sent 2026-11-02 14:02
+  link run-9
+  | Hi Dana,
+  |
+  | Run 9 is planned and checked. Please release it when you can, the truck is loading. The link opens it in Dispatch.
+  |
+  | Priya
+
+step Run 9 of 10
+  look Mail: Priya's message with the run link
+  | A new run has come in from Priya, the dispatch manager. This one is routine. Release it the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Run 9 of 10: Harbour Road to Eastgate
+
+step The link goes to Dispatch
+  look the link under Priya's message
+  when mail mail-run9
+  | The email links to the firm's own address, dispatch.northwind.example. Hover over a link before you click it, to check where it goes.
+open mail-run9
+
+step Sign in as usual
+  look the two boxes: Staff ID and Password, as on every visit
+  when visit run-9
+  move Copy the details from dispatch-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | Dispatch asks you to sign in first. Two boxes: Staff ID and Password. Remember what this page normally looks like.
+open run-9
+
+step Check, then release
+  look the route, the driver and who planned the run
+  when choose dispatch-login 1
+  | You are in. Check the route and the driver against Priya's message, then release the run or hold it.
+signin dispatch-login
+
+step 9 of 10 done
+  look the counter in the guide: one run left; and the banner from Software Update
+  when choose run-9 any
+  | Done. One run to go. In the background your antivirus, Harbor Shield, has installed its update for today.
+choose run-9 1
+quota +1
+update Antivirus definitions 5958
+  kb DAT-5958
+  size 3 MB
+  status installed
+notify updates Harbor Shield: definitions 5958 installed
+  | Harbor Shield updated its virus definitions. No restart needed.
+
+# Harbor Shield's own work: the update and its alert come by themselves, so this step plays with Next (Software Update has no icon to open).
+step A routine update, then an alert
+  look Software Update: Antivirus definitions 5958, and the Harbor Shield alert over it
+  move Open {File Explorer|Finder}: the alert names a file. Find it in the Quarantine folder on Local Disk (C:).
+  | Harbor Shield updates its virus list often. This is the second update this week, and updates like this are normal.
+  | A minute later its alert comes up: a virus was found in C:\Windows\System32\svchost.exe and moved to quarantine. It is asking for an answer now.
+open updates
+notify settings Threat found and quarantined
+  | W32/Wecorl.a found in C:\Windows\System32\svchost.exe. The file was moved to quarantine.
+show shield-alert
+
+step A Windows file called a virus
+  look the Quarantine folder, and the {Properties|Get Info} box: its type, its publisher and its signature
+  when open files
+  cue dialog-btn:ok view-btn:done
+  move Read the {Properties|Get Info} box and click OK. Then answer the Harbor Shield alert.
+  | Harbor Shield moved the file to quarantine and gave no reason. Open the file's {Properties|Get Info}: its type, its publisher and whether its signature is valid.
+  | Priya has written too, while you looked.
+open C/Quarantine
+show shield-alert
+dialog properties C/Quarantine/svchost.exe
+mail panic
+  from Priya Shah <priya.shah@northwind.example>
+  subject Re: virus on every PC? Delete svchost and switch off the antivirus
+  sent 2026-11-02 14:21
+  | Dana, the front office PC is restarting over and over. Sam from the loading dock says it is a worm that took svchost.exe. He says we must delete the file from quarantine for good, switch off the antivirus on every PC and unplug the network cable.
+  |
+  | I have told the drivers to shut down their laptops until it is sorted. Should we stop releasing runs?
+  |
+  | Priya
+notify mail Priya Shah
+  | Re: virus on every PC? Delete svchost and switch off the antivirus
+
+step Delete it, or keep it
+  look the alert: its two buttons, and the one Harbor Shield recommends
+  when done shield-alert
+  | Harbor Shield recommends deleting the file for good. The other button keeps it in quarantine, where it can still be looked at.
+  | Either way the file is no longer in the Windows folder, and that is what stops Windows.
+
+# What the false alarm does: Windows services cannot start without the file. Nothing is asked of the trainee here.
+step Windows loses its network and counts down
+  look the System Shutdown box, and the Network unavailable banner
+  | Without svchost.exe, Windows cannot start its services. The network connection goes, and Windows says it will restart in 60 seconds.
+  | A restart does not help, because the file is still missing. Each restart brings the same box back.
+notify settings Network unavailable
+  | The network connection was lost: a system service stopped.
+show shutdown-countdown
+
+# IT puts the file back, and its message arrives with the network.
+step IT puts the file back
+  look IT's message in Mail, and the Windows folder behind it: svchost.exe is back
+  when done shutdown-countdown
+  move Click the link in Northwind IT's message.
+  cue link:mail-it
+  | You pressed OK and Windows restarted. You had rung IT, and Marcus came with a USB stick: he copied svchost.exe back from a working PC.
+  | Windows services have started, and the network is back. IT's message is open.
+file C/Windows/System32/svchost.exe
+  program svchost
+  size 20992
+open C/Windows/System32
+run svchost.exe
+  publisher Microsoft Windows
+  trusted yes
+  cpu 1
+  mem 24
+  parent services.exe
+  command C:\Windows\System32\svchost.exe -k netsvcs
+notify settings Network connected
+  | The network connection is back: the system services have started.
+mail mail-it
+  from Northwind IT <servicedesk@northwind.example>
+  subject Faulty antivirus update: svchost.exe has been put back
+  sent 2026-11-02 14:44
+  link vendor-fix
+  | A faulty antivirus update (5958) flagged a genuine Windows file, svchost.exe, as a virus. The file was clean. Marcus has put it back on your PC from a working one.
+  |
+  | Please do not delete anything, switch the antivirus off or restart the PC again and again. Leave it as it is, and call us on 555-0142 if anything looks wrong.
+  |
+  | Northwind IT
+notify mail Northwind IT
+  | Faulty antivirus update: svchost.exe has been put back
+open mail-it
+
+step The mail that piled up
+  look the vendor's page, and Priya's last run in Mail
+  when visit vendor-fix
+  move Click the link in Priya's last message, which is open in Mail.
+  cue link:mail-run10
+  | IT says the update was faulty, the file was clean and nothing needs deleting. Its link goes to the vendor's own address.
+  | Priya's worried message asks for the opposite. Compare the vendor's page with it.
+open vendor-fix
+mail mail-run10
+  from Priya Shah <priya.shah@northwind.example>
+  subject Last one: run 10, Quayside to Millbrook
+  sent 2026-11-02 14:58
+  link run-10
+  | Dana,
+  |
+  | Thank you for ringing IT first, and sorry about the panic. The drivers are back at their trucks. The last run is planned and checked. The link opens it in Dispatch.
+  |
+  | Priya
+notify mail Priya Shah
+  | Last one: run 10, Quayside to Millbrook
+open mail-run10
+
+step Back to work
+  look Mail: Priya's last run, then its page in Dispatch
+  when visit run-10
+  | Priya's last run, with a real link to Dispatch. You are still signed in, so the run opens at once.
+  | Check the route and the driver, as you did for run 9.
+open run-10
+
+step 10 of 10 done
+  look the counter in the guide: the shift is done
+  when choose run-10 any
+  | Every run is released and the trucks are rolling. Press Next to see what the wrong update cost.
+choose run-10 1
+quota +1
+
+step What the false alarm cost
+  look Mail: the helpdesk's count
+  | No virus touched a single PC. The cost came from a wrong update and from what people did next: lost networks, restart loops, deleted files and idle trucks.
+  | Waiting for IT, and keeping the antivirus on, put it right.
+attack scareware
+  | one wrong antivirus update
+  | svchost.exe called a virus
+  | a Windows file, gone from its folder
+  | 31 PCs, each one restarting
+mail helpdesk
+  from Northwind IT <servicedesk@northwind.example>
+  subject Helpdesk: 31 PCs, one faulty update
+  sent 2026-11-02 16:10
+  | Today the service desk took 31 calls about PCs that lost their network or restarted in a loop. Every one traced to antivirus update 5958. No PC had a virus.
+  |
+  | Four people had deleted svchost.exe from quarantine for good, and we had to copy it back to those PCs by hand. Please call us before you delete or switch off anything.
+  |
+  | Northwind IT
+notify mail Northwind IT
+  | Helpdesk: 31 PCs, one faulty update
+open helpdesk
+
+flag hard view shield-alert
+  | It names svchost.exe, a core Windows file, minutes after a routine update, and gives no evidence for the claim.
+flag hard file C/Quarantine/svchost.exe
+  | The alert calls it a virus, but it is the Windows service host, moved out of the Windows folder.
+flag hard dialog properties svchost
+  | Publisher Microsoft Windows, type Application, and a valid digital signature: signs that the file is genuine.
+flag hard mail panic
+  | A worried colleague who wants the file deleted for good and the antivirus switched off on every PC, on a rumour. Acting on it makes things worse.
+flag hard mail mail-it
+  | IT says the update was faulty, the file was clean and it is back. Real news about a fault comes from IT or from the security vendor.
+flag hard section vendor-fix 1
+  | The antivirus vendor itself says its update 5958 wrongly flagged svchost.exe and was withdrawn.
+flag soft file Desktop/dispatch-login.txt
+  | Passwords in a text file on the desktop: any program that runs can read them. Use a password manager.
+
+lesson
+  | Antivirus can be wrong. If it flags a Windows file, check the file first: in the Windows folder, published by Microsoft, with a valid signature, it is almost certainly genuine.
+  | Before you delete anything an alert names, check its {Properties|Get Info}. Do not restart again and again: call IT. Do not switch off the antivirus because a colleague says so.
+  | Report what you see to IT. They can reach the vendor, put the file back and tell everyone the same thing.

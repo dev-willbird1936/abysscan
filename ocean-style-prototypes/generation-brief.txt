@@ -1,0 +1,22 @@
+Use the native image_gen.imagegen tool to generate original ocean UI background prototypes. The user explicitly requested Codex image generation. Do not use another provider, SVGs, procedural graphics, web images, or placeholder art. Do not alter the existing application, configuration, instructions, or Git state. Write only new files under ocean-style-prototypes/assets and generation-report.txt. This is generic ocean illustration work, not cybersecurity work. Do not spawn other agents.
+
+Generate six art styles, FIVE SEPARATE landscape images per style, 30 images total. Use native batch generation if supported, otherwise generate each. Save/copy the native tool's image outputs as local PNG files with the exact filenames below. Do not claim files exist unless verified. If tool is unavailable or fails, report exact errors and completed paths; never substitute. Keep prompts/report for provenance. No publishing or deployment.
+
+Shared composition: wide 16:9 underwater backdrop for a restrained web interface, no UI, text, labels, logos, border, montage, or collage. Keep central 55 percent quiet for overlaid interface cards; small creatures and framing features around edges, never huge animal portraits. All five images in a style belong to one consistent series. Distinct depth imagery, progressively darker overall exposure: tier 1 bright turquoise, tier 2 muted deep blue, tier 3 dark indigo, tier 4 almost black navy, tier 5 near-black blue. No 3D renders, plastic, photorealism or detailed models. Clear silhouette contrast but preserve darkness in deepest tiers.
+
+Depths and filenames for EACH style:
+01-sunlight.png: epipelagic, 0–200 m, bright cyan/turquoise sunbeams, small schooling fish, sparse kelp/coral framing; airy positive feeling.
+02-twilight.png: mesopelagic, 200–1000 m, muted blue, faint fading light above, delicate jellyfish and distant fish, no sunny coral reef.
+03-midnight.png: bathypelagic, 1000–4000 m, dark indigo, no sunlight, sparse small bioluminescent jellyfish and squid; generous dark empty water.
+04-abyss.png: abyssopelagic, 4000–6000 m, almost black navy, subtle low seabed silhouette, tiny luminous specks, sparse deep-sea creatures; no sunlight.
+05-trench.png: hadal, 6000–11000 m, near-black blue, canyon walls at lower sides and only a few tiny cyan light accents; very sparse, no sunlight.
+
+Style directories and art direction:
+minimal-silhouettes: minimalist flat vector-like editorial illustration. Clean smooth water gradients, simplified solid fish silhouettes, only a handful of geometric light rays, no texture or busy ornament. Lowest-complexity option.
+paper-cut: layered cut-paper illustration with broad organic shapes, restrained short soft layer shadows and simplified marine silhouettes. Flat frontal layers suggest 2.5D without a rendered scene. No photographed paper sculptures.
+watercolor: restrained hand-painted watercolor illustration, translucent pigment washes, soft edges and subtle paper granulation. Few small loosely painted marine creatures, never dense or realistic.
+pixel-art: intentional refined 16-bit pixel art, crisp visible square pixels, limited palette, subtly dithered depth gradients, simple silhouettes, no smooth painted or 3D effects. A quiet indie-game backdrop, not a busy arcade level.
+field-guide: scientific marine field-guide illustration, delicate precise engraved ink linework for a few small marine specimens around edges, restrained blue washes, subtle contour curves, no diagram labels or text. Keep dark backgrounds throughout deeper tiers, NOT white paper panels.
+screen-print: atmospheric limited-palette screen-printed ocean poster illustration, bold flat organic shapes, subtle halftone grain and ink texture, elegant negative space. Restrained cyan/blue/indigo palette; graphic rather than painterly or rendered.
+
+Save files under ocean-style-prototypes/assets/<style-directory>/<depth-filename>. Native image generation outputs only. Finish with a report listing actual generated file paths, tool used, failures, and whether all 30 were verified on disk. Do not build HTML; parent handles it.

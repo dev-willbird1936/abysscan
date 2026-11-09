@@ -1,0 +1,57 @@
+.up-app {
+  .up-main {
+    padding: 22px 28px;
+    gap: 6px;
+  }
+  .up-hero {
+    gap: 16px;
+    padding: 18px;
+    margin: 12px 0 6px;
+    flex-shrink: 0;
+  }
+  .up-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--oc-sel);
+    color: var(--oc-accent);
+    flex-shrink: 0;
+    svg {
+      width: 26px;
+      height: 26px;
+    }
+    &[data-state="ok"] {
+      color: var(--oc-ok);
+    }
+  }
+  .up-spin {
+    animation: up-spin 1s linear infinite;
+  }
+  .up-item {
+    gap: 14px;
+    padding: 12px 16px;
+    min-height: 62px;
+    flex-shrink: 0;
+    svg {
+      width: 15px;
+    }
+  }
+  .up-section {
+    margin: 14px 0 4px;
+  }
+  .up-hist {
+    padding: 6px 16px 6px 46px;
+    flex-shrink: 0;
+    svg {
+      width: 11px;
+    }
+  }
+}
+@keyframes up-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

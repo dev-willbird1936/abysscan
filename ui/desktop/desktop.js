@@ -11,7 +11,8 @@
     macos: '/previews/macos-final/index.html?oceanShell=1',
   });
   const DEFAULT_SHELL_ORIGIN = 'http://127.0.0.1:4189';
-  const SHELL_ORIGIN_RE = /^http:\/\/127\.0\.0\.1:\d{2,5}$/;
+  // The local shell server's origin, or on the live site a path on this origin (/s/<token>) the app serves the shells from.
+  const SHELL_ORIGIN_RE = /^(?:http:\/\/127\.0\.0\.1:\d{2,5}|\/s\/[A-Za-z0-9_-]{16,64})$/;
   const DEPTH_IDS = Object.freeze(['sunlight', 'twilight', 'midnight', 'abyss', 'trench']);
   const WORLD_VERSION = 3;
   const CREATURE_MAX_BYTES = 1_500_000;
@@ -55,15 +56,23 @@
     sandboxRun: 'none',
     sandboxSignature: 'null',
     sandboxListeners: new Set(),
+    replayEvents: [],
+    // The step-by-step guide of a fish run (/api/desktop/guide): at -1 before sign-in, 0 the introduction, 1..n the steps
+    // applied so far, n + 1 the end. base is the world right after sign-in, which Back rebuilds from.
+    // followed: the trainee's own gesture played the step; note: what the guide says about a gesture it did not expect.
+    guide: { data: null, at: -1, base: null, hidden: false, frames: [], fx: null, followed: false, note: null },
+    // Effects (QUESTS.md §5): none is what a real OS does (its own sounds only); low and high add game feel.
+    effects: (() => { try { return ['none', 'low', 'high'].includes(localStorage.getItem('ocean-fx')) ? localStorage.getItem('ocean-fx') : 'low'; } catch { return 'low'; } })(),
   };
   const dom = Object.fromEntries([
     'ocean-stage', 'template-shell-host', 'windows-shell-frame', 'macos-shell-frame', 'ocean-status',
     'ocean-fx-layer', 'ocean-fx-caption', 'ocean-hint', 'ocean-debrief', 'ocean-showed', 'ocean-intro', 'intro-title', 'intro-line', 'intro-next',
-    'intro-dismiss', 'ocean-brief',
+    'intro-dismiss', 'ocean-brief', 'ocean-guide', 'guide-eyebrow', 'guide-count', 'guide-hide', 'guide-title', 'guide-step', 'guide-activity', 'guide-dots',
+    'guide-back', 'guide-next', 'guide-all', 'ocean-guide-toggle', 'gate-points', 'gate-back', 'ocean-exit',
     'ocean-unavailable', 'unavailable-title', 'unavailable-detail', 'unavailable-proof',
     'ocean-gate', 'gate-title', 'gate-summary', 'gate-mode', 'gate-opt-in', 'gate-enter',
     'ocean-chrome', 'os-windows', 'os-macos', 'ocean-chip', 'ocean-chip-detail', 'ocean-chip-creature',
-    'ocean-proof-link', 'ocean-restart', 'screen-reader-announcer',
+    'ocean-proof-link', 'ocean-restart', 'screen-reader-announcer', 'ocean-fx-toggle', 'guide-hud',
   ].map(id => [id, document.getElementById(id)]));
 
   class ApiError extends Error {
@@ -262,11 +271,15 @@
     // A scenario scene shows the profile's creature in the wallpaper and starts on the OS its real victim used.
     if (state.scene.attackKind) state.scene.creature = { family: profile.familyId, depth: profile.depthId, sprite: profile.assetUrl };
     if (state.scene.os) state.osMode = state.scene.os;
+    // A replay can start on the OS its victim used (?os=windows|macos, from the ocean's creature panel).
+    const replayOs = new URLSearchParams(window.location.search).get('os');
+    if (state.replay && (replayOs === 'windows' || replayOs === 'macos')) state.osMode = replayOs;
     state.baseWorld = await loadWorld(profile);
     if (!state.baseWorld) {
       showUnavailable('The desktop world did not load', 'The local server did not return a valid desktop world, so no desktop is started. Restart the local server, then reload.');
       return;
     }
+    if (state.replay) await loadGuide();
     state.optedIn = readOptIn(profile.id);
     state.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     state.desk = window.OceanDesktopModel.createState(profile, state.scene, { reducedMotion: state.reducedMotion });
@@ -286,7 +299,8 @@
     }
     state.creatureSrc = await creature;
     state.shellsReady = true;
-    subscribeWorldEvents();
+    // A fish with a guide plays step by step; every other replay streams its events.
+    if (!state.guide.data) subscribeWorldEvents();
     // Both shells start from the same world; afterwards only the visible one is kept current.
     for (const os of ['windows', 'macos']) {
       postToShell(os, worldMessage());
@@ -296,6 +310,7 @@
     dom['ocean-status'].hidden = true;
     dom['ocean-chrome'].hidden = !state.optedIn;
     syncBrief();
+    renderGuide();
     document.body.dataset.sessionState = 'profile-scene';
     document.body.dataset.auth = state.desk.auth;
     if (state.optedIn) announce(`${profile.creature} desktop ready at ${profile.depth}. This is a fictional local training simulation. ${AUTH_ANNOUNCEMENTS.locked}`);
@@ -320,14 +335,52 @@
       ? 'Open the separate local OAuth consent exercise.'
       : 'Open the gated OAuth worker proof. It needs its own explicit opt-ins.';
     dom['ocean-proof-link'].href = PROOF_URL;
+    // A replay comes from the ocean: back there, or nothing when it is shown inside the ocean's creature panel (it has Close).
+    if (state.replay) {
+      const embedded = window.top !== window.self;
+      for (const link of [dom['gate-back'], dom['ocean-exit']]) {
+        link.hidden = embedded;
+        link.href = '/';
+      }
+      dom['gate-back'].textContent = 'Back to the ocean';
+    }
   }
+
+  // What a replay's gate says: a fish is a guided illustration, a job replay is the sandbox's evidence. The scenario wording in
+  // index.html (lure, choice, creature animation) does not apply to either.
+  const REPLAY_POINTS = Object.freeze({
+    fish: (name, user = 'Dana Okafor', quest = false) => (quest ? [
+      // A quest (QUESTS.md): the trainee plays the victim's working day.
+      ['What happens.', `You are ${user} at work. Do your tasks as usual; somewhere in them is ${name}. The guide (bottom left) always says what to do next and follows what you do.`],
+      ['Flag what looks wrong.', 'Hover over anything on the desktop and click its flag. The last card shows which flags were right, and why.'],
+      ['You stay in control.', 'Press Next to skip a step, Back to undo one, or switch between Windows and macOS. Effects (top right) turns game sounds and highlights off, low or high.'],
+      ['A training scenario.', 'Based on what really happened, with made-up people, banks and details. Nothing on this desktop is real, and it has no network.'],
+    ] : [
+      ['What happens.', `You sign in as ${user}, a pretend office worker. A guide then plays what ${name} did, one step at a time, and says where to look. Do the steps yourself, or press Next.`],
+      ['You stay in control.', 'Go back a step, show it all at once, hide the guide, restart, or switch between Windows and macOS. The desktop is the same on both.'],
+      ['An illustration.', 'A simplified retelling, not a recording. Nothing on this desktop is real, and it has no network.'],
+    ]),
+    job: () => [
+      ['What happens.', 'You sign in as Dana Okafor, a pretend user. What the file did in the sandbox then appears on her desktop: files it changed, programs it started and connections it tried.'],
+      ['You stay in control.', 'Restart, or switch between Windows and macOS at any time. The desktop is the same on both.'],
+    ],
+  });
 
   function openGate(profile) {
     const gate = dom['ocean-gate'];
-    dom['gate-title'].textContent = state.replay ? 'Enter the replay desktop' : `Enter the ${profile.creature} desktop`;
-    dom['gate-summary'].textContent = state.replay
-      ? 'A fictional desktop that replays what the uploaded file did in the sandbox. Nothing on it is real.'
-      : `${profile.family} · ${profile.depth}. Inspired by ${anchorLabel(profile)}: ${profile.anchor.victimAction}.`;
+    const fish = state.guide.data;
+    dom['gate-title'].textContent = fish?.story ? `Play ${fish.name}` : fish ? `Watch ${fish.name}, step by step` : state.replay ? 'Enter the replay desktop' : `Enter the ${profile.creature} desktop`;
+    dom['gate-summary'].textContent = fish ? String(fish.about).replace(/\n/g, ' ')
+      : state.replay ? 'A fictional desktop that replays what the uploaded file did in the sandbox. Nothing on it is real.'
+        : `${profile.family} · ${profile.depth}. Inspired by ${anchorLabel(profile)}: ${profile.anchor.victimAction}.`;
+    if (state.replay) {
+      dom['gate-points'].replaceChildren(...REPLAY_POINTS[fish ? 'fish' : 'job'](fish?.name, state.baseWorld?.user?.name, Boolean(fish?.story)).map(([lead, text]) => {
+        const item = element('li');
+        item.append(element('strong', '', lead), ` ${text}`);
+        return item;
+      }));
+      dom['gate-enter'].textContent = fish ? 'Start' : 'Enter the desktop';
+    }
     dom['gate-mode'].textContent = state.profileSimulationEnabled
       ? 'Runs entirely in this browser tab against the local server.'
       : `Local simulation only: this server is in ${state.profileExecutionMode} mode and no in-process session or cloud worker is used.`;
@@ -347,6 +400,7 @@
     dom['ocean-gate'].hidden = true;
     dom['template-shell-host'].inert = false;
     renderShowed();
+    renderGuide();
     if (state.shellsReady) {
       dom['ocean-chrome'].hidden = false;
       dom['os-' + state.osMode].focus({ preventScroll: true });
@@ -383,15 +437,105 @@
 
   // One push per task to the visible shell, however many changes the task made.
   function setWorld(world) {
+    const before = state.world;
+    world = decorate(world);
     state.world = world;
+    if (before && world.phase === 'desktop') worldSounds(before, world);
     notifySandbox();
     renderShowed();
+    renderActivity();
     if (!state.shellsReady || state.pushQueued) return;
     state.pushQueued = true;
     queueMicrotask(() => {
       state.pushQueued = false;
       postToShell(state.osMode, worldMessage());
     });
+  }
+
+  // What the guide adds to the world the shells draw: the cue (the next thing to click, glowed on screen) and the effects
+  // level. Both are presentation: a refused or stale cue only means nothing glows.
+  function decorate(world) {
+    // Only a guided fish has a cue; the scenario scenes keep their own highlight model untouched.
+    if (!state.guide.data) return world;
+    const cue = state.optedIn && world.phase === 'desktop' ? cueNow(world) : [];
+    const scene = { ...world.scene, cue: cue.length ? cue : null, fx: state.effects };
+    if (JSON.stringify(scene) === JSON.stringify(world.scene)) return world;
+    const next = { ...world, scene };
+    return window.OceanWorldModel.validate(next).ok ? next : world;
+  }
+
+  // The keys to glow for the guide's next move, most specific first (the shell glows the first one on screen).
+  function cueNow(world) {
+    const { guide } = state;
+    if (!guide.data || guide.at < 0 || guide.note) return [];
+    const step = guide.data.steps[guide.at - 1];
+    if (step?.cue) return step.cue;
+    const when = guide.data.steps[guide.at]?.when;
+    if (!when) return [];
+    const mails = world.data.mail.messages;
+    if (when.kind === 'mail') return [`mail:${when.ref}`, 'app:mail'];
+    if (when.kind === 'visit') {
+      const message = mails.find(item => item.link === `scene:${when.ref}`);
+      if (message) return [`link:${message.id}`, `mail:${message.id}`, 'app:mail'];
+      // A page on the favourites bar: glow its favourite (fav:<page>), then the browser that shows the bar.
+      const fav = (world.data.web?.favorites ?? []).some(item => item.url === `scene:${when.ref}`);
+      return fav ? [`fav:${when.ref}`, 'app:browser'] : ['app:browser'];
+    }
+    if (when.kind === 'choose') {
+      const pid = when.ref.replace(/-(\d+|\*)$/, '');
+      const page = world.data.web?.pages?.[pid];
+      if (!page) return [];
+      const M = window.OceanWorldModel;
+      const typed = M.typedOf(world, pid);
+      const empty = M.pageFields(page).findIndex((field, at) => typed[at] < field.value.length);
+      const choice = when.ref.endsWith('-*') ? page.choices[0]?.choiceId : when.ref;
+      return [...(empty >= 0 ? [`field:${pid}:${empty}`] : []), ...(choice ? [`choice:${choice}`] : []), 'app:browser'];
+    }
+    if (when.kind === 'prompt' || when.kind === 'detected') {
+      const node = Object.values(world.fs.nodes).find(item => item && !item.trashed && item.program === when.ref);
+      const message = node && mails.find(item => item.attachments.includes(node.id));
+      return node ? [`file:${node.id}`, ...(message ? [`mail:${message.id}`, 'app:mail'] : ['app:files'])] : [];
+    }
+    // A program runs from its warning's Run button, or from a window's button that runs it (Enable Content, an installer).
+    if (when.kind === 'run') return ['dialog-btn:run', 'dialog-btn:ok', ...(when.ref ? [`view-btn:run:${when.ref}`] : [])];
+    if (when.kind === 'cancel') return ['dialog-btn:cancel'];
+    if (when.kind === 'remove') return ['dialog-btn:trash'];
+    if (when.kind === 'open') return [`app:${when.ref.split(':')[0]}`];
+    if (when.kind === 'page' || when.kind === 'done') {
+      // The button on the window's current page that does it (a wizard's Next or Finish, an Office bar's button); else the window.
+      const win = world.windows.find(item => item.app === 'program' && item.payload?.view === when.ref);
+      const view = world.data.views?.[when.ref];
+      const page = view?.pages?.length ? view.pages[win?.payload?.page ?? 0] : view;
+      const actions = [...(page?.buttons ?? []).map(button => button.action), page?.bar?.action].filter(Boolean);
+      const wanted = when.kind === 'done' ? ['done'] : ['next', `page:${when.page}`];
+      const hit = actions.find(action => wanted.includes(action)) ?? (view?.layout === 'wizard' && !page?.buttons?.length ? wanted[0] : null);
+      return [...(hit ? [`view-btn:${hit}`] : []), `view:${when.ref}`];
+    }
+    return [];
+  }
+
+  // Sounds for what just changed. OS sounds play at every effects level (they are what the OS does); game cues only at low
+  // and high. Played by the parent for the OS on screen, so the hidden shell stays quiet.
+  function worldSounds(before, after) {
+    const UI = window.OceanProgramUI;
+    if (!UI?.sound) return;
+    const opts = { os: state.osMode, volume: after.sys.volume, muted: after.sys.muted };
+    const game = state.effects !== 'none';
+    const seen = new Set(before.notifications.banners.map(item => item.id));
+    const fresh = after.notifications.banners.filter(item => !seen.has(item.id));
+    if (fresh.length) UI.sound(fresh.some(item => item.app === 'mail') ? 'mail' : 'notify', opts);
+    const had = new Set((before.dialogs ?? []).map(item => item.id));
+    const dialog = (after.dialogs ?? []).find(item => !had.has(item.id));
+    if (dialog) UI.sound(dialog.kind === 'detected' || dialog.kind === 'cant-open' ? 'error' : dialog.kind === 'elevation' ? 'uac' : 'alert', opts);
+    const trashed = node => node?.trashed;
+    if (Object.entries(after.fs.nodes).some(([id, node]) => trashed(node) && before.fs.nodes[id] && !trashed(before.fs.nodes[id]))) UI.sound('trash', opts);
+    if (!game) return;
+    const flags = list => list?.length ?? 0;
+    if (flags(after.data.flags) > flags(before.data.flags)) UI.sound('flag', opts);
+    else if (flags(after.data.flags) < flags(before.data.flags)) UI.sound('unflag', opts);
+    if ((after.data.quota?.done ?? 0) > (before.data.quota?.done ?? 0)) { UI.sound('task', opts); popHud(); }
+    const typed = world => Object.values(world.data.web?.typed ?? {}).flat().reduce((a, b) => a + b, 0);
+    if (typed(after) > typed(before)) UI.sound((after.data.net?.sent ?? 0) > (before.data.net?.sent ?? 0) ? 'leak' : 'type', { ...opts, pitch: 0.94 + Math.random() * 0.12 });
   }
 
   // The time stamped on scene content. A scenario with a `date` starts its clock there and runs in real time (so a 2010 lure
@@ -444,6 +588,7 @@
     const world = applyWorldIntents(projected.world, projected.intents);
     if (world !== state.world) setWorld(world);
     syncIntro(previous);
+    syncGuide(previous);
     renderHint();
     renderDebrief();
     syncEffect();
@@ -480,6 +625,8 @@
     state.world = { ...clone(state.baseWorld), revision: state.world.revision + 1 };
     adoptDesk(window.OceanDesktopModel.restart(state.desk));
     setWorld(state.world);
+    // A streamed replay is not sent again: re-apply what arrived. (A guided fish replays from its guide at sign-in.)
+    for (const event of state.replayEvents) applyStreamEvent(event);
     announce(`Restarting the training scene. ${AUTH_ANNOUNCEMENTS.locked}`);
   }
 
@@ -517,6 +664,445 @@
     syncBrief();
     if (state.desk.auth !== 'desktop') dom['ocean-intro'].hidden = true;
     else if (previous.auth !== 'desktop') openIntro();
+  }
+
+  // ---- the step-by-step guide (fish runs from the ocean's creature panel) --------------------------------------------
+
+  async function loadGuide() {
+    const run = pageRunId();
+    const authored = run.startsWith('author-');
+    if (!run.startsWith('fish-') && !authored) return;
+    try {
+      const data = await request(`/api/desktop/guide?run=${run}`);
+      if (isRecord(data) && boundedText(data.name) && Array.isArray(data.steps) && data.steps.length) {
+        if (authored) {
+          if (!window.OceanWorldModel.validate(data.initialWorld).ok || data.initialWorld.phase !== 'lock') return;
+          state.baseWorld = clone(data.initialWorld);
+        }
+        state.guide.data = data;
+      }
+    } catch {
+      // No guide: the run streams its events like any replay.
+    }
+    if (!state.guide.data) return;
+    dom['ocean-chip-detail'].textContent = `${state.guide.data.name} · ${state.guide.data.story ? 'training scenario' : 'illustration'}`;
+    litCreatureFrames(state.guide.data.creature?.sprite);
+  }
+
+  // The fish's creature, lit with its normal map (pixel sprites are always lit): one data URL per frame of its sheet, which
+  // is a row of square frames. The attack animation shows frame 0 and the guide cycles the rest.
+  async function litCreatureFrames(sprite) {
+    if (typeof sprite !== 'string' || !/^\/ui\/abyss\/pixel\/[a-z0-9/_-]+\.png$/.test(sprite) || !window.PixelLit) return;
+    try {
+      const sheet = await window.PixelLit.sheet(sprite);
+      const count = Math.max(1, Math.min(32, Math.round(sheet.w / sheet.h)));
+      state.guide.frames = Array.from({ length: count }, (_, f) => window.PixelLit.relight(sheet, f * sheet.h, 0, sheet.h, sheet.h, sheet.h, sheet.h).toDataURL('image/png'));
+    } catch {
+      // No creature: the animation draws its own pixel fish.
+    }
+  }
+
+  // A step with an attack plays the creature's animation (OceanFx.playAttack) over the desktop. Its beats come from the scene,
+  // one at a time, through the animation's sandbox feed; the badge says "simulated". Any other move of the guide stops it.
+  const BEAT_START_MS = 2600;
+  const BEAT_MS = 1100;
+  function stopGuideAttack() {
+    const fx = state.guide.fx;
+    if (!fx) return;
+    state.guide.fx = null;
+    fx.timers.forEach(clearTimeout);
+    clearInterval(fx.frameTimer);
+    try { fx.run?.stop?.(); } catch { /* A broken animation must not block the guide. */ }
+    dom['ocean-fx-layer'].replaceChildren();
+    dom['ocean-fx-caption'].hidden = true;
+    document.body.classList.remove('guide-attack');
+  }
+
+  // What a keylogger took (data.captured), as the animation's account cards: the value on the card, the field under it.
+  // The most damaging first: passwords, card numbers and PINs.
+  // Attacks whose theft is what the trainee typed or their account: a phishing form, a hijacked sign-in.
+  const STEALS_SIGN_IN = ['credential-phish', 'mfa-fatigue', 'oauth-consent', 'account-takeover-post', 'sim-swap', 'money-transfer', 'wallet-drain'];
+  const filledForm = world => Object.values(world?.data.web?.typed ?? {}).some(counts => counts.some(n => n > 0));
+
+  // What the attack takes, in the trainee's own details: what a keylogger captured; for an attack that steals a sign-in,
+  // every box they filled in on a page, else their own address. Never the animation's sample names.
+  function stolenTargets(kind) {
+    const world = state.world;
+    const M = window.OceanWorldModel;
+    let taken = world.data.captured ?? [];
+    if (!STEALS_SIGN_IN.includes(kind)) taken = taken.length ? taken : [];
+    else if (!taken.length && M?.pageFields) {
+      taken = Object.entries(world.data.web?.pages ?? {}).flatMap(([pid, page]) => {
+        const typed = M.typedOf(world, pid);
+        return M.pageFields(page).filter((field, at) => typed[at] >= field.value.length).map(field => ({ label: field.label, value: field.value }));
+      });
+    }
+    if (!taken.length && STEALS_SIGN_IN.includes(kind) && world.user?.email) taken = [{ label: 'Your account', value: world.user.email }];
+    const rank = item => (/pass|pin|card|cvv|security|maiden|code/i.test(item.label) ? 0 : 1);
+    return [...taken].sort((a, b) => rank(a) - rank(b)).slice(0, 3)
+      .flatMap(item => [{ label: item.value, kind: 'account' }, { label: item.label, kind: 'secret' }]);
+  }
+
+  function playGuideAttack(step) {
+    stopGuideAttack();
+    const attack = step?.attack;
+    if (!attack || typeof window.OceanFx?.playAttack !== 'function') return;
+    const { frames } = state.guide;
+    // {captured}: one beat per thing the keylogger took, in the trainee's own words (what they typed).
+    const captured = (state.world.data.captured ?? []).map(item => `${item.label}: ${item.value}`.slice(0, 60));
+    const beats = (attack.beats.length ? attack.beats : [step.title]).flatMap(line => (line === '{captured}' ? captured : [line])).slice(0, 8);
+    if (state.effects !== 'none') window.OceanProgramUI?.sound('threat', { os: state.osMode, volume: state.world.sys.volume, muted: state.world.sys.muted });
+    if (state.effects === 'high' && !state.reducedMotion) dom['ocean-stage'].animate([{ transform: 'translate(0,0)' }, { transform: 'translate(-6px,3px)' }, { transform: 'translate(5px,-4px)' }, { transform: 'translate(-3px,2px)' }, { transform: 'translate(0,0)' }], { duration: 380, easing: 'ease-out' });
+    const sandbox = { mode: 'simulated', status: 'running', events: [] };
+    const listeners = new Set();
+    const fx = { run: null, timers: [], frameTimer: null };
+    state.guide.fx = fx;
+    const push = event => {
+      sandbox.events = [...sandbox.events, { seq: sandbox.events.length + 1, ...event }];
+      for (const listener of listeners) listener(clone(sandbox));
+    };
+    beats.forEach((label, n) => fx.timers.push(setTimeout(() => push({ kind: 'beat', label, count: n + 1, total: beats.length }), BEAT_START_MS + n * BEAT_MS)));
+    fx.timers.push(setTimeout(() => {
+      sandbox.status = 'done';
+      push({ kind: 'summary', label: beats.at(-1), count: beats.length, total: beats.length });
+    }, BEAT_START_MS + beats.length * BEAT_MS));
+    const creature = state.guide.data.creature;
+    // A quest names the malware; "what you typed" only when a keylogger or a filled form really took the trainee's typing.
+    const typed = (state.world?.data.captured ?? []).length > 0 || (STEALS_SIGN_IN.includes(attack.kind) && filledForm(state.world));
+    dom['ocean-fx-caption'].textContent = state.guide.data.story ? `${state.guide.data.name} ${typed ? 'takes what you typed' : 'strikes'}` : creature ? `The ${creature.name.toLowerCase()} attacks` : step.title;
+    dom['ocean-fx-caption'].hidden = false;
+    // Beside the guide card, not under it (desktop.css body.guide-attack).
+    document.body.classList.toggle('guide-attack', !dom['ocean-guide'].hidden);
+    try {
+      fx.run = window.OceanFx.playAttack({
+        attackKind: attack.kind,
+        creature: { sprite: frames[0] ?? null },
+        container: dom['ocean-fx-layer'],
+        // The windows on screen now, so the creature goes for what the trainee is looking at.
+        targets: [...windowTargetRects().slice(0, 4).map((rect, n) => ({ label: beats[n] ?? step.title, kind: 'window', rect })), ...stolenTargets(attack.kind)],
+        reducedMotion: state.reducedMotion,
+        timeoutMs: BEAT_START_MS + (beats.length + 4) * BEAT_MS,
+        getSandbox: () => clone(sandbox),
+        subscribe: listener => {
+          listeners.add(listener);
+          return () => listeners.delete(listener);
+        },
+        onDone: () => { if (state.guide.fx === fx) stopGuideAttack(); },
+      });
+    } catch {
+      stopGuideAttack();
+      return;
+    }
+    // The creature swims while it attacks: cycle its lit frames on the animation's sprite.
+    if (frames.length > 1 && !state.reducedMotion) {
+      let frame = 0;
+      fx.frameTimer = setInterval(() => {
+        const img = dom['ocean-fx-layer'].querySelector('[data-ocean-fx] img');
+        if (img) img.src = frames[frame = (frame + 1) % frames.length];
+      }, 110);
+    }
+  }
+
+  // A step's patch carries only its new banners; the ones still on screen stay.
+  function withBanners(patch, banners) {
+    if (!patch?.notifications) return patch;
+    // A step the trainee played themselves already raised some of these banners: one copy each.
+    const fresh = new Set(patch.notifications.banners.map(item => item.id));
+    return { ...patch, notifications: { ...patch.notifications, banners: [...banners.filter(item => !fresh.has(item.id)), ...patch.notifications.banners].slice(-8) } };
+  }
+
+  function applyGuidePatch(patch) {
+    if (!patch || !Object.keys(patch).length) return;
+    const result = patchWorld(withBanners(patch, state.world.notifications.banners));
+    if (!result.ok) console.warn(`Guide step refused: ${result.error}`);
+  }
+
+  // Sign-in plays the setup and opens the introduction; locking again (Restart) goes back to the sign-in card.
+  function syncGuide(previous) {
+    const { guide } = state;
+    if (!guide.data) return;
+    if (state.desk.auth === 'desktop' && previous.auth !== 'desktop') {
+      applyGuidePatch(guide.data.setup);
+      guide.base = clone(state.world);
+      guide.at = 0;
+    } else if (state.desk.auth !== 'desktop') {
+      stopGuideAttack();
+      guide.at = -1;
+    }
+    renderGuide();
+  }
+
+  function guideGo(target, followed = false) {
+    const { guide } = state;
+    const steps = guide.data.steps;
+    const to = Math.max(0, Math.min(target, steps.length + 1));
+    if (guide.at < 0 || to === guide.at) return;
+    stopGuideAttack();
+    guide.followed = followed;
+    guide.note = null;
+    // The step's attack plays whenever the guide moves on to it, by Next or by the trainee's own gesture.
+    const oneForward = to > guide.at;
+    if (to > guide.at) {
+      for (let k = guide.at + 1; k <= Math.min(to, steps.length); k++) applyGuidePatch(steps[k - 1].patch);
+    } else {
+      // Back: the world after sign-in plus steps 1..to; only the last of them shows its banners again.
+      let world = guide.base;
+      try {
+        for (let k = 1; k <= to; k++) world = window.OceanWorldModel.createWorld(world, withBanners(steps[k - 1].patch, k === to ? world.notifications.banners : []));
+        // The trainee's flags are theirs: Back does not take them away.
+        setWorld({ ...world, data: { ...world.data, ...(state.world.data.flags ? { flags: state.world.data.flags } : {}) }, revision: state.world.revision + 1 });
+      } catch (error) {
+        console.warn(`Guide step refused: ${error.message}`);
+      }
+    }
+    guide.at = to;
+    renderGuide();
+    const step = steps[to - 1];
+    if (oneForward && step) playGuideAttack(step);
+    announce(to === 0 ? `Back to the start of ${guide.data.name}.` : step ? `Step ${to} of ${steps.length}: ${step.title}. ${step.text}` : `End of the guide. ${guide.data.lesson}`);
+  }
+
+  function setGuideHidden(hidden) {
+    state.guide.hidden = hidden;
+    renderGuide();
+    (hidden ? dom['ocean-guide-toggle'] : dom['guide-next']).focus({ preventScroll: true });
+  }
+
+  // Guide text may say a thing each OS's way: {Task Manager|Activity Monitor} reads "Task Manager" on Windows and
+  // "Activity Monitor" on macOS (FISH-SCENES.md). Resolved once per OS for every string the guide shows.
+  const OS_CHOICE = /\{([^{}|\n]*)\|([^{}|\n]*)\}/g;
+  function guideFor(data, os) {
+    if (!data) return data;
+    if (data.__os?.os === os && data.__os.from === data) return data.__os.text;
+    const pick = value => (typeof value === 'string' ? value.replace(OS_CHOICE, (_, win, mac) => (os === 'macos' ? mac : win))
+      : Array.isArray(value) ? value.map(pick) : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([k, v]) => [k, pick(v)])) : value);
+    const text = pick(data);
+    Object.defineProperty(data, '__os', { value: { os, from: data, text }, configurable: true });
+    return text;
+  }
+
+  function renderGuide() {
+    const { guide } = state;
+    const data = guideFor(guide.data, state.osMode);
+    const toggle = dom['ocean-guide-toggle'];
+    toggle.hidden = !data;
+    if (!data) return;
+    const visible = state.optedIn && state.shellsReady && !guide.hidden;
+    dom['ocean-guide'].hidden = !visible;
+    toggle.setAttribute('aria-expanded', String(visible));
+    const n = data.steps.length;
+    toggle.textContent = guide.at > 0 && guide.at <= n ? `Guide ${guide.at}/${n}` : 'Guide';
+    if (!visible) return;
+    const at = guide.at;
+    const step = at >= 1 && at <= n ? data.steps[at - 1] : null;
+    const paragraphs = text => String(text ?? '').split('\n').filter(Boolean).map(line => element('p', '', line));
+    dom['guide-eyebrow'].textContent = data.name;
+    dom['guide-count'].textContent = step ? `· Step ${at} of ${n}` : at === 0 ? `· ${n} steps` : '';
+    let title;
+    let body = [];
+    let look = '';
+    if (at < 0) {
+      title = 'Sign in to start';
+      const user = state.world?.user?.name || 'the training user';
+      body = paragraphs(state.osMode === 'macos'
+        ? `Click "Click to log in" on the lock screen. You are ${user}, a fictional user; no password is needed.`
+        : `Click the lock screen, then Sign in. You are ${user}, a fictional user; no password is needed.`);
+    } else if (at === 0 && data.story) {
+      // A quest (QUESTS.md §1): who you are and what you were doing, then the game rule: flag what looks wrong.
+      title = `${state.world?.user?.name ?? 'You'}: ${data.name}`;
+      body = [...paragraphs(data.story), element('p', 'guide-flag-rule', `Hover over anything on the desktop and click the flag to mark what looks suspicious. At the end you see which flags were right.`)];
+      look = 'Press Start when you are ready.';
+    } else if (at === 0) {
+      title = `What ${data.name} did`;
+      body = paragraphs(data.about);
+      look = 'Press Start to play it, one step at a time.';
+    } else if (step) {
+      title = step.title;
+      body = paragraphs(step.text);
+      look = step.look;
+    } else if (data.flags?.length) {
+      title = 'How did you do?';
+      body = [...gradeNodes(data, state.world), element('p', 'guide-lesson-head', 'How to stay safe'), ...paragraphs(data.lesson)];
+      look = '';
+    } else {
+      title = data.lesson ? 'How to stay safe' : 'That is the whole illustration';
+      body = paragraphs(data.lesson);
+      look = `Everything ${data.name} did is now on the desktop. Look around, or switch to ${state.osMode === 'windows' ? 'macOS' : 'Windows'}: it is the same desktop.`;
+    }
+    dom['guide-title'].textContent = title;
+    if (look) {
+      const note = element('p', 'guide-look');
+      if (step) note.append(element('b', '', 'Look at:'), ` ${look}`);
+      else note.textContent = look;
+      body.push(note);
+    }
+    // Your move: what plays the next step, so the trainee can do it on the desktop instead of pressing Next. While a note
+    // about an off-path gesture shows, the note says how to carry on (the old move may point at a closed warning).
+    if (step && !guide.note) {
+      const move = element('p', 'guide-move');
+      const hint = step.next?.[state.osMode];
+      const following = data.steps[at];
+      if (hint) move.append(element('b', '', 'Your move:'), ` ${hint} `, /press Next\.$/.test(hint) ? '' : element('span', 'guide-or', 'Or press Next.'));
+      else if (following) move.append(element('b', '', 'Next:'), ` ${following.title}. Nothing for you to click: it happens by itself. Press Next to see it.`);
+      else move.append(element('b', '', 'Last step.'), ' Press Finish for how to stay safe.');
+      body.push(move);
+    }
+    if (guide.followed && step) body.unshift(element('p', 'guide-followed', 'You did this step yourself.'));
+    if (guide.note) body.push(element('p', 'guide-note', guide.note));
+    dom['guide-step'].replaceChildren(...body);
+    renderHud();
+    renderActivity();
+    // The cue follows the guide: re-decorate the world the shells draw.
+    if (state.world) setWorld(state.world);
+    dom['guide-dots'].replaceChildren(...data.steps.map((_, k) => element('li', k < at ? 'done' : '')));
+    dom['guide-dots'].hidden = at < 0;
+    dom['guide-back'].hidden = at <= 0;
+    dom['guide-next'].hidden = at < 0;
+    dom['guide-next'].textContent = at === 0 ? 'Start' : at === n ? 'Finish' : at > n ? 'Play again' : 'Next';
+    dom['guide-all'].hidden = at < 0 || at >= n;
+  }
+
+  // The shift's counter (data.quota) and the trainee's flags, above the step.
+  function renderHud() {
+    const hud = dom['guide-hud'];
+    if (!hud) return;
+    const quota = state.world?.data.quota;
+    const flags = state.world?.data.flags?.length ?? 0;
+    const show = state.guide.at >= 0 && (quota || state.guide.data?.flags?.length);
+    hud.hidden = !show;
+    if (!show) return;
+    const parts = [];
+    if (quota) {
+      const bar = element('span', 'hud-bar');
+      const fill = element('span', 'hud-fill');
+      fill.style.width = `${Math.round((quota.done / quota.total) * 100)}%`;
+      bar.append(fill);
+      parts.push(element('span', 'hud-label', quota.label), element('b', 'hud-count', `${quota.done} / ${quota.total}`), bar);
+    }
+    if (state.guide.data?.flags?.length) parts.push(element('span', 'hud-flags', `⚑ ${flags} flagged`));
+    hud.replaceChildren(...parts);
+  }
+  // Juice for a finished task (Game Polish: satisfying_level_up_and_xp_bar, resource_bar_state_readability): the count pops.
+  function popHud() {
+    const count = dom['guide-hud']?.querySelector('.hud-count');
+    if (!count || state.reducedMotion) return;
+    requestAnimationFrame(() => dom['guide-hud'].querySelector('.hud-count')?.animate([{ transform: 'scale(1)' }, { transform: `scale(${state.effects === 'high' ? 1.45 : 1.2})`, color: '#7ee787' }, { transform: 'scale(1)' }], { duration: state.effects === 'high' ? 420 : 260, easing: 'cubic-bezier(.2,1.6,.4,1)' }));
+    if (state.effects === 'high') dom['guide-hud'].animate([{ boxShadow: '0 0 0 0 rgba(126,231,135,.8)' }, { boxShadow: '0 0 0 10px rgba(126,231,135,0)' }], { duration: 500 });
+  }
+
+  // The end card (QUESTS.md §2): every hard flag found or missed, with why; soft flags as a bonus; anything else flagged.
+  function gradeNodes(data, world) {
+    const mine = new Map((world?.data.flags ?? []).map(item => [item.key, item]));
+    const known = new Set(data.flags.map(item => item.key));
+    // A box on a graded page (its adverts, a form) that is not graded itself counts for the page: the trainee spotted the page.
+    for (const item of [...mine.values()]) {
+      const page = /^section:(.+):\d+$/.exec(item.key)?.[1];
+      if (page && !known.has(item.key) && known.has(`page:${page}`) && !mine.has(`page:${page}`)) mine.set(`page:${page}`, item);
+    }
+    const hard = data.flags.filter(item => item.hard);
+    const soft = data.flags.filter(item => !item.hard);
+    const found = hard.filter(item => mine.has(item.key));
+    const extra = [...new Set(mine.values())].filter(item => !known.has(item.key) && !data.flags.some(flag => mine.get(flag.key) === item));
+    const score = element('div', 'grade-score');
+    const big = element('b', 'grade-big', `${found.length} / ${hard.length}`);
+    score.append(big, element('span', '', ` ${data.spotted ?? 'signs of the attack spotted'}${soft.some(item => mine.has(item.key)) ? `, plus ${soft.filter(item => mine.has(item.key)).length} bonus` : ''}`));
+    // A found sign shows its name (the reason on hover); a missed one spells out why, so the lesson below stays in view.
+    const row = (item, ok, cls) => {
+      const li = element('li', cls);
+      li.append(element('span', 'grade-mark', ok ? '✓' : '✗'), element('b', '', item.label), item.why && !ok ? element('span', 'grade-why', item.why) : '');
+      if (item.why && ok) li.title = item.why;
+      return li;
+    };
+    const list = element('ul', 'grade-list');
+    for (const item of hard) list.append(row(item, mine.has(item.key), mine.has(item.key) ? 'found' : 'missed'));
+    const nodes = [score, list];
+    if (soft.length) {
+      const bonus = element('ul', 'grade-list grade-soft');
+      for (const item of soft) bonus.append(row(item, mine.has(item.key), mine.has(item.key) ? 'found' : 'missed'));
+      nodes.push(element('p', 'guide-lesson-head', 'Bonus: careless, but only here to keep the training simple'), bonus);
+    }
+    if (extra.length) nodes.push(element('p', 'grade-extra', `Also flagged, but part of a normal day: ${extra.map(item => item.label).join('; ')}.`));
+    // High effects: the score counts up (Game Polish: satisfying_level_up_and_xp_bar).
+    if (state.effects !== 'none' && !state.reducedMotion) {
+      let n = 0;
+      big.textContent = `0 / ${hard.length}`;
+      const tick = () => {
+        if (n >= found.length) { big.animate?.([{ transform: 'scale(1.3)' }, { transform: 'scale(1)' }], { duration: 300, easing: 'cubic-bezier(.2,1.6,.4,1)' }); window.OceanProgramUI?.sound('score', { os: state.osMode, volume: world.sys.volume, muted: world.sys.muted }); return; }
+        big.textContent = `${++n} / ${hard.length}`;
+        window.OceanProgramUI?.sound('step', { os: state.osMode, volume: world.sys.volume, muted: world.sys.muted, pitch: 1 + n * 0.08 });
+        setTimeout(tick, state.effects === 'high' ? 140 : 90);
+      };
+      setTimeout(tick, 350);
+    }
+    return nodes;
+  }
+
+  // What the malware has done so far, against the desktop at sign-in: one chip per kind of change. A chip opens the place
+  // that shows it (Task Manager, Login Items, the folder, Mail), as a trainee would look for it.
+  function activityOf(world, base) {
+    const was = new Map(Object.entries(base.fs.nodes));
+    const nodes = Object.values(world.fs.nodes).filter(Boolean);
+    const isNew = (list, old, key = 'name') => (list ?? []).filter(item => !(old ?? []).some(other => other[key] === item[key]));
+    // A suspicious new process, or any process the attack made busy (a miner hides in a trusted browser): CPU is the tell.
+    const busyBefore = new Map((base.data.processes ?? []).map(item => [item.name, Number(item.cpu) || 0]));
+    const procs = (world.data.processes ?? []).filter(item => (item.suspicious && !busyBefore.has(item.name))
+      || (Number(item.cpu) >= 40 && (busyBefore.get(item.name) ?? 0) < 40));
+    const startup = isNew(world.data.startup, base.data.startup);
+    const locked = nodes.filter(node => node.encrypted && !was.get(node.id)?.encrypted);
+    const deleted = nodes.filter(node => node.trashed && was.get(node.id) && !was.get(node.id).trashed);
+    const added = nodes.filter(node => node.kind === 'file' && !node.trashed && !was.has(node.id));
+    const blocked = isNew(world.notifications.history, base.notifications.history, 'id').filter(item => item.title.startsWith('Connection blocked'));
+    const sent = isNew(world.data.mail.messages, base.data.mail.messages, 'id').filter(item => item.folder === 'sent');
+    const mac = state.osMode === 'macos';
+    const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+    const names = list => list.map(item => item.name ?? item.title ?? item.subject).slice(0, 8).join(', ');
+    return [
+      procs.length && { icon: '⚙', label: procs.every(item => !item.suspicious) ? plural(procs.length, 'program working hard', 'programs working hard') : plural(procs.length, 'program running', 'programs running'), title: names(procs), where: mac ? 'Activity Monitor' : 'Task Manager › Processes', open: ['taskmanager'] },
+      startup.length && { icon: '↻', label: `starts with the ${mac ? 'Mac' : 'PC'}`, title: names(startup), where: mac ? 'System Settings › Login Items' : 'Settings › Apps › Startup', open: ['settings', { pane: 'startup' }] },
+      locked.length && { icon: '🔒', label: plural(locked.length, 'file locked', 'files locked'), title: names(locked), open: ['files', { folderId: locked[0].parentId }], bad: true },
+      deleted.length && { icon: '✕', label: plural(deleted.length, 'file deleted', 'files deleted'), title: names(deleted), open: ['files', { folderId: 'trash' }], bad: true },
+      added.length && { icon: '+', label: plural(added.length, 'new file', 'new files'), title: names(added), open: ['files', { folderId: added.at(-1).parentId }] },
+      sent.length && { icon: '✉', label: plural(sent.length, 'mail sent', 'mails sent'), title: names(sent), open: ['mail'], bad: true },
+      blocked.length && { icon: '⛔', label: plural(blocked.length, 'connection blocked', 'connections blocked'), title: blocked.map(item => item.title.replace('Connection blocked: ', '')).join(', ') },
+      world.data.web?.homepage && world.data.web.homepage !== base.data.web?.homepage && { icon: '⌂', label: 'home page changed', open: ['browser'], bad: true },
+      world.sys.wallpaperUrl !== base.sys.wallpaperUrl && { icon: '▣', label: 'wallpaper changed', bad: true },
+    ].filter(Boolean);
+  }
+
+  function renderActivity() {
+    const box = dom['guide-activity'];
+    const { guide } = state;
+    if (!box) return;
+    const items = guide.data && guide.base && guide.at > 0 && state.world && !dom['ocean-guide'].hidden ? activityOf(state.world, guide.base) : [];
+    box.hidden = !items.length;
+    if (!items.length) return box.replaceChildren();
+    // A step waiting for the trainee to open an app (when open taskmanager): the chip that opens it glows, as the cue does.
+    const want = guide.data.steps[guide.at]?.when?.kind === 'open' ? guide.data.steps[guide.at].when.ref : null;
+    const cued = item => Boolean(want && item.open && (item.open[0] === want || `${item.open[0]}:${item.open[1]?.pane ?? ''}` === want));
+    const signature = JSON.stringify([items, state.osMode, want]);
+    if (box.dataset.signature === signature) return;
+    box.dataset.signature = signature;
+    box.replaceChildren(element('p', 'guide-activity-head', 'What it has done so far'), ...items.map(item => {
+      const chip = element(item.open ? 'button' : 'span', `guide-chip${item.bad ? ' bad' : ''}${cued(item) ? ' guide-chip-cue' : ''}`);
+      chip.append(element('span', 'guide-chip-icon', item.icon), item.label);
+      // The tooltip names what changed and, for a chip that opens an app, the tab that shows it.
+      const tip = [item.title, item.where && `Shown in ${item.where}`].filter(Boolean).join(' · ');
+      if (tip) chip.title = tip;
+      if (item.open) {
+        chip.type = 'button';
+        chip.addEventListener('click', () => openFromGuide(...item.open));
+      }
+      return chip;
+    }));
+  }
+
+  // The guide opens an app the way the trainee would: an open-app intent through the world model, shown in both shells.
+  function openFromGuide(app, payload) {
+    if (state.world?.phase !== 'desktop') return;
+    const result = window.OceanWorldModel.applyIntent(state.world, { kind: 'open-app', app, ...(payload ? { payload } : {}) }, Date.now());
+    if (result.ok && result.changed) setWorld(result.world);
+    // A chip the guide told the trainee to click is their own gesture: a step waiting on `when open` plays.
+    if (result.ok && result.forward) guideFollow(result.forward);
   }
 
   // ---- the debrief window (parent-drawn, above the active shell) ------------------------------------------------
@@ -763,10 +1349,63 @@
       return;
     }
     if (result.changed) setWorld(result.world);
+    // Only a scene choice goes to the scene model; program and view events may move the fish guide on.
+    const forward = result.forward?.kind === 'choose' ? result.forward : null;
     const intents = window.OceanSceneWorld.sceneIntents({
-      before, after: state.world, intent: parsed.intent, forward: result.forward, desk: state.desk, scene: state.scene,
+      before, after: state.world, intent: parsed.intent, forward, desk: state.desk, scene: state.scene,
     });
     for (const intent of intents) reduceScene(intent);
+    if (result.forward) guideFollow(result.forward);
+    // A key typed or a flag placed: the HUD and the cue follow (the next empty box glows).
+    if (['page-type', 'flag'].includes(result.forward?.kind)) { renderHud(); setWorld(state.world); }
+  }
+
+  // A fish step with `when` (PROGRAMS.md §5) plays itself when the trainee does that: opens the program (its prompt
+  // appears), runs it, cancels it, turns a view's page or finishes it. Only the next step is checked.
+  const WHEN_EVENTS = Object.freeze({ 'program-prompt': 'prompt', 'program-run': 'run', 'program-cancelled': 'cancel',
+    'program-detected': 'detected', 'program-removed': 'remove', 'app-open': 'open', 'view-page': 'page', 'view-done': 'done', choose: 'choose', 'mail-open': 'mail', 'page-open': 'visit' });
+  // The trainee may run ahead of the guide: a later step with its own program, view or page plays as soon as they do its
+  // thing (the steps in between play with it), so the guide always says where they are in the attack.
+  function guideFollow(forward) {
+    const { guide } = state;
+    if (!guide.data || guide.at < 0 || guide.at >= guide.data.steps.length) return;
+    const kind = WHEN_EVENTS[forward.kind];
+    // when open settings:startup waits for that pane; when open <app> for the app.
+    const ref = forward.programId ?? forward.view ?? forward.choiceId ?? forward.messageId ?? forward.page ?? (forward.app ? (forward.pane ? `${forward.app}:${forward.pane}` : forward.app) : null);
+    const matches = when => when && when.kind === kind && (!when.ref || when.ref === ref || (when.ref.endsWith('-*') && String(ref).startsWith(when.ref.slice(0, -1)))
+      || (kind === 'open' && !when.ref.includes(':') && String(ref).startsWith(`${when.ref}:`)))
+      && !(when.kind === 'page' && Number.isInteger(when.page) && when.page !== forward.page);
+    const steps = guide.data.steps;
+    for (let k = guide.at; k < steps.length; k++) {
+      if (matches(steps[k].when) && (k === guide.at || steps[k].when.ref)) {
+        guideGo(k + 1, true);
+        return;
+      }
+    }
+    // An installer offer unticked: the right move. The scene still plays the bundle, so say why it appears anyway.
+    if (forward.kind === 'view-check') {
+      guide.note = forward.checked ? `You ticked “${forward.label}” again.`
+        : `You unticked “${forward.label}”. On a real computer that is the safe choice: the extra is not installed. The training goes on as if it stayed ticked, to show what it does.`;
+      renderGuide();
+      return;
+    }
+    if (!kind) return;
+    // A gesture the attack did not need: say what it means, and how to carry on.
+    const program = forward.programId ? state.world.data.programs?.[forward.programId] : null;
+    const name = program?.name ?? 'the program';
+    if (forward.kind === 'program-cancelled') guide.note = `You cancelled ${name}. On a real computer that is the safe choice: it never runs. To see what it would have done, open it again and say yes, or press Next.`;
+    else if (forward.kind === 'program-detected') guide.note = 'The antivirus caught it before it ran. Remove it, as you would on a real computer, or press Next to see what happens if it gets through.';
+    else if (forward.kind === 'choose') {
+      // Another button on a lure page: name it, and the button the attack needed.
+      const [, pid, n] = /^(.+)-(\d+)$/.exec(forward.choiceId ?? '') ?? [];
+      const page = state.world.data.web?.pages?.[pid];
+      const wanted = steps.slice(guide.at).map(item => item.when).find(when => when?.kind === 'choose' && when.ref.startsWith(`${pid}-`));
+      const picked = page?.choices?.[Number(n) - 1]?.label;
+      const needed = wanted && page?.choices?.[Number(wanted.ref.split('-').pop()) - 1]?.label;
+      if (!picked || !needed) return;
+      guide.note = `You clicked “${picked}”. On a real computer the attack would stop there. Click “${needed}”, or press Next, to see what happens to someone who does.`;
+    } else return;
+    renderGuide();
   }
 
   function handleShellMessage(os, message) {
@@ -836,6 +1475,7 @@
     postToShell(os, { type: 'world-active', version: WORLD_VERSION, active: true });
     postToShell(from, { type: 'world-active', version: WORLD_VERSION, active: false });
     setShellOs(os);
+    renderGuide();
     dom['os-' + os].focus({ preventScroll: true });
     announce(`Switched to ${os === 'windows' ? 'Windows' : 'macOS'}. The desktop and scene are unchanged.`);
   }
@@ -879,6 +1519,12 @@
     return [params.get('run'), params.get('job')].find(value => /^[a-z0-9-]{1,40}$/.test(value ?? '')) ?? 'local';
   }
 
+  function applyStreamEvent(message) {
+    return message?.type === 'patch' && isRecord(message.patch) ? patchWorld(message.patch)
+      : message?.type === 'replace' && isRecord(message.world) ? replaceWorld(message.world)
+        : { ok: false, error: 'unknown-event' };
+  }
+
   function subscribeWorldEvents() {
     if (typeof window.EventSource !== 'function') return;
     const runId = pageRunId();
@@ -890,9 +1536,8 @@
         lastId = event.lastEventId || lastId;
         let message = null;
         try { message = JSON.parse(event.data); } catch { /* Refused below. */ }
-        const result = message?.type === 'patch' && isRecord(message.patch) ? patchWorld(message.patch)
-          : message?.type === 'replace' && isRecord(message.world) ? replaceWorld(message.world)
-            : { ok: false, error: 'unknown-event' };
+        const result = applyStreamEvent(message);
+        if (result.ok && state.replay && message.type === 'patch') state.replayEvents.push(message);
         if (!result.ok) console.warn(`Desktop world event ${event.lastEventId || '?'} refused: ${result.error}`);
       };
       // The browser retries a dropped stream by itself; a refused one (CLOSED) is reopened here, resuming after lastId.
@@ -911,15 +1556,48 @@
     getScene: () => (state.desk ? clone(state.desk) : null),
   });
 
+  // Effects: none (what a real OS does), low, high. Cycles; remembered for the next visit.
+  const FX_LABEL = { none: 'Effects: off', low: 'Effects: low', high: 'Effects: high' };
+  const renderFx = () => {
+    if (!dom['ocean-fx-toggle']) return;
+    dom['ocean-fx-toggle'].textContent = FX_LABEL[state.effects];
+    dom['ocean-fx-toggle'].title = 'Off: only the sounds and effects a real computer makes. Low and high add game feel: highlights, sounds and animations.';
+    document.body.dataset.fx = state.effects;
+  };
+  dom['ocean-fx-toggle']?.addEventListener('click', () => {
+    state.effects = { none: 'low', low: 'high', high: 'none' }[state.effects];
+    try { localStorage.setItem('ocean-fx', state.effects); } catch { /* remembered for this page only */ }
+    renderFx();
+    if (state.world) setWorld(state.world);
+  });
+  renderFx();
   dom['os-windows'].addEventListener('click', () => requestOs('windows'));
   dom['os-macos'].addEventListener('click', () => requestOs('macos'));
   dom['ocean-restart'].addEventListener('click', restartScene);
   dom['ocean-brief'].addEventListener('click', () => { if (dom['ocean-intro'].hidden) openIntro(); else closeIntro(); });
   dom['intro-dismiss'].addEventListener('click', closeIntro);
+  dom['guide-next'].addEventListener('click', () => guideGo(state.guide.at > state.guide.data.steps.length ? 0 : state.guide.at + 1));
+  dom['guide-back'].addEventListener('click', () => guideGo(state.guide.at - 1));
+  dom['guide-all'].addEventListener('click', () => guideGo(state.guide.data.steps.length + 1));
+  dom['guide-hide'].addEventListener('click', () => setGuideHidden(true));
+  dom['ocean-guide-toggle'].addEventListener('click', () => setGuideHidden(!state.guide.hidden));
+  // Arrow keys step the guide while the page (not a desktop) has focus.
   document.addEventListener('keydown', event => {
-    if (event.key !== 'Escape' || dom['ocean-intro'].hidden) return;
+    if (dom['ocean-guide'].hidden || state.guide.at < 0 || event.altKey || event.ctrlKey || event.metaKey) return;
+    if (event.key === 'ArrowRight' && state.guide.at <= state.guide.data.steps.length) guideGo(state.guide.at + 1);
+    else if (event.key === 'ArrowLeft') guideGo(state.guide.at - 1);
+    else return;
     event.preventDefault();
-    closeIntro();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key !== 'Escape') return;
+    if (!dom['ocean-intro'].hidden) {
+      event.preventDefault();
+      closeIntro();
+    } else if (window.top !== window.self) {
+      // Shown inside the ocean's creature panel (ui/abyss/creature-panel.js): Esc goes back to its fish list.
+      window.parent.postMessage({ type: 'ocean-desktop-escape' }, window.location.origin);
+    }
   });
   dom['gate-opt-in'].addEventListener('change', () => { dom['gate-enter'].disabled = !dom['gate-opt-in'].checked; });
   dom['gate-enter'].addEventListener('click', acceptGate);

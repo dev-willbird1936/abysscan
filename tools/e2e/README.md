@@ -95,7 +95,7 @@ Shell bugs this suite found and fixed:
 | Variable | Default |
 |---|---|
 | `PLAYWRIGHT_CORE` | `C:/Temp/pw-kimi/node_modules/playwright-core` (path or package name) |
-| `CHROME_PATH` | `C:/Users/warcr/AppData/Local/ms-playwright/chromium-1243/chrome-win64/chrome.exe`; if missing, Playwright's own Chromium |
+| `CHROME_PATH` | `C:/Users/<you>/AppData/Local/ms-playwright/chromium-1243/chrome-win64/chrome.exe`; if missing, Playwright's own Chromium |
 | `E2E_HOST` | `127.0.0.1` |
 | `E2E_PARENT_PORT` | `4370` (training parent / app server); `4386` for `all-scenes-e2e.mjs` |
 | `E2E_SHELLS_PORT` | `4371` (comparison server serving the shells); `4387` for `all-scenes-e2e.mjs` |

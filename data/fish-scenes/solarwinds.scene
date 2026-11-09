@@ -1,0 +1,347 @@
+# SolarWinds SUNBURST (2020). A backdoor hidden in a signed hotfix for IT monitoring software used by about 18,000 organisations.
+# A quest (QUESTS.md): the trainee is a systems administrator in a monthly patch window. A hotfix for a backup agent goes in first
+# and is ordinary; then comes the hotfix for the monitoring server, which looks exactly the same and carries SUNBURST.
+# The victims were IT teams at companies and government agencies. The company, the people, the vendor and its product here are
+# invented, with the same shape as the real indicators (a BusinessLayer DLL, a BusinessLayerHost process, a signed hotfix, a
+# lookup to a made-up domain). Nothing is wrong on screen until the vendor's own warning arrives: that is the lesson.
+os windows
+user Dana Okafor
+about
+  | SUNBURST was a backdoor hidden inside a genuine hotfix for Orion, a network monitoring product from SolarWinds used by about 18,000 organisations. Attackers had broken into the vendor's build system and added their own code to one file. The vendor then built, signed and shipped the hotfix as usual in spring 2020. Customers installed it as they always had.
+  | The backdoor waited about two weeks, then called out to the attackers' server in lookups made to look like the product's own traffic. The attackers chose a few victims, including government agencies, and went further inside. A security company that had been hit itself found it in December 2020.
+  | This training copy uses made-up names: the vendor (Brightwell Software), its product (Brightwell Monitor), its files, the people and Northwind Traders. The real files were SolarWinds.Orion.Core.BusinessLayer.dll and SolarWinds.BusinessLayerHost.exe.
+story
+  | You are Dana Okafor, systems administrator at Northwind Traders. Northwind supplies food to several government agencies, so IT keeps every server patched on a strict monthly schedule.
+  | It is the March patch window. Vendors post their hotfixes in customer portals, and you apply them one at a time. You have done 3 of the 6 maintenance jobs on your list. Three to go.
+  | Your portal sign-in and the monitoring server's service account are in text files on the desktop. That is a bad habit, but it keeps this training quick.
+quota 3 6 Maintenance jobs done
+spotted signs of the backdoor
+
+# Dana's desk (soft flags: careless, but only here to keep the training simple).
+file Desktop/portal-login.txt
+  at 930 200
+  | Brightwell Customer Portal
+  | Customer ID: northwind-it
+  | Password: Patch-2026!
+file Desktop/monitor-service-account.txt
+  at 930 300
+  | Monitor service account (training copy)
+  | Account: NORTHWIND\svc-monitor
+  | Password: Mon1tor-2026!
+  | Rights: Domain Admins (the vendor's setup guide asked for it)
+
+# The drive where the monitoring program is installed: This PC shows it on Windows; the Monitor folder opens on both desktops.
+drive Local Disk (C:)
+  kind share
+  as C
+
+# The vendor's customer portal: a sign-in page, and one page per hotfix, all with the same layout.
+page portal-login portal.brightwell-software.example/sign-in
+  title Brightwell Customer Portal: sign in
+  brand Brightwell Customer Portal
+  favorite
+  heading Sign in to the Customer Portal
+  | Hotfixes, downloads and licences for Brightwell customers.
+  field Customer ID = northwind-it
+  field secret Password = Patch-2026!
+  button Sign in
+page queued-bk portal.brightwell-software.example/hotfixes/backup-agent-8.2.1/queued
+  title Hotfix queued
+  brand Brightwell Customer Portal
+  heading Hotfix queued
+  | Backup Agent 8.2.1 will install on your 6 servers in tonight's patch run.
+page skipped-bk portal.brightwell-software.example/hotfixes/backup-agent-8.2.1/skipped
+  title Hotfix skipped
+  brand Brightwell Customer Portal
+  heading Hotfix skipped
+  | Backup Agent 8.2.1 stays in the list until you come back to it.
+page hotfix-bk portal.brightwell-software.example/hotfixes/backup-agent-8.2.1
+  title Hotfix: Backup Agent 8.2.1
+  brand Brightwell Customer Portal
+  requires portal-login
+  heading Backup Agent 8.2.1 hotfix
+  | A hotfix for a product on your licence is ready.
+  section About this hotfix
+  row Product = Backup Agent 8.2
+  row Published by = Brightwell Software, LLC
+  row Digital signature = valid, signed by Brightwell Software, LLC
+  row Checksum = matches the portal's list
+  row Released = 12 March
+  row Fixes = a restore that stalled on very large files
+  button Queue for tonight's patch run -> queued-bk
+  button Skip for now -> skipped-bk
+mail mail-bk
+  from Brightwell Customer Portal <no-reply@portal.brightwell-software.example>
+  subject Hotfix available: Backup Agent 8.2.1
+  link hotfix-bk
+  | Hello Northwind IT,
+  |
+  | A hotfix for a product on your licence is ready to download in the Customer Portal.
+  |
+  | Brightwell Customer Portal
+
+step Job 4 of 6
+  look Mail: the portal's notice about a Backup Agent hotfix
+  | A hotfix for the backup software has been posted on the vendor's portal. This one is ordinary. Do it the normal way, so you know what normal looks like.
+notify mail Brightwell Customer Portal
+  | Hotfix available: Backup Agent 8.2.1
+
+step The link goes to the vendor's portal
+  look the link under the message
+  when mail mail-bk
+  | The email links to portal.brightwell-software.example, the vendor's own address. Hover over a link before you click it, to check where it goes.
+open mail-bk
+
+step Sign in as usual
+  look the two boxes: Customer ID and Password
+  when visit hotfix-bk
+  move Copy the details from portal-login.txt on the desktop (move this window aside to see it): click a box and press any keys to type, then click “Sign in”.
+  | The portal asks you to sign in first. Two boxes: Customer ID and Password. Remember what the portal normally looks like.
+open hotfix-bk
+
+step Check, then queue it
+  look the hotfix details: who published it, the signature and the checksum
+  when choose portal-login 1
+  | You are in. The page says who published the hotfix, that its signature is valid and that its checksum matches the portal's list. All three check out. Queue it for tonight.
+signin portal-login
+
+step Job 4 done
+  look the counter in the guide: 4 of 6
+  when choose hotfix-bk any
+  | Queued. Job 4 of 6 is done. And the next hotfix has just been posted: the one for the monitoring server.
+choose hotfix-bk 1
+quota +1
+
+# The lure: the monitoring server's hotfix, from the same portal, with the same layout and the same checks.
+page saved-hf5 portal.brightwell-software.example/hotfixes/monitor-2019.4-hf5/downloaded
+  title Hotfix downloaded
+  brand Brightwell Customer Portal
+  heading Hotfix downloaded
+  | BrightwellMonitor-2019.4-HF5.msi is in your Downloads folder. Run it in your maintenance window.
+page skipped-hf5 portal.brightwell-software.example/hotfixes/monitor-2019.4-hf5/skipped
+  title Hotfix skipped
+  brand Brightwell Customer Portal
+  heading Hotfix skipped
+  | Brightwell Monitor 2019.4 HF5 stays in the list until you come back to it.
+page hotfix-hf5 portal.brightwell-software.example/hotfixes/monitor-2019.4-hf5
+  title Hotfix: Brightwell Monitor 2019.4 HF5
+  brand Brightwell Customer Portal
+  requires portal-login
+  heading Brightwell Monitor 2019.4 HF5 hotfix
+  | A hotfix for a product on your licence is ready.
+  section About this hotfix
+  row Product = Brightwell Monitor 2019.4
+  row Published by = Brightwell Software, LLC
+  row Digital signature = valid, signed by Brightwell Software, LLC
+  row Checksum = matches the portal's list
+  row Released = 26 March
+  row Fixes = slow polling on large networks, and two console fixes
+  button Download hotfix -> saved-hf5
+  button Skip for now -> skipped-hf5
+mail mail-hf5
+  from Brightwell Customer Portal <no-reply@portal.brightwell-software.example>
+  subject Hotfix available: Brightwell Monitor 2019.4 HF5
+  link hotfix-hf5
+  | Hello Northwind IT,
+  |
+  | A hotfix for a product on your licence is ready to download in the Customer Portal.
+  |
+  | Brightwell Customer Portal
+notify mail Brightwell Customer Portal
+  | Hotfix available: Brightwell Monitor 2019.4 HF5
+
+step The monitoring server's hotfix
+  look the page: the same rows as the Backup Agent page, and the same answers
+  when visit hotfix-hf5
+  move Compare the page with the last one, then click “Download hotfix”.
+  | Brightwell Monitor watches every server at Northwind, monitor01 included. Its hotfix comes from the same portal and looks exactly like the last one: valid signature, matching checksum.
+  | Nothing here is wrong, and nothing here could tell you. Remember that.
+open hotfix-hf5
+
+# The hotfix installer. The real one was a Windows Installer patch (.msp); the desktop's closest type is .msi.
+# The publisher is a fictional stand-in for the vendor, and the signature is valid: that is the whole point.
+view monitor-setup wizard
+  title Brightwell Monitor 2019.4 HF5 Setup
+  app Brightwell Monitor Hotfix
+  publisher Brightwell Software, LLC
+  size 520x360
+  page Welcome
+  icon shield-ok
+  | This hotfix updates the monitoring platform from the vendor. It is signed by the vendor.
+  button Next -> next primary
+  button Cancel -> close
+  page Installing
+  icon gear
+  section Applying hotfix
+  progress 100
+  row Files updated = 41
+  row Signature check = passed
+  button Next -> next primary
+  button Cancel -> close
+  page Finished
+  icon shield-ok
+  | Brightwell Monitor 2019.4 HF5 is installed. The monitoring service has restarted.
+  button Finish -> done primary
+program monitor-hf5 BrightwellMonitor-2019.4-HF5
+  publisher Brightwell Software, LLC
+  signed yes
+  prompt elevation
+  description Brightwell Monitor hotfix (signed)
+  view monitor-setup
+
+step The hotfix arrives
+  look the new file in Downloads
+  when choose hotfix-hf5 1
+  | The hotfix is saved in Downloads: a Windows Installer package, signed by the vendor like the one in the portal's list.
+file Downloads/BrightwellMonitor-2019.4-HF5.msi
+  program monitor-hf5
+  size 90177536
+notify browser Download complete
+  | BrightwellMonitor-2019.4-HF5.msi is in your Downloads folder.
+open Downloads
+
+# The backdoor runs inside the vendor's own service host. Nothing is shown: no window, no alert.
+program monitor-host Brightwell Monitor Engine
+  publisher Brightwell Software, LLC
+  signed yes
+  description Vendor monitoring service (signed)
+  process Brightwell.BusinessLayerHost.exe
+  cpu 1
+  mem 212
+  parent services.exe
+  command C:\Program Files\Brightwell\Monitor\Brightwell.BusinessLayerHost.exe
+
+step Windows asks for permission
+  look the permission box: Verified publisher "Brightwell Software, LLC"
+  when prompt monitor-hf5
+  cue dialog-btn:run dialog-btn:ok view-btn:next view-btn:done view:monitor-setup
+  move Allow it in the permission box (Yes on Windows, OK on a Mac). Then click Next, Next and Finish in the setup window.
+  | The system asks for permission and names a verified publisher: the good kind of warning. An unknown publisher would be the bad kind.
+  | Everything about this update is right, which is why almost everyone clicked Yes.
+open Downloads/BrightwellMonitor-2019.4-HF5.msi
+
+step Job 5 done
+  look the setup pages, then the counter in the guide: 5 of 6
+  when done monitor-setup
+  | The installer ran: 41 files updated, signature check passed. Behind it, one of those files now carries the backdoor. Nothing on the screen shows it.
+  | The monitoring service restarted and runs as before. Job 5 of 6 is done.
+answer run
+press monitor-setup next
+press monitor-setup next
+press monitor-setup done
+quota +1
+folder C/Program Files
+folder C/Program Files/Brightwell
+folder C/Program Files/Brightwell/Monitor
+file C/Program Files/Brightwell/Monitor/Brightwell.Monitor.Core.BusinessLayer.dll
+  program monitor-host
+  size 1011712
+launch monitor-host
+
+# Twelve days of silence, then months more. Then the vendor's warning, passed on by a colleague.
+page blocked-dns logs.northwind.example/dns/monitor01/blocked
+  title Blocked
+  brand Northwind Network Logs
+  heading avsvmcloud.invalid blocked
+  | monitor01 is cut off from the internet and the incident team has been called.
+page normal-dns logs.northwind.example/dns/monitor01/normal
+  title Marked as normal
+  brand Northwind Network Logs
+  heading Marked as normal traffic
+  | Nothing is blocked. monitor01 keeps calling out.
+page dns-log logs.northwind.example/dns/monitor01
+  title Network log: monitor01
+  brand Northwind Network Logs
+  heading Name lookups from monitor01 since the patch
+  | Every name the monitoring server asked the internet for, from the archive.
+  section Usual lookups, every few days since the patch
+  columns Day | Server asked for / reached | Answer
+  cells 27 Mar | updates.brightwell-software.example | 203.0.113.20 (the vendor)
+  cells 3 Apr | api.brightwell-software.example | 203.0.113.20 (the vendor)
+  cells 6 Apr | updates.brightwell-software.example | 203.0.113.20 (the vendor)
+  section New on 7 April, then every few hours
+  columns Time | Server asked for / reached | Answer
+  cells 09:14:52 | ki8dd72ldkv0nbl2.appsync-api.avsvmcloud.invalid | alias, then 203.0.113.45
+  cells 09:14:53 | 203.0.113.45 port 443 | allowed, tagged "Brightwell Improvement Program"
+  note The security tool raised nothing. The traffic is labelled as the product's own.
+  button Block avsvmcloud.invalid and isolate monitor01 -> blocked-dns
+  button Mark as normal traffic -> normal-dns
+mail marcus-check
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Vendor says the March Brightwell hotfix was compromised
+  link dns-log
+  | Dana,
+  |
+  | The vendor has just told customers that Brightwell Monitor 2019.4 HF5, the hotfix we installed in the March window, carried a backdoor. Someone broke into the vendor's build system and added code before the hotfix was signed.
+  |
+  | The installer is BrightwellMonitor-2019.4-HF5.msi. The file with the backdoor is Brightwell.Monitor.Core.BusinessLayer.dll, in the Monitor folder under Program Files.
+  |
+  | They say to check the server's name lookups for a name ending in avsvmcloud.invalid. The log for monitor01 is behind the link. It is the last job on your list, so please look today.
+  |
+  | Marcus
+
+step Nothing to see, for months
+  look Task Manager: the monitoring service, and the Properties of the file
+  cue dialog-btn:ok mail:m-marcus-check app:mail
+  move Press OK on the Properties box, then open Marcus's new message.
+  | For about 12 days the backdoor does nothing at all, so nobody sees it. Then it starts calling out. The console stays green. Properties on the file shows the vendor's signature is valid: a signature only proves who built a file.
+  | In real life this went on for about nine months, until a security company found it in its own network and told the vendor. Now Marcus has sent an email.
+dialog properties C/Program Files/Brightwell/Monitor/Brightwell.Monitor.Core.BusinessLayer.dll
+open C/Program Files/Brightwell/Monitor
+open taskmanager
+notify mail Marcus Lee
+  | Vendor says the March Brightwell hotfix was compromised
+
+step The vendor's own warning
+  look Marcus's message: the installer, the file and the name to look for
+  when mail marcus-check
+  | Marcus passes on the vendor's notice: the March hotfix carried a backdoor. Everything the portal said was true, and the signature was valid: the vendor's own build had been broken into.
+  | You can now flag what the notice names: the installer in Downloads, the file in the Monitor folder and the service in Task Manager.
+answer ok
+open marcus-check
+
+step What monitor01 asked for
+  look the log: the second table, a name of random letters
+  when visit dns-log
+  move Read both tables and flag anything wrong before you click: the buttons move you to another page. Then click “Block avsvmcloud.invalid” or “Mark as normal traffic”.
+  | The server's own lookups are in the log. The first table is the usual: every name belongs to the vendor. The second is new.
+open dns-log
+
+step Job 6 done, months late
+  look the counter in the guide: 6 of 6
+  when choose dns-log any
+  | Whichever button you pressed, the lookup is not new: it has been repeating since 7 April. Job 6 of 6 is done. Press Next to see what the backdoor did.
+choose dns-log 1
+quota +1
+
+step What the backdoor did
+  look the animation: one signed hotfix, thousands of customers
+  | On day 12 Northwind's copy of Brightwell Monitor called home, and the attackers looked at what kind of company it was. For most of the 18,000 customers they stopped there.
+  | For a few, including government agencies, they used the monitoring server's powerful account to move through the network and read mail for months.
+attack supply-chain-update
+  | hotfix HF5 signed by the real vendor
+  | installed by Dana on monitor01
+  | silent for 12 days, then called out
+  | traffic made to look like the product's own
+  | about 18,000 customers installed it
+  | a few chosen, then mail and files read for months
+block 203.0.113.45 443
+open C/Program Files/Brightwell/Monitor
+
+flag hard file Downloads/BrightwellMonitor-2019.4-HF5.msi
+  | The vendor's real installer, signed, with a matching checksum. It carried the backdoor: a valid signature only proves who built the file.
+flag hard file C/Program Files/Brightwell/Monitor/Brightwell.Monitor.Core.BusinessLayer.dll
+  | The file with the backdoor in it. Its signature is valid: the attackers added their code before the vendor signed it.
+flag hard process Brightwell.BusinessLayerHost.exe
+  | The vendor's own service. The backdoor runs inside it, so the name looks right: what it connects to is the tell.
+flag hard section dns-log 2
+  | A name of random letters under a domain that is not the vendor's, first asked 12 days after the install. Its letters encode this network's name, so the attackers know which company called.
+flag soft file Desktop/portal-login.txt
+  | A password in a text file on the desktop: any program that runs can read it. Use a password manager.
+flag soft file Desktop/monitor-service-account.txt
+  | A password in a text file, for a service that runs as a domain admin. Whoever reads it gets that power over the whole domain: keep it in a password manager and give the account only the rights it needs.
+
+lesson
+  | A valid signature proves who built a file, not that it is safe. A hotfix from a trusted vendor can be the attack, and nothing on the screen will say so.
+  | Watch what trusted tools connect to. A monitoring server that suddenly asks for a name of random letters needs an answer. Let servers reach only the addresses they need, and keep logs somebody reads.
+  | Give admin tools only the rights they need, and try hotfixes on a test server with its network watched before the real ones.

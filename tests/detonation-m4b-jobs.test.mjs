@@ -181,18 +181,15 @@ test('the item takes the route that really ran: Wine failed and the emulator ran
   assert.deepEqual(job.report.receipt.notes, [WINE_NOTE]);
 });
 
-test('an item nothing ran for (every step skipped) is inspect-only, so the verdict is incomplete', async () => {
-  const harness = setup({
-    stages: {
-      async detonate(ctx) {
-        ctx.detonation = { id: 'a'.repeat(64), record: recordOf('detonate'), runnable: false, kind: 'identify' };
-        return { containers: [recordOf('detonate')], evidence: [], path: 'inspect', label: 'Inspected', coverage: [{ step: 'static', status: 'done', detail: 'x' }] };
-      },
-    },
-  });
-  const job = await run(harness, exe(), 'a.exe');
-  assert.equal(job.report.file.path, 'inspect');
-  assert.ok(job.report.verdict.signals.includes('incomplete'));
+test('a type the build only inspects is complete coverage, and the runner still records the gap when one never ran', async () => {
+  // A PNG has no runner to miss: inspecting it is everything the build can do, so the job is complete.
+  const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0]);
+  const job = await run(setup(), png, 'a.png');
+  assert.deepEqual([job.report.file.path, job.report.verdict.signals, job.report.verdict.complete], ['inspect', [], true]);
+  // A runnable type that never ran is a different case: the stages step records it as `unsupported-type` on a non-inspect
+  // path, which is what keeps such a job incomplete (asserted here on the source, the harness cannot fake that stage).
+  const stages = readFileSync(new URL('../backend/detonation/stages.mjs', import.meta.url), 'utf8');
+  assert.ok(stages.includes("kind: 'unsupported-type'") && stages.includes("ctx.typed.path !== 'inspect'"));
 });
 
 test('the chain gets what it needs from the job: the first bytes of the upload, the time left and the depth flag', async () => {

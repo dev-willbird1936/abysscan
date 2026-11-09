@@ -1,0 +1,116 @@
+.ck-app {
+  .ck-side {
+    width: 180px;
+  }
+  .ck-main {
+    padding: 20px 24px;
+    gap: 14px;
+  }
+  .ck-pane {
+    min-height: 0;
+  }
+  .ck-center {
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+  .ck-add {
+    margin-bottom: 12px;
+    flex-shrink: 0;
+  }
+  .ck-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 10px;
+    align-content: start;
+  }
+  .ck-alarm,
+  .ck-city {
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .ck-alarm[data-on="false"] {
+    opacity: 0.6;
+  }
+  .ck-alarm-time {
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+  }
+  .ck-ring {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      position: absolute;
+      inset: 0;
+      transform: rotate(-90deg);
+    }
+    circle {
+      fill: none;
+      stroke-width: 7;
+      stroke-linecap: round;
+    }
+    .ck-ring-bg {
+      stroke: var(--oc-sel);
+    }
+    .ck-ring-fg {
+      stroke: var(--oc-accent);
+      transition: stroke-dashoffset 200ms linear;
+    }
+  }
+  .ck-ring-label {
+    position: absolute;
+    top: 132px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 12px;
+  }
+  .ck-on {
+    background: var(--oc-sel);
+  }
+  .ck-label {
+    width: 130px;
+  }
+  .ck-lap {
+    gap: 16px;
+  }
+  .ck-big {
+    font-size: 34px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .ck-watch {
+    font-size: 48px;
+  }
+  .ck-cs {
+    font-size: 26px;
+    color: var(--oc-text2);
+  }
+  .ck-laps {
+    width: 260px;
+    max-height: 120px;
+  }
+  .ck-lap {
+    padding: 4px 6px;
+    border-bottom: 1px solid var(--oc-stroke);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@container (max-width: 560px) {
+  .ck-app .ck-side {
+    width: 54px;
+    .oc-nav-label {
+      display: none;
+    }
+  }
+}

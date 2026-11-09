@@ -21,7 +21,42 @@ const password = `CorrectHorse-${args.canary || 'NOCANARY'}`;
 const LOCAL_URL = /^(?:file|data|blob|about|chrome|devtools):/i;
 const scratch = '/tmp/dt';
 
-const result = { loaded: false, error: null, requests: [], downloads: [], dialogs: [], forms: [], screenshots: [], popups: 0, hasPasswordField: false };
+// Names a page uses to reach outside the browser. The high set is the Windows scripting host and Office/IE objects an HTML
+// file-infecting virus needs; the rest are weaker hints that a page is doing something it should not.
+const MARKERS = [
+  ['ActiveXObject', /ActiveXObject/g, true],
+  ['WScript.Shell', /WScript\.Shell/g, true],
+  ['Scripting.FileSystemObject', /Scripting\.FileSystemObject/g, true],
+  ['Shell.Application', /Shell\.Application/g, true],
+  ['ADODB.Stream', /ADODB\.Stream/g, true],
+  ['XMLHTTP', /XMLHTTP|Msxml2\.XMLHTTP/g, true],
+  ['registry write', /\.RegWrite\s*\(|RegWrite\s*\(/g, true],
+  ['mshta', /mshta/gi, true],
+  ['file: self-check', /location\.protocol\s*==\s*['"]file:/g, false],
+  ['document.write', /document\.write/g, false],
+  ['eval', /eval\s*\(/g, false],
+  ['decode', /unescape\s*\(|atob\s*\(|String\.fromCharCode/g, false],
+  ['powershell', /powershell/gi, false],
+  ['iframe', /<iframe[\s>]/gi, false],
+  ['hidden element', /display\s*:\s*none|visibility\s*:\s*hidden/gi, false],
+  ['clipboard', /clipboard/gi, false],
+  ['wallet', /wallet|metamask|seed phrase/gi, false],
+];
+const MARKER_CHARS = 262_144;
+
+/** The page text markers: `[{name, count, high}]`, capped. Read from the file itself, so a script that never runs is still seen. */
+function markersOf(path) {
+  let text = '';
+  try { text = readFileSync(path, 'latin1').slice(0, MARKER_CHARS); } catch { return []; }
+  const found = [];
+  for (const [name, pattern, high] of MARKERS) {
+    const count = (text.match(pattern) ?? []).length;
+    if (count > 0 && found.length < 20) found.push({ name, count, high });
+  }
+  return found;
+}
+
+const result = { loaded: false, error: null, requests: [], downloads: [], dialogs: [], forms: [], screenshots: [], popups: 0, hasPasswordField: false, scripts: [], scriptErrors: [], markers: [] };
 let credentialCaptured = false;
 const clip = (value, size = CHARS) => String(value ?? '').slice(0, size);
 const room = list => list.length < MAX_LIST;
@@ -90,6 +125,7 @@ async function typeCredential(page) {
 }
 
 async function main() {
+  result.markers = markersOf(args.file);
   const browser = await chromium.launch({
     headless: true, timeout: 15_000, downloadsPath: `${scratch}/dl`,
     env: { PATH: '/usr/local/bin:/usr/bin:/bin', HOME: `${scratch}/home`, TMPDIR: `${scratch}/tmp`, XDG_CONFIG_HOME: `${scratch}/xdg/config`, XDG_CACHE_HOME: `${scratch}/xdg/cache`, XDG_DATA_HOME: `${scratch}/xdg/data`, LANG: 'C.UTF-8' },
@@ -101,6 +137,7 @@ async function main() {
     const context = await browser.newContext({ viewport: { width: 1280, height: 800 }, acceptDownloads: true, serviceWorkers: 'block', permissions: [] });
     await context.route('**/*', handleRequest);
     const page = await context.newPage();
+    page.on('pageerror', error => { if (room(result.scriptErrors)) result.scriptErrors.push({ name: clip(error?.name, 40), message: clip(error?.message, 200) }); });
     page.on('dialog', dialog => { if (room(result.dialogs)) result.dialogs.push({ type: dialog.type(), message: clip(dialog.message()) }); dialog.dismiss().catch(() => {}); });
     page.on('download', download => { if (room(result.downloads)) result.downloads.push({ url: clip(download.url(), 500), filename: clip(download.suggestedFilename(), 120) }); download.cancel().catch(() => {}); });
     context.on('page', popup => { if (popup !== page) { result.popups += 1; popup.close().catch(() => {}); } });
@@ -112,6 +149,18 @@ async function main() {
       // A PDF or other non-HTML file may start a download instead of navigating; that is recorded by the download handler.
       result.loaded = result.downloads.length > 0 || /download is starting/i.test(String(error?.message));
       if (!result.loaded) result.error = clip(error?.message, 160);
+    }
+    // What the page actually ran: inline script bytes and their hashes. A script that throws still counts as activity.
+    result.scripts = await page.evaluate(() => [...document.scripts].slice(0, 20).map(script => ({
+      src: script.src ? script.src.slice(0, 200) : '',
+      bytes: (script.textContent || '').length,
+      sha256: null,
+    }))).catch(() => []);
+    for (const script of result.scripts) {
+      try {
+        const text = await page.evaluate(index => document.scripts[index]?.textContent ?? '', result.scripts.indexOf(script));
+        script.sha256 = createHash('sha256').update(text).digest('hex').slice(0, 32);
+      } catch { /* a script that cannot be read keeps its byte count */ }
     }
     // Marks are measured from the start of the harness; a slow launch (the trace runtime is slow) makes them immediate.
     const until = async at => { await new Promise(resolve => setTimeout(resolve, Math.max(0, at - elapsed()))); };

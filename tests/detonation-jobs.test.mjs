@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, readdirSync, renameSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { CAPS_MS, JobError, LIMITS_DEFAULT, createJobController, createRedactor, materialiseSeed, newCanaryToken, newReplayId } from '../backend/detonation/jobs.mjs';
@@ -93,6 +93,23 @@ function setup({ env = ENV, dockerOptions, stages, ...options } = {}) {
 const names = job => job.events.map(item => (item.event === 'stage' ? `stage:${item.data.stage}` : item.event));
 const submit = (controller, extra = {}) => controller.submit({ file: SAMPLE, claimedName: SAMPLE_NAME, ip: '203.0.113.7', ...extra });
 const run = async (controller, extra) => { const { jobId, token } = submit(controller, extra); await controller.idle(); return { job: controller.getJob(jobId), jobId, token }; };
+
+test('unrecognized text-script syntax stays inspection-only and inconclusive, not a disguise finding', async () => {
+  const { controller } = setup({ stages: { parseTrace: async () => [], collect: async () => ({ containers: [record('collect')], evidence: [] }) } });
+  await controller.start();
+  const { job } = await run(controller, { file: Buffer.from("print('hello')\n"), claimedName: 'hello.py' });
+  const typed = job.events.find(event => event.event === 'typed').data;
+  assert.equal(typed.path, 'inspect');
+  assert.equal(typed.mismatch, false);
+  assert.equal(typed.recognitionUncertain, true);
+  assert.ok(job.report, JSON.stringify(job.events.filter(event => ['stage', 'error'].includes(event.event))));
+  assert.equal(job.report.verdict.depth, 'twilight');
+  assert.equal(job.report.verdict.complete, false);
+  assert.ok(job.report.verdict.signals.includes('incomplete'));
+  assert.ok(!job.report.verdict.signals.includes('type-mismatch'));
+  assert.match(job.report.evidence.find(item => item.kind === 'unsupported-type').detail, /script behaviour was not tested/);
+  await controller.stop();
+});
 
 test('happy path emits the EVENTS.md order and builds the 5.4 report', async () => {
   const { controller, dataDir, docker, seen } = setup();
@@ -310,7 +327,7 @@ test('AT-10: docker rm forced to fail fails the job, stops uploads, and a restar
   const { job, jobId } = await run(controller);
   assert.equal(job.state, 'failed');
   assert.equal(job.report, null);
-  assert.equal(job.error, 'Teardown or the receipt check failed.');
+  assert.equal(job.error, 'Sandbox cleanup could not be confirmed. Uploads are paused.');
   assert.equal(controller.acceptingJobs, false);
   assert.equal(controller.health().acceptingJobs, false);
   assert.throws(() => submit(controller), error => error instanceof JobError && error.status === 503);
@@ -397,14 +414,71 @@ test('queue: two jobs run at once, ten wait, the next is refused with 503', asyn
   assert.equal(docker.state.containers.length, 0);
 });
 
-test('a host canary changed during the job fails it', async () => {
-  const { controller, dataDir } = setup({
+test('a changed host canary fails the job, closes admission and survives a restart even if the canary is restored', async () => {
+  const { controller, dataDir, docker } = setup({
     stages: { detonate: async () => { writeFileSync(join(dataDir, 'host-canary'), 'tampered'); return { containers: [record('detonate')] }; } },
   });
   await controller.start();
+  const original = readFileSync(join(dataDir, 'host-canary'));
   const { job } = await run(controller);
   assert.equal(job.state, 'failed');
   assert.equal(job.events.find(item => item.event === 'receipt').data.hostCanary, 'changed');
+  assert.equal(controller.acceptingJobs, false);
+  assert.throws(() => submit(controller), { status: 503 });
+  assert.equal(existsSync(join(dataDir, 'host-canary.quarantine')), true);
+  controller.stop();
+  writeFileSync(join(dataDir, 'host-canary'), original);
+  const restarted = createJobController({ env: ENV, dataDir, docker, inference: NO_MODEL, logger: () => {}, stages: fakeStages(docker) });
+  await restarted.start();
+  assert.equal(restarted.acceptingJobs, false);
+  assert.throws(() => submit(restarted), { status: 503 });
+  restarted.stop();
+});
+
+test('a missing canary or changed baseline blocks a restart', async () => {
+  const { controller, dataDir, docker } = setup();
+  await controller.start();
+  controller.stop();
+  writeFileSync(join(dataDir, 'host-canary'), 'tampered');
+  const restarted = createJobController({ env: ENV, dataDir, docker, inference: NO_MODEL, logger: () => {}, stages: fakeStages(docker) });
+  await restarted.start();
+  assert.equal(restarted.acceptingJobs, false);
+  assert.throws(() => submit(restarted), { status: 503 });
+  restarted.stop();
+  renameSync(join(dataDir, 'host-canary'), join(dataDir, 'host-canary.missing'));
+  const missing = createJobController({ env: ENV, dataDir, docker, inference: NO_MODEL, logger: () => {}, stages: fakeStages(docker) });
+  await missing.start();
+  assert.equal(missing.acceptingJobs, false);
+  assert.equal(existsSync(join(dataDir, 'host-canary')), false, 'a missing canary is not silently replaced');
+  missing.stop();
+});
+
+test('missing canary evidence during a job is reported as unknown and remains quarantined', async () => {
+  const { controller, dataDir } = setup({ stages: { detonate: async () => {
+    renameSync(join(dataDir, 'host-canary'), join(dataDir, 'host-canary.evidence'));
+    renameSync(join(dataDir, 'host-canary.sha256'), join(dataDir, 'host-canary.sha256.evidence'));
+    return { containers: [record('detonate')] };
+  } } });
+  await controller.start();
+  const { job } = await run(controller);
+  assert.equal(job.state, 'failed');
+  assert.equal(job.events.find(e => e.event === 'receipt').data.hostCanary, 'unknown');
+  assert.equal(job.error, 'The host canary could not be read. Uploads are paused.');
+  assert.equal(controller.acceptingJobs, false);
+  assert.equal(existsSync(join(dataDir, 'host-canary.quarantine')), true);
+  controller.stop();
+});
+
+test('a quarantined installation with both canary files absent is never reseeded', async () => {
+  const { controller, dataDir } = setup();
+  writeFileSync(join(dataDir, 'host-canary.quarantine'), 'preserved incident evidence');
+  await controller.start();
+  assert.equal(controller.acceptingJobs, false);
+  assert.equal(existsSync(join(dataDir, 'host-canary')), false);
+  assert.equal(existsSync(join(dataDir, 'host-canary.sha256')), false);
+  assert.equal(readFileSync(join(dataDir, 'host-canary.quarantine'), 'utf8'), 'preserved incident evidence');
+  assert.throws(() => submit(controller), { status: 503 });
+  controller.stop();
 });
 
 test('bearer tokens are checked against a digest, and subscribe replays from an event id', async () => {
@@ -430,7 +504,8 @@ test('AT-15: the ocean shows nothing of a job until the batch applies, and logs 
   assert.deepEqual(empty.creatures, []);
   controller.applyPending();
   const view = controller.oceanView();
-  assert.deepEqual(view.creatures, [{ findingId: 'steal-credentials', eaten: 1 }]);
+  assert.deepEqual(view.creatures.map(({ findingId, eaten }) => ({ findingId, eaten })), [{ findingId: 'steal-credentials', eaten: 1 }]);
+  assert.deepEqual(view.creatures[0].recent, [{ species: 'coelacanth', type: null, depth: 'midnight', day: '2026-01-01' }], 'the fish it ate: a lone type is folded, and only the day is shown');
   assert.deepEqual(Object.keys(view).sort(), ['batchAt', 'creatures', 'schools']);
   assert.ok(!JSON.stringify(view).includes(job.id));
 
@@ -464,6 +539,32 @@ test('7.4: queued jobs re-check the gate after acquire(); a teardown failure ahe
   assert.equal(queued.error, 'Uploads are not being accepted right now.');
   assert.equal(detonations, 1, 'the queued job never reached detonate');
   assert.ok(!queued.events.some(item => item.event === 'stage' && item.data.stage === 'detonating'));
+});
+
+test('a queued job does not enter a sandbox after another job changes the host canary', async () => {
+  let release, detonations = 0;
+  const { controller, dataDir } = setup({
+    limits: { concurrency: 1 },
+    stages: { detonate: async () => {
+      detonations += 1;
+      if (detonations === 1) {
+        await new Promise(resolve => { release = resolve; });
+        writeFileSync(join(dataDir, 'host-canary'), 'tampered');
+      }
+      return { containers: [record('detonate')] };
+    } },
+  });
+  await controller.start();
+  const first = submit(controller, { ip: '198.51.100.1' });
+  while (!release) await new Promise(resolve => setImmediate(resolve));
+  const second = submit(controller, { ip: '198.51.100.2' });
+  release();
+  await controller.idle();
+  assert.equal(controller.getJob(first.jobId).state, 'failed');
+  assert.equal(controller.getJob(second.jobId).state, 'failed');
+  assert.equal(controller.getJob(second.jobId).error, 'Uploads are not being accepted right now.');
+  assert.equal(detonations, 1);
+  controller.stop();
 });
 
 test('teardown logs its error count and nothing else about the errors', async () => {

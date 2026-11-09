@@ -2,9 +2,11 @@
 
 **Status: partially implemented; containment remediation and acceptance remain pending.** [`DETONATION-DESIGN.md`](DETONATION-DESIGN.md) says what the product is and why. This file defines the required behaviour and acceptance criteria, not a claim that they are all met. Where they disagree on behaviour, the design wins; fix this file.
 
-**Current session: no tests or runtime probes, at the user's request.** Source edits and read-only review continue. Earlier run results do not verify later code changes, and milestone acceptance is not waived.
+**Testing and runtime probes are authorised for this work** by the operator instruction of 2026-10-23 and the safety amendment it approved ([`safety-amendment-2026-10-23.md`](safety-amendment-2026-10-23.md)). Earlier run results do not verify later code changes, and milestone acceptance is not waived.
 
-**Blocking:** [`safety.md`](safety.md) forbids running uploads and acquiring malware. Amend it (section 14, item 1) before any code in this spec runs an upload.
+**Managed .NET assemblies are executed, not only read (2026-10-23):** the `emulate` step runs a managed PE under `mono-runtime` in the detonation container (real syscalls in the trace); when Mono cannot take the assembly, the Speakeasy emulator runs as before. See [`DETONATION-DESIGN.md`](DETONATION-DESIGN.md) §2.
+
+**Resolved 2026-10-23:** [`safety.md`](safety.md) is amended by [`safety-amendment-2026-10-23.md`](safety-amendment-2026-10-23.md) (SPEC §14 item 1), so the detonation path may run uploads. Wine stays off (§14 item 11, option b).
 
 Requirement IDs (`R-…`) are referenced by the acceptance tests (`AT-…`) in section 12.
 
@@ -56,7 +58,7 @@ Browser ──HTTPS──► Vultr Cloud Compute VM (Ubuntu 24.04)
                    │          ├─ detonate container   (sample runs or is emulated)
                    │          ├─ collect container    (reads the detonate volume, writes the diff)
                    │          └─ analyse container    (runs the model's Python)
-                   └─ /var/lib/detonation-ocean: job temp (encrypted at rest), ocean-state.json, host canary
+                   └─ /var/lib/detonation-ocean: job temp (sealed upload AES-GCM; working copy and sandbox volume plain, deleted after the run), ocean-state.json, host canary
 ```
 
 ### Trust boundaries
@@ -109,7 +111,7 @@ All routes check `Origin` against `APP_PUBLIC_ORIGIN`. Job routes require `Autho
 | `GET /api/jobs/<id>` | Status and, when done, the report (section 5.4) |
 | `GET /api/jobs/<id>/events` | Server-sent events: stage changes, analysis attempts, evidence items, findings. Replays from `Last-Event-ID` |
 | `GET /api/jobs/<id>/artifacts/<name>` | Analysis outputs only (`.png`, `.svg`, `.json`, `.txt`, `.csv`, ≤ 8 MB total). Never the upload. `Content-Disposition: attachment` for non-images; `X-Content-Type-Options: nosniff`; strict CSP |
-| `GET /api/ocean` | `{batchAt, schools: [{species, depth, count}], creatures: [{findingId, eaten}]}`. No job IDs, names, hashes or times finer than the batch |
+| `GET /api/ocean` | `{batchAt, schools: [{species, depth, count}], creatures: [{findingId, eaten, recent: [{species, type, depth, day}]}]}`. `recent` is the last 20 fish the creature ate (newest day first; `type` is null for a folded rare species). No job IDs, names, hashes, addresses or times finer than the UTC day |
 | `GET /api/desktop/world`, `/api/desktop/events` | Existing routes ([`desktop-parity/BACKEND.md`](desktop-parity/BACKEND.md)); the controller publishes replay patches to `run=<replayId>` |
 | `GET /api/health` | Existing; adds `{acceptingJobs, queueDepth}` |
 
@@ -289,6 +291,7 @@ If a later Docker or gVisor version breaks this, fall back to a `ptrace`-free in
 | `system-wipe` | Trench | Trace `unlink`/`rmdir` attempts on system paths (`/bin`, `/etc`, `/usr`, `C:\Windows`) |
 | `encrypt` | Trench | ≥ 3 seeded user files changed to high entropy (≥ 7.5 bits/byte) or renamed with a new extension; or a ransom note file |
 | `destroy-files` | Trench | ≥ 3 seeded user files deleted or truncated; backup or shadow-copy deletion |
+| `self-copy` | Midnight | Writes a copy of itself into the user area (one copy is enough) |
 | `spread` | Trench | Copies itself to ≥ 3 locations, or mass-mail attempt to ≥ 5 recipients |
 | `other-harm` | Midnight/Abyss/Trench | A seeded file, setting or canary changed in a way no rule above matches; depth from the kind of evidence ([design §5, Other](DETONATION-DESIGN.md#5-creatures)) |
 
@@ -382,7 +385,7 @@ Rules:
 - Reads of `HKCU\Software\Wine`, calls to `wine_get_version`, or checks for Wine-only files add the `anti-analysis` signal.
 - Label: "Ran under Wine". Wine is not Windows; a clean result under Wine is still only "no harmful behaviour observed".
 
-**Recorded limitations:** [PIDS-AND-WINE.md Part B](evidence/gvisor-wsl/PIDS-AND-WINE.md#b-wine-under-gvisor-and-the-runc-fallback) records Wine 10 failures on systrap and Wine 11 failures on systrap/KVM/ptrace; runc/seccomp successes concern Wine 11 built-ins only. AppArmor and broader program coverage remained unverified. Those earlier results do not verify current code or arbitrary uploads. Current edited runner source has not been rebuilt into the locked images ([source-only record](evidence/containment-code-only/REPORT.md)); the locked images do not establish that the current runner guards are active. The runc Wine step has no gVisor kernel boundary or syscall trace: allowed syscalls reach the real host kernel, and unavailable AppArmor means no AppArmor protection (Part B.6). The choice remains pending: separately approve the weaker runc exception with the verified Wine seccomp profile and common isolation controls, or drop Wine ([`safety-amendment-DRAFT.md`](safety-amendment-DRAFT.md), section 14, item 11). Approval of the base safety amendment does not approve Wine; neither approval nor runtime acceptance is established here.
+**Recorded limitations:** [PIDS-AND-WINE.md Part B](evidence/gvisor-wsl/PIDS-AND-WINE.md#b-wine-under-gvisor-and-the-runc-fallback) records Wine 10 failures on systrap and Wine 11 failures on systrap/KVM/ptrace; runc/seccomp successes concern Wine 11 built-ins only. AppArmor and broader program coverage remained unverified. Those earlier results do not verify current code or arbitrary uploads. Current edited runner source has not been rebuilt into the locked images ([source-only record](evidence/containment-code-only/REPORT.md)); the locked images do not establish that the current runner guards are active. The runc Wine step has no gVisor kernel boundary or syscall trace: allowed syscalls reach the real host kernel, and unavailable AppArmor means no AppArmor protection (Part B.6). The choice remains pending: separately approve the weaker runc exception with the verified Wine seccomp profile and common isolation controls, or drop Wine (`safety-amendment-DRAFT.md`, section 14, item 11). Approval of the base safety amendment does not approve Wine; neither approval nor runtime acceptance is established here.
 
 #### Run Office macros
 
@@ -541,14 +544,15 @@ Labels say "Executed on Linux", "Ran under Wine", "Emulated" or "Inspected", per
 
 ### 9.2 Ocean state
 
-- `ocean-state.json` holds only `{schools: {species: {depth: count}}, creatures: {findingId: eaten}}`.
+- `ocean-state.json` holds only `{schools: {species: {depth: count}}, creatures: {findingId: eaten}, eats: {findingId: [{species, type, depth, day}]}}`. `eats` keeps the last 20 fish per creature; a file written before it existed has no `eats` and its creatures show the count only.
 - Job results are added to a pending batch; the batch is applied every 5 minutes. `/api/ocean` serves only applied batches.
 - Fish species from the design's file-type table; rare species (< 5 in total) are counted as `coelacanth` until they reach 5.
-- Creature size: `base × min(3, 1 + log2(eaten))`.
+- Creature size: `0.4 × 1.14^(eaten − 1)`, capped at 2.1 (ui/abyss/detonation-menu.js). A featured creature's share of the screen scales with the same factor.
+- A fish a creature ate is shown as species, file type, the depth the file reached and the UTC day. A species with fewer than 5 fish (schools plus eaten) shows as `coelacanth` without a type.
 
 ### 9.3 Visual style (R-UI1)
 
-Keep the existing retro pixel theme of the main menu ([`evidence/main-menu-retro-theme/REPORT.md`](evidence/main-menu-retro-theme/REPORT.md)) and extend it to every new page.
+Keep the existing retro pixel theme of the main menu (`evidence/main-menu-retro-theme/REPORT.md`) and extend it to every new page.
 
 | Element | Rule |
 |---|---|
@@ -708,7 +712,7 @@ AT-1 to AT-17 and AT-19 to AT-32 run locally with Docker and gVisor and a mock m
 4. Confirm which Serverless Inference models the account offers, and their prices.
 5. Approve spend for the VM and inference.
 6. Check the hackathon rules on work done before the build week (3–8 November 2026).
-7. Replace the macOS shell (unlicensed mirror) before the public deployment.
+7. Decide the fate of the Win11React artwork (not cleared; withheld from the public repository).
 8. Decide the fate of the 30 scripted scenes.
 9. Initialise Git and create the GitHub repository.
 10. Check licences for the compatibility tools: Detect It Easy, `innoextract`, `pyinstxtractor`, ILSpy, Qiling, YARA rule sets, `binwalk`. Decide whether Qiling may use any Windows DLLs.

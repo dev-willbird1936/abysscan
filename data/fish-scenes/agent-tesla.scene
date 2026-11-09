@@ -1,0 +1,282 @@
+# Agent Tesla (2014 onwards). A keylogger and password stealer sold as a "monitoring tool", usually sent as a purchase-order attachment.
+# A quest (QUESTS.md): the trainee works a purchasing shift, confirms one order safely, then meets Agent Tesla in the next "order". Agent Tesla went after buyers and shipping and logistics staff; the victim here is invented.
+os windows
+user Dana Okafor
+about
+  | Agent Tesla usually arrived as a "purchase order" email sent to buyers and shipping staff. The attachment was a program in a zip file, dressed up as a PDF. When run, it showed only a "damaged file" message, then recorded keys, copied text and screenshots, and mailed them to the attacker. This victim is invented, but the mail is the kind that hit purchasing teams for years.
+story
+  | You are Dana Okafor, purchasing assistant at Northwind Traders. Each day you confirm supplier orders in the company's supplier portal, and the suppliers you know are a short list.
+  | It is mid-afternoon. You have confirmed 6 of today's 8 orders. Two to go.
+  | Your portal sign-in and a few supplier details are in two text files on the desktop. That is a bad habit, but it keeps this training quick.
+quota 6 8 Orders confirmed today
+
+# Dana's desk: the details she copies from (soft flags: careless, but only here to keep the training simple).
+file Desktop/portal-login.txt
+  at 930 200
+  | Northwind Supplier Portal
+  | User ID: dana.okafor
+  | Password: Orders-2026!
+file Desktop/supplier-accounts.txt
+  at 930 300
+  | Supplier payment details (training copy)
+  | Contoso Foods account: 55-0123-4567
+  | Fabrikam Ltd account: 55-0456-7890
+
+# The portal: a sign-in page, and the order pages behind it.
+page portal-login supplier-portal.example/purchasing/sign-in
+  title Supplier Portal: sign in
+  brand Northwind Supplier Portal
+  favorite
+  heading Sign in to the Supplier Portal
+  | Welcome back. Sign in to confirm your orders.
+  field User ID = dana.okafor
+  field secret Password = Orders-2026!
+  button Sign in
+page confirmed-2284 supplier-portal.example/purchasing/orders/done
+  title Order confirmed
+  brand Northwind Supplier Portal
+  heading Order confirmed
+  | PO-2284 to Contoso Foods: 40 cartons of dried goods, delivery on 12 November 2026.
+page queried-2284 supplier-portal.example/purchasing/orders/queried
+  title Order queried
+  brand Northwind Supplier Portal
+  heading Order sent back with a question
+  | PO-2284 is on hold. Purchasing will check it with Contoso Foods.
+page po-2284 supplier-portal.example/purchasing/orders/PO-2284
+  title Confirm order: PO-2284
+  brand Northwind Supplier Portal
+  requires portal-login
+  heading Confirm order: PO-2284
+  | A supplier order is waiting for your confirmation.
+  section Order
+  row Supplier = Contoso Foods
+  row Order = PO-2284, dated 2 November 2026
+  row Goods = 40 cartons of dried goods
+  row Delivery = 12 November 2026
+  button Confirm order -> confirmed-2284
+  button Query this order -> queried-2284
+
+mail mail-2284
+  from Priya Shah <priya.shah@northwind.example>
+  subject Order PO-2284 to confirm (Contoso Foods)
+  link po-2284
+  | Hi Dana,
+  |
+  | Contoso's order for the dried goods is in the portal, ready for you to confirm. The link goes straight to it.
+  |
+  | Priya
+
+step Order 7 of 8
+  look Mail: Priya's message with the order link
+  | A new order has come in from Priya, in Purchasing. This one is real. Confirm it the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Order PO-2284 to confirm (Contoso Foods)
+
+step The link goes to the portal
+  look the link under Priya's message
+  when mail mail-2284
+  | The email links to the company's own portal, supplier-portal.example. Hover over a link before you click it, to check where it goes.
+open mail-2284
+
+step Sign in as usual
+  look the two boxes: User ID and Password
+  when visit po-2284
+  move Copy the details from portal-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The portal asks you to sign in first. Two boxes: User ID and Password. Remember what this looks like.
+open po-2284
+
+step Check, then confirm
+  look the supplier, the goods and the delivery date
+  when choose portal-login 1
+  | You are in. Check the supplier and the goods, then confirm the order or send it back with a question.
+signin portal-login
+
+step 7 of 8 done
+  look the counter in the guide: one order left
+  when choose po-2284 any
+  | Done. One order to go. And another email has just arrived.
+choose po-2284 1
+quota +1
+
+# The lure: a "PDF" in a zip that is a program.
+view tesla-error message
+  title Purchase order viewer
+  icon error
+  | PO-2291.pdf could not be opened. The file is damaged.
+  button OK -> done primary
+# The attacker's log: what this desk gave Agent Tesla, then examples of what it also takes (training copy).
+view tesla-report panel
+  title Attacker's log (training copy)
+  app Agent Tesla report
+  icon bug
+  heading Report Agent Tesla tried to mail
+  section Keys typed, grouped by window
+  tone bad
+  row Supplier Portal: sign in = dana.okafor, Orders-2026!
+  note Every key press is written to the log, with the title of the window it went into.
+  section Examples: not from this desk
+  tone warn
+  row Copied text = account numbers from a text file
+  row Screenshots = one every few minutes
+  row Saved logins = passwords stored in browsers and mail programs
+  note Training copy. On this desk you did not copy text, take screenshots or read saved logins.
+  button Close -> close primary
+
+program tesla PO-2291.pdf
+  publisher none
+  signed no
+  prompt open-warning
+  description Purchase order viewer
+  process RegAsm.exe
+  cpu 6
+  mem 54
+  keylog yes
+  parent PO-2291.pdf.exe
+  command C:\Windows\Microsoft.NET\Framework\v4.0.30319\RegAsm.exe
+  net smtp.harbour-trading.invalid:587
+  startup PdfViewerUpdate C:\Users\Dana\AppData\Roaming\PdfViewerUpdate\updater.exe
+  location HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+  view tesla-error
+  selfdelete
+folder Downloads/PO-2291.zip
+file Downloads/PO-2291.zip/PO-2291.pdf.exe
+  icon pdf
+  program tesla
+  size 612352
+mail po
+  from Purchasing <purchasing@harbour-trading.invalid>
+  subject New order PO-2291, please confirm today
+  attach Downloads/PO-2291.zip
+  | Dear Dana,
+  |
+  | Please confirm the attached purchase order and the delivery date today. The zip is protected for security: the password is 2291.
+  |
+  | Purchasing Department
+notify mail Purchasing
+  | New order PO-2291, please confirm today
+
+step An order from a stranger
+  look the sender, and the zip file instead of a portal link
+  when mail po
+  cue file:fs-po-2291-pdf-exe-aca536a8 file:fs-po-2291-zip-23536816 app:files
+  move Open the zip (the attachment, also in Downloads), then double-click the "PDF" inside.
+  | A supplier Dana does not know, a zip file instead of the portal, and a password in the email. Real orders come through the portal. A password on a zip often only keeps mail filters from looking inside.
+open po
+
+step The warning before it runs
+  look the security warning: an unknown publisher, or "a Windows program" on a Mac
+  when prompt tesla
+  | Inside the zip is a file that looks like PO-2291.pdf. Windows hides the end of its name (a Mac shows all of it): it is really PO-2291.pdf.exe, a program. Opening it makes the computer ask whether to run a program from an unknown publisher. A real PDF never asks this.
+  | This is the last place the attack can be stopped. Many victims clicked Run.
+open Downloads/PO-2291.zip/PO-2291.pdf.exe
+
+step Only an error box
+  look the "damaged file" message
+  when run tesla
+  move Press OK on the message, like Dana did.
+  | The program shows a fake "damaged file" message, so Dana thinks the PDF is just broken and moves on. Behind it, Agent Tesla hides inside RegAsm.exe, a real Windows program, so the name looks safe.
+answer run
+
+step Find the process and start-up item
+  look RegAsm.exe in the process list (Task Manager or Activity Monitor)
+  when done tesla-error
+  move Go back to work: open Mail and click Priya's last email.
+  | Agent Tesla hides inside RegAsm.exe, a real program that nobody opened. It added itself as PdfViewerUpdate in the start-up list, so it starts again with the computer.
+  | From now on it records every key you type. The process list and the start-up list show it, if you look.
+open taskmanager
+
+# The portal signs Dana out, as it does after a while; her last order is waiting.
+page confirmed-2292 supplier-portal.example/purchasing/orders/done
+  title Order confirmed
+  brand Northwind Supplier Portal
+  heading Order confirmed
+  | PO-2292 to Fabrikam Ltd: 120 boxes of packaging, delivery on 13 November 2026.
+page queried-2292 supplier-portal.example/purchasing/orders/queried
+  title Order queried
+  brand Northwind Supplier Portal
+  heading Order sent back with a question
+  | PO-2292 is on hold. Purchasing will check it with Fabrikam Ltd.
+page po-2292 supplier-portal.example/purchasing/orders/PO-2292
+  title Confirm order: PO-2292
+  brand Northwind Supplier Portal
+  requires portal-login
+  heading Confirm order: PO-2292
+  | A supplier order is waiting for your confirmation.
+  section Order
+  row Supplier = Fabrikam Ltd
+  row Order = PO-2292, dated 5 November 2026
+  row Goods = 120 boxes of packaging
+  row Delivery = 13 November 2026
+  button Confirm order -> confirmed-2292
+  button Query this order -> queried-2292
+signout portal-login
+mail mail-2292
+  from Priya Shah <priya.shah@northwind.example>
+  subject Last one for today: PO-2292 (Fabrikam)
+  link po-2292
+  | Dana,
+  |
+  | Fabrikam's order is the last one. Same as before: the link opens it in the portal.
+  |
+  | Priya
+notify mail Priya Shah
+  | Last one for today: PO-2292 (Fabrikam)
+
+step The last order
+  look Mail: Priya's last message
+  when mail mail-2292
+  | Priya's last order of the day, with a portal link like the first one. Open it. The "broken" PDF can wait.
+open mail-2292
+
+step Signed out
+  look the sign-in page: it is the same page as before
+  when visit po-2292
+  move Sign in again with the details from the desktop file. Watch the network sign while you type.
+  | The portal signed you out, so sign in again. Nothing on the page has changed: Agent Tesla does not edit pages. Watch the network sign as you type (bottom right on Windows, under the menu bar on a Mac).
+open po-2292
+
+step Confirm the last one
+  look the network sign, which lit up while you typed
+  when choose portal-login 1
+  | Signed in. Every key you pressed, your User ID and your password included, went into a log kept by a program you cannot see.
+signin portal-login
+
+step 8 of 8, or so Dana thinks
+  look the counter: the shift is done
+  when choose po-2292 any
+  | Every order is confirmed, and nothing on the screen looks wrong. Press Next to see what Agent Tesla took.
+choose po-2292 1
+quota +1
+
+step What Agent Tesla took
+  look the animation, then the training log and the "Connection blocked" notification
+  | Every few minutes Agent Tesla mails its log to the attacker: the keys typed, text copied, screenshots and saved passwords. Here the mail server is unreachable: the desktop has no network.
+  | With a working password the attacker signs in as Dana, and the portal sees a normal sign-in.
+attack spyware-surveillance
+  | {captured}
+  | every key, in the window it was typed into
+  | the log, mailed out every few minutes
+show tesla-report
+block smtp.harbour-trading.invalid 587
+
+flag hard mail po
+  | A supplier Dana does not know, a zip instead of the portal, and a password in the email.
+flag hard file Downloads/PO-2291.zip/PO-2291.pdf.exe
+  | A program with a PDF icon. Windows hides the .exe at the end of its name; a Mac shows the whole name.
+flag hard dialog open-warning tesla
+  | A document never asks to run as a program. Publisher: Unknown.
+flag hard process RegAsm.exe
+  | A real Windows program that nobody opened: the "PDF" started it and Agent Tesla hides inside it.
+flag hard startup PdfViewerUpdate
+  | Named like a PDF reader's updater, but it runs from Dana's own folder: Agent Tesla starts with the computer.
+flag hard net
+  | Network activity while you typed: the keylogger reporting to its mail server.
+flag soft file Desktop/portal-login.txt
+  | A sign-in in a text file on the desktop: a keylogger and any program that runs can read it. Use a password manager.
+flag soft file Desktop/supplier-accounts.txt
+  | Account numbers belong in the portal, not in a file Agent Tesla can copy from.
+
+lesson
+  | Turn on "File name extensions" in File Explorer, so you see the real ending: .pdf.exe is a program, not a document. Use Properties (on a Mac, Get Info): Type "Application" means a program.
+  | An unexpected order from someone you do not know, in a zip with a password in the email, is a reason to check, not to open. Real orders come through the portal.
+  | Agent Tesla hid inside a real program and showed only a fake error. If you ever ran a file like this, change your passwords from a clean device, and turn on two-step sign-in so a stolen password is not enough.

@@ -3,7 +3,8 @@
 // existing live-world route /api/desktop/events?run=<jobId> (docs/desktop-parity/BACKEND.md). Both desktop shells receive
 // every patch, so the same world shows in File Explorer and Finder, Task Manager and Activity Monitor, and so on.
 //
-// Every patch is valid for the plain seed on its own (the server checks it against the seed) and for the live world, so
+// Each patch is valid against the world as the earlier patches left it, which is the world the desktop shells are showing
+// by the time it arrives; a patch may name a file or a process an earlier one created.
 // a patch carries whole nodes, whole lists and whole banner lists, never a fragment of one. Lists replace: the replay
 // owns data.processes, data.startup, data.screenshots, notifications and windows for the run (BACKEND.md §5).
 import { createHash } from 'node:crypto';
@@ -12,6 +13,7 @@ import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseDesktopEvent, RUN_ID_RE } from '../desktop-world-events.mjs';
+
 
 const OceanWorldModel = createRequire(import.meta.url)('../../ui/desktop/world-model.js');
 const SEED_FILE = join(dirname(fileURLToPath(import.meta.url)), '../../data/desktop-world-seed.json');
@@ -73,7 +75,8 @@ function locate(path) {
 
 const timeOf = (item, fallback) => (ISO_TIME.test(item?.at ?? '') ? item.at : fallback);
 
-export function evidenceToPatches(evidenceItems, { path, label } = {}) {
+// note: the first notification's text (default: a replay of what the file did in the sandbox).
+export function evidenceToPatches(evidenceItems, { path, label, note = 'Replay of what the file did in the sandbox. Nothing here is real.' } = {}) {
   const items = Array.isArray(evidenceItems) ? evidenceItems : [];
   const pathLabel = label ?? PATH_LABELS[path];
   const start = timeOf(items[0], DEFAULT_TIME);
@@ -284,7 +287,7 @@ export function evidenceToPatches(evidenceItems, { path, label } = {}) {
     touchedNodes = new Set();
     touchedContents = new Set();
     if (pathLabel) {
-      notify('files', pathLabel, 'Replay of what the file did in the sandbox. Nothing here is real.', start);
+      notify('files', pathLabel, note, start);
       Object.assign(patch, notificationPatch());
       touched = new Set();
     }
@@ -340,11 +343,16 @@ function coalesce(patches) {
 export async function publish(jobId, patches, { hub, baseUrl = `http://127.0.0.1:${process.env.PORT ?? 4173}`, token, fetchImpl = fetch } = {}) {
   if (!RUN_ID_RE.test(jobId ?? '')) throw new TypeError('The job id must be 1-40 characters of a-z, 0-9 or -.');
   const results = [];
-  const seed = hub ? JSON.parse(readFileSync(SEED_FILE, 'utf8')) : null;
+  let world = hub ? JSON.parse(readFileSync(SEED_FILE, 'utf8')) : null;
   for (const patch of patches) {
     const event = { type: 'patch', patch };
     if (hub) {
-      results.push(hub.publish(jobId, parseDesktopEvent(event, seed)));
+      // Judge each patch against the world as the earlier ones left it: a replay walks a directory tree, so a later patch
+      // names a node an earlier patch created. Checking every patch against the bare seed refused those with `fs-node`, which
+      // failed the whole replay on every job that touched more than one file.
+      const parsed = parseDesktopEvent(event, world);
+      world = OceanWorldModel.createWorld(world, patch);
+      results.push(hub.publish(jobId, parsed));
       continue;
     }
     const response = await fetchImpl(new URL(`/api/desktop/events?run=${jobId}`, baseUrl), {

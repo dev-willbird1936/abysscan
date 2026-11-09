@@ -32,7 +32,9 @@ export async function createMockSource(name, { speed = 1, fetchImpl = fetch } = 
       for (const { delay = 0, ...event } of fixture.events) {
         await pause(delay * speed, signal);
         if (signal?.aborted) return;
-        onEvent(event);
+        // The server publishes the fixture's evidence replay on run mock-<name> (server.mjs publishMockReplay), as a real job's
+        // typed event names its own replay.
+        onEvent(event.event === 'typed' ? { ...event, data: { replayId: `mock-${name}`, ...event.data } } : event);
       }
     },
     async fetchJob() {

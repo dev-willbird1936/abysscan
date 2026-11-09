@@ -1,0 +1,391 @@
+# OpenCandy (2008-2016). An advertising library inside free-software installers that offered extra programs.
+# A quest (QUESTS.md): the trainee converts call recordings at work, installs the approved tool safely, then meets OpenCandy
+# inside the installer of a free converter. The victim is invented: OpenCandy hit anyone who installed free software.
+os windows
+user Dana Okafor
+about
+  | OpenCandy was a small advertising library that free-software makers built into their installers. In the middle of the setup it added a "Recommended software" page.
+  | Accepting it downloaded and installed another company's program. OpenCandy's helper told the advertiser about each install, and the advertiser paid for it.
+  | The training copy shows the helper as its own program, so you can find it in {Task Manager|Activity Monitor}. In the real setup it ran inside the installer. Dana's job is invented: the real victims were anyone who installed a free program.
+story
+  | You are Dana Okafor, office coordinator at Northwind Traders. This week you turn five recorded customer calls into MP3 files and upload them to the training library.
+  | It is Thursday afternoon. You have finished 3 of the 5 recordings. Two to go.
+  | Your portal sign-in and the call list are in two text files on the desktop. That is a bad habit, but it keeps this training quick.
+quota 3 5 Recordings finished
+
+# Dana's desk (soft flags: careless, but only here to keep the training simple).
+file Desktop/portal-login.txt
+  at 930 200
+  | Northwind Software Portal
+  | Username: dana.okafor
+  | Password: Harbor-2026!
+file Desktop/call-list.txt
+  at 930 300
+  | Call recordings for the training library (training copy)
+  | 1 Hartley Bakery, account 40012234
+  | 2 Fabrikam Ltd, account 40012871
+  | 3 Contoso Foods, account 40013356
+  | 4 Lakeshore Cafe, account 40013902
+  | 5 Alder Hardware, account 40014458
+
+# The safe task: the company's own software portal, and the approved converter.
+page portal-login software.northwind.example/sign-in
+  title Northwind Software Portal: sign in
+  brand Northwind IT
+  heading Sign in to the Software Portal
+  | Approved software for Northwind staff.
+  field Username = dana.okafor
+  field secret Password = Harbor-2026!
+  button Sign in
+page portal-saved software.northwind.example/downloads/started
+  title Northwind Convert: download started
+  brand Northwind IT
+  heading Download started
+  | northwind-convert-setup.exe is in your Downloads folder. Open it to install.
+page portal-convert software.northwind.example/apps/northwind-convert
+  title Northwind Convert 2.1
+  brand Northwind IT
+  requires portal-login
+  heading Northwind Convert 2.1
+  | Approved by IT. Converts call recordings (WAV, M4A) to MP3.
+  section About this software
+  row Publisher = Northwind Traders IT
+  row Version = 2.1
+  row Comes with = Nothing else
+  button Install -> portal-saved
+mail mail-convert
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Call recordings: use Northwind Convert
+  link portal-convert
+  | Hi Dana,
+  |
+  | For the call recordings, please use Northwind Convert from the software portal. It is the tool IT has approved for this. The link goes straight to it.
+  |
+  | Marcus, IT
+notify mail Marcus Lee
+  | Call recordings: use Northwind Convert
+view nc-setup wizard
+  title Northwind Convert Setup
+  app Northwind Convert Setup
+  publisher Northwind Traders IT
+  accent #2a5d9f
+  page Welcome
+  icon program
+  heading Welcome to Northwind Convert
+  | This will install Northwind Convert 2.1 on your computer.
+  | Click Next to continue.
+  button Cancel -> close
+  button Next -> next primary
+  page Installed
+  icon shield-ok
+  heading Northwind Convert is installed
+  section Done
+  progress 100
+  | Northwind Convert was installed.
+  button Finish -> done primary
+program ncsetup Northwind Convert (northwind-convert-setup.exe)
+  publisher Northwind Traders IT
+  signed yes
+  prompt open-warning
+  prompt elevation
+  description Northwind Convert installer from the company software portal
+  view nc-setup
+
+# The first step is the start of the guide: its Next plays it, so it waits for nothing.
+step The approved link
+  look Mail: Marcus's message, and the link under it
+  move Click the link under Marcus's message.
+  | Recording 4 of 5 is next. Marcus in IT has sent the link to the converter the company approved. This round is the normal one, so you know what a normal install looks like.
+  | The email links to software.northwind.example, the company's own portal. Hover over a link before you click it, to check where it goes.
+open mail-convert
+
+step Sign in to the company portal
+  look the two boxes: Username and Password
+  when visit portal-convert
+  cue field:portal-login:0 field:portal-login:1 choice:portal-login-1 choice:portal-convert-1 app:browser
+  move Copy the details from portal-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”. Then click “Install”.
+  | The portal asks you to sign in first. Two boxes: Username and Password. Remember what a normal page and a normal installer look like.
+open portal-convert
+
+step Sign in, and install the approved tool
+  look the portal's “Download started” page, and the file in Downloads
+  when choose portal-convert 1
+  move Double-click northwind-convert-setup.exe in Downloads.
+  | You are in. The portal said who made the tool and what else comes with it: nothing. The installer is saved to Downloads. Nothing has run yet.
+signin portal-login
+choose portal-convert 1
+file Downloads/northwind-convert-setup.exe
+  program ncsetup
+  size 2097152
+open Downloads
+
+step Your computer checks the installer
+  look {the Open File - Security Warning: Publisher “Northwind Traders IT”, Type “Application”, then the permission prompt|the warning: “northwind-convert-setup.exe” is a Windows program, then the password prompt}
+  when prompt ncsetup
+  cue dialog-btn:run dialog-btn:ok view-btn:next view-btn:done view:nc-setup
+  move {Click Run, then Yes.|In the warning, click “Show what it does”, then OK.}
+  | {Windows asks before a downloaded program runs. The publisher is the company's own and the file is signed.|The Mac warns that this is a Windows program: the training desktop shows what it did on the PC it was made for.}
+open Downloads/northwind-convert-setup.exe
+
+step The setup opens
+  look the setup window: two pages, and nothing offered but the tool
+  when run ncsetup
+  cue view-btn:next view-btn:done view:nc-setup
+  move Click Next, then Finish.
+  | A plain setup: a welcome, then a done page, and nothing offered but the tool. No offers, no ticked boxes. This is what a plain installer looks like.
+answer run
+answer run
+
+step Recording 4 done
+  look the counter in the guide: 4 of 5
+  when done nc-setup
+  cue choice:download-1 link:mail-wma mail:mail-wma app:mail
+  move Open Priya’s email and click the link.
+  | Recording 4 is converted: 4 of 5. One recording is left, and another email has just arrived.
+press nc-setup next
+press nc-setup done
+quota +1
+
+# The lure: a free converter for the one file the approved tool cannot read.
+page download audio-converter.example/download
+  title Free Audio Converter: download
+  brand Tunebridge Software
+  heading Free Audio Converter 4.2
+  | Convert music files to MP3, WAV and more. Free, with no time limit.
+  section About this download
+  row Price = Free
+  row Size = 3.0 MB
+  row Supported by = Partner offers shown during setup
+  button Download now
+view ac-setup wizard
+  title Free Audio Converter Setup
+  app Free Audio Converter Setup
+  publisher Tunebridge Software
+  accent #2f7d6b
+  page Licence agreement
+  icon info
+  heading Licence agreement
+  | Free Audio Converter 4.2 is free to use. This installer uses OpenCandy to recommend other software.
+  | By clicking I agree, you accept this licence and the offers that follow.
+  button Cancel -> close
+  button I agree -> next primary
+  page Recommended software
+  icon gear
+  heading Recommended for you: PC Speed Optimizer
+  | PC Speed Optimizer cleans your computer and makes it faster. It is a free download from our partner Swiftbyte Labs.
+  section Install PC Speed Optimizer (recommended)
+  check [x] Yes, download and install PC Speed Optimizer
+  check [x] Make SpeedSearch my home page and default search
+  line Clicking Next installs the two boxes ticked above, and accepts the Swiftbyte Labs licence.
+  button Back -> back
+  button Next -> next primary
+  page Installed
+  icon shield-ok
+  heading Free Audio Converter is installed
+  section Done
+  progress 100
+  | Free Audio Converter was installed. PC Speed Optimizer was downloaded from the partner's server and installed as well.
+  button Finish -> done primary
+program acsetup Free Audio Converter (free-audio-converter-setup.exe)
+  publisher Tunebridge Software
+  signed yes
+  prompt open-warning
+  prompt elevation
+  description Free Audio Converter installer with a recommended-software offer
+  view ac-setup
+mail mail-wma
+  from Priya Shah <priya.shah@northwind.example>
+  subject Recording 5 will not open in Northwind Convert
+  link download
+  | Hi Dana,
+  |
+  | Recording 5 is an old .wma file and Northwind Convert cannot read it. I used a free tool called Free Audio Converter for this once. The download page is below.
+  |
+  | Priya
+notify mail Priya Shah
+  | Recording 5 will not open in Northwind Convert
+
+step Download the free converter
+  look the Downloads folder: the new file, after you press Download
+  when choose download 1
+  move Double-click free-audio-converter-setup.exe in Downloads.
+  | Recording 5 is an old .wma file that Northwind Convert cannot open. Priya suggested a free converter she has used.
+  | The download page is for a popular free program, with no sign-in. Its details say partner offers are shown during setup. The file is saved to your Downloads folder. Nothing has run yet.
+open download
+choose download 1
+file Downloads/free-audio-converter-setup.exe
+  program acsetup
+  size 3145728
+open Downloads
+open download
+
+step Your computer checks the free installer
+  look {the Open File - Security Warning: Publisher “Tunebridge Software”, Type “Application”, then the permission prompt|the warning: “free-audio-converter-setup.exe” is a Windows program, then the password prompt}
+  when prompt acsetup
+  cue dialog-btn:run dialog-btn:ok view-btn:next view:ac-setup
+  move {Click Run, then Yes.|In the warning, click “Show what it does”, then OK.}
+  | {The same warning as IT's installer: the publisher is named and the file is signed, so this feels as safe as IT's tool.|The Mac warns that this is a Windows program: the training desktop shows what it did on the PC it was made for.}
+  | The difference is inside the setup.
+open Downloads/free-audio-converter-setup.exe
+
+step The licence page
+  look the licence page: the line about OpenCandy
+  when run acsetup
+  cue view-btn:next view:ac-setup
+  move Click I agree.
+  | The licence page says this installer uses OpenCandy to recommend other software. Most people click I agree without reading it. IT's setup had no such page.
+answer run
+answer run
+
+step The offers page
+  look the offers page: both boxes already ticked, and the line under them
+  when page ac-setup 2
+  cue view-btn:next view-btn:done view:ac-setup
+  move Read the offers page. Click Next, then Finish.
+  | OpenCandy shows a page called "Recommended software". It offers PC Speed Optimizer and a new home page, and both boxes are ticked for you. The word "recommended" means the advertiser pays for each install.
+press ac-setup page:1
+
+step Finish accepts the offers
+  look PC Speed Optimizer's window, and the browser, which now opens on SpeedSearch
+  when done ac-setup
+  move Open Priya’s email and click the link.
+  | Next installed both offers. The setup downloaded PC Speed Optimizer, installed it beside the audio converter, and set it to start with {Windows|your Mac}.
+  | OpenCandy's helper tried to report the install to the advertiser. PC Speed Optimizer has opened by itself with 1,284 "problems" and a $29.95 price. The browser opens on SpeedSearch, a home page Dana never chose. Priya's next email has just arrived.
+press ac-setup next
+press ac-setup done
+view pcspeed-pay message
+  title PC Speed Optimizer
+  icon warning
+  | To fix the problems, buy PC Speed Optimizer for $29.95.
+  button OK -> close primary
+view pcspeed-panel panel
+  title PC Speed Optimizer
+  app PC Speed Optimizer
+  publisher Swiftbyte Labs
+  accent #d9822b
+  icon warning
+  heading 1,284 problems found
+  | Your computer is running slowly. Fix the problems to speed it up.
+  section Scan result
+  tone warn
+  columns Problem | Count | Risk
+  cells Junk files | 812 | High
+  cells Startup items | 96 | High
+  cells Registry entries | 376 | Medium
+  button Fix all problems (buy for $29.95) -> view:pcspeed-pay primary
+  button Close -> close
+program pcspeed PC Speed Optimizer
+  publisher Swiftbyte Labs
+  signed no
+  process PCSpeedOptimizer.exe
+  cpu 14
+  mem 58
+  parent explorer.exe
+  command C:\Program Files\PCSpeed\PCSpeedOptimizer.exe
+  startup PCSpeedOptimizer "C:\Program Files\PCSpeed\PCSpeedOptimizer.exe" /tray
+  location HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+launch pcspeed
+run OCSetupHlp.exe
+  cpu 1
+  mem 6
+  parent free-audio-converter-setup.exe
+  net 203.0.113.40:80 (offer reported)
+open pcspeed-panel
+page speedsearch speedsearch.invalid
+  title SpeedSearch
+  heading SpeedSearch
+  toolbar PC Speed Bar
+  | Search the web...
+  section Sponsored results
+  tone injected
+  item Speed up your PC in 1 click
+  item Cheap flights: compare 40 sites
+  note Sponsored by Swiftbyte Labs.
+homepage speedsearch
+open speedsearch
+page library-done training-library.northwind.example/uploaded
+  title Training library: recording 5 uploaded
+  brand Northwind Training Library
+  toolbar PC Speed Bar
+  heading Recording 5 uploaded
+  | Alder Hardware, 14 minutes. It is now in the training library.
+page library training-library.northwind.example/upload
+  title Training library: upload recording
+  brand Northwind Training Library
+  toolbar PC Speed Bar
+  heading Upload recording 5
+  | The converted MP3 is ready to upload.
+  section Recording 5
+  row File = recording-5.mp3
+  row Length = 14 minutes
+  row Customer = Alder Hardware
+  section Sponsored: is your PC slow?
+  tone injected
+  item Speed up your PC in 1 click
+  item Cheap flights: compare 40 sites
+  button Upload recording 5 -> library-done
+mail mail-upload
+  from Priya Shah <priya.shah@northwind.example>
+  subject Recording 5: please upload it
+  link library
+  | Dana,
+  |
+  | Thanks for sorting the last file. Please upload recording 5 to the training library and we are done for the week. The link opens the upload page.
+  |
+  | Priya
+notify mail Priya Shah
+  | Recording 5: please upload it
+
+step The library page looks different
+  look the toolbar across the top of the page, and the ads inside it
+  when visit library
+  move Look at the page, then click Upload recording 5.
+  | The link goes to the company's own training library, but the page now has a toolbar across the top and ads in the middle. The library never shows adverts.
+  | The toolbar is PC Speed Bar, added to the browser by the offer Dana accepted.
+open library
+
+step All five recordings uploaded
+  look the counter in the guide: all five recordings are finished
+  when choose library 1
+  | The upload works, and all five recordings are done. Nothing on the screen says anything went wrong. Press Next to see what the free converter brought with it.
+choose library 1
+quota +1
+
+step What the offer left behind
+  look the animation, and {Task Manager|Activity Monitor}: the helper's network activity, and the notice
+  | Dana wanted one converter. She also got a program that starts with {Windows|your Mac}, nags for $29.95, and tried to report each install to an advertiser. A toolbar and a home page now show ads.
+  | The training desktop has no network, so the report was blocked. On a real computer it would have gone out.
+open taskmanager
+block offers.opencandy.invalid 80
+attack spyware-surveillance
+  | Free Audio Converter installed
+  | Two boxes ticked for you
+  | PC Speed Optimizer, started with the PC
+  | home page changed to a search site
+  | install reported to an advertiser
+
+flag hard section download 1
+  | The details say partner offers are shown during setup. That is the advertiser.
+flag hard line ac-setup ticked above
+  label Offers ticked before you saw them
+  | Both boxes were ticked for you. Clicking Next installs them, so unticking them was the only way to say no.
+flag hard process OCSetupHlp.exe
+  | OpenCandy's helper, started by the installer. It tries to report the offer to the advertiser.
+flag hard process PCSpeedOptimizer.exe
+  | The extra program the Recommended page installed. Dana came for a converter, not for this.
+flag hard startup PCSpeedOptimizer
+  | The extra program added itself to the programs that start with {Windows|your Mac}.
+flag hard section speedsearch 1
+  label Sponsored results on a search page Dana never chose
+  | The search page became Dana's home page without her choosing it. Its adverts were paid for by the offer.
+flag hard section library 2
+  | Adverts inside the company's own page. The toolbar added by PC Speed Optimizer put them there.
+flag soft file Desktop/portal-login.txt
+  | A portal password in a text file on the desktop: any program that runs can read it. Use a password manager.
+flag soft file Desktop/call-list.txt
+  | Customer account numbers in a loose text file. They belong in the company system only.
+
+lesson
+  | In an installer, "Recommended" means the advertiser paid for it. Clear every ticked box you did not come for.
+  | Choose "Custom" or "Advanced" install when it is offered: that is where the extras are. A plain installer, like IT's, offers nothing else.
+  | "PC speed" and "cleaner" programs offered this way are almost never worth having. Remove them in {Settings > Apps|the Applications folder}.

@@ -6,8 +6,8 @@ import { EXIT_REASONS, LIMITS, ROLES, ROLE_RUNTIME, pidsLimitFor } from './conta
 
 export const hashFile = async path => createHash('sha256').update(await readFile(path)).digest('hex');
 
-/** `unchanged` only when both hashes exist and match. */
-export const compareCanary = (before, after) => (before && before === after ? 'unchanged' : 'changed');
+/** Missing/unreadable evidence is unknown, not proof of a byte change. Both unknown and changed fail closed. */
+export const compareCanary = (before, after) => (!before || !after ? 'unknown' : before === after ? 'unchanged' : 'changed');
 
 export const WINE_NOTE = 'Ran under Wine without gVisor: runc with the verified Wine seccomp profile, no network, read-only root and dropped capabilities. AppArmor status is recorded for each Wine container; unavailable means no AppArmor protection.';
 
@@ -59,7 +59,7 @@ export function validateReceipt(receipt) {
   if (!Array.isArray(receipt?.limitsHit) || receipt.limitsHit.length !== hit.size
     || !receipt.limitsHit.every(reason => hit.has(reason)) || [...hit].some(reason => !receipt.limitsHit.includes(reason))) bad('limitsHit');
   for (const field of ['volumesRemoved', 'uploadDeleted', 'teardownConfirmed']) if (typeof receipt?.[field] !== 'boolean') bad(field);
-  if (!['unchanged', 'changed'].includes(receipt?.hostCanary)) bad('hostCanary');
+  if (!['unchanged', 'changed', 'unknown'].includes(receipt?.hostCanary)) bad('hostCanary');
   if (receipt?.volumesRemoved === true && receipt.teardownConfirmed !== true) bad('volumesRemoved');
   if (typeof receipt?.inference?.provider !== 'string' || !Number.isInteger(receipt.inference.calls)) bad('inference');
   return { ok: problems.length === 0, problems };

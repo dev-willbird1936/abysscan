@@ -16,6 +16,10 @@ const item = (kind, at, detail, fields) => ({ source: 'browser', kind, detail, a
  * posts nowhere is not a `fake-login`; such a page gets a `phishing-indicator` instead (harm unproven).
  * `sampleUrl` is the file:// URL of the sample: the download of the sample itself (a PDF the shell cannot show) is not a download.
  */
+// Windows scripting-host and IE objects: a page that names these is trying to leave the browser. Reported as an exploit
+// indicator, so an HTML file-infecting virus that cannot act on Linux still shows what it wanted to do.
+const HOST_OBJECTS = new Set(['ActiveXObject', 'WScript.Shell', 'Scripting.FileSystemObject', 'Shell.Application', 'ADODB.Stream', 'XMLHTTP', 'registry write', 'mshta']);
+
 export function mapBrowser(report, { at, sampleUrl }) {
   const browser = isObject(report) ? report : {};
   const forms = list(browser.forms);
@@ -28,6 +32,23 @@ export function mapBrowser(report, { at, sampleUrl }) {
       url: text(form.url, URL_CHARS), fields: isObject(form.fields) ? Object.fromEntries(Object.entries(form.fields).slice(0, 20).map(([name, value]) => [text(name, 60), text(value, 120)])) : {}, typedCredential: form.typedCredential === true,
     })),
   ];
+  for (const marker of list(browser.markers)) {
+    const name = text(marker.name, 40);
+    const count = Number(marker.count) || 1;
+    if (marker.high === true || HOST_OBJECTS.has(name)) {
+      items.push(item('exploit-indicator', at, `The page uses ${name} ${count} time(s): a browser cannot run this, it needs the Windows scripting host.`, { indicator: `page uses ${name}`, tool: 'markers' }));
+    } else {
+      items.push(item('suspicious', at, `The page uses ${name} ${count} time(s).`, { indicator: `page uses ${name}`, tool: 'markers' }));
+    }
+  }
+  const scripts = list(browser.scripts);
+  if (scripts.length > 0) {
+    const bytes = scripts.reduce((total, script) => total + (Number(script.bytes) || 0), 0);
+    items.push(item('script', at, `The page ran ${scripts.length} inline script(s), ${bytes} byte(s) in total.`, { scripts: scripts.length, bytes }));
+  }
+  for (const error of list(browser.scriptErrors).slice(0, 5)) {
+    items.push(item('suspicious', at, `A script stopped with ${text(error.name, 40)}: ${text(error.message, 160)}`, { indicator: 'script error', tool: 'chromium' }));
+  }
   if (browser.hasPasswordField === true && captured.length === 0) {
     items.push(item('phishing-indicator', at, 'The page has a password field; the typed credential was not sent anywhere.', { indicator: 'password field' }));
   }

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>How it works — Detonation Ocean</title>
-  <meta name="description" content="How Detonation Ocean opens a file in a sealed sandbox: architecture, containment, limits and honest status.">
+  <meta name="description" content="How the Abyss turns a known threat into a safe, simulated desktop, and how the sealed sandbox behind it works: architecture, containment, limits and honest status.">
   <meta name="theme-color" content="#01060a">
   <meta name="color-scheme" content="dark">
   <style>html,body{background:#07162a}</style>
@@ -18,13 +18,14 @@
     .pg-flow b { display: block; color: var(--p8); font-weight: 400; font-size: calc(var(--t) * 1.25); }
     .pg-diagram { margin: 0; padding: calc(var(--u) * 4); overflow-x: auto; font: 400 var(--t)/1.2 var(--serif); color: var(--p8); white-space: pre; background: var(--p0); --bd: var(--p4); }
   </style>
+  <link rel="stylesheet" href="/ui/abyss/site.css">
 </head>
-<body class="pg">
+<body data-site="content" class="pg">
   <a class="pg-skip" href="#main">Skip to the content</a>
   <header class="pg-bar">
     <a class="pg-brand" href="/"><span class="pg-mark" aria-hidden="true"></span><span>Detonation Ocean <b>The Abyss</b></span></a>
     <nav class="pg-nav" aria-label="Page">
-      <a href="/#upload">Upload</a>
+      <a href="/#threat-search">Search</a>
       <a href="/bestiary">Bestiary</a>
       <a href="/about" aria-current="page">How it works</a>
     </nav>
@@ -32,12 +33,23 @@
 
   <main class="pg-main" id="main">
     <h1>How it works</h1>
-    <p class="pg-lede">You drop a file. We open it in a sealed box, record what it really does, and show the result as a creature at a depth.</p>
+    <p class="pg-lede">Search a known threat and play it as a safe, simulated desktop. Each threat is a creature at a depth: the deeper it sinks, the more harm it does. Well-known malware in the ocean is illustrated from history, not verified by this service.</p>
+
+    <section aria-labelledby="h-search">
+      <h2 id="h-search">Threat search</h2>
+      <ul>
+        <li>On the home page, search for a real malware family, exploit or hack. A threat that is already in the ocean opens its simulated desktop straight away.</li>
+        <li>Nothing is downloaded, uploaded or run. The desktop is a simulation with fictional people, a fictional bank and made-up files.</li>
+        <li>The search is a preview. It currently knows Zeus (2007, a banking trojan). Other names answer that they are not indexed yet, and the build steps it shows for Zeus are a staged picture of the planned pipeline: check public reporting, research the threat, write the scene, check the script, build the desktop.</li>
+        <li>Public file upload is closed. The sandbox described below is kept: it ran selected files on the Vultr VM, and existing reports and the demo still describe it.</li>
+      </ul>
+    </section>
 
     <section aria-labelledby="h-arch">
       <h2 id="h-arch">Architecture</h2>
+      <p>The sandbox pipeline behind the ocean. Public file upload is closed, so the first step below no longer starts from a visitor.</p>
       <ol class="pg-flow">
-        <li><b>Upload</b>The controller reads the file’s type from its content, not its name, and picks a path: run it, run it under Wine, emulate it, or inspect it.</li>
+        <li><b>Intake</b>The controller reads the file’s type from its content, not its name, and picks a path: run it, emulate it, or inspect it. Wine is disabled on the current deployment.</li>
         <li><b>Detonate</b>A fresh gVisor container runs, emulates or inspects the file. Fake passwords and documents are planted for it to find.</li>
         <li><b>Collect</b>A second container records the trace and a before/after diff of the seeded files.</li>
         <li><b>Analyse</b>An AI model (Vultr Serverless Inference) writes Python to read the trace. A third container runs that code. If it fails, the error goes back to the model, up to three retries, all shown on screen.</li>
@@ -53,22 +65,34 @@
                    │          ├─ detonate container
                    │          ├─ collect container
                    │          └─ analyse container
-                   └─ job temp files (encrypted), ocean counts, host canary</pre>
-      <p>The browser never runs your file. It only replays what the server recorded on a Windows or macOS desktop.</p>
+                   └─ job temp files (deleted after each run), ocean counts, host canary</pre>
+      <p>The browser never runs your file. The optional training desktops illustrate historical incidents; a job replay is based on recorded sandbox evidence, but an illustrated fish scene is not.</p>
     </section>
 
     <section aria-labelledby="h-contain">
       <h2 id="h-contain">Containment</h2>
-      <p>Four properties keep a harmful file inside the box. Each has an acceptance test that proves it.</p>
+      <p>The sandbox has four containment controls. Tests and receipts check their settings and selected outcomes; neither proves that the entire host is untouched.</p>
       <table class="pg-table">
         <thead><tr><th scope="col">Property</th><th scope="col">What it means</th><th scope="col">Proven by</th></tr></thead>
         <tbody>
-          <tr><th scope="row">Process isolation</th><td>gVisor, no network, non-root, all capabilities dropped, read-only root, no Docker socket or host mounts. The host cannot be reached.</td><td>AT-5 (a sample runs <code>rm -rf /</code>; the host canary and the VM’s <code>/bin</code> are unchanged) and AT-16 (the job fails if any isolation flag is missing)</td></tr>
-          <tr><th scope="row">Secret hygiene</th><td>The inference key lives only in the controller. Containers start with an empty environment. File text reaches the model only as quoted, size-capped data.</td><td>AT-1 (no key in the container environment) and AT-12 (a file saying “ignore previous instructions” gets the same verdict)</td></tr>
+          <tr><th scope="row">Process isolation</th><td>gVisor, no network, non-root, dropped capabilities and read-only root. Containers see only fixed input binds and a capped synthetic home, never the Docker socket. This reduces host exposure; it is not proof against every escape.</td><td>AT-5 (a sample runs <code>rm -rf /</code>; the host canary and the VM’s <code>/bin</code> are unchanged) and AT-16 (the job fails if any isolation flag is missing)</td></tr>
+          <tr><th scope="row">Secret hygiene</th><td>The inference key remains in the controller. Containers receive only allowlisted environment variables. File-derived text reaches the model only as size-capped, untrusted data.</td><td>AT-1 (no key in the container environment) and AT-12 (a file saying “ignore previous instructions” gets the same verdict)</td></tr>
           <tr><th scope="row">Resource limits</th><td>512 MB memory, 1 CPU, 128 processes, 30 s per run, capped output. A fork bomb or a memory balloon stops at the limit.</td><td>AT-2 (time limit), AT-3 (process limit) and AT-4 (memory limit)</td></tr>
           <tr><th scope="row">Lifecycle</th><td>A new container for every run, removed and confirmed gone. If removal cannot be confirmed, the site stops taking uploads. The upload is deleted after the run.</td><td>AT-9 (nothing left behind) and AT-10 (failed removal stops new jobs)</td></tr>
         </tbody>
       </table>
+    </section>
+
+    <section aria-labelledby="h-privacy">
+      <h2 id="h-privacy">If a file is analysed</h2>
+      <p>The site does not take uploads now. When the sandbox does run a file, for the demo or a private deployment:</p>
+      <ul>
+        <li>The service keeps no copy, name or hash of your file. The file, its working copies on the server and the sandbox are deleted when the run ends, and the receipt records the deletion.</li>
+        <li>Parts of the file and what it did are sent to Vultr Serverless Inference, which writes and explains the analysis.</li>
+        <li>Your report opens only through its private link and expires an hour after the run.</li>
+        <li>The public ocean adds the file’s type, its result and the day. A rarely seen file type shows as a generic fish.</li>
+        <li>Server logs record job IDs, stages and timings, never file names, contents or hashes. Your address is held in memory only, for the hourly upload limit.</li>
+      </ul>
     </section>
 
     <section aria-labelledby="h-depth">
@@ -78,6 +102,7 @@
 
     <section aria-labelledby="h-limits">
       <h2 id="h-limits">Limits</h2>
+      <p>These limits describe the sandbox pipeline. The public site no longer accepts uploads.</p>
       <ul>
         <li>Up to 100 MB per file. Files over 10 MB get static analysis only.</li>
         <li>Up to 50 files after unpacking an archive, 30 seconds per item and 3 minutes per job.</li>
@@ -85,7 +110,7 @@
         <li>A file that was only inspected, not run, can reach Twilight at most.</li>
         <li>Some risks cannot be proven here: a phishing email that only links out, or a document that exploits a flaw in other software. The report says “risky, unproven”.</li>
         <li>A result of “No harmful behaviour observed” lists the checks that ran. It is not a guarantee that a file is safe.</li>
-        <li>Windows programs run under Wine or an emulator, not on real Windows. Some will not run, and the report says which steps worked.</li>
+        <li>Wine is disabled. Windows programs are emulated or inspected, not run on real Windows. Some will not finish; check the report's coverage before drawing conclusions.</li>
         <li>Without the model, verdicts still come from evidence. Only the written explanation is missing.</li>
       </ul>
     </section>
@@ -94,14 +119,15 @@
       <h2 id="h-status">Honest status</h2>
       <ul>
         <li>This is a hackathon build. The file types it handles first are archives, PDFs, Office files with macros, Windows programs, web pages, emails and scripts. Other types are inspected only.</li>
-        <li>The containment is built to run on Docker and gVisor. An end-to-end run on the public Vultr server with live inference has not been shown yet.</li>
+        <li>Earlier runs on the Vultr VM showed live inference and sandbox cleanup for selected files. These runs do not validate every file type, the present uncommitted source or any newly built images.</li>
         <li>Some creatures and fish use stand-in art until their own sprites are drawn. Their cards in the Bestiary still show the right name and meaning.</li>
-        <li>The ocean updates in batches, so a single upload cannot be spotted in it. It shows counts only: no file names, no hashes, no times.</li>
-        <li>The scripted attack scenes from the earlier version of this project are hidden on this site.</li>
+        <li>Results of files the sandbox analysed join the ocean in batches with counts and coarse file types, without uploaded names, hashes or job IDs. Named historical examples are illustrations, not observed uploads.</li>
+        <li>Training-desktop scenes illustrate behaviour; a historical example has no sandbox receipt. Availability depends on the site's desktop setting.</li>
       </ul>
     </section>
 
     <p class="pg-foot"><a href="/">Back to the ocean</a></p>
   </main>
+  <script src="/ui/abyss/site-nav.js"></script>
 </body>
 </html>

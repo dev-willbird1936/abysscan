@@ -66,8 +66,10 @@ export class DesktopEventHub {
     return entry;
   }
 
-  // Opens the stream on `response` and replays the events after lastEventId. False when the run is full.
-  subscribe(run, response, lastEventId = '', headers = {}) {
+  // Opens the stream on `response` and replays the events after lastEventId; with fromStart, a first connection (no id of
+  // this boot) gets every kept event: a finished recording, such as a job's evidence replay, watched after it was published.
+  // False when the run is full.
+  subscribe(run, response, lastEventId = '', headers = {}, { fromStart = false } = {}) {
     const entry = this.#entry(run);
     if (!entry || entry.clients.size >= this.maxClientsPerRun) return false;
     response.writeHead(200, {
@@ -81,6 +83,8 @@ export class DesktopEventHub {
     const [boot, seq] = String(lastEventId).split('-');
     if (boot === this.#boot && /^\d+$/.test(seq ?? '')) {
       for (const item of entry.history) if (item.seq > Number(seq)) response.write(item.frame);
+    } else if (fromStart) {
+      for (const item of entry.history) response.write(item.frame);
     }
     entry.clients.add(response);
     response.on('close', () => entry.clients.delete(response));

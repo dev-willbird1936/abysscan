@@ -1,0 +1,32 @@
+# WineHQ stable 11.0, new WoW64, 64-bit Unix side only: no i386 libraries, no i386 loader, no multiarch left behind.
+# Tested 2026-10-08 in WSL distro detonation-ocean (PIDS-AND-WINE.md section B).
+# build: docker build -t do-inv-wine -f Dockerfile.winehq --build-arg WINE_VERSION=11.0.0.0~bookworm-1 .
+# Wine 10.0 stable is NOT new WoW64 (its amd64 package is the old 64-bit-only layout with `wine64` in lib64): not used.
+# Packaging traps (both verified):
+#  1. wine-stable-amd64 holds only libraries. bin/wine and bin/wineserver are in wine-stable, whose Depends on
+#     wine-stable-i386 cannot be met without i386 multiarch. wine-stable is downloaded and unpacked with dpkg -x
+#     (dependencies ignored; the real dependencies are installed below).
+#  2. The 32-bit Windows (PE) DLLs and programs live in wine-stable-i386 (lib/wine/i386-windows). Without them
+#     C:\windows\syswow64\*.exe fails with c0000135 and no 32-bit sample can run. New WoW64 needs only those PE files;
+#     the i386-unix directory (32-bit .so files) is not unpacked.
+FROM debian:bookworm-slim
+ARG WINE_VERSION=11.0.0.0~bookworm-1
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update -qq && apt-get install -y -qq --no-install-recommends ca-certificates curl \
+ && mkdir -pm755 /etc/apt/keyrings \
+ && curl -fsSL -o /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key \
+ && printf 'Types: deb\nURIs: https://dl.winehq.org/wine-builds/debian\nSuites: bookworm\nComponents: main\nArchitectures: amd64\nSigned-By: /etc/apt/keyrings/winehq-archive.key\n' > /etc/apt/sources.list.d/winehq.sources \
+ && apt-get update -qq \
+ && apt-get install -y -qq --no-install-recommends "wine-stable-amd64=${WINE_VERSION}" \
+    xvfb xauth procps fonts-wine libfreetype6 libfontconfig1 libpng16-16 libgnutls30 libxcursor1 libxi6 libxrandr2 \
+    libxrender1 libxcomposite1 libxfixes3 libxinerama1 libxxf86vm1 libxslt1.1 \
+ && cd /tmp && apt-get download "wine-stable=${WINE_VERSION}" && dpkg -x wine-stable_*.deb / && rm -f wine-stable_*.deb \
+ && dpkg --add-architecture i386 \
+ && sed -i 's/^Architectures: amd64$/Architectures: amd64 i386/' /etc/apt/sources.list.d/winehq.sources \
+ && apt-get update -qq \
+ && apt-get download "wine-stable-i386:i386=${WINE_VERSION}" \
+ && dpkg-deb --fsys-tarfile wine-stable-i386_*.deb | tar -x -C / ./opt/wine-stable/lib/wine/i386-windows \
+ && rm -f wine-stable-i386_*.deb \
+ && dpkg --remove-architecture i386 \
+ && rm -rf /var/lib/apt/lists/*
+RUN useradd -u 10001 -m -d /home/dana -s /bin/sh dana

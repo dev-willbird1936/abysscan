@@ -22,6 +22,11 @@ __PUBLIC_HOST__ {
 		max_size 110MB
 	}
 
+	# Compress the pages, scripts and data (the renderer bundle is 1.4 MB raw). Not /api/*: job progress is a server-sent
+	# event stream, and a compressor would hold its events back.
+	@compressible not path /api/*
+	encode @compressible zstd gzip
+
 	header {
 		Strict-Transport-Security "max-age=31536000"
 		-Server

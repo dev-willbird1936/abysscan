@@ -1,0 +1,363 @@
+# Elf Bowling (1998). A harmless Christmas game that friends forwarded by email, and that trained people to run .exe attachments.
+# A quest (QUESTS.md): the trainee books the office Christmas party, confirms one department's headcount safely, then a friend
+# forwards a game. The game is harmless; the habit of running it, and the panic mail that follows, are what the quest grades.
+# The game here is an original stand-in ("Frosty Lanes"): same story, no real art or characters. The office and people are made up.
+os windows
+user Dana Okafor
+about
+  | Elf Bowling was a silly Christmas bowling game. In 1998 people forwarded it from friend to friend as an email attachment, and it spread by word of mouth all over the world, including through offices.
+  | It was not a virus. Some warnings said it was, and those were wrong.
+  | The real harm was the habit: an .exe attachment from a friend is fine to run. Later worms counted on exactly that.
+  | Invented for this training: the game (Frosty Lanes), the alert page and its "delete your files" order, modelled on the 2001 and 2002 chain emails (SULFNBK.EXE and jdbgmgr.exe). The office, the people and the caterer are made up too.
+story
+  | You are Dana Okafor, office manager at Northwind Traders. You are organising the staff Christmas party. Each department emails you its headcount, and you confirm it to the caterer, Greenleaf Catering, on their order page.
+  | The party is on Friday. You have confirmed 8 of the 10 departments. Two to go.
+  | Your caterer sign-in is in a text file on the desktop. That is a bad habit, but it keeps this training quick.
+quota 8 10 Department headcounts confirmed
+spotted reasons to stop and check, or not to panic
+
+# Dana's desk: the details she copies from (a soft flag: careless, but only here to keep the training simple).
+file Desktop/caterer-login.txt
+  at 930 200
+  | Greenleaf Catering: party orders
+  | Account: northwind-party
+  | Password: Mistletoe-2026!
+
+# The caterer: a sign-in page, and the Accounts order behind it.
+page caterer-login greenleaf-catering.example/party/sign-in
+  title Greenleaf Catering: sign in
+  brand Greenleaf Catering
+  favorite
+  heading Sign in to your party order
+  | Welcome back. Sign in to confirm your headcounts.
+  field Account = northwind-party
+  field secret Password = Mistletoe-2026!
+  button Sign in
+page ordered-accounts greenleaf-catering.example/party/orders/accounts/done
+  title Headcount confirmed
+  brand Greenleaf Catering
+  heading Headcount confirmed
+  | Accounts: 12 guests, buffet. Thank you.
+page held-accounts greenleaf-catering.example/party/orders/accounts/held
+  title Headcount held
+  brand Greenleaf Catering
+  heading Headcount held
+  | Accounts: on hold. Dana will check it with Priya.
+page order-accounts greenleaf-catering.example/party/orders/accounts
+  title Confirm headcount: Accounts
+  brand Greenleaf Catering
+  requires caterer-login
+  heading Confirm headcount: Accounts
+  | A department headcount is waiting for your confirmation.
+  section Order
+  row Department = Accounts
+  row Sent by = Priya Shah, Accounts
+  row Guests = 12
+  row Menu = Buffet, 3 vegetarian
+  button Confirm 12 guests -> ordered-accounts
+  button Hold and check with Priya -> held-accounts
+
+mail mail-accounts
+  from Priya Shah <priya.shah@northwind.example>
+  subject Accounts headcount for the party (12)
+  link order-accounts
+  | Hi Dana,
+  |
+  | Accounts will be 12 for the party: 3 of us want the vegetarian plate. The order is on the caterer's page, ready for you to confirm. The link opens it.
+  |
+  | Priya
+
+step Headcount 9 of 10
+  look Mail: Priya's message with the order link
+  | A new headcount has come in from Priya, in Accounts. It is the ordinary kind. Confirm it the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Accounts headcount for the party (12)
+
+step The link goes to the caterer
+  look the link under Priya's message
+  when mail mail-accounts
+  | The email links to the caterer's own address, greenleaf-catering.example, and the message is about the party Dana is really planning. Hover over a link before you click it, to check where it goes.
+open mail-accounts
+
+step Sign in as usual
+  look the two boxes: Account and Password, as on every visit
+  when visit order-accounts
+  move Copy the details from caterer-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The caterer asks you to sign in first. Two boxes: Account and Password. Remember what a normal order looks like.
+open order-accounts
+
+step Check, then confirm
+  look the Order box: the department, who sent it and the number of guests
+  when choose caterer-login 1
+  | You are in. The Order box names the department, the person who sent the number, and the guests. It matches Priya's email.
+signin caterer-login
+
+step 9 of 10 done
+  look the counter in the guide: one headcount left
+  when choose order-accounts any
+  | Done. One department to go. And a message has just arrived from Marcus, a friend in the Sales office.
+choose order-accounts 1
+quota +1
+close mail
+
+# The game: a plain program. No hidden changes, no start-up entry, it does not delete itself.
+view frosty-game panel
+  title Frosty Lanes: Holiday Bowling
+  app Frosty Lanes
+  publisher Snowdrift Games (fictional)
+  bg #eaf4ff
+  fg #12304d
+  accent #1f6fb5
+  size 520x420
+  icon user
+  heading Season's bowling!
+  | Roll a snowball down the lane and knock over the little paper elves. It is only a game.
+  section Scoreboard
+  columns Player | Frame | Score
+  cells Dana | 3 | 54
+  cells Computer | 3 | 61
+  note Press Roll to throw.
+  button Roll -> next primary
+  button Quit -> done
+  page Strike!
+  | Your snowball knocks over 9 of the 10 paper elves. Nicely done.
+  section Scoreboard
+  columns Player | Frame | Score
+  cells Dana | 4 | 63
+  cells Computer | 3 | 61
+  note Like it? Send Frosty Lanes to ten friends before Christmas.
+  button Roll again -> back primary
+  button Quit -> done
+
+program frosty-lanes Frosty Lanes
+  publisher none
+  signed no
+  prompt open-warning
+  description Holiday bowling game
+  process frosty-lanes.exe
+  cpu 6
+  mem 22
+  parent explorer.exe
+  command C:\Users\Dana\Downloads\frosty-lanes.exe
+  view frosty-game
+mail frosty
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject FW: FW: FW: you HAVE to play this!!
+  attach Downloads/frosty-lanes.exe
+  | Dana, this is hilarious. Pass it on!
+  |
+  | ---- Forwarded message ----
+  | Play Frosty Lanes. Roll snowballs and knock over the paper elves. It is FREE.
+  | Send it to ten friends before Christmas!
+file Downloads/frosty-lanes.exe
+  program frosty-lanes
+  size 612352
+notify mail Marcus Lee
+  | FW: FW: FW: you HAVE to play this!!
+
+step A funny mail from a friend
+  look the sender, the subject and the attachment: a program, not a picture or a document
+  when mail frosty
+  | Marcus forwards a Christmas game. The subject has FW three times, so it has been passed along many times already, and it asks you to send it to ten friends.
+  | Because it comes from a friend, it feels safe. Priya's message had a link to the caterer. This one carries a program: Windows hides the .exe, and the icon is a program's. Flag each reason to stop and check.
+open frosty
+
+step The warning that is easy to click past
+  look the Open File - Security Warning: Publisher "Unknown Publisher", Type "Application"
+  when prompt frosty-lanes
+  | Windows says it cannot tell who made the program. That is true of almost every forwarded file.
+  | Most people clicked Run, because a friend sent it. Here the file is harmless, but the warning is the same for a harmful one.
+close mail
+open Downloads/frosty-lanes.exe
+
+step A harmless game window
+  look the Frosty Lanes window: a scoreboard and a Roll button
+  when run frosty-lanes
+  move Open Task Manager (Activity Monitor on a Mac) and find frosty-lanes.exe.
+  | The game starts and plays. Roll a round if you like. It does nothing else: no start-up entry, no hidden copy, no deleted files.
+  | Nothing bad happened this time. The trouble is what you learn: "friends' attachments are safe to run". And now a message from Tom has arrived, and he sounds alarmed.
+answer run
+
+# The rumour that follows the game around. Each button's page is defined before the page with the buttons, so the buttons can open it.
+page rumour-deleted pc-virus-alerts.invalid/alerts/frosty-lanes/done
+  title VIRUS ALERT: done
+  heading Done. Now send this to everyone.
+  | Forward this alert to everyone you know before Christmas Day.
+page rumour-asked pc-virus-alerts.invalid/alerts/frosty-lanes/asked
+  title VIRUS ALERT: question sent
+  heading IT will check it and reply.
+  | Thank you. Until you hear back, do not delete anything and do not send this on. The alert is still linked from Tom's message in Mail.
+page rumour-page pc-virus-alerts.invalid/alerts/frosty-lanes
+  title VIRUS ALERT: Frosty Lanes
+  | DO NOT PLAY FROSTY LANES. It is a VIRUS that wipes your hard drive on Christmas Day.
+  section Where this alert came from
+  row Written by = Nobody has signed it
+  row Checked by = Nobody
+  row Confirmed by = a big computer company, with no name
+  section What to do now
+  item Delete everything in your Documents folder.
+  item Send this alert to everyone you know.
+  button Delete everything in my Documents -> rumour-deleted
+  button Ask the IT desk first -> rumour-asked
+mail rumour
+  from Tom Reyes <tom.reyes@northwind.example>
+  subject WARNING!! Do NOT play the bowling game: it is a VIRUS
+  link rumour-page
+  | Dana, I played Frosty Lanes twice and now I hear it wipes your whole hard drive on Christmas Day!
+  |
+  | ---- Forwarded message ----
+  | DO NOT PLAY FROSTY LANES. It is a VIRUS that wipes your hard drive on Christmas Day. Delete everything in your Documents folder, and send this to everyone you know.
+  |
+  | Do it NOW, and tell everyone you know!!
+  |
+  | Tom, Warehouse
+notify mail Tom Reyes
+  | WARNING!! Do NOT play the bowling game: it is a VIRUS
+
+step Find it in Task Manager
+  look frosty-lanes.exe in Task Manager (Activity Monitor on a Mac): a plain game name, with no start-up entry
+  when open taskmanager
+  move Open Tom's message and click its link.
+  | Here is the game's process, under its own name. It runs only while the game is open, and it has no start-up entry. Flag it if it is a reason to stop and check, or a reason not to panic.
+open taskmanager
+
+step A frightening warning
+  look Mail: Tom's message and its link, then the page: who wrote it, and the last line, "send this to everyone"
+  when visit rumour-page
+  move Flag each reason to stop and check, then press “Delete everything in my Documents” to see what someone who believed it would lose.
+  | Tom, in the Warehouse, has heard the game is a virus, and sends a warning that asks Dana to wipe her files and pass it on. It sounds urgent. Read it all the way down, and flag each reason to stop and check.
+  | Compare it with Priya's order: that one named who sent it and what it was for.
+open rumour-page
+
+step Delete everything?
+  look the two buttons: "Delete everything in my Documents" and "Ask the IT desk first"
+  when choose rumour-page 1
+  move Open the IT desk's message and click its link.
+  | Dana does what it says. Her Documents folder is now empty, and the game never touched one of those files.
+choose rumour-page 1
+delete Documents
+open Documents
+
+# IT answers, with a page that says what the game is. The reference page is defined first so the mail can link to it.
+page elf-ref hoax-reference.example/frosty-lanes
+  title Hoax reference: Frosty Lanes
+  heading Frosty Lanes, the holiday game
+  brand Hoax Reference
+  | Verdict: not a virus. It is a game, and it does nothing else.
+  section How to spot a panic mail
+  item It names a terrible virus and a date, but no one who checked.
+  item It says a big computer company confirmed it, with no name you can check.
+  item It tells you to delete your files and to send it to everyone you know.
+  section The real risk
+  | A program that arrives by email runs with all your rights. A friend can forward a bad program as easily as a game, and later worms did exactly that.
+  note Ask the sender, on another channel, before you run an unasked program.
+mail it-note
+  from Northwind IT <servicedesk@northwind.example>
+  subject About the Frosty Lanes warning
+  link elf-ref
+  | Hi Dana,
+  |
+  | We have had a lot of calls about the bowling game. It is not a virus, and nothing in it deletes files. If you removed your Documents, open the Recycle Bin (Trash on a Mac) and restore them.
+  |
+  | The link has the details. Please send virus warnings to us before you pass them on.
+  |
+  | IT service desk
+notify mail Northwind IT
+  | About the Frosty Lanes warning
+
+step Nothing was wrong
+  look the IT note and the link in it: the page says what the game is
+  when visit elf-ref
+  move Open Tom's sorry headcount mail and click its link.
+  | The IT desk says plainly that the game is harmless and the warning was a rumour. Dana's Documents folder was emptied for nothing: the files are in the Recycle Bin (Trash on a Mac), and she can restore them.
+  | The alert had the signs: nobody signed it, nobody checked it, and it said to send it to everyone. The real risk was the game mail, the one that taught you to run a forwarded program.
+open elf-ref
+
+# The last headcount.
+page ordered-warehouse greenleaf-catering.example/party/orders/warehouse/done
+  title Headcount confirmed
+  brand Greenleaf Catering
+  heading Headcount confirmed
+  | Warehouse: 9 guests, buffet. Thank you.
+page held-warehouse greenleaf-catering.example/party/orders/warehouse/held
+  title Headcount held
+  brand Greenleaf Catering
+  heading Headcount held
+  | Warehouse: on hold. Dana will check it with Tom.
+page order-warehouse greenleaf-catering.example/party/orders/warehouse
+  title Confirm headcount: Warehouse
+  brand Greenleaf Catering
+  requires caterer-login
+  heading Confirm headcount: Warehouse
+  | A department headcount is waiting for your confirmation.
+  section Order
+  row Department = Warehouse
+  row Sent by = Tom Reyes, Warehouse
+  row Guests = 9
+  row Menu = Buffet, 1 vegetarian
+  button Confirm 9 guests -> ordered-warehouse
+  button Hold and check with Tom -> held-warehouse
+mail mail-warehouse
+  from Tom Reyes <tom.reyes@northwind.example>
+  subject Sorry about the panic. Warehouse headcount (9)
+  link order-warehouse
+  | Dana, sorry about the fuss. The Warehouse will be 9 for the party, one vegetarian. The order is on the caterer's page. The link opens it.
+  |
+  | Tom
+notify mail Tom Reyes
+  | Sorry about the panic. Warehouse headcount (9)
+
+step Back to the party
+  look Mail: Tom's headcount, then the Order box on the caterer's page
+  when visit order-warehouse
+  | The last headcount is an ordinary one from Tom. The Order box names the department, the person who sent it and the guests, like Priya's did. You are still signed in. Check it, then confirm.
+open order-warehouse
+
+step 10 of 10, and the party is on
+  look the counter in the guide: every department is confirmed
+  when choose order-warehouse any
+  | Every department is confirmed and the caterer has the numbers. Press Next to see where a game like this went.
+choose order-warehouse 1
+quota +1
+
+step Where the game went
+  look the animation: a game passed on from friend to friend
+  | No virus touched a single computer. Frosty Lanes spread because kind people forwarded it, and the panic spread the same way. What stayed behind was a habit: a friend's attachment is safe to run.
+  | Later worms counted on that habit. A forwarded .exe, from a name you trust, was the way in.
+attack mass-mail-worm
+  | passed on to ten friends, then ten more
+  | opened by hand, because a friend sent it
+  | a panic mail made people delete their own files
+  | the habit outlived the game
+mail helpdesk
+  from Northwind IT <servicedesk@northwind.example>
+  subject Helpdesk: 38 messages about one game
+  | This week the service desk took 38 calls and messages about the bowling game. Nobody had a virus. Four people deleted real files by mistake, and 11 of you ran a program a friend had forwarded.
+  |
+  | Northwind IT
+notify mail Northwind IT
+  | Helpdesk: 38 messages about one game
+
+flag hard mail frosty
+  | A chain forward (FW three times) that begs you to send it to ten friends, with a program attached instead of a link or a document.
+flag hard file Downloads/frosty-lanes.exe
+  | A program, not a picture or a document. Properties shows Type "Application".
+flag hard dialog open-warning frosty-lanes
+  | A game from a friend still shows Publisher: Unknown. The warning is the same for a harmless file and a harmful one.
+flag hard process frosty-lanes.exe
+  | A plain game process under its own name, with no start-up entry. It hides nothing: a reason not to panic.
+flag hard mail rumour
+  | A frightening alert that tells you to delete your files and send it to everyone, from someone who only heard it.
+flag hard section rumour-page 1
+  | Nobody has signed it, the "big computer company" has no name, and nobody checked it. Priya's and Tom's real headcounts named who sent them.
+flag hard choice rumour-page 1
+  | Deleting your own work because a chain mail says so is the harm here. The game never touched a document.
+flag hard section elf-ref 1
+  | The reference lists the signs of a panic mail, and Tom's alert had every one.
+flag soft file Desktop/caterer-login.txt
+  | Passwords in a text file on the desktop: any program that runs can read them. Use a password manager.
+
+lesson
+  | A friend's name on a mail does not make an attachment safe: their account, or their good intentions, can pass a bad file along as easily as a game.
+  | If an .exe arrives unasked, ask the sender on another channel first. Check Properties: Type "Application" means it is a program.
+  | Do not believe a panic mail either. Do not delete your files, or send it on, because an email says so: look for a real source or ask IT first.

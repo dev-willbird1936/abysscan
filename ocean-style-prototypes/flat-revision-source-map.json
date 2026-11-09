@@ -1,0 +1,12 @@
+{
+  "generator": "Codex native image_gen.imagegen",
+  "session": "01a10c3b-6573-72e1-b8af-de7d6148bb26",
+  "materialization": "Parent copied native staged PNGs unchanged after visually verifying tier identity; native files existed despite CLI reporting in-memory output.",
+  "map": {
+    "01-sunlight": "exec-455f948a-a3f3-4cc0-9f13-75e7f7030f27.png",
+    "02-twilight": "exec-0f2c7196-c70d-48ea-983a-130e4b388535.png",
+    "03-midnight": "exec-99a8526d-05ab-40b9-8a7e-8194518cdaa5.png",
+    "04-abyss": "exec-427c3ff8-dfb4-4143-b59d-377705ab9799.png",
+    "05-trench": "exec-cfb21b7c-b6db-43cd-8740-680235740038.png"
+  }
+}

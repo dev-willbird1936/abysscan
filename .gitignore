@@ -4,8 +4,14 @@ node_modules/
 .playwright-mcp/
 .planning/
 .codex/
+.serena/
 .ruff_cache/
 __pycache__/
+
+# Scratch review/QA output: contact sheets, recordings, md5 logs.
+# Local evidence only - docs/evidence/ cites paths in here, but the files
+# themselves are large (hundreds of MB of mp4/png) and are never committed.
+.tmp-review/
 .env
 .env.*
 *.env
@@ -16,3 +22,6 @@ ocean-state.json
 nul
 
 .demo-data/
+
+# Threat search caches: decisions, research briefs and generated scenes (backend/threats).
+data/generated-threats/

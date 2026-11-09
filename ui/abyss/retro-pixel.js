@@ -78,10 +78,34 @@
     return t;
   };
   const litMaterial = (uv = [1, 0, 1, 0]) => new T.ShaderMaterial({
-    uniforms: { map: { value: null }, normalMap: { value: null }, uUv: { value: uv }, uLight: { value: PixelLit.LIGHT }, uTint: { value: [1, 1, 1] }, uOpacity: { value: 1 } },
+    uniforms: { map: { value: null }, normalMap: { value: null }, uUv: { value: uv }, ...PixelLit.uniforms(), uTint: { value: [1, 1, 1] }, uOpacity: { value: 1 } },
     vertexShader: PixelLit.VERT, fragmentShader: PixelLit.LIT_FRAG, transparent: true, depthWrite: true, toneMapped: false,
   });
   const useTex = (material, tex) => { material.uniforms.map.value = tex.color; material.uniforms.normalMap.value = tex.normal; };
+
+  // The renderer's own lights reach the sprites through their normal maps. In sunlit water the fixed key light shapes
+  // them; as the torch takes over in the dark, the key light fades and the torch beam lights each sprite from the side
+  // the beam passes it on (its nearest point on the beam, a little in front), so the shading follows the pointer.
+  const TORCH = [1, 0.89, 0.75]; // the renderer's torch colour (0xffe3c0)
+  function lightUp(u, p, size, cam) {
+    const L = T.lights;
+    if (!L) return;
+    const K = L.uTorchK.value, P = L.uTorchP.value, D = L.uTorchD.value;
+    const dark = Math.min(1, K.z);
+    u.uKey.value.fill(1.35 * (1 - 0.7 * dark));
+    if (dark < 0.001) { u.uPointCol.value.fill(0); return; }
+    const dx = p.x - P.x, dy = p.y - P.y, dz = p.z - P.z, l = Math.max(Math.hypot(dx, dy, dz), 1e-3);
+    const along = dx * D.x + dy * D.y + dz * D.z, c = along / l;
+    const s = Math.min(1, Math.max(0, (c - K.w) / Math.max(K.y - K.w, 1e-3)));
+    const beam = s * s * (3 - 2 * s) * K.z / (1 + l * l * 0.0012);
+    const t = Math.max(0, along), qx = P.x + D.x * t, qy = P.y + D.y * t, qz = P.z + D.z * t;
+    const m = cam.matrixWorldInverse.elements, v = u.uPoint.value;
+    v[0] = m[0] * qx + m[4] * qy + m[8] * qz + m[12];
+    v[1] = m[1] * qx + m[5] * qy + m[9] * qz + m[13];
+    v[2] = m[2] * qx + m[6] * qy + m[10] * qz + m[14] + size * 0.8;
+    v[3] = size * 2.5;
+    for (let i = 0; i < 3; i++) u.uPointCol.value[i] = TORCH[i] * 1.5 * beam;
+  }
 
   function spriteFor(e) {
     if (e.a.school) return schoolFor(e);
@@ -112,6 +136,7 @@
     const c = e.c;
     if (c.inner) c.inner.visible = false;
     if (e.a.ghost) { e.hid = true; return; } // framing placeholder: never drawn, never picked
+    if (e.hiddenByShow) { c.group.visible = false; return; } // the ocean show is drawing this creature itself (ui/job/ocean-show.mjs): never seen twice
     let st = e.__sprite;
     if (st === undefined) {
       if (e.out >= 0.985) return;
@@ -120,7 +145,9 @@
     if (!st) return;
     if (st.school) return school(e, st, cam, dt);
     const { sprite, material, art } = st;
-    const visible = st.ready && e.out < 0.985;
+    // The agent octopus is the one beside the upload panel (menu-octopus.js) and, during the show, the show's own: the ocean's octopus record
+    // stays out of sight, so a visitor never sees two.
+    const visible = st.ready && e.out < 0.985 && e.a.anchor !== 'octopus';
     sprite.visible = visible;
     if (!visible) return;
     // Face the way the creature swims on screen (camera right vector); keep the last heading when it hovers.
@@ -151,6 +178,7 @@
     const level = Math.max(e.a.kind === 'creature' ? lurk * 0.7 : 0, Math.min(1.35, k * 1.12));
     material.uniforms.uTint.value = [level, level, level];
     material.uniforms.uOpacity.value = 1 - e.out;
+    lightUp(material.uniforms, p, c.L, cam);
     if (e.halo) e.halo.visible = false;
     if (e.glints) for (const g of e.glints) g.s.visible = false;
   }
@@ -177,7 +205,7 @@
     let seed = 0;
     for (const ch of species) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
     const rnd = () => (seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296;
-    const n = Math.min(SCHOOL_FISH, count), radius = e.c.L * (0.55 + 0.02 * n);
+    const n = Math.min(SCHOOL_FISH, count), radius = e.c.L * (0.6 + 0.045 * n); // each fish adds to the school's width, so a bigger school is a looser one
     const fish = Array.from({ length: n }, () => {
       const sprite = new T.Sprite(art.right);
       sprite.renderOrder = 2;
@@ -208,6 +236,7 @@
       sprite.scale.set(w, w * st.art.aspect, 1);
       sprite.position.set((f.x + Math.sin(now * f.speed + f.phase) * st.radius * 0.18) / gs, (f.y + Math.sin(now * f.speed * 1.3 + f.phase) * st.radius * 0.1) / gs, f.z / gs);
     }
+    if (visible) { lightUp(st.art.right.uniforms, p, c.L, cam); lightUp(st.art.left.uniforms, p, c.L, cam); }
     if (e.halo) e.halo.visible = false;
     if (e.glints) for (const g of e.glints) g.s.visible = false;
   }

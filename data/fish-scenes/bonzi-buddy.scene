@@ -1,0 +1,362 @@
+# Bonzi Buddy (1999-2004). A free talking desktop assistant that changed the home page, added a toolbar and showed ads.
+# A quest (QUESTS.md): the trainee collects five jokes for a staff newsletter, does one safely from the intranet, then a
+# colleague's tip sends Dana to a free talking helper whose setup ticks four offers for Dana.
+# The mascot here is an original, fictional character ("Pip"); the real product's artwork is not copied.
+# The victim is invented: Bonzi Buddy hit home users and children, not one job.
+os windows
+user Dana Okafor
+about
+  | Bonzi Buddy was a free "talking desktop buddy" with jokes and songs. It changed the browser's home page without asking, installed a toolbar and showed ads.
+  | It was adware rather than a virus: the helper was the bait, and the ads and tracking were the price. Its ads were made to look like Windows warnings. In February 2004 the US Federal Trade Commission ordered its maker to pay $75,000 for collecting personal information from children under 13.
+  | Here a made-up helper, Pip, acts it out, with its installer offers ticked for you. Dana, the job and the company are invented: the real victims were home users who wanted a free helper, some of them children.
+story
+  | You are Dana Okafor, office coordinator at Northwind Traders. Every Friday you put together "Friday Fun", a one-page note of five clean jokes that goes out on the staff intranet.
+  | It is Thursday afternoon. You have chosen 3 of the 5 jokes. Two to go.
+  | The staff birthday list and the guest Wi-Fi password are in two text files on your desktop. Hover over anything that looks wrong and flag it.
+quota 3 5 Jokes chosen
+
+# Dana's desk (soft flags: careless, but only here to keep the training simple).
+file Desktop/staff-birthdays.txt
+  at 930 200
+  | Staff birthdays for the Friday note (training copy)
+  | Priya Shah, 14 March 1991
+  | Marcus Lee, 2 August 1986
+  | Dana Okafor, 21 May 1989
+file Desktop/guest-wifi.txt
+  at 930 300
+  | Northwind guest Wi-Fi (training copy)
+  | Network: northwind-guest
+  | Password: Harbor-2026!
+
+# The safe task: the company's own intranet, with nothing added to the page.
+page joke4-added staff.northwind.example/friday-fun/added
+  title Friday Fun: joke 4 added
+  brand Northwind Staff Intranet
+  heading Joke 4 added
+  | The calendar joke is now in this week's Friday Fun note.
+page joke4 staff.northwind.example/friday-fun/joke-4
+  title Friday Fun: joke 4
+  brand Northwind Staff Intranet
+  heading Joke 4: the calendar
+  | Why was the calendar nervous? Its days were numbered.
+  section About this page
+  row Needs = Nothing to install
+  row Adverts = None
+  button Add to Friday Fun -> joke4-added
+mail mail-joke4
+  from Priya Shah <priya.shah@northwind.example>
+  subject Joke 4 for Friday Fun
+  link joke4
+  | Hi Dana,
+  |
+  | I found a good one for joke 4 on the intranet. The link opens it, ready to add to the Friday note.
+  |
+  | Priya
+
+step Joke 4 of 5
+  look Mail: Priya's message with the intranet link
+  | A new joke has come in from Priya. This one is on the company's own intranet. Add it the normal way, so you know what a normal page looks like.
+notify mail Priya Shah
+  | Joke 4 for Friday Fun
+
+step The link goes to the intranet
+  look the link under Priya's message
+  when mail mail-joke4
+  | The email links to staff.northwind.example, the company's own site. Hover over a link before you click it, to check where it goes.
+open mail-joke4
+
+step A page that just works
+  look the details: Needs "Nothing to install", Adverts "None"
+  when visit joke4
+  move Read the details, then click “Add to Friday Fun”.
+  | The joke is on the page, ready to add. It needs nothing installed and shows no adverts. Remember what a normal page looks like.
+open joke4
+
+step Joke 4 done
+  look the counter in the guide: 4 of 5, and the new mail from Marcus
+  when choose joke4 any
+  | Added: 4 of 5. One joke to go, and Marcus has just emailed a tip: a free helper that tells jokes.
+  | He means well. His link goes to pipbuddy.example, not to a company page.
+choose joke4 1
+quota +1
+
+# The lure: a free talking helper that tells jokes, which is what Dana needs.
+page download pipbuddy.example/download
+  title Meet your new best friend!
+  brand Pip Fun Software
+  heading Free talking desktop buddy
+  | Pip walks, talks, sings, tells jokes and helps you search the internet. 100% free!
+  section About this download
+  row Price = Free
+  row Size = 2.3 MB
+  row Funded by = Advertising and special offers
+  note Pip may collect the addresses of pages you visit to choose offers for you.
+  button Download free
+mail mail-pip
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Joke 5: ask Pip!
+  link download
+  | Dana,
+  |
+  | For the last joke try Pip, a free talking buddy. My daughter has it at home: it tells a new joke every day, and it is free. The download page is below.
+  |
+  | Marcus
+notify mail Marcus Lee
+  | Joke 5: ask Pip!
+
+step A friendly download page
+  look the details: Price, Size, Funded by
+  when visit download
+  | Pip is cheerful and the page hides nothing. One line says what pays for it: special offers and ads. The intranet page had no such line.
+  | Read the details before you press Download: a free program still has to earn its keep somewhere.
+open download
+
+# The setup: three pages, the offers ticked before the trainee sees them.
+view pip-setup-wizard wizard
+  title Pip Buddy Setup
+  app Pip Buddy Setup
+  accent #6aa84f
+  page Welcome and licence
+  icon program
+  heading Welcome to Pip Buddy
+  | Pip tells jokes, sings and helps you search the web, for free.
+  | By installing, you agree that Pip may show offers and may collect the web pages you visit to choose them.
+  button Cancel -> close
+  button I agree, Next -> next primary
+  page Choose your options
+  icon gear
+  section Recommended for you
+  check [x] Make pipbuddy.example my home page
+  check [x] Install the Pip toolbar in my browser
+  check [x] Send me special offers
+  check [x] Start Pip every time the computer starts
+  note Recommended: keep these options for the full Pip experience.
+  button Back -> back
+  button Install -> next primary
+  button Cancel -> close
+  page Finished
+  icon shield-ok
+  heading Pip Buddy is installed
+  section Done
+  progress 100
+  | Pip Buddy is installed. Pip will say hello now.
+  button Finish -> done primary
+# The downloaded installer: an unknown program. Windows shows the Open File warning, then asks for permission to change the PC.
+program pip-setup Pip Buddy Setup
+  publisher none
+  signed no
+  prompt open-warning
+  prompt elevation
+  description Pip Buddy installer
+  view pip-setup-wizard
+
+step The system asks first
+  look the warning: the publisher is unknown
+  when choose download 1
+  | The system warns that the publisher is unknown. This is the moment to stop and ask who made it.
+  | Plenty of people clicked Run, because the helper looked friendly.
+choose download 1
+file Downloads/PipBuddySetup.exe
+  program pip-setup
+  size 2457600
+open Downloads/PipBuddySetup.exe
+
+step The setup starts
+  look the setup window: the licence line about offers and visited pages
+  when run pip-setup
+  move Read the first page, then click “I agree, Next”.
+  | The first page says Pip may show offers and may collect the web pages you visit. Most people click through it.
+  | The intranet needed no setup at all.
+answer run
+answer run
+
+step Four boxes already ticked
+  look the Options page: four ticked boxes, and the note under them
+  when page pip-setup-wizard 2
+  cue view-btn:next view-btn:done view:pip-setup-wizard
+  move Read the page. To say no you would clear the boxes. Click Install to go on as most people do, then Finish.
+  | The installer offers a new home page, a toolbar, special offers and start-up when the computer starts. All four are ticked for you.
+  | Clicking Next, Next, Install accepts all of it.
+press pip-setup-wizard next
+
+# After Pip: the clock warning Pip speaks is an ad, the home page and toolbar are Pip's, and Pip reports the pages visited.
+view pip-joke message
+  title Pip
+  app Pip Buddy
+  icon character
+  | Why did the computer go to the doctor? It had a virus!
+  button OK -> close primary
+view pip-buddy character
+  title Pip
+  app Pip Buddy
+  icon character
+  size 320x130
+  balloon Hi! I'm Pip, your new friend. Psst: your PC clock is wrong! Click here to fix it now.
+  button Fix my clock -> open:home primary
+  button Tell me a joke -> view:pip-joke
+  button Hide Pip -> close
+program pip-buddy Pip Buddy
+  publisher Pip Fun Software
+  signed no
+  process PipBDY.exe
+  cpu 6
+  mem 52
+  command C:\Program Files\PipBuddy\PipBDY.exe
+  startup PipBuddy C:\Program Files\PipBuddy\PipBDY.exe
+  location HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+  description Talking desktop buddy
+page pip-search pipbuddy.example/search
+  title Pip search: results
+  brand Pip Fun Software
+  toolbar Pip Toolbar
+  heading Search results
+  | Results for your search. The first ones are sponsored.
+  section Sponsored results
+  item Free screensavers and games
+  item Win a prize: you are visitor number 1,000,000
+  item Cheap holiday deals, today only
+  note Sponsored by Pip Fun Software
+page home pipbuddy.example/home
+  title Pip home
+  brand Pip Fun Software
+  heading Hi, I'm Pip!
+  toolbar Pip Toolbar
+  | Want to hear a joke? Search the web with me! Special offers today only.
+  section Sponsored
+  tone bad
+  item Your PC clock is wrong! Click here to fix it
+  item You are visitor number 1,000,000: claim your prize
+  item Free screensavers and games
+  note Sponsored by Pip Fun Software
+  button Search with Pip -> pip-search
+
+step The browser changes
+  look the browser: Pip's home page, its toolbar and ads, and Pip on the desktop
+  when done pip-setup-wizard
+  move Click Install if you have not, then Finish.
+  | The setup is done. The browser now opens Pip's page, with a toolbar and adverts. Pip is running on the desktop and set to start when the computer starts. A notification says a connection was blocked.
+  | None of this was asked for on the download page. It was all in the boxes Dana left ticked.
+press pip-setup-wizard next
+press pip-setup-wizard done
+launch pip-buddy
+homepage home
+open home
+block ads.pipbuddy.invalid 80
+# Pip pops up as setup ends, in front of the browser, as a new pop-up does.
+show pip-buddy
+
+step Pip says hello
+  look Pip on the desktop, and what its balloon says
+  when choose home 1
+  move Click “Search with Pip” on the home page.
+  | Pip talks from the moment it is installed. Before any joke, it claims the PC clock is wrong: an ad made to look like a Windows warning.
+  | Its search button opens a results page full of sponsored links. Priya's next email has just arrived.
+choose home 1
+
+# The payoff: the same intranet joke, in a browser that now adds a toolbar and ads.
+page joke5-added staff.northwind.example/friday-fun/added-5
+  title Friday Fun: joke 5 added
+  brand Northwind Staff Intranet
+  toolbar Pip Toolbar
+  heading Joke 5 added
+  | The last joke is now in this week's Friday Fun note.
+page joke5 staff.northwind.example/friday-fun/joke-5
+  title Friday Fun: joke 5
+  brand Northwind Staff Intranet
+  toolbar Pip Toolbar
+  heading Joke 5: the printer
+  | Why did the printer go to school? To improve its paper trail.
+  section About this page
+  row Needs = Nothing to install
+  row Adverts = None
+  section Sponsored: is your clock wrong?
+  tone injected
+  item Your PC clock is wrong! Click here to fix it
+  note Ads by Pip Toolbar
+  button Add to Friday Fun -> joke5-added
+mail mail-joke5
+  from Priya Shah <priya.shah@northwind.example>
+  subject Joke 5: it is on the intranet
+  link joke5
+  | Dana,
+  |
+  | I found the last joke on the intranet, too. Same as before: the link opens it, ready to add.
+  |
+  | Priya
+notify mail Priya Shah
+  | Joke 5: it is on the intranet
+
+step The last joke
+  look Mail: Priya's last message
+  when mail mail-joke5
+  | Priya's last joke, on the company's intranet like the first. Open it.
+open mail-joke5
+
+step The intranet page looks different
+  look the toolbar across the top of the page, and the ads inside it
+  when visit joke5
+  move Read the page, including the row that says Adverts, before you press Add.
+  | The link goes to the company's own intranet, but the page now has a toolbar across the top and ads in the middle. The row on the page still says Adverts: None.
+  | The toolbar is Pip's, added to the browser by the offers Dana accepted.
+open joke5
+
+step 5 of 5, or so Dana thinks
+  look the counter in the guide: all five jokes are chosen
+  when choose joke5 any
+  | The joke is added and the note is complete. Nothing on the screen says anything went wrong. Press Next to see what the free helper brought with it.
+choose joke5 1
+quota +1
+
+step What Pip kept
+  look the table of reported pages, and the animation: the program, the toolbar and the home page
+  | Dana wanted a joke. Dana also got a program that starts with the computer, a home page and a toolbar that show ads, and a helper that reports every page Dana visits.
+  | There is no sign that Pip took files or passwords. The price of "free" was the ads, the changes to the browser and the tracking.
+page pip-log ads.pipbuddy.invalid
+  title Pages reported (illustration)
+  heading What Pip reported
+  | The pages Dana opened after installing Pip, as an advertiser's server would list them.
+  section Reported pages
+  tone bad
+  columns Page | Sent to | Pip ID
+  cells pipbuddy.example/home | ads.pipbuddy.invalid | pip-7f3a-example
+  cells staff.northwind.example/friday-fun/joke-5 | ads.pipbuddy.invalid | pip-7f3a-example
+  cells staff.northwind.example/friday-fun/added-5 | ads.pipbuddy.invalid | pip-7f3a-example
+  note The licence said Pip may collect the pages you visit. This desktop has no network, so these rows are an illustration.
+  section Not shown
+  tone good
+  item No sign that files or passwords were taken
+open pip-log
+attack spyware-surveillance
+  | the home page
+  | the toolbar
+  | the pages Dana visits
+  | Pip starts with the computer
+
+flag hard section download 1
+  label Download page: "Funded by" offers and ads
+  | The page says what pays for the free helper: special offers and ads. A plain company page says nothing of the kind.
+flag hard link mail-pip
+  | A colleague's link to a download site outside the company, not a company page.
+flag hard dialog open-warning pip-setup
+  | A setup program from an unknown publisher. Most people clicked Run because Pip looked friendly.
+flag hard process PipBDY.exe
+  | Pip running in the background. Dana came for a joke, not for a program that stays.
+flag hard startup PipBuddy
+  | Pip added itself to the programs that start every time the computer starts.
+flag hard notice taskmanager connection blocked
+  | Pip tried to reach an advertiser's address on its own. A joke helper has no need to call anyone.
+flag hard section home 1
+  label Pip's home page: ads Dana never chose
+  | The browser's home page was changed to Pip's page, with adverts Dana never asked for.
+flag hard section joke5 2
+  label Adverts inside the intranet page
+  | Adverts inside the company's own page. The intranet shows none: the toolbar Pip added put them there.
+flag soft file Desktop/staff-birthdays.txt
+  | Colleagues' dates of birth in a loose text file on the desktop. Keep them in the company system.
+flag soft file Desktop/guest-wifi.txt
+  | A network password in a text file on the desktop: any program that runs can read it. Use a password manager.
+
+lesson
+  | A free helper pays for itself with ads and tracking. Ask what it gets in return before you install it, and look for the line that says who pays.
+  | Read the installer pages. Untick the offers, or cancel if you cannot. "Next, Next, Install" accepts everything.
+  | If the home page or toolbar changes after an install, the new program is the cause: uninstall it (Settings > Apps on Windows, or drag it out of Applications on a Mac), then reset the browser's home page.

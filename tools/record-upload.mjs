@@ -1,14 +1,16 @@
-// Records one upload through the local demo (start-hackathon-demo.bat) as an MP4: main menu, drop panel, the ocean show step by step (octopus,
-// clam, fish, dive), then the full report page. Usage: node tools/record-upload.mjs <file> <out.mp4>. Set RECORD_BASE_URL/RECORD_AUTH for a remote site. Needs playwright-core, its headless shell and ffmpeg.
+// Records one upload as an MP4: main menu, drop panel, the ocean show step by step (octopus, clam, fish, dive), then the full
+// report page. Usage: node tools/record-upload.mjs <file> <out.mp4>. Records the local demo (start-hackathon-demo.bat) by
+// default; set RECORD_BASE_URL and RECORD_AUTH=user:password for the live site. Needs playwright-core, its headless shell and
+// ffmpeg. The blank tab before the site's first paint is cut, so the clip opens on the loader.
 import { createRequire } from 'node:module';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
 const [file, out] = process.argv.slice(2).map((p) => resolve(p));
 const { chromium } = createRequire(import.meta.url)(process.env.PLAYWRIGHT_CORE || 'C:/Temp/pw-kimi/node_modules/playwright-core');
-const shell = 'C:/Users/warcr/AppData/Local/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-win64/chrome-headless-shell.exe';
+const shell = 'C:/Users/<you>/AppData/Local/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-win64/chrome-headless-shell.exe';
 const dir = mkdtempSync(join(tmpdir(), 'record-'));
 const size = { width: 1280, height: 800 };
 const base = process.env.RECORD_BASE_URL || 'http://127.0.0.1:4173/'; // set RECORD_BASE_URL (and RECORD_AUTH=user:password) to record the live site
@@ -44,6 +46,9 @@ try {
   await browser.close();
 }
 const webm = join(dir, readdirSync(dir).find((f) => f.endsWith('.webm')));
-execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', webm, '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', out]);
+// The video starts with an empty white tab. Inverted, that is black, and blackdetect reports where it ends.
+const probe = spawnSync('ffmpeg', ['-hide_banner', '-t', '15', '-i', webm, '-vf', 'negate,blackdetect=d=0.04:pix_th=0.02', '-an', '-f', 'null', '-'], { encoding: 'utf8' }).stderr;
+const trim = Number(/black_start:0(?:\.0+)?\s+black_end:([\d.]+)/.exec(probe)?.[1] ?? 0);
+execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-ss', trim.toFixed(2), '-i', webm, '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', out]);
 rmSync(dir, { recursive: true, force: true });
-console.log('saved', out, errors.length ? `page errors: ${errors.slice(0, 3)}` : 'no page errors');
+console.log('saved', out, `(blank tab before the first paint cut: ${trim.toFixed(1)} s)`, errors.length ? `page errors: ${errors.slice(0, 3)}` : 'no page errors');

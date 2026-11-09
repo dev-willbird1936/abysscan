@@ -771,7 +771,7 @@ test('receipt validation rejects missing or weakened fields', () => {
     ['containers[0].exit', r => { r.containers[0].exit = { code: 1, reason: 'meteor' }; }],
     ['containers[0].removedAt', r => { r.containers[0].removedAt = null; }],
     ['limitsHit', r => { r.limitsHit = []; }],
-    ['hostCanary', r => { r.hostCanary = 'unknown'; }],
+    ['hostCanary', r => { r.hostCanary = 'invalid'; }],
     ['uploadDeleted', r => { delete r.uploadDeleted; }],
     ['volumesRemoved', r => { r.teardownConfirmed = false; r.containers.forEach(c => { c.removedAt = null; }); }],
     ['inference', r => { r.inference = {}; }],
@@ -798,7 +798,7 @@ test('host canary: hash before and after; any change or missing hash is "changed
     assert.equal(compareCanary(before, await hashFile(canary)), 'unchanged');
     writeFileSync(canary, Buffer.from('0123456789abcdeX'));
     assert.equal(compareCanary(before, await hashFile(canary)), 'changed');
-    assert.equal(compareCanary(undefined, undefined), 'changed');
+    assert.equal(compareCanary(undefined, undefined), 'unknown');
     await assert.rejects(hashFile(join(dir, 'missing')));
   } finally {
     rmSync(dir, { recursive: true, force: true });

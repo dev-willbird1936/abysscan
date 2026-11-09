@@ -1,0 +1,374 @@
+# NotPetya (June 2017). Hidden in an update of a widely used accounting program, then spread across company networks.
+# A quest (QUESTS.md): the trainee is a tax accountant on filing day. The trainee installs one ordinary update from the accounting
+# supplier to file a branch return, then a second one that carries NotPetya. The real first victims were firms that filed
+# Ukrainian tax returns with one popular program; the company, the people and the program here are invented. The lure
+# really did look like nothing: the update came from the supplier's own server, so the page has no tell, and the signs
+# are what the update starts afterwards.
+os windows
+user Dana Okafor
+about
+  | NotPetya came in through a hijacked update of a tax-accounting program that thousands of companies trusted. Nobody opened a file or clicked a warning: the update arrived from the supplier's own update server.
+  | It spread to every machine it could reach, using stolen passwords and a Windows flaw, locked the documents, and restarted each PC behind a fake disk check. Then it showed a ransom screen. Paying recovered nothing: it was a wiper dressed as ransomware, and shipping, food and drug companies lost billions of dollars.
+story
+  | You are Dana Okafor, tax accountant at Northwind Traders. Every quarter you file a tax return for each of the company's ten branches, using Ledgerline, the accounting suite from Kestrel Software. Before it files, Ledgerline asks each PC to install the supplier's latest update.
+  | It is mid-morning on the last day for filing. You have filed 8 of the 10 branch returns. Two to go.
+  | Two text files on your desktop hold the branch server login and a backup note. That is a bad habit, but it keeps this training quick.
+quota 8 10 Branch returns filed today
+
+# Dana's desk (soft flags: careless, but only here to keep the training simple).
+file Desktop/branch-server-login.txt
+  at 930 200
+  | Northwind branch file server (training copy)
+  | Share: \\192.0.2.30\returns
+  | Admin user: finance-admin
+  | Password: Harbour-Docklands-2026!
+file Desktop/returns-backup-note.txt
+  at 930 300
+  | Return backups (training copy)
+  | Copy the finished returns to the USB drive on Fridays.
+  | The drive stays plugged in so nobody forgets.
+
+# The supplier's update centre: the same page every time, so what stays the same is easy to see.
+page ledger-home filing.ledgerline.example/returns
+  title Ledgerline: branch returns
+  brand Ledgerline by Kestrel Software
+  favorite
+  heading Branch returns
+  | Ten returns are due today. Updates and returns arrive by email, with a link.
+page held-175 updates.kestrel-software.example/ledgerline/10.01.175/later
+  title Update postponed
+  brand Ledgerline by Kestrel Software
+  heading Update postponed
+  | Ledgerline cannot file a return until it is updated. Come back to this update when you are ready.
+page filed-9 filing.ledgerline.example/returns/harbour-q3/filed
+  title Return filed
+  brand Ledgerline by Kestrel Software
+  heading Return filed
+  | Harbour branch, third quarter 2026: tax due 14,620.00. The tax office has your receipt.
+page held-9 filing.ledgerline.example/returns/harbour-q3/held
+  title Return held
+  brand Ledgerline by Kestrel Software
+  heading Return held for review
+  | The Harbour return waits until someone files it.
+page ret-9 filing.ledgerline.example/returns/harbour-q3
+  title File return: Harbour
+  brand Ledgerline by Kestrel Software
+  heading File return: Harbour branch
+  | Ledgerline 10.01.175 is installed. The return is ready to file.
+  section Return
+  row Branch = Harbour (branch 9 of 10)
+  row Period = Third quarter, 2026
+  row Tax due = 14,620.00
+  row Prepared by = Dana Okafor
+  button File return -> filed-9
+  button Hold for review -> held-9
+page upd-175 updates.kestrel-software.example/ledgerline/10.01.175
+  title Ledgerline update centre: 10.01.175
+  brand Ledgerline by Kestrel Software
+  heading Update ready: Ledgerline 10.01.175
+  | Ledgerline asks every PC to install the latest update before it files a quarter-end return.
+  section Update details
+  row Product = Ledgerline accounting suite
+  row Version = 10.01.174 to 10.01.175
+  row From = Kestrel Software, your supplier since 2019
+  row Size = 3.8 MB
+  row Contains = Quarter-end tax form changes
+  button Install update -> ret-9
+  button Not now -> held-175
+
+mail mail-ret9
+  from Priya Shah <priya.shah@northwind.example>
+  subject Harbour return (9 of 10): update Ledgerline first
+  link upd-175
+  | Hi Dana,
+  |
+  | Harbour's figures are in. Ledgerline wants its quarter-end update before it will file, same as every quarter. The link opens Kestrel's update page, and installing it takes you to the return.
+  |
+  | Priya
+
+step Return 9 of 10
+  look Mail: Priya's message about the Harbour return
+  | A new message from Priya, in Accounts. This one is ordinary. File the return the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Harbour return (9 of 10): update Ledgerline first
+
+step The link goes to the supplier
+  look the link under Priya's message
+  when mail mail-ret9
+  | Ledgerline wants its update before it files. The link goes to Kestrel Software's own address, kestrel-software.example: the supplier you have used for years. Hover over a link before you click it, to check where it goes.
+open mail-ret9
+
+step An update, as every quarter
+  look the update details: who it is from, the version and the size
+  when visit upd-175
+  move Read the update details, then click “Install update”.
+  | The update centre says what is coming: the product, the version, who sent it and how big it is. This is what an ordinary update looks like.
+open upd-175
+
+step Installed
+  look the banner in the corner, and the return that opened
+  when choose upd-175 1
+  | Installed. A small banner says so, and Ledgerline opens the return. Nothing was asked. That is normal for an update from a supplier your company trusts.
+choose upd-175 1
+run updater.exe
+  publisher Kestrel Software
+  trusted yes
+  cpu 2
+  mem 48
+  parent services.exe
+  command C:\Program Files\Ledgerline\updater.exe /silent
+update Ledgerline 10.01.175
+  kb KB-LEDGER-175
+  size 3.8 MB
+  status installed
+notify settings Ledgerline updated
+  | Update 10.01.175 installed.
+
+step Filed: 9 of 10
+  look Task Manager (Activity Monitor on a Mac): updater.exe, nearly idle
+  move Open Priya's last message. Task Manager can stay open.
+  when choose ret-9 any
+  | Filed, nine of ten. In Task Manager the update left one quiet process, updater.exe, using almost nothing. That is what a finished update looks like. Another message has just arrived.
+choose ret-9 1
+quota +1
+open taskmanager
+
+# The lure: the next update, from the same supplier, looking the same. Nothing on the page gives it away.
+page held-176 updates.kestrel-software.example/ledgerline/10.01.176/later
+  title Update postponed
+  brand Ledgerline by Kestrel Software
+  heading Update postponed
+  | Ledgerline cannot file a return until it is updated. Come back to this update when you are ready.
+page filed-10 filing.ledgerline.example/returns/docklands-q3/filed
+  title Return filed
+  brand Ledgerline by Kestrel Software
+  heading Return filed
+  | Docklands branch, third quarter 2026: tax due 9,845.50. The tax office has your receipt.
+page held-10 filing.ledgerline.example/returns/docklands-q3/held
+  title Return held
+  brand Ledgerline by Kestrel Software
+  heading Return held for review
+  | The Docklands return waits until someone files it.
+page ret-10 filing.ledgerline.example/returns/docklands-q3
+  title File return: Docklands
+  brand Ledgerline by Kestrel Software
+  heading File return: Docklands branch
+  | Ledgerline 10.01.176 is installed. The return is ready to file.
+  section Return
+  row Branch = Docklands (branch 10 of 10)
+  row Period = Third quarter, 2026
+  row Tax due = 9,845.50
+  row Prepared by = Dana Okafor
+  button File return -> filed-10
+  button Hold for review -> held-10
+page upd-176 updates.kestrel-software.example/ledgerline/10.01.176
+  title Ledgerline update centre: 10.01.176
+  brand Ledgerline by Kestrel Software
+  heading Update ready: Ledgerline 10.01.176
+  | Ledgerline asks every PC to install the latest update before it files a quarter-end return.
+  section Update details
+  row Product = Ledgerline accounting suite
+  row Version = 10.01.175 to 10.01.176
+  row From = Kestrel Software, your supplier since 2019
+  row Size = 4.1 MB
+  row Contains = Corrections to the quarter-end tax forms
+  button Install update -> ret-10
+  button Not now -> held-176
+mail mail-ret10
+  from Priya Shah <priya.shah@northwind.example>
+  subject Last one: Docklands return (10 of 10)
+  link upd-176
+  | Dana,
+  |
+  | Docklands is the last return. Kestrel put out a second update this morning, so Ledgerline wants that one first. Same link as before.
+  |
+  | Priya
+notify mail Priya Shah
+  | Last one: Docklands return (10 of 10)
+
+step The last return
+  look the link under Priya's message: the same kind as the first
+  when mail mail-ret10
+  | Priya's last return, and another Kestrel update before it. The sender, the words and the link are just like the first message. Nothing about it is different.
+open mail-ret10
+
+step The same update page
+  look the update details: compare them with the last update
+  when visit upd-176
+  move Read the update details, then click “Install update”.
+  | The page is the same as before: same supplier, same address, same layout. Only the version number and the size have changed a little. There is nothing here to flag, and that is how this attack worked. Attackers had taken over the supplier's update server, so the update came from the real supplier.
+open upd-176
+
+# The worm: rundll32 loads perfc.dat, and a renamed copy of a remote-admin tool starts it on other PCs.
+step Installed, and nothing looks different
+  look the banner in the corner: the same as last time
+  when choose upd-176 1
+  | Installed, with the same banner as before, and the return opens. In the real attack the update installed itself, with nobody clicking.
+  | But the update carried NotPetya. updater.exe has started a program of its own, and it is already trying to reach other PCs on the network.
+  | The “Connection blocked” banners show only because this training desktop has no network. On a real network nothing warned anyone.
+choose upd-176 1
+run rundll32.exe
+  publisher Microsoft Corporation
+  parent updater.exe
+  command rundll32.exe C:\Windows\perfc.dat,#1
+  net 192.0.2.21:445 (spreading)
+  cpu 72
+  mem 64
+run dllhost.dat
+  publisher Microsoft Corporation
+  parent rundll32.exe
+  command C:\Windows\dllhost.dat \\192.0.2.22 -accepteula
+  net 192.0.2.22:445 (spreading)
+  cpu 18
+  mem 20
+update Ledgerline 10.01.176
+  kb KB-LEDGER-176
+  size 4.1 MB
+  status installed
+notify settings Ledgerline updated
+  | Update 10.01.176 installed.
+block 192.0.2.21 445
+block 192.0.2.22 445
+
+step Filed: 10 of 10, or so Dana thinks
+  look Task Manager (Activity Monitor on a Mac): rundll32.exe, dllhost.dat, and the new start-up item
+  move Flag rundll32.exe, dllhost.dat and the new start-up item, then open Marcus's message.
+  when choose ret-10 any
+  | Filed, ten of ten. The shift is done. But the process list shows what the update started: rundll32.exe, a real Windows tool, busy running a file called perfc.dat, and a program named dllhost.dat. The update also added a one-time task with no name to the start-up list. Flag what looks wrong.
+choose ret-10 1
+quota +1
+open taskmanager
+startup unnamed-task shutdown.exe /r /f
+  location Task Scheduler Library\ (one time, run as SYSTEM)
+page it-ack it.northwind.example/security/alert/thanks
+  title Northwind IT: thank you
+  brand Northwind IT
+  heading Thank you
+  | The helpdesk will call you back. Every line is busy.
+page it-alert it.northwind.example/security/alert
+  title Northwind IT: security alert
+  brand Northwind IT
+  heading Security alert: save your work now
+  | Several PCs on the network have started to lock their files. IT does not know why yet.
+  section What to do
+  | 1. Save your work.
+  | 2. If your PC restarts by itself and shows a disk check, switch it off at once. Do not wait for the check to finish.
+  | 3. Call the helpdesk on 555-0142.
+  button I will switch off and call IT -> it-ack
+mail mail-marcus
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject My files will not open: are yours OK?
+  link it-alert
+  | Dana,
+  |
+  | Since I took this morning's Kestrel update, my PC restarted by itself with a disk check, and now my files will not open. Every PC on my floor is slow. IT just sent this round. Is yours OK?
+  |
+  | Marcus
+notify mail Marcus Lee
+  | My files will not open: are yours OK?
+
+step Marcus's PC is already locked
+  look Marcus's message: Marcus's PC restarted with a disk check, and the files will not open
+  when mail mail-marcus
+  cue link:mail-marcus choice:it-alert-1 app:mail
+  move Flag Marcus's email. When you are ready, click the link in it and read IT's alert.
+  | Marcus's PC has already restarted, and the files on it will not open. The same update set a one-time restart task on your PC too, so yours is next.
+  | IT's alert is in the link under Marcus's message. Flag what you can see first.
+open mail-marcus
+view shutdown-warn message
+  title Scheduled restart
+  icon warning
+  size 460x220
+  heading Your PC is about to restart
+  | A scheduled task will restart this computer in less than a minute. Save your work.
+  button Close -> done primary
+
+step Too late
+  look the message: “Your PC is about to restart”
+  when choose it-alert 1
+  | IT's alert says to switch the PC off if a disk check appears. But the restart task was set when the update ran, and Windows is about to restart on its own.
+choose it-alert 1
+show shutdown-warn
+
+# After the restart: the fake disk check (a black text screen), then the ransom text on every start.
+view notpetya-chkdsk screen
+  title Repairing file system
+  bg #000000
+  fg #c0c0c0
+  accent #c0c0c0
+  fullscreen
+  heading Repairing file system on C:
+  | The type of the file system is NTFS.
+  | One of your disks contains errors and needs to be repaired.
+  | This process may take several hours to complete.
+  | It is strongly recommended to let it complete.
+  | WARNING: DO NOT TURN OFF YOUR PC!
+  | IF YOU ABORT THIS PROCESS, YOU COULD DESTROY ALL OF YOUR DATA!
+  | PLEASE MAKE SURE YOUR POWER CABLE IS PLUGGED IN!
+  counter CHKDSK is repairing sector 0 64000
+view notpetya-ransom screen
+  title Ooops, your important files are encrypted
+  bg #000000
+  fg #ff3030
+  accent #ff3030
+  fullscreen
+  heading Ooops, your important files are encrypted.
+  | If you see this text, then your files are no longer accessible,
+  | because they have been encrypted. Perhaps you are busy looking for
+  | a way to recover your files, but do not waste your time.
+  | Nobody can recover your files without our decryption service.
+  | 1. Send the equivalent of 300 USD in Bitcoin to this address:
+  | TRAINING-NOT-A-WALLET-203.0.113.9
+  | 2. Send your wallet ID and your personal installation key to:
+  | recover@notpetya.example
+  | Your personal installation key: TRAINING-KEY-0000-0000-0000
+
+step A fake disk check
+  look the black screen: “Repairing file system on C:”
+  move Nothing to click here: the check runs by itself.
+  when done shutdown-warn
+  | After the restart, a screen says Windows is repairing the disk and warns you not to turn the PC off. It is a lie. While you wait, NotPetya encrypts the disk's file table (the index of where every file is), so your files cannot be found, and replaces the start-up code.
+  | IT said to switch the PC off at this very moment, and that could have saved the data. Most people waited, as the screen asked.
+press shutdown-warn done
+encrypt Documents
+encrypt Desktop
+show notpetya-chkdsk
+
+step The ransom screen
+  move Read the screen, then see how far it spread.
+  look the red text: “Ooops, your important files are encrypted.”
+  | The screen asks for 300 USD in Bitcoin. Windows no longer starts, and the screen comes back every time the PC is switched on.
+  | In the real attack the recovery mailbox was shut down within hours, and paying got nothing back.
+close notpetya-chkdsk
+show notpetya-ransom
+
+step What NotPetya did
+  look the animation: the update that carried it, and every PC it reached
+  | Thousands of PCs showed this screen within hours, in company after company. Some firms rebuilt tens of thousands of PCs from scratch, and the ones with an offline backup recovered first.
+block 192.0.2.23 445
+attack network-worm
+  | an update from a supplier everyone trusted
+  | updater.exe starts perfc.dat
+  | stolen passwords and a flaw open other PCs
+  | a restart task is set on each PC
+  | the fake disk check locks the file table
+  | ransom screen: nothing could unlock the files
+
+flag hard process rundll32.exe
+  | A real Windows tool, started by the accounting updater, running a file called perfc.dat. An update does not do that, and the processor is busy with it.
+flag hard process dllhost.dat
+  | A name made to look like the Windows helper dllhost.exe, but it ends in .dat. Underneath it is a renamed copy of PsExec, a Microsoft remote-admin tool, which NotPetya used to start itself on other PCs.
+flag hard startup unnamed-task
+  | A one-time task with no name, run as SYSTEM, that restarts the PC. Nobody on the team scheduled it.
+flag hard mail mail-marcus
+  | A colleague's PC restarted with a disk check, and the files on it would not open: the same update, the same signs, already on the floor.
+flag soft file Desktop/branch-server-login.txt
+  | An admin password in a text file on the desktop. NotPetya spread with passwords it found on the PC. Use a password manager, and keep admin accounts off everyday PCs.
+flag soft file Desktop/returns-backup-note.txt
+  | A backup drive left plugged in can be hit too. Keep a copy offline and off-site.
+
+lesson
+  | Even an update from a supplier you trust can be hijacked. Nothing on the update page looked different: the signs came after, when the updater started a program that no update starts.
+  | Keep PCs apart on the network and admin passwords off everyday PCs, so one infected PC cannot reach all the others.
+  | Keep Windows updated: the flaw it used had been fixed in March, over three months before. Patched PCs were still hit through stolen passwords, so patching alone was not enough.
+  | Offline backups are what let companies recover. A disk check that appears right after a surprise restart is not normal: switch the PC off at once and call IT.

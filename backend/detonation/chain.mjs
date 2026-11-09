@@ -216,7 +216,6 @@ export function createChain({ run, receiptRecord, wineApproved }) {
     // --- emulate ---------------------------------------------------------------------------------------------------------------
     if (pe) {
       if (unpackedUpx) out.steps.push(stepOf('emulate', 'skipped', 'Emulation: skipped (analysed through the unpacked program).'));
-      else if (dotnet) out.steps.push(stepOf('emulate', 'skipped', 'Emulation: skipped (a .NET assembly is read statically and not run).'));
       else if (family === 'pe-static') out.steps.push(stepOf('emulate', 'skipped', 'Emulation: skipped (the file is over 10 MB: static analysis only).'));
       else if (wineCompleted) out.steps.push(stepOf('emulate', 'skipped', 'Emulation: not needed (Wine ran the program to its end).'));
       else if (!fits()) skipForBudget('emulate', 'Emulation');
@@ -226,7 +225,12 @@ export function createChain({ run, receiptRecord, wineApproved }) {
         const mapped = mapRunnerLine('exe', line, { at: at(), sampleUrl: 'file:///tmp/dt/sample.exe' });
         out.evidence.push(...mapped.evidence);
         out.steps.push(...mapped.steps);
-        if (line) { ran = true; if (out.path !== 'wine') { out.label = 'Emulated'; out.path = 'emulate'; } }
+        if (line) {
+          ran = true;
+          // A managed assembly is executed by Mono, not emulated: say which engine ran it.
+          if (isObject(line.emulation?.mono)) { out.label = 'Ran under Mono'; out.path = 'mono'; }
+          else if (out.path !== 'wine') { out.label = 'Emulated'; out.path = 'emulate'; }
+        }
       }
     } else if (family === 'wine-script' || family === 'msi' || family === 'msi-static') {
       out.steps.push(stepOf('emulate', 'skipped', 'Emulation: no emulator is shipped for this type.'));

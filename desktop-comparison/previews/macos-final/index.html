@@ -1,0 +1,56 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; media-src 'self' blob:; frame-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Training Mac</title>
+<link href="./fonts/inter.css" rel="stylesheet"/>
+<style>html, body, #root { height: 100%; margin: 0; overflow: hidden; background: #000; }
+/* Low-effects mode (world sys.reduceTransparency): the bundle already gives glass surfaces solid fills; this also drops
+   the remaining backdrop blurs, so the SVG refraction filter is never evaluated. */
+html[data-reduce-transparency=true] *, html[data-reduce-transparency=true] *::before, html[data-reduce-transparency=true] *::after { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+/* Menu bar: its own items follow the wallpaper tone the adapter samples (html[data-menubar-tone]), in either theme.
+   Dropdown menus are siblings of these items and keep the theme colours. */
+html[data-menubar-tone=light] .glass-menubar > .menubar-item { --label: #fff; }
+html[data-menubar-tone=light] .glass-menubar > .menubar-item .menubar-text { text-shadow: 0 1px 2px rgba(0,0,0,.35); }
+html[data-menubar-tone=dark] .glass-menubar > .menubar-item { --label: #1d1d1f; }
+html[data-menubar-tone=dark] .glass-menubar > .menubar-item .menubar-text { text-shadow: 0 0 6px rgba(255,255,255,.3); }
+/* Notification Center: grouped notifications fit the panel instead of the wider floating-banner width. */
+[code-path="src/os/components/NotificationCenter.tsx:276:7"] .glass-banner { width: 100% !important; }</style>
+<script src="./world-seed.js"></script>
+<script src="./world-model.js"></script>
+<script src="./program-ui.js"></script>
+<script>
+for (const name of ['localStorage', 'sessionStorage']) {
+  const data = new Map();
+  Object.defineProperty(window, name, { configurable: true, value: {
+    getItem: key => data.get(String(key)) ?? null, setItem: (key, value) => data.set(String(key), String(value)),
+    removeItem: key => data.delete(String(key)), clear: () => data.clear(), key: index => [...data.keys()][index] ?? null,
+    get length() { return data.size; } } });
+}
+window.__oceanUser = (({ short, name, email }) => ({ short, name, email }))(window.__oceanWorldSeed.user);
+const oceanDenied = () => Promise.reject(new DOMException('Not available in the training desktop.', 'NotAllowedError'));
+if (navigator.mediaDevices) for (const name of ['getUserMedia', 'getDisplayMedia']) Object.defineProperty(navigator.mediaDevices, name, { value: oceanDenied });
+for (const name of ['geolocation']) try { Object.defineProperty(navigator, name, { configurable: true, value: undefined }); } catch {}
+for (const name of ['MediaRecorder', 'WebSocket', 'EventSource', 'RTCPeerConnection']) try { Object.defineProperty(window, name, { configurable: true, value: undefined }); } catch {}
+navigator.sendBeacon = () => false;
+window.open = () => null;
+const oceanFetch = window.fetch.bind(window);
+window.fetch = (input, init) => {
+  const url = new URL(typeof input === 'string' || input instanceof URL ? input : input.url, location.href);
+  return url.host === location.host && /^https?:$/.test(url.protocol) ? oceanFetch(input, init) : Promise.reject(new TypeError('Network access is disabled in the training desktop.'));
+};
+</script>
+<script type="module" crossorigin="" src="./assets/macos-final.js"></script>
+<link rel="stylesheet" crossorigin="" href="./assets/index-BqrKPhU7.css"/>
+<script defer src="./src/adapter.js"></script>
+<script defer src="./src/scene-fx.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<svg width="0" height="0" aria-hidden="true" style="position:absolute"><defs>
+<filter id="lg-refraction" x="-5%" y="-5%" width="110%" height="110%">
+<feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="2" seed="7" result="noise"></feTurbulence>
+<feGaussianBlur in="noise" stdDeviation="2.2" result="soft"></feGaussianBlur>
+<feDisplacementMap in="SourceGraphic" in2="soft" scale="12" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap>
+</filter></defs></svg>
+</body></html>

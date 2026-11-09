@@ -27,15 +27,16 @@ import { parseRunnerLine } from '../backend/detonation/runner-result.mjs';
 import { mapWine } from '../backend/detonation/wine.mjs';
 
 const docker = (...args) => spawnSync('docker', args, { encoding: 'utf8' });
-const info = docker('info', '--format', '{{json .Runtimes}}');
-const missing = info.status !== 0 ? 'docker is not reachable'
+// A stopped daemon or a hanging host shim must not block the entire test suite indefinitely.
+const info = spawnSync('docker', ['info', '--format', '{{json .Runtimes}}'], { encoding: 'utf8', timeout: 15_000, windowsHide: true });
+const missing = info.error?.code === 'ETIMEDOUT' ? 'docker preflight timed out' : info.status !== 0 ? 'docker is not reachable'
   : !/"runsc-trace"/.test(info.stdout) ? 'the runsc-trace runtime is not registered'
     : !existsSync('/var/log/runsc') ? '/var/log/runsc is not reachable'
       : !['detonate', 'collect', 'analyse'].every(role => docker('image', 'inspect', `detonation-ocean/${role}`).status === 0) ? 'run deploy/detonation/build-images.sh first'
         : null;
 
 const FAKE_API_KEY = 'fake-inference-key-0123456789abcdef';
-const ENV = { DETONATION_ENABLED: 'true', UPLOAD_ENCRYPTION_KEY: 'a1'.repeat(32), VULTR_INFERENCE_API_KEY: FAKE_API_KEY };
+const ENV = { DETONATION_ENABLED: 'true', DETONATION_UPLOADS: 'true', UPLOAD_ENCRYPTION_KEY: 'a1'.repeat(32), VULTR_INFERENCE_API_KEY: FAKE_API_KEY };
 const NO_MODEL = { available: () => false, complete: async () => { throw new Error('no model'); } };
 const SAMPLES = new URL('../samples/', import.meta.url);
 const HARMLESS_UPLOAD = Buffer.alloc(64, 7); // typed as unsupported, so it is never run; the detonate command is replaced by `true` anyway

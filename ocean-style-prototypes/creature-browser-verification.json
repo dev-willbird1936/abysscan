@@ -1,0 +1,44 @@
+{
+  "browser": "Chrome via chrome-devtools",
+  "mode": "file:// standalone",
+  "styles": 6,
+  "panelsPerStyle": 5,
+  "decodedBackgrounds": 30,
+  "decodedCreatureLayers": 30,
+  "decodedTotal": 60,
+  "allDimensions": [
+    1600,
+    900
+  ],
+  "overlaysAbsolutePositioned": true,
+  "noMissingWarnings": true,
+  "pixelArtRendering": "pixelated",
+  "stickyStyleSelector": true,
+  "desktopHorizontalOverflow": false,
+  "mobile": {
+    "viewport": [
+      390,
+      844
+    ],
+    "emulated": true,
+    "horizontalOverflow": false,
+    "allPanels16by9": true,
+    "overlaysAlignedWithBackgrounds": true
+  },
+  "missingLayerTest": {
+    "intentionalMissingCreature": true,
+    "warningVisible": true,
+    "backgroundRemainedVisibleAndLoaded": true,
+    "loadedBackgrounds": 5,
+    "loadedCreatures": 4,
+    "recoveryAfterStyleSwitch": {
+      "backgrounds": 5,
+      "creatures": 5
+    }
+  },
+  "visualReview": "creature-contact-sheet.jpg, all30 composite panels",
+  "limitations": [
+    "Representative compositions, not 50 independently interactive creatures.",
+    "Adjacent ocean panels are not seamless painted scenery."
+  ]
+}

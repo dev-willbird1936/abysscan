@@ -223,6 +223,15 @@ test('the hub caps runs and subscribers and keeps a bounded history', () => {
   const otherBoot = fakeResponse();
   replay.subscribe('a', otherBoot, `${ids[0].split('-')[0]}x-0`);
   assert.equal(otherBoot.written.length, 1, 'ids from another server start replay nothing');
+  // A finished recording (a job's evidence replay) opened after it was published: fromStart sends every kept event to a
+  // first connection; a reconnect still resumes after its id; a live run's first connection still gets nothing.
+  const fresh = fakeResponse(), recording = fakeResponse(), resumed = fakeResponse();
+  replay.subscribe('a', fresh);
+  replay.subscribe('a', recording, '', {}, { fromStart: true });
+  replay.subscribe('a', resumed, eventIds[1], {}, { fromStart: true });
+  assert.equal(fresh.written.length, 1);
+  assert.deepEqual(recording.written.slice(1).map(chunk => chunk.split('\n')[0]), [`id: ${eventIds[1]}`, `id: ${eventIds[2]}`]);
+  assert.deepEqual(resumed.written.slice(1).map(chunk => chunk.split('\n')[0]), [`id: ${eventIds[2]}`]);
   replay.close();
 });
 
@@ -231,7 +240,8 @@ test('GET /api/health reports the build id of the shells and parent files on dis
   const base = await listen(server);
   try {
     const health = await (await fetch(`${base}/api/health`)).json();
-    assert.deepEqual(Object.keys(health).sort(), ['buildId', 'ok']);
+    assert.deepEqual(Object.keys(health).sort(), ['acceptingJobs', 'buildId', 'ok']);
+    assert.equal(health.acceptingJobs, false, 'a local training server is not an enabled upload sandbox');
     assert.equal(health.ok, true);
     assert.match(health.buildId, /^[0-9a-f]{16}$/);
     assert.equal(health.buildId, computeDesktopBuildId(projectRoot));

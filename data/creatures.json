@@ -105,6 +105,19 @@
       "hackathon": true
     },
     {
+      "findingId": "self-copy",
+      "creature": "Hydra",
+      "depth": "midnight",
+      "family": "network",
+      "familyAttackName": "Coordinated abuse",
+      "sprite": "ui/abyss/pixel/creatures/hydra-spritesheet.png",
+      "fallbackSprite": "ui/abyss/pixel/creatures/hydra-spritesheet.png",
+      "plainWords": "Writes a copy of itself into your files, ready to run again.",
+      "why": "Cut one head off and two more grow",
+      "protect": "Keep files you did not create out of your home folder, and scan anything that appears unannounced.",
+      "hackathon": false
+    },
+    {
       "findingId": "privilege-escalation",
       "creature": "Viperfish",
       "depth": "abyss",
@@ -280,7 +293,7 @@
       "family": "variable",
       "familyAttackName": "variable",
       "sprite": "ui/abyss/pixel/creatures/giant-squid-spritesheet.png",
-      "fallbackSprite": "ui/abyss/pixel/creatures/giant-squid-spritesheet.png",
+      "fallbackSprite": null,
       "plainWords": "Harm that is proven but matches none of the named findings. The debrief lists the evidence instead.",
       "why": "The real deep-sea legend, seen only in glimpses",
       "protect": "Keep your software updated and back up your files, and treat unexplained changes to settings or data as a warning sign.",

@@ -1,0 +1,6 @@
+{
+  "url":"http://127.0.0.1:8778/codex-creature-palette-base/index.html",
+  "desktop":{"viewport":[1440,1000],"family_rows":6,"depth_columns":5,"depth_cells":[5,5,5,5,5,5],"local_depth_png_images_loaded":30,"natural_png_dimensions":[256,256],"base_cards":6,"base_images_loaded":6,"local_png_download_links":30,"retro_diffusion_animation_links":30,"retro_diffusion_study_links":2,"sample_local_png_animation_original_study_and_zip_http_status":[200,200,200,200],"page_overflow":false,"project_zip_link_visible":true},
+  "mobile":{"viewport":[390,844],"document_client_width":375,"page_overflow":false,"family_rows":6,"depth_images_loaded":30,"base_images_loaded":6,"table_scrolls_internally":true,"retro_diffusion_animation_links":30,"project_zip_link_visible":true},
+  "visual_review":"Viewed the six-base semantic-region contact sheet and 6×5 depth contact sheet. The current 30-cell PNG table includes one verified link per cell to its previously generated RetroDiffusion depth GIF. The sibling RD study and animation resources returned HTTP 200 through the workspace-root server."
+}

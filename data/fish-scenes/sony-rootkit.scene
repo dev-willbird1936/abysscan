@@ -1,0 +1,339 @@
+# Sony BMG copy-protection rootkit (2005). Music CDs installed hidden software when played on a Windows PC.
+# A quest (QUESTS.md): the trainee builds a playlist for a company event, adds one licensed track safely, then plays a shop-bought CD.
+os windows
+user Dana Okafor
+about
+  | In 2005 some Sony BMG music CDs installed copy-protection software on any Windows PC that played them. The software hid itself with a rootkit: any file or process whose name began with $sys$ became invisible.
+  | The licence never said so, and the software could not be removed in the normal way. Other malware soon used the same trick to hide. The people in this training are invented: the discs were played by home users and office staff alike.
+story
+  | You are Dana Okafor, events coordinator at Northwind Traders. On Friday the company hosts a customer open house, and you are building its background-music playlist.
+  | It is Wednesday afternoon. You have 5 of the 7 tracks ready. Two to go.
+  | Your login for the music-licensing site is in a text file on the desktop. That is a bad habit, but it keeps this training quick.
+quota 5 7 Open-house tracks ready
+
+# Dana's desk: the details she copies from (a soft flag: careless, but only here to keep the training simple), and her list.
+file Desktop/tidewater-login.txt
+  at 930 200
+  | Tidewater Music Licensing
+  | User ID: dana.okafor
+  | Password: Harbour-2026!
+file Desktop/open-house-playlist.txt
+  at 930 300
+  | Open house playlist (Friday)
+  | Tracks 1 to 5: done
+  | Track 6: Morning Harbour (licensed from Tidewater)
+  | Track 7: Harbour Sessions CD, track 3 (Marcus is bringing the disc)
+
+# The licensing site: a sign-in page, and the track pages behind it.
+page music-login tidewater-licensing.example/members/sign-in
+  title Tidewater Music Licensing: sign in
+  brand Tidewater Music Licensing
+  favorite
+  heading Sign in to your account
+  | Welcome back. Sign in to add licensed tracks to your event.
+  field User ID = dana.okafor
+  field secret Password = Harbour-2026!
+  button Sign in
+page added-6 tidewater-licensing.example/members/events/added
+  title Track added
+  brand Tidewater Music Licensing
+  heading Track added to your event
+  | Morning Harbour is now in the Northwind open-house playlist, licensed for Friday.
+page skipped-6 tidewater-licensing.example/members/events/skipped
+  title Track not added
+  brand Tidewater Music Licensing
+  heading Track not added
+  | Morning Harbour was not added to the playlist.
+page track-6 tidewater-licensing.example/members/tracks/morning-harbour
+  title Add track: Morning Harbour
+  brand Tidewater Music Licensing
+  requires music-login
+  heading Add track: Morning Harbour
+  | A licensed track is waiting to be added to your event.
+  section Track
+  row Title = Morning Harbour (instrumental)
+  row Licence = Business events, one venue, one day
+  row Fee = 18.00, charged to Northwind Traders
+  row Event = Northwind customer open house, Friday
+  button Add to playlist -> added-6
+  button Not this one -> skipped-6
+
+mail mail-track6
+  from Priya Shah <priya.shah@northwind.example>
+  subject Track 6 for Friday: Morning Harbour (Tidewater)
+  sent 2026-11-04 14:02
+  link track-6
+  | Hi Dana,
+  |
+  | I found a lovely instrumental for when guests arrive. Tidewater has it, and the licence covers our open house. The link goes straight to the track.
+  |
+  | Priya
+
+step Track 6 of 7
+  look Mail: Priya's message with the track link
+  | A new message from Priya, in Marketing. This one is real. Add the track the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Track 6 for Friday: Morning Harbour (Tidewater)
+
+step Sign in as usual
+  look the two boxes: User ID and Password, as on every visit
+  when visit track-6
+  move Copy the details from tidewater-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The email links to the licensing site's own address, tidewater-licensing.example. The site asks you to sign in first. Two boxes: User ID and Password.
+open track-6
+
+step Check, then add
+  look the title, the licence and the fee
+  when choose music-login 1
+  | You are in. Check the track, the licence and the fee, then add it or not.
+signin music-login
+
+step 6 of 7 ready
+  look the counter in the guide: one track left
+  when choose track-6 any
+  | Done. One track to go. Marcus has just sent a message about it.
+choose track-6 1
+quota +1
+
+# The lure: a shop-bought music CD whose AutoPlay offers to install "the player".
+view sony-nodisc message
+  title Music CD player
+  icon warning
+  | This disc cannot be played with the player unless you accept the licence.
+  button OK -> close primary
+
+view sony-eula wizard
+  title Music CD player: setup
+  app Music CD player
+  publisher Sample Music Co.
+  size 560x400
+  heading End user licence agreement
+  icon program
+  | To play this disc with the included player you must accept this licence.
+  | Please read the licence, then choose I Agree to install or I Disagree to stop.
+  section Licence terms
+  item 1. You may play this disc on a personal computer.
+  item 2. The player may limit how many copies of the tracks you can make.
+  item 3. The player may check the disc and show offers from the artist.
+  item 4. Sample Music Co. may update the player without notice.
+  button I Disagree -> view:sony-nodisc
+  button I Agree -> done primary
+
+view sony-player panel
+  title Music CD player
+  app Music CD player
+  publisher Sample Music Co.
+  size 560x400
+  heading Harbour Sessions
+  icon disk
+  section Tracks
+  columns No. | Length | Title
+  cells 1 | 3:42 | Harbour Lights
+  cells 2 | 4:10 | Salt and Rope
+  cells 3 | 4:05 | Morning Tide
+  cells 4 | 3:28 | Slow Ferry
+  section Copy limit
+  note This disc allows 3 copies. Copies made: 0 of 3.
+  button Add track 3 to the open-house playlist -> done primary
+  button Close -> close
+
+program sony-setup Music CD player setup
+  publisher Sample Music Co.
+  signed no
+  prompt elevation
+  description Installs the player and a driver
+  view sony-eula
+
+program sony-player Music CD player
+  publisher Sample Music Co.
+  signed no
+  process MusicCDPlayer.exe
+  cpu 3
+  mem 52
+  net 203.0.113.40:80 (reports each play)
+  parent explorer.exe
+  command C:\Program Files\Sample Music Co\Player\MusicCDPlayer.exe
+  view sony-player
+
+mail mail-cd
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Harbour Sessions CD for Friday: track 3
+  sent 2026-11-04 14:20
+  | Dana,
+  |
+  | I bought the Harbour Sessions CD for the open house. Track 3 would be perfect for when the first guests come in.
+  |
+  | It is on your desk. Pop it in your computer and add track 3 to the playlist. Thanks!
+  |
+  | Marcus
+notify mail Marcus Lee
+  | Harbour Sessions CD for Friday: track 3
+
+step A shop CD from Marcus
+  look the disc's folder: tracks, and a program called Player Setup
+  when mail mail-cd
+  | Marcus bought an ordinary music CD. Dana reads his note and puts the disc in her computer. A plain music disc plays with the music app that comes with the computer, so it needs no extra software.
+  | This disc also carries a program, Player Setup. Nothing runs it until someone double-clicks it.
+open mail-cd
+drive Harbour Sessions
+  kind cd
+  as CD
+file CD/autorun.inf
+  hidden
+  size 164
+file CD/Track01.wav
+  size 40960
+file CD/Track02.wav
+  size 40960
+file CD/Track03.wav
+  size 40960
+file CD/Track04.wav
+  size 40960
+file CD/Player Setup.exe
+  program sony-setup
+  size 524288
+file CD/Terms.txt
+  size 2048
+  | Harbour Sessions: licence for the music CD player
+  | 1. You may play this disc on a personal computer.
+  | 2. The player may limit how many copies of the tracks you can make.
+  | 3. The player may check the disc and show offers from the artist.
+  | 4. Sample Music Co. may update the player without notice.
+  | 5. Installing the player also installs a small program to protect the content on this disc.
+open CD
+
+step Administrator rights for a music disc
+  look the box asking for administrator rights: who it says is asking
+  when prompt sony-setup
+  | A music disc's program is asking to change the computer, and its publisher is unknown. Most people click Yes, because they only want to hear their CD.
+open CD/Player Setup.exe
+
+step The licence nobody reads
+  look the Music CD player licence window
+  when run sony-setup
+  | The player's setup shows a licence with I Agree and I Disagree. Agree installs the player; Disagree leaves the disc unplayable with it.
+  | Nowhere does the licence say that the software hides itself or cannot be uninstalled.
+answer run
+
+step Agree, and it installs
+  look the player window: the album, and nothing odd
+  when done sony-eula
+  | Nobody reads four clauses to hear one song. Setup copies the player and also a driver: a program that runs inside the operating system itself and can change what the computer shows.
+  | The licence never said so. The driver now hides every file whose name starts with $sys$ from the file list and the task list, and from many antivirus scanners. The player opens and looks normal.
+press sony-eula done
+launch sony-player
+
+step Track 3 added: 7 of 7
+  look the task list (Task Manager, or Activity Monitor): MusicCDPlayer.exe, and the "Connection blocked" notice
+  when done sony-player
+  | The player adds track 3 and counts one copy of the three allowed. It also tries to tell a Sample Music Co. server which disc was played. This training computer has no network, so the connection is blocked here.
+  | Seven tracks are ready for Friday, and nothing on the screen looks wrong.
+press sony-player done
+block 203.0.113.40 80
+quota +1
+
+# Three weeks later: the discovery, and the hole in the "fix".
+page sony-uninstall samplemusic.example/cd-player/uninstall
+  title Uninstall the music player
+  brand Sample Music Co.
+  heading Uninstall the player
+  | To remove the player, we need to ask you a few questions.
+  field Email address = dana.okafor@northwind.example
+  section Removal installs a web control
+  | A small web control from Sample Music Co. will be installed on your computer to do the removal.
+  button Continue
+page it-hold it.northwind.example/security/hidden-items/hold
+  title Northwind IT: ticket opened
+  brand Northwind IT
+  heading Ticket opened
+  | IT will test the vendor's removal page, then remove the hidden files from this computer on Thursday.
+  button Open the vendor's removal page -> sony-uninstall
+page hidden-check it.northwind.example/security/hidden-items
+  title Northwind IT: Hidden Items Check
+  brand Northwind IT
+  heading Hidden Items Check: your computer
+  | This check compares the files the system lists with the files really on the disk.
+  section Files on the disk that the system does not list
+  columns Name | Type | Listed by the system?
+  cells $sys$filesystem | Folder | No, hidden by a driver
+  cells $sys$aries.sys | Driver | No, hidden by a driver
+  cells $sys$DRMServer.exe | Program | No, hidden by a driver
+  note The driver hides every name that starts with $sys$ from the file list and the task list. A scanner that compares two views can still see them.
+  section What now?
+  | Sample Music Co. offers a removal page. IT has not tested it.
+  button Open the vendor's removal page -> sony-uninstall
+  button Leave it for IT -> it-hold
+mail mail-it
+  from IT Helpdesk <helpdesk@northwind.example>
+  subject Security notice: hidden software on some music CDs
+  sent 2026-11-25 09:10
+  link hidden-check
+  | All staff,
+  |
+  | Researchers have found that some music CDs install software that hides itself. If you played a Harbour Sessions disc on your work computer, open the check below to see what is on it.
+  |
+  | IT Helpdesk
+notify mail IT Helpdesk
+  | Security notice: hidden software on some music CDs
+
+view sony-activex message
+  title Security warning
+  size 440x200
+  icon shield-bad
+  | Install this web control? Publisher: Unknown. From: samplemusic.example.
+  button Install -> done
+  button Don't install -> done primary
+
+step IT's check finds the hidden files
+  look the list: every name starts with $sys$, and "Listed by the system?" says No
+  when visit hidden-check
+  | Three weeks later, news of the discs breaks and IT emails everyone. The check lists a folder, a driver and a program that the system says do not exist. Dana's computer has had them since she clicked I Agree.
+open hidden-check
+
+step The vendor's removal page
+  look the email box: removal asks for an address first
+  when choose hidden-check 1
+  | Sample Music Co. has a removal page. IT has not tested it, but most people tried the vendor's page first. The page asks for an email address before it will remove anything.
+choose hidden-check 1
+
+step A new web control wants in
+  look the security warning: Install or Don't install
+  when choose sony-uninstall 1
+  move Choose Install or Don't install in the warning.
+  | The removal tool is a web control that changes the computer. This one had a flaw that any website could use to run programs, so the fix opened a second hole.
+signin sony-uninstall
+show sony-activex
+
+step What the disc left behind
+  look the animation: what the disc did to Dana's computer
+  when done sony-activex
+  | Many people clicked Install, because the page had asked for the removal. Installed or not, the driver was already on the computer.
+  | The discs were later recalled. Security tools began to detect and remove the software, and other malware soon hid itself behind $sys$ names too.
+attack spyware-surveillance
+  | Dana plays a music CD at work
+  | An installer asks for administrator rights
+  | A driver hides every $sys$ file
+  | The player reports each play to a server
+  | Other malware hides behind $sys$ names
+  | The "fix" opens a second hole
+close sony-activex
+
+flag hard file CD/Player Setup.exe
+  | A music disc carrying its own installer. A plain music disc needs no extra software.
+flag hard file CD/Terms.txt
+  | A licence that says a program is installed, and never says it hides itself or cannot be removed.
+flag hard dialog elevation sony-setup
+  | A music player asking for administrator rights, from a publisher your computer does not recognise.
+flag hard process MusicCDPlayer.exe
+  | A player that tried to reach a server while it played: the "Connection blocked" notice shows it. The licence never said it would.
+flag hard section hidden-check 1
+  | Files that are on the disk but that the system does not list: the sign of a rootkit.
+flag hard section sony-uninstall 1
+  | A removal page that installs a web control from a publisher you do not know. Any website can abuse a control like this, as this one was.
+flag soft file Desktop/tidewater-login.txt
+  | Passwords in a text file on the desktop: any program that runs can read them. Use a password manager.
+
+lesson
+  | A music disc does not need software to play. Say no when a disc asks to install a player, and play it with the player you already have.
+  | Read a licence that asks to install software, especially from something that should only play. Hidden software that cannot be uninstalled is a risk, whoever made it.
+  | A scanner that compares what the system shows with what is on the disk can find a rootkit. Be careful with a vendor's own removal tool: this one opened a second hole.

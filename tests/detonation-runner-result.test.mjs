@@ -108,12 +108,37 @@ test('static pdf: a tool error fails coverage and completeness without discardin
   assert.equal(empty.steps.find(item => item.step === 'static').status, 'failed');
 });
 
+test('a run that the sandbox could not start is stopped, not done: exit 126 and 127 mean a missing loader or interpreter', () => {
+  const line = extra => ({ detonationRunner: 1, kind: 'elf', started: true, file: 'Downloads/sample.bin', ...extra });
+  const ok = mapRunnerLine('elf', line({ exitCode: 0 }), { at: AT });
+  assert.deepEqual(ok.steps.map(step => [step.step, step.status]), [['run', 'done']]);
+  const missing = mapRunnerLine('elf', line({ exitCode: 127 }), { at: AT });
+  assert.deepEqual(missing.steps.map(step => [step.step, step.status]), [['run', 'failed']]);
+  assert.deepEqual(missing.evidence.filter(item => item.kind === 'emulation-stopped').map(item => item.reason), ['run-failed']);
+  assert.deepEqual(mapRunnerLine('elf', line({ exitCode: 126 }), { at: AT }).evidence.map(item => item.reason), ['run-failed']);
+});
+
+test('a program that dies on a signal ran, but the run did not finish: exit 128+n is stopped as run-crashed, not a clean run', () => {
+  const line = extra => ({ detonationRunner: 1, kind: 'elf', started: true, file: 'Downloads/sample.bin', ...extra });
+  const crashed = mapRunnerLine('elf', line({ exitCode: 139 }), { at: AT });
+  assert.deepEqual(crashed.steps.map(step => [step.step, step.status]), [['run', 'failed']]);
+  assert.deepEqual(crashed.evidence.map(item => [item.kind, item.reason]), [['emulation-stopped', 'run-crashed']]);
+  assert.match(crashed.evidence[0].detail, /SIGSEGV/);
+  assert.deepEqual(mapRunnerLine('elf', line({ exitCode: 137 }), { at: AT }).evidence.map(item => item.reason), ['run-crashed']);
+  // A normal non-zero exit is still a completed run: the sample's own exit status is its behaviour, not the runner's failure.
+  const tidy = mapRunnerLine('elf', line({ exitCode: 1 }), { at: AT });
+  assert.deepEqual(tidy.evidence, []);
+  assert.deepEqual(tidy.steps.map(step => [step.step, step.status]), [['run', 'done']]);
+});
+
 test('static ps1: encoding gives obfuscation, hidden flags give hidden-command, a download cradle gives suspicious; a plain script gives nothing', () => {
   assert.deepEqual(mapPs1(fixture('static/ps1-hello').static, { at: AT }), []);
   const items = mapPs1(fixture('static/ps1-obfuscated').static, { at: AT });
   assert.deepEqual(kinds(items), ['obfuscation', 'obfuscation', 'hidden-command', 'suspicious']);
   assert.deepEqual(items[2], { source: 'static', kind: 'hidden-command', detail: 'PowerShell uses a hidden window flag.', at: AT, tool: 'powershell', commandPreview: 'powershell -w hidden -nop' });
   assert.deepEqual(verdictOf(items).signals, ['hidden-commands', 'obfuscated', 'other-suspicious']);
+  // A flag without the blob on the same line is still an encoded command: the payload is usually in a variable.
+  assert.deepEqual(kinds(mapPs1({ hits: [{ id: 'encoded-command-flag', count: 1, preview: '-EncodedCommand $encoded' }, { id: 'base64-blob', count: 1, preview: 'AAAA' }] }, { at: AT })), ['obfuscation', 'obfuscation']);
   assert.deepEqual(mapPs1({ hits: [{ id: 'invoke-expression', count: 1 }, { id: 'unknown-id' }, 5, null] }, { at: AT }), []);
   assert.deepEqual(mapPs1(undefined, { at: AT }).map(item => [item.kind, item.reason]), [['emulation-stopped', 'ps1-static-failed']]);
 });
@@ -215,6 +240,20 @@ test('emulator: API calls, files, registry and network of a Run-key program reac
   assert.equal(verdict.depth, 'twilight');
   assert.deepEqual(verdict.findings.map(finding => finding.id).sort(), ['defence-tamper', 'keylog', 'persistence', 'steal-credentials']);
   assert.ok(verdict.signals.includes('incomplete') && verdict.signals.includes('unknown-hosts'));
+});
+
+test('mono: a fatal runtime exception is a stopped run named after the exception; a clean run says done', () => {
+  const envelope = mono => ({ entryPoints: [], instructions: 0, seconds: 1, timeoutSeconds: 25, maxInstructions: 0, failure: null, mono });
+  const missing = envelope({ engine: 'mono', exitCode: 1, stdout: '', stderr: 'Unhandled Exception: System.IO.FileNotFoundException: Could not load file or assembly Microsoft.VisualBasic' });
+  const stopped = mapEmulation(missing, { at: AT }).filter(item => item.kind === 'emulation-stopped');
+  assert.deepEqual(stopped.map(item => item.reason), ['mono-failed']);
+  assert.match(stopped[0].detail, /System[.]IO[.]FileNotFoundException/);
+  assert.equal(emulationCoverage(missing).status, 'stopped');
+  const clean = envelope({ engine: 'mono', exitCode: 0, stdout: 'done', stderr: '' });
+  assert.deepEqual(mapEmulation(clean, { at: AT }).map(item => item.kind), ['identified']);
+  assert.deepEqual(emulationCoverage(clean), { status: 'done', detail: 'Executed under Mono; exit code 0.' });
+  const killed = envelope({ engine: 'mono', exitCode: null, stopped: 'killed after 25 s', stdout: '', stderr: '' });
+  assert.equal(emulationCoverage(killed).status, 'stopped');
 });
 
 test('emulator: a run that used its whole time limit or could not load the file is emulation-stopped; junk is empty', () => {

@@ -80,7 +80,7 @@ const stopPoint = error => text(error.api_name || error.last_api || error.type |
 export function mapEmulation(emulation, { at }) {
   const run = isObject(emulation) ? emulation : {};
   const entries = list(run.entryPoints, 50);
-  const items = [...apiItems(entries, at), ...fileItems(entries, at), ...registryItems(entries, at), ...networkItems(entries, at)];
+  const items = [...apiItems(entries, at), ...fileItems(entries, at), ...registryItems(entries, at), ...networkItems(entries, at), ...monoItems(run.mono, at)];
   for (const entry of entries) {
     if (isObject(entry.error)) {
       const where = stopPoint(entry.error);
@@ -92,9 +92,43 @@ export function mapEmulation(emulation, { at }) {
   return items;
 }
 
+// Mono prints this when the assembly needs something the runtime does not have (a missing assembly, a missing method).
+const MONO_FATAL = /(?:FATAL UNHANDLED EXCEPTION|Unhandled Exception)[:\s]*([A-Za-z0-9_.]+Exception[^\n]{0,140})/;
+const URL = /https?:\/\/[^\s"'<>]{4,200}/gi;
+const MAX_MONO_URLS = 3;
+
+// Mono runs the assembly natively in the sandbox, so its own output is the only program-supplied text: an identified item names the
+// engine, and any address it printed is reported as suspicious rather than fetched. Nothing here is executed or opened.
+function monoItems(mono, at) {
+  if (!isObject(mono)) return [];
+  const code = Number.isSafeInteger(mono.exitCode) ? mono.exitCode : 'unknown';
+  const items = [item('identified', at, mono.stopped ? 'Managed .NET assembly: run under Mono.' : `Managed .NET assembly: executed under Mono (exit code ${code}).`, { tool: 'mono' })];
+  const printed = `${text(mono.stdout, 4000)}\n${text(mono.stderr, 4000)}`;
+  // A fatal runtime exception is a run that did not happen: name it, so the verdict becomes incomplete instead of quiet.
+  const fatal = printed.match(MONO_FATAL);
+  if (fatal) items.push(item('emulation-stopped', at, `The .NET runtime stopped the assembly: ${text(fatal[1], 160)}.`, { reason: 'mono-failed' }));
+  const seen = new Set();
+  for (const match of printed.matchAll(URL)) {
+    const url = match[0].replace(/[.,;:)\]}]+$/, '');
+    if (seen.has(url)) continue;
+    seen.add(url);
+    items.push(item('suspicious', at, `The program printed the address ${url}.`, { text: url }));
+    if (seen.size >= MAX_MONO_URLS) break;
+  }
+  return items;
+}
+
 /** Coverage detail for the emulate step: where it stopped, as in SPEC 6.6 ("stopped at NtQuerySystemInformation"). */
 export function emulationCoverage(emulation) {
   const run = isObject(emulation) ? emulation : {};
+  if (isObject(run.mono)) {
+    // A managed assembly ran for real under Mono, so there is no instruction count or entry point: the exit code and the trace are
+    // what the run produced.
+    if (run.mono.stopped) return { status: 'stopped', detail: `Executed under Mono and ${text(run.mono.stopped, 80)}.` };
+    const fatal = `${text(run.mono.stdout, 4000)}\n${text(run.mono.stderr, 4000)}`.match(MONO_FATAL);
+    if (fatal) return { status: 'stopped', detail: `Mono stopped the assembly at ${text(fatal[1], 120)}.` };
+    return { status: 'done', detail: `Executed under Mono; exit code ${Number.isSafeInteger(run.mono.exitCode) ? run.mono.exitCode : 'unknown'}.` };
+  }
   const stopped = list(run.entryPoints, 50).find(entry => isObject(entry.error));
   if (run.failure) return { status: 'failed', detail: 'The emulator could not load or run the file.' };
   // Speakeasy counts instructions only for some runs; without a count the run time says how far it got.

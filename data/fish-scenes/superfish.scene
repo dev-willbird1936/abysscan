@@ -1,0 +1,304 @@
+# Superfish (2015). Ad software preinstalled on some new laptops broke the security of every HTTPS website.
+# A quest (QUESTS.md): the trainee is an office manager on a new shop-bought laptop. They place one supply order safely,
+# then the factory-installed ad tool wakes up as the next supplier page loads and the padlock stays green while it edits the page.
+# The victim and the supplier are invented: the laptops were sold to homes and small firms alike. The welcome box is a
+# simplification: the real tool had already installed its certificate and started with Windows, whatever the buyer clicked.
+os windows
+user Dana Okafor
+about
+  | In 2014 and 2015 some new laptops were sold with an ad program already installed, called Visual Discovery, made by a company named Superfish. Nobody chose it and Windows never asked about it.
+  | To put ads inside secure pages, it added its own root certificate to Windows, and the private key for that certificate was the same on every laptop. The padlock stayed green while the program read and edited the page. Anyone who got the key could pose as any website to all of those laptops.
+  | Dana, the job and the supplier in this training are invented: the laptops were bought by home users and small firms alike.
+story
+  | You are Dana Okafor, office manager at Northwind Traders. You order the warehouse supplies from a trade supplier's website.
+  | The company bought you a new Brightbox laptop from a high-street shop, and it came out of the box this morning with the shop's software already on it.
+  | It is mid-afternoon. You have placed 3 of today's 5 supply orders. Two to go.
+  | Your supplier login is in a text file on the desktop. That is a bad habit, but it keeps this training quick.
+quota 3 5 Supply orders placed today
+
+# Dana's desk: a demo convenience (a soft flag: careless, but only here to keep the training simple).
+file Desktop/harbour-login.txt
+  at 930 200
+  | Harbour Trade supplier account
+  | Account ID: NW-20417
+  | Password: Supply-2026!
+
+# The supplier: a sign-in page, and the order pages behind it. The first order is a plain reorder form, no product pictures.
+page harbour-login harbour-trade.example/account/sign-in
+  title Harbour Trade: sign in
+  brand Harbour Trade
+  issuer Example Trust CA
+  favorite
+  heading Sign in to your trade account
+  | Welcome back. Sign in to place your order.
+  field Account ID = NW-20417
+  field secret Password = Supply-2026!
+  button Sign in
+page ordered-4 harbour-trade.example/orders/done
+  title Order placed
+  brand Harbour Trade
+  issuer Example Trust CA
+  heading Order placed
+  | Order 4: 12 pairs of work gloves, 54.00 GBP. It will arrive on Thursday.
+page held-4 harbour-trade.example/orders/held
+  title Order held
+  brand Harbour Trade
+  issuer Example Trust CA
+  heading Order held
+  | Order 4 was not placed. The basket is saved.
+page order-4 harbour-trade.example/orders/reorder-gloves
+  title Reorder: work gloves
+  brand Harbour Trade
+  issuer Example Trust CA
+  requires harbour-login
+  heading Reorder: work gloves
+  | Your usual order is ready to place.
+  section Your order
+  row Item = Work gloves, grip, size L
+  row Quantity = 12 pairs
+  row Total = 54.00 GBP
+  row Deliver to = Northwind warehouse, Unit 4
+  button Place order -> ordered-4
+  button Not now -> held-4
+
+mail mail-order4
+  from Priya Shah <priya.shah@northwind.example>
+  subject Order 4 of 5: work gloves (Harbour Trade)
+  link order-4
+  | Hi Dana,
+  |
+  | The warehouse is nearly out of work gloves. The usual reorder is ready on Harbour Trade: the link goes straight to it.
+  |
+  | Priya
+
+step Order 4 of 5
+  look Mail: Priya's message with the reorder link
+  | A new order from Priya, in the warehouse team. This one is plain: gloves, ordered the same way as always. Do it the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Order 4 of 5: work gloves (Harbour Trade)
+
+step The link goes to the supplier
+  look the link under Priya's message
+  when mail mail-order4
+  | The email links to the supplier's own address, harbour-trade.example. Hover over a link before you click it, to check where it goes.
+open mail-order4
+
+step Sign in as usual
+  look the two boxes, and the strip under the address: "Certificate issued by Example Trust CA"
+  when visit order-4
+  move Copy the details from harbour-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The supplier asks you to sign in first: Account ID and Password. Under the address, the page says who vouched for it: Example Trust CA.
+  | A padlock only says the connection is private. That strip says who the page's certificate came from.
+open order-4
+
+step Check, then order
+  look the item, the quantity and the total
+  when choose harbour-login 1
+  | You are in. Check the item and the total, then place the order.
+signin harbour-login
+
+step Order 4 done
+  look the counter in the guide: one order left
+  when choose order-4 any
+  | Done. One order to go. And another email has just arrived.
+choose order-4 1
+quota +1
+signout harbour-login
+
+# The lure: nothing to open. The ad tool is already on the laptop, and it wakes as the supplier's next page loads.
+view vd-welcome message
+  title Visual Discovery
+  app Visual Discovery
+  publisher Superfish, Inc.
+  icon info
+  heading Welcome to Visual Discovery
+  | See similar products and better prices while you shop. Powered by Superfish.
+  button No thanks -> done
+  button Accept -> done primary
+program visualdiscovery VisualDiscovery.exe
+  publisher Superfish, Inc.
+  signed yes
+  description Visual search shopping assistant
+  view vd-welcome
+  process VisualDiscovery.exe
+  cpu 7
+  mem 64
+  parent explorer.exe
+  command C:\Program Files\Brightbox\VisualDiscovery\VisualDiscovery.exe
+# The supplier's sign-in page again, after the session ends. Its certificate now comes from Superfish: the strip says so.
+page harbour-login-2 harbour-trade.example/account/sign-in
+  title Harbour Trade: sign in
+  brand Harbour Trade
+  issuer Superfish, Inc.
+  heading Sign in to your trade account
+  | Your session has ended. Please sign in again.
+  field Account ID = NW-20417
+  field secret Password = Supply-2026!
+  button Sign in
+page ordered-5 harbour-trade.example/orders/done-5
+  title Order placed
+  brand Harbour Trade
+  issuer Superfish, Inc.
+  heading Order placed
+  | Order 5: 4 pairs of safety boots, 356.00 GBP. They will arrive on Friday.
+page held-5 harbour-trade.example/orders/held-5
+  title Order held
+  brand Harbour Trade
+  issuer Superfish, Inc.
+  heading Order held
+  | Order 5 was not placed. The basket is saved.
+page order-5 harbour-trade.example/orders/safety-boots
+  title Safety boots: Harbour Trade
+  brand Harbour Trade
+  issuer Superfish, Inc.
+  requires harbour-login-2
+  heading Waterproof safety boots
+  | Steel toe cap, size 9.
+  section Your order
+  row Item = Safety boots, waterproof, size 9
+  row Quantity = 4 pairs
+  row Total = 356.00 GBP
+  row Deliver to = Northwind warehouse, Unit 4
+  section Similar items you might like
+  tone injected
+  row Boots (sponsored) = 74.99 GBP
+  row Boots (sponsored) = 69.00 GBP
+  row Boots (sponsored) = 92.50 GBP
+  note Powered by Visual Discovery
+  button Place order -> ordered-5
+  button Not now -> held-5
+mail mail-order5
+  from Priya Shah <priya.shah@northwind.example>
+  subject Last one for today: safety boots (Harbour Trade)
+  link order-5
+  | Dana,
+  |
+  | The last order is the new warehouse hires' safety boots. Same supplier, same as before: the link opens the page.
+  |
+  | Priya
+notify mail Priya Shah
+  | Last one for today: safety boots (Harbour Trade)
+
+step The last order
+  look Mail: Priya's last message
+  when mail mail-order5
+  | Priya's last order of the day, with the supplier's own link like the first one. Open it.
+open mail-order5
+
+step A box opens over the sign-in page
+  look the sign-in page, and the "Visual Discovery" box over it
+  when visit order-5
+  move In the Visual Discovery box, click Accept or No thanks, whichever you like.
+  | The supplier's page asks you to sign in first. As it loads, a box from a program called Visual Discovery opens over it.
+  | Nobody installed it and nobody started it: it came on the laptop, and it is already running.
+open order-5
+launch visualdiscovery
+
+step Accept or No thanks: it makes no difference
+  look the strip under the address on the sign-in page: "Certificate issued by Superfish, Inc.", and the notice in the top right
+  when done vd-welcome
+  move Sign in with the details from harbour-login.txt on the desktop, then look at the page itself, not just the padlock.
+  | Accept, or No thanks: it makes no difference. The program was already on the laptop, and it stays.
+  | The sign-in page is the supplier's, and the padlock is green. But the strip under its address now names Superfish, Inc., not the supplier's certificate.
+  | The OS also posts a notice that a start-up item was added. Nobody asked you: the program will now start every time the computer does.
+startup VisualDiscovery C:\Program Files\Brightbox\VisualDiscovery\VisualDiscovery.exe
+  location HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+  publisher Superfish, Inc.
+
+step Sign in again
+  look the order page: the padlock, the strip under the address, and a "Similar items" box
+  when choose harbour-login-2 1
+  move Check the order, then place it or not.
+  | Signed in. The order page has a "Similar items" box the supplier never put there. The ad tool read the page, added its own box, and signed the page again with its own certificate.
+  | Only the strip under the address shows who vouched for the page, and few people ever look at it.
+signin harbour-login-2
+
+step Order 5 done, or so Dana thinks
+  look the counter in the guide: the shift is done
+  when choose order-5 any
+  | Every order is placed and nothing on the screen looks wrong. The supplier got a normal order, and Dana got a few unasked-for adverts.
+  | The ad tool has been running since the box opened. It starts every time the computer starts, so it keeps reading secure pages until someone removes it.
+choose order-5 1
+quota +1
+# The IT check, which the IT notice links to.
+page it-check it.northwind.example/security/visual-discovery
+  title Northwind IT: Visual Discovery check
+  brand Northwind IT
+  heading Visual Discovery check: your laptop
+  | This check looks for the ad program and for the certificates your laptop trusts.
+  section Certificates your laptop trusts
+  columns Issued to | Issued by | Expires
+  cells Example Trust CA | Example Trust CA | 2035
+  cells Superfish, Inc. | Superfish, Inc. | 2034
+  tone warn
+  note "Superfish, Inc." is not a company that should vouch for websites. It was put there by the program on the start-up list.
+  section What to do
+  item Uninstall Visual Discovery in Settings > Apps.
+  item Delete "Superfish, Inc." from the trusted root certificates by hand, or run the maker's removal tool.
+  item Uninstalling the program alone does not remove the certificate.
+mail mail-it
+  from IT Helpdesk <helpdesk@northwind.example>
+  subject Security notice: ad software on some new laptops
+  link it-check
+  | All staff,
+  |
+  | Researchers have found that some new laptops carry an ad program called Visual Discovery. It weakens the security of every secure web page. If your laptop is new, open the check below.
+  |
+  | IT Helpdesk
+notify mail IT Helpdesk
+  | Security notice: ad software on some new laptops
+
+step The IT notice
+  look Mail: the notice from IT
+  when mail mail-it
+  move Open {Task Manager|Activity Monitor}, then press Next.
+  cue app:taskmanager
+  | IT's notice says some new laptops carry an ad program called Visual Discovery, and that it weakens every secure web page.
+  | Yours is a new laptop, so look at what it runs before you open the check.
+open mail-it
+
+step Check: what is running
+  look {Task Manager|Activity Monitor}: VisualDiscovery.exe, publisher Superfish, Inc.
+  cue process:VisualDiscovery.exe app:taskmanager
+  | {Task Manager|Activity Monitor} lists the programs running right now. VisualDiscovery.exe is one of them, and nobody started it on purpose.
+  | Its publisher is Superfish, Inc., not the supplier or the shop. It is on the start-up list too, so it starts every time the computer starts.
+open taskmanager
+
+step IT's check
+  look the list of certificates: "Superfish, Inc." next to the real one
+  when visit it-check
+  | The check lists the certificates your laptop trusts. One of them is "Superfish, Inc.", added by the program when it first ran on this laptop.
+  | Taking the program off is not enough: the certificate stays until it is deleted by hand or with the maker's removal tool.
+open it-check
+
+step What Superfish did
+  look the animation: every secure page, and the key behind it
+  | Anyone who took the key could pose as any website to every laptop that carried it: a bank, a shop, a work portal. The browser would show a green padlock and no warning.
+  | The people behind the program were paid for the ads, not for stolen passwords. The harm was the broken trust and the open door.
+attack spyware-surveillance
+  | a new laptop ships with an ad tool
+  | it adds its own root certificate
+  | the same private key on every laptop
+  | secure pages re-signed with that key
+  | ads injected, the padlock stays green
+  | anyone with the key can fake any site
+block 203.0.113.70 443
+
+flag hard process VisualDiscovery.exe
+  | An ad program running in the background that nobody chose. Its publisher is Superfish, Inc.
+flag hard startup VisualDiscovery
+  | It starts every time the computer starts. It came on the laptop from the factory.
+flag hard page harbour-login-2
+  label Sign-in page: certificate issued by Superfish
+  | The supplier's own page, but the strip under the address says "Superfish, Inc.", not Example Trust CA, while the padlock stays green.
+flag hard section order-5 2
+  | The supplier never put these adverts here. The ad tool decrypted the secure page, added its own box and signed it again.
+flag hard section it-check 1
+  | A certificate from "Superfish, Inc." among the ones your laptop trusts. It stays after the program is removed.
+flag soft file Desktop/harbour-login.txt
+  | A password in a text file on the desktop: any program that runs can read it. Use a password manager.
+
+lesson
+  | Take software you did not choose off a new computer, or install Windows afresh. The ad tool came with the laptop and Windows never asked about it.
+  | A green padlock means the connection is private, not that nothing on your own PC is reading or editing the page. If a secure page shows adverts the site would not add, check who issued its certificate.
+  | Removing the program is only half the job. Delete the certificate it added too, or the door stays open.

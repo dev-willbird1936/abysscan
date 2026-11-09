@@ -5,11 +5,11 @@
   --glow: #7ee6d4;
   font-family: Inter, "Segoe UI", ui-sans-serif, system-ui, sans-serif;
 }
-[data-depth="sunlight"] { --d: #5eead4; --d-rgb: 94 234 212; }
-[data-depth="twilight"] { --d: #60a5fa; --d-rgb: 96 165 250; }
-[data-depth="midnight"] { --d: #818cf8; --d-rgb: 129 140 248; }
-[data-depth="abyss"] { --d: #c084fc; --d-rgb: 192 132 252; }
-[data-depth="trench"] { --d: #f472b6; --d-rgb: 244 114 182; }
+[data-depth="sunlight"] { --d: #f4f8fc; --d-rgb: 244 248 252; }
+[data-depth="twilight"] { --d: #8fd3ff; --d-rgb: 143 211 255; }
+[data-depth="midnight"] { --d: #ffd166; --d-rgb: 255 209 102; }
+[data-depth="abyss"] { --d: #ff9a5a; --d-rgb: 255 154 90; }
+[data-depth="trench"] { --d: #ff4f6d; --d-rgb: 255 79 109; }
 * { box-sizing: border-box; }
 html { background: #03060f; }
 body {

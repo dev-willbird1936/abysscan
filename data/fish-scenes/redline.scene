@@ -1,0 +1,287 @@
+# RedLine Stealer (2020 onwards). Sold as a service; spread through fake "cracked" software and fake downloads.
+# A quest (QUESTS.md): the trainee works a poster deadline, installs the licensed editor safely, then meets RedLine in the "free" pack.
+# There is no record of one real victim's job: Dana is an invented marketing coordinator, as many stealer victims were ordinary staff.
+os windows
+user Dana Okafor
+about
+  | A "free" copy of paid software was really RedLine, a password stealer sold to criminals as a service. In seconds it copied saved browser passwords, cookies (which keep you signed in), card details and crypto wallets, and sent them to its buyer.
+  | It was spread through video descriptions, search ads and "crack" sites, as a password-protected archive that scanners cannot look inside until it is unpacked. This quest invents the victim: a marketing coordinator racing a print deadline.
+story
+  | You are Dana Okafor, marketing coordinator at Northwind Traders. This week's autumn sale needs ten posters, and the print shop, Corner Print, takes the last file at 5 pm.
+  | It is mid-afternoon. You have 8 of the 10 posters ready for print. Two to go.
+  | Your browser remembers your print-shop and social-media passwords. You have also copied them into two text files on the desktop: a bad habit.
+quota 8 10 Posters ready for print
+
+# Dana's desk: logins she copies from (soft flags: careless, but only here to keep the training simple).
+file Desktop/print-shop-login.txt
+  at 930 200
+  | Corner Print account (training copy)
+  | Login: dana.okafor@northwind.example
+  | Password: Poster-Fall-2026!
+file Desktop/social-media-logins.txt
+  at 930 300
+  | Northwind shared social accounts (training copy)
+  | Login: northwind.marketing
+  | Password: Sale-Season#7
+  | Backup code: 5521 0987
+
+# The company's own software portal, where the licensed editor really lives.
+page portal software.northwind.example/photo-editor-pro
+  title Northwind Software Portal: Photo Editor Pro
+  brand Northwind IT
+  heading Photo Editor Pro 2025 (company licence)
+  | A seat is reserved for Dana Okafor. Install it on your work computer.
+  section About this download
+  row Publisher = PixelForge Software Ltd (verified)
+  row Licence = Northwind company licence, 1 seat
+  row Version = 2025.2, 118 MB
+  button Download installer
+
+program pf Photo Editor Pro installer
+  publisher PixelForge Software Ltd
+  signed yes
+  prompt elevation
+  description Photo Editor Pro installer
+
+mail seat
+  from IT Helpdesk <it.helpdesk@northwind.example>
+  subject Your Photo Editor Pro seat is ready
+  link portal
+  | Hi Dana,
+  |
+  | Your seat for Photo Editor Pro is ready. Install it from the company software portal with the link below.
+  |
+  | IT Helpdesk
+
+step Poster 9 of 10
+  look Mail: IT's message about your photo editor
+  | You asked IT for the photo editor, and it has set you up with a licensed copy. Install it the normal way, so you know what normal looks like.
+notify mail IT Helpdesk
+  | Your Photo Editor Pro seat is ready
+
+step The link goes to the portal
+  look the link under IT's message
+  when mail seat
+  | The link goes to software.northwind.example, the company's own address. Hover over a link before you click it, to check where it goes.
+open seat
+
+step The company portal
+  look the address bar, and the publisher line on the page
+  when visit portal
+  move Press “Download installer”.
+  | The portal is on the company's own address, and the page names the publisher. Real software comes with a name behind it.
+open portal
+
+step Saved to Downloads
+  look the installer in Downloads
+  when choose portal 1
+  | The installer is in Downloads. Open it: your computer will ask permission. Read what it asks before you agree.
+file Downloads/PixelForge_PhotoEditorPro_Setup.exe
+  program pf
+  size 118000000
+notify browser PixelForge_PhotoEditorPro_Setup.exe
+  | Download complete
+open Downloads
+
+step A named publisher
+  look the permission box: the program is the one the portal named
+  when prompt pf
+  | Your computer asks permission to make changes, as it does for every installer. The portal named PixelForge Software as a verified publisher, and this installer is signed by it. Remember that: a signed installer gets no unknown-app warning.
+open Downloads/PixelForge_PhotoEditorPro_Setup.exe
+
+step 9 of 10 done
+  look the counter in the guide, then Mail: Marcus's new message
+  when run pf
+  | Installed. Poster 9 is done, with nobody asking you to turn anything off. Marcus has just written about poster 10.
+answer run
+quota +1
+
+# The lure: a "free full version" with a password-protected zip.
+page crack free-software-hub.invalid/photo-editor-pro
+  title Photo Editor Pro 2026 FULL FREE (no virus)
+  brand Free Software Hub
+  heading Photo Editor Pro 2026 FULL FREE (no virus)
+  | Photo Editor Pro 2026 with the Pro effects pack, free. 48,201 downloads. Works every time!
+  | Download PhotoEditorPro_2026_FULL.zip (10 MB)
+  | Archive password: 2026
+  | Turn off your antivirus first, it is a false positive.
+  section Comments
+  item works perfectly, thanks!!
+  item 10/10 saved me 300 dollars
+  item the password is 2026, just disable your antivirus
+  button Download
+view redline-error message
+  title PhotoEditorPro Setup
+  icon error
+  | The code execution cannot proceed because MSVCP140.dll was not found. Reinstalling the program may fix this problem.
+  button OK -> close primary
+program redline PhotoEditorPro_Setup.exe
+  publisher none
+  signed no
+  prompt reputation
+  prompt elevation
+  description Photo Editor Pro installer
+  process AppLaunch.exe
+  cpu 26
+  mem 64
+  parent PhotoEditorPro_Setup.exe
+  command C:\Windows\Microsoft.NET\Framework\v4.0.30319\AppLaunch.exe
+  selfdelete
+mail pack
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Poster 10 needs the effects pack
+  link crack
+  | Dana,
+  |
+  | Poster 10 needs the Pro effects pack for the recolour, and IT says that licence takes five working days. Corner Print closes at 5.
+  |
+  | I did a quick search and this page came up. Can you see whether it does what we need?
+  |
+  | Marcus
+notify mail Marcus Lee
+  | Poster 10 needs the effects pack
+
+step Poster 10 needs more
+  look Marcus's message, and the link under it
+  when mail pack
+  | Marcus needs an effects pack that IT cannot get today, and the print shop closes at 5. The link is his search result, not a company page.
+  | Before you click it, hover over the link and read the address.
+open pack
+
+step A page that promises the pack
+  look the address, and the description on the page
+  when visit crack
+  move Read the page, then press “Download”.
+  | The address is free-software-hub.invalid: not the company portal and not the vendor. The page says the archive password is 2026 and to turn off your antivirus first.
+  | Stealers like RedLine spread this way: pages and video descriptions, comments that say it works, and a "false positive" excuse.
+close mail
+open crack
+
+step A zip scanners cannot look inside
+  look the zip in Downloads, and the README and installer inside it
+  when choose crack 1
+  | The download is a password-protected zip, so scanners cannot look inside until it is unpacked. The README repeats the advice to switch protection off.
+  | Unpacked, the installer is padded with empty data to 640 MB, a size some scanners skip. Open the installer.
+notify browser PhotoEditorPro_2026_FULL.zip
+  | Download complete
+folder Downloads/PhotoEditorPro_2026_FULL.zip
+file Downloads/PhotoEditorPro_2026_FULL.zip/README.txt
+  | Password: 2026
+  | Disable your antivirus before installing. It is a false positive.
+  | Run PhotoEditorPro_Setup.
+file Downloads/PhotoEditorPro_2026_FULL.zip/PhotoEditorPro_Setup.exe
+  program redline
+  size 640000000
+open Downloads/PhotoEditorPro_2026_FULL.zip
+
+step The computer asks again
+  look the first warning: it does not name a verified publisher
+  when prompt redline
+  move Click through the warnings until it runs. Windows: More info, then Run anyway, then Yes. A Mac: Open Anyway, then OK.
+  | Last time the installer was signed by a verified publisher. This app is not: your computer does not recognise it, and asks whether to open it.
+  | Most victims clicked through anyway.
+  cue dialog-btn:run dialog:reputation:redline
+open Downloads/PhotoEditorPro_2026_FULL.zip/PhotoEditorPro_Setup.exe
+
+step Nothing useful installs
+  look the error box, then AppLaunch.exe in Task Manager behind it
+  when run redline
+  cue view-btn:close mail:m-alert app:mail
+  | The installer shows an error and closes: “MSVCP140.dll was not found”. Press OK.
+  | Behind the error, RedLine ran inside a normal .NET tool called AppLaunch.exe. In a few seconds it read the browser's saved passwords and cookies, any card or wallet files it found, then deleted the installer.
+  | It is still running in the background, under the name AppLaunch.exe.
+answer run
+answer run
+open taskmanager
+dialog message redline-error
+
+# The payoff: the stolen cookie signs the attacker in. Here it takes minutes; real victims often found out days later.
+page confirmed-clean corner-print.example/orders/4471/done
+  title Order confirmed
+  brand Corner Print
+  heading Order 4471 confirmed
+  | Other sessions were signed out and the poster is printing. Next: change your passwords from a different device.
+page confirmed-open corner-print.example/orders/4471/done-open
+  title Order confirmed
+  brand Corner Print
+  heading Order 4471 confirmed
+  | The poster is printing. The unknown device is still signed in to your account.
+page order-4471 corner-print.example/orders/4471
+  title Corner Print: confirm order 4471
+  brand Corner Print
+  favorite
+  heading Confirm order 4471
+  | Northwind Traders, Autumn Sale poster 10 (A2, 50 copies). It prints as soon as you confirm.
+  section Order
+  row Poster = Autumn Sale poster 10 (A2)
+  row Copies = 50
+  row Pay with = Northwind account on file
+  section Where your account is signed in
+  row This computer = Northwind office, now
+  section Other devices
+  tone bad
+  row Unknown device = Browser at 203.0.113.70, signed in 2 minutes ago
+  note A session stays signed in on a device until it is signed out.
+  button Sign out all other sessions, then confirm -> confirmed-clean
+  button Confirm order -> confirmed-open
+mail alert
+  from Corner Print <orders@corner-print.example>
+  subject Confirm order 4471: new sign-in to your account
+  | Hi Dana,
+  |
+  | Poster 10 is ready to print once you confirm it in your Corner Print account. Before you do: we saw a sign-in from a device we do not recognise. If that was not you, sign out other sessions first.
+  |
+  | Corner Print
+notify mail Corner Print
+  | Confirm order 4471: new sign-in to your account
+
+step The print shop writes
+  look Mail: Corner Print's message about your account
+  when mail alert
+  move Open Corner Print from the favourites bar, not from the email.
+  | Corner Print has written about a sign-in to your account. Read the message, then open Corner Print from the favourites bar, not from the email.
+open alert
+
+step Who is signed in?
+  look “Where your account is signed in”: two devices
+  when visit order-4471
+  move Compare the two devices, then press a button.
+  | Corner Print lists every device signed in to your account. Compare the list with the devices you actually use.
+  | The two buttons do different things to the other sessions.
+open order-4471
+
+step Poster 10 of 10, and what RedLine took
+  look the counter, then the animation: everything RedLine copied after you ran the file
+  when choose order-4471 any
+  | The order is placed and the poster is on its way to print. If you pressed Confirm without signing out, the unknown device is still in your account.
+  | The data goes to whoever bought RedLine. Stolen cookies let them sign in without a password. Real victims found out later, from alerts like this one.
+quota +1
+attack data-exfil
+  | saved passwords: print shop, social
+  | browser cookies: the signed-in print shop session
+  | the two login text files on the desktop
+  | card details and wallets, if there are any
+
+flag hard link pack
+  | The link leads to an unfamiliar download site, not the company portal or the vendor.
+flag hard page crack
+  | “Turn off your antivirus first” and a password for the archive: a real vendor never asks for this.
+flag hard file Downloads/PhotoEditorPro_2026_FULL.zip/PhotoEditorPro_Setup.exe
+  | An installer from an unknown source, padded to 640 MB and hidden in a password-protected zip.
+flag hard dialog reputation redline
+  | Your computer does not recognise this app: no verified publisher. The company installer was signed by a verified publisher.
+flag hard process AppLaunch.exe
+  | RedLine running inside a normal .NET tool, started by the installer, reading the browser's saved data.
+flag hard mail alert
+  | The first sign: a device you did not sign in with is already signed in to your account.
+flag hard section order-4471 3
+  | An unknown device is signed in as you, with no password asked. The stolen cookie did that.
+flag soft file Desktop/print-shop-login.txt
+  | Passwords in a text file on the desktop: stealers copy desktop text files too.
+flag soft file Desktop/social-media-logins.txt
+  | Logins and backup codes belong in a password manager, not in a file.
+
+lesson
+  | An installer that asks you to switch off your antivirus is not an installer. The real one came from the company portal, from a verified publisher, and never asked.
+  | “Free full version” downloads, password-protected zips and a fake “missing file” error are the stealer's usual costume. If a licence takes time, ask IT, not a search engine.
+  | If you ran one: sign out of all sessions and change your passwords from another device, because stolen cookies skip the password.

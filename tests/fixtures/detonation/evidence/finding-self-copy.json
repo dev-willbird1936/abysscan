@@ -1,0 +1,29 @@
+{
+  "description": "Writes one runnable copy of itself into the user area (the real i386 botnet that dropped WIFIADAPT).",
+  "path": "run",
+  "complete": true,
+  "expect": {
+    "signals": [],
+    "depth": "midnight",
+    "findings": [
+      "self-copy"
+    ]
+  },
+  "evidence": [
+    {
+      "id": "ev-1",
+      "source": "diff",
+      "kind": "added",
+      "detail": "added /home/dana/WIFIADAPT",
+      "at": "2026-01-01T00:00:00.000Z",
+      "path": "/home/dana/WIFIADAPT",
+      "seeded": false,
+      "entropyBefore": null,
+      "entropyAfter": 6.2,
+      "sizeBefore": null,
+      "sizeAfter": 64400,
+      "executable": true,
+      "copyOfSample": true
+    }
+  ]
+}

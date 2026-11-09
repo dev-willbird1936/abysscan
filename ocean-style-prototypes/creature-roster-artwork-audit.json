@@ -1,0 +1,708 @@
+{
+  "reviewedAtUtc": "2026-10-07T00:25:57.768234+00:00",
+  "purpose": "Answer the completion auditor's roster concern with source-derived mapping and a direct visual review of the actual 30 layers.",
+  "rendererSource": {
+    "bundle": "ui/abyss/assets/index-D8CplD1t.js",
+    "bundleSha256": "f7e9622bf58cb2263ba6acc18ab2bc04c9e9a2cb0522cb448741468173d12b7f",
+    "modelCatalog": [
+      "frogfish-a",
+      "frogfish-b",
+      "viperfish",
+      "cookiecutter",
+      "barreleye",
+      "lamprey",
+      "gulper",
+      "moray",
+      "kraken",
+      "octopus",
+      "cuttlefish",
+      "hostfish",
+      "angler"
+    ],
+    "modelFiles": [
+      {
+        "id": "frogfish-a",
+        "path": "ui/abyss/models/abyss-species/frogfish-a.glb",
+        "sha256": "9e66c0859b9ca52347381b3e82d768887bb6805ee8d3951d802b8c8f75047d39"
+      },
+      {
+        "id": "frogfish-b",
+        "path": "ui/abyss/models/abyss-species/frogfish-b.glb",
+        "sha256": "75bf45afa4c3f6ca79119ef32c32b12434c4300a575b14c574a9c3d8b179baf2"
+      },
+      {
+        "id": "viperfish",
+        "path": "ui/abyss/models/abyss-species/viperfish.glb",
+        "sha256": "3ca5026773f6d16d9b164317b59512806978064aeb9e5dbe13fb77eb21d03d1e"
+      },
+      {
+        "id": "cookiecutter",
+        "path": "ui/abyss/models/abyss-species/cookiecutter.glb",
+        "sha256": "ee738d07c37147ff4d2f87336914e9203434c954aef09ad3b0dbe5528074be30"
+      },
+      {
+        "id": "barreleye",
+        "path": "ui/abyss/models/abyss-species/barreleye.glb",
+        "sha256": "4dc41f2407dbe8576037a9b7be98d8017dc22b193e1f867faf02f030a26b89a7"
+      },
+      {
+        "id": "lamprey",
+        "path": "ui/abyss/models/abyss-species/lamprey.glb",
+        "sha256": "0b6446b7bc4e82181987bbd2ce3bf7e2d74bccf1885dac8a912a01deeaee66e4"
+      },
+      {
+        "id": "gulper",
+        "path": "ui/abyss/models/abyss-species/gulper.glb",
+        "sha256": "9c61a1c202318c370b5874864c8fd75343a44d917aa37d6aca382902f1a21eca"
+      },
+      {
+        "id": "moray",
+        "path": "ui/abyss/models/abyss-species/moray.glb",
+        "sha256": "27643d651a78ac609f32492fb8d0998af3723147b58a35cbbf772e074a0a09b2"
+      },
+      {
+        "id": "kraken",
+        "path": "ui/abyss/models/abyss-species/kraken.glb",
+        "sha256": "a2eea15725739986449276e6865c4469d6d55c5d30a60fd83e126d8a44ffd109"
+      },
+      {
+        "id": "octopus",
+        "path": "ui/abyss/models/abyss-species/octopus.glb",
+        "sha256": "844e068a85a08faaa78b6e3c0be9c303922f33bea5260ddb25e7af7285a2b3b5"
+      },
+      {
+        "id": "cuttlefish",
+        "path": "ui/abyss/models/abyss-species/cuttlefish.glb",
+        "sha256": "0ca75959c545d0d31696dcedb5a31d051482c2649961f8e855dfbf981f6d03d9"
+      },
+      {
+        "id": "hostfish",
+        "path": "ui/abyss/models/abyss-species/hostfish.glb",
+        "sha256": "a8f10f585a55559cbc0ac55cce9cf14203f34ee87982b221a4336f39baee7aeb"
+      },
+      {
+        "id": "angler",
+        "path": "ui/abyss/models/abyssal/angler.glb",
+        "sha256": "88ba6a336163e75f82bb16342fe971c11e7eb562e7d20b8f781e9f52dfa581cd"
+      }
+    ],
+    "depthCurve": {
+      "5": 0.0,
+      "4": 0.35,
+      "3": 0.5,
+      "2": 0.75,
+      "1": 1.0
+    },
+    "vectorToCreatureNames": {
+      "phishing": "Frogfish → anglerfish; species name changes with depth",
+      "exploit": "Viperfish",
+      "botnet": "Siphonophore",
+      "theft": "Cookiecutter shark",
+      "supply-chain": "Isopod host fish",
+      "espionage": "Barreleye",
+      "ransomware": "Blue-ringed octopus → Kraken",
+      "social": "Cuttlefish",
+      "vulnerability": "Moray eel",
+      "card-fraud": "Sea lamprey",
+      "wiper": "Gulper eel",
+      "bec": "Mimic octopus"
+    },
+    "rendererZoneSeverities": [
+      5,
+      4,
+      3,
+      2,
+      1,
+      1,
+      1
+    ],
+    "severityLadder": {
+      "1": {
+        "name": "SEV1",
+        "action": "Nothing",
+        "desc": "Zero user action. The attack reaches the victim unaided."
+      },
+      "2": {
+        "name": "SEV2",
+        "action": "One Click",
+        "desc": "One click. No credentials typed."
+      },
+      "3": {
+        "name": "SEV3",
+        "action": "Your Password",
+        "desc": "Victim types a password into a hostile surface."
+      },
+      "4": {
+        "name": "SEV4",
+        "action": "Your Code",
+        "desc": "Victim supplies a second factor or seed phrase."
+      },
+      "5": {
+        "name": "SEV5",
+        "action": "Open a File",
+        "desc": "Victim downloads and executes a payload."
+      },
+      "note": "SEV counts DOWN in severity, following ITIL/SRE. SEV1 is worst. 'action' names the user action the attack required, and is the lesson.",
+      "null": {
+        "name": "NO LURE",
+        "action": "No Human Moment",
+        "desc": "No human action is required. Class C can run a safe backend verifier; class D is a narrated or analyst-only reconstruction."
+      }
+    },
+    "sourceDerivedCountsByTier": {
+      "Sunlight": {
+        "severity": 5,
+        "attackCount": 7,
+        "vectorCounts": {
+          "ransomware": 1,
+          "phishing": 6
+        },
+        "rendererSpeciesCounts": {
+          "Blue-ringed octopus": 1,
+          "Frogfish": 6
+        },
+        "rosterCounts": {
+          "Frogfish": 6,
+          "Blue-ringed octopus": 1
+        }
+      },
+      "Twilight": {
+        "severity": 4,
+        "attackCount": 2,
+        "vectorCounts": {
+          "social": 1,
+          "phishing": 1
+        },
+        "rendererSpeciesCounts": {
+          "Cuttlefish": 1,
+          "Twilight anglerfish": 1
+        },
+        "rosterCounts": {
+          "Twilight anglerfish": 1,
+          "Cuttlefish": 1
+        }
+      },
+      "Midnight": {
+        "severity": 3,
+        "attackCount": 1,
+        "vectorCounts": {
+          "phishing": 1
+        },
+        "rendererSpeciesCounts": {
+          "Twilight anglerfish": 1
+        },
+        "rosterCounts": {
+          "Twilight anglerfish": 1
+        }
+      },
+      "Abyss": {
+        "severity": 2,
+        "attackCount": 10,
+        "vectorCounts": {
+          "supply-chain": 1,
+          "espionage": 1,
+          "phishing": 5,
+          "social": 2,
+          "bec": 1
+        },
+        "rendererSpeciesCounts": {
+          "Isopod host fish": 1,
+          "Barreleye": 1,
+          "Anglerfish": 5,
+          "Cuttlefish": 2,
+          "Mimic octopus": 1
+        },
+        "rosterCounts": {
+          "Anglerfish": 5,
+          "Cuttlefish": 2,
+          "Mimic octopus": 1,
+          "Isopod host fish": 1,
+          "Barreleye": 1
+        }
+      },
+      "Trench": {
+        "severity": 1,
+        "attackCount": 30,
+        "vectorCounts": {
+          "botnet": 6,
+          "card-fraud": 1,
+          "supply-chain": 3,
+          "wiper": 1,
+          "vulnerability": 2,
+          "espionage": 3,
+          "exploit": 7,
+          "ransomware": 2,
+          "theft": 5
+        },
+        "rendererSpeciesCounts": {
+          "Siphonophore": 6,
+          "Sea lamprey": 1,
+          "Isopod host fish": 3,
+          "Gulper eel": 1,
+          "Moray eel": 2,
+          "Barreleye": 3,
+          "Viperfish": 7,
+          "Kraken": 2,
+          "Cookiecutter shark": 5
+        },
+        "rosterCounts": {
+          "Siphonophore": 1,
+          "Sea lamprey": 1,
+          "Isopod host fish": 1,
+          "Gulper eel": 1,
+          "Moray eel": 1,
+          "Barreleye": 1,
+          "Viperfish": 1,
+          "Kraken": 1,
+          "Cookiecutter shark": 1
+        }
+      }
+    },
+    "rosterMatchesSource": {
+      "Sunlight": true,
+      "Twilight": true,
+      "Midnight": true,
+      "Abyss": true,
+      "Trench": true
+    },
+    "trenchGrouping": "Thirty SEV1 attacks reduce to nine unique species; each is represented once in the prototype."
+  },
+  "viewerProjection": {
+    "canonicalRoster": "ocean-style-prototypes/creature-roster.json",
+    "generatedProjection": "ocean-style-prototypes/creature-roster-view.js",
+    "projectionSourceHashMatches": true,
+    "viewerUsesRosterNamesForAltText": true,
+    "viewerDisplaysPerInstanceCounts": false
+  },
+  "visualReview": {
+    "reviewer": "Parent agent, direct visual review",
+    "contactSheet": "ocean-style-prototypes/creature-roster-artwork-contact-sheet.png",
+    "contactSheetSha256": "a743660e536eeff1283f85fc2d80b4d70cc762b0c46c18ab91e4c52a7e74970d",
+    "browserCapture": {
+      "path": "ocean-style-prototypes/creature-roster-browser-preview.png",
+      "sha256": "98ea6b85dbd3f2629108fc9efeaf1b02f12499351d9df676d65fc7ef4f93b52a",
+      "dimensions": [
+        1796,
+        5237
+      ],
+      "browserVerification": "ocean-style-prototypes/creature-roster-browser-verification.json",
+      "decodedImages": 60,
+      "allSixStylesAndRosterAltTextPassed": true
+    },
+    "method": "Reviewed all 30 cells in the 6×5 overlay contact sheet; additionally opened all six Abyss layers and all six Trench layers at 1600×900, plus the five minimal-silhouette depth layers at full resolution.",
+    "observationsByDepth": {
+      "01-sunlight": "Rounded lure-bearing frogfish and a blue-ringed octopus with electric-blue markings.",
+      "02-twilight": "Lure-bearing anglerfish and oval, wavy-finned cuttlefish.",
+      "03-midnight": "Dark toothed anglerfish with an arched cyan lure.",
+      "04-abyss": "Anglerfish, cuttlefish, striped Mimic octopus, mouth-parasitized host fish, and domed green-eyed barreleye.",
+      "05-trench": "Siphonophore chain, suction-disc lamprey, isopod host fish, pouch-jawed gulper eel, moray, barreleye, fanged photophore viperfish, red eight-armed kraken, and dark-collared cookiecutter shark."
+    },
+    "speciesFamilySetMatchesAll30Cells": true,
+    "countLimitation": "Renderer counts are retained in the roster but repeated individuals are not guaranteed in each illustration. Confirmed example: minimal-silhouettes/04-abyss visibly has four distinct anglerfish against a renderer count of five; the family remains present.",
+    "reviewIsHumanNotClassifier": true
+  },
+  "cells": [
+    {
+      "style": "minimal-silhouettes",
+      "depth": "01-sunlight",
+      "overlay": "creature-assets\\minimal-silhouettes\\01-sunlight.png",
+      "overlaySha256": "3452c2f57b22fb5b8c111a4f599f4c26977005c440aae8af4beebe2cdfbeeb51",
+      "expectedSpeciesFamilies": [
+        "Frogfish",
+        "Blue-ringed octopus"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "minimal-silhouettes",
+      "depth": "02-twilight",
+      "overlay": "creature-assets\\minimal-silhouettes\\02-twilight.png",
+      "overlaySha256": "2d1b3556325389c2170b4abe5241d666a86fbc45abd48f5b0ea7692f06f3b9fa",
+      "expectedSpeciesFamilies": [
+        "Twilight anglerfish",
+        "Cuttlefish"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "minimal-silhouettes",
+      "depth": "03-midnight",
+      "overlay": "creature-assets\\minimal-silhouettes\\03-midnight.png",
+      "overlaySha256": "0b0e342ca3ce64ece4c0c29920a76181c8df043202c482e8842ec03093c4c2b9",
+      "expectedSpeciesFamilies": [
+        "Twilight anglerfish"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "minimal-silhouettes",
+      "depth": "04-abyss",
+      "overlay": "creature-assets\\minimal-silhouettes\\04-abyss.png",
+      "overlaySha256": "aad0894476e43d693c3158f7441403dd0370dc5cd49a3455411ed2b8ed5eb473",
+      "expectedSpeciesFamilies": [
+        "Anglerfish",
+        "Cuttlefish",
+        "Mimic octopus",
+        "Isopod host fish",
+        "Barreleye"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "minimal-silhouettes",
+      "depth": "05-trench",
+      "overlay": "creature-assets\\minimal-silhouettes\\05-trench.png",
+      "overlaySha256": "891f9d375acac7f45779d99e73fcc56fd7b3125082aa55f0b3cb39b1a8c8cf80",
+      "expectedSpeciesFamilies": [
+        "Siphonophore",
+        "Sea lamprey",
+        "Isopod host fish",
+        "Gulper eel",
+        "Moray eel",
+        "Barreleye",
+        "Viperfish",
+        "Kraken",
+        "Cookiecutter shark"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "paper-cut",
+      "depth": "01-sunlight",
+      "overlay": "creature-assets\\paper-cut\\01-sunlight.png",
+      "overlaySha256": "e44eaa9a179a34cfe3ce9b7098bb263dbbfe4a4dc2c81583dde8d5767762d6e1",
+      "expectedSpeciesFamilies": [
+        "Frogfish",
+        "Blue-ringed octopus"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "paper-cut",
+      "depth": "02-twilight",
+      "overlay": "creature-assets\\paper-cut\\02-twilight.png",
+      "overlaySha256": "3f7fd74c258a02e88d1670f63b8abb0aedb2ee92809a98ba3e93d84db6d4f4d3",
+      "expectedSpeciesFamilies": [
+        "Twilight anglerfish",
+        "Cuttlefish"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "paper-cut",
+      "depth": "03-midnight",
+      "overlay": "creature-assets\\paper-cut\\03-midnight.png",
+      "overlaySha256": "e3840ac9fa3d82c5cf07c1632b72ab70ecb042a814856086e3697af3f1a111d7",
+      "expectedSpeciesFamilies": [
+        "Twilight anglerfish"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "paper-cut",
+      "depth": "04-abyss",
+      "overlay": "creature-assets\\paper-cut\\04-abyss.png",
+      "overlaySha256": "03bbc65b225062014fffd65d74f6772f07a1bc95c088625dc079b2dd6a79b7d9",
+      "expectedSpeciesFamilies": [
+        "Anglerfish",
+        "Cuttlefish",
+        "Mimic octopus",
+        "Isopod host fish",
+        "Barreleye"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "paper-cut",
+      "depth": "05-trench",
+      "overlay": "creature-assets\\paper-cut\\05-trench.png",
+      "overlaySha256": "c49266b5ba57488f59617da55a986632e6c887f6ca79f2bdbcd87904fa212c65",
+      "expectedSpeciesFamilies": [
+        "Siphonophore",
+        "Sea lamprey",
+        "Isopod host fish",
+        "Gulper eel",
+        "Moray eel",
+        "Barreleye",
+        "Viperfish",
+        "Kraken",
+        "Cookiecutter shark"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "watercolor",
+      "depth": "01-sunlight",
+      "overlay": "creature-assets\\watercolor\\01-sunlight.png",
+      "overlaySha256": "98d7e64753a8ae0c0e8e5564dfb8a0bbfe332ed52750eee604569bb7471c9f09",
+      "expectedSpeciesFamilies": [
+        "Frogfish",
+        "Blue-ringed octopus"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "watercolor",
+      "depth": "02-twilight",
+      "overlay": "creature-assets\\watercolor\\02-twilight.png",
+      "overlaySha256": "9d5c58834580d8ab99a0a0b86fa3bffce299e730a8848f74b625a97cd8e73d0a",
+      "expectedSpeciesFamilies": [
+        "Twilight anglerfish",
+        "Cuttlefish"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "watercolor",
+      "depth": "03-midnight",
+      "overlay": "creature-assets\\watercolor\\03-midnight.png",
+      "overlaySha256": "e758c8cdfb05ab3b13ea01529970d9c56532512a0a6420bea738777bbe5f0bc1",
+      "expectedSpeciesFamilies": [
+        "Twilight anglerfish"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "watercolor",
+      "depth": "04-abyss",
+      "overlay": "creature-assets\\watercolor\\04-abyss.png",
+      "overlaySha256": "183a9ebe0fcde4222b74239eb5b532f94ae930ac4b106412de1a8f8ec7d7ce4e",
+      "expectedSpeciesFamilies": [
+        "Anglerfish",
+        "Cuttlefish",
+        "Mimic octopus",
+        "Isopod host fish",
+        "Barreleye"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "watercolor",
+      "depth": "05-trench",
+      "overlay": "creature-assets\\watercolor\\05-trench.png",
+      "overlaySha256": "4499aab182acd087f88a75d21f5deb4e2fd379cc6c7bf2efca11ccf67715c9d2",
+      "expectedSpeciesFamilies": [
+        "Siphonophore",
+        "Sea lamprey",
+        "Isopod host fish",
+        "Gulper eel",
+        "Moray eel",
+        "Barreleye",
+        "Viperfish",
+        "Kraken",
+        "Cookiecutter shark"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "pixel-art",
+      "depth": "01-sunlight",
+      "overlay": "creature-assets\\pixel-art\\01-sunlight.png",
+      "overlaySha256": "8dd4d51d890d65b9644ca11d73c4960e0fafd140eefda216b6b3c013a20ebd92",
+      "expectedSpeciesFamilies": [
+        "Frogfish",
+        "Blue-ringed octopus"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "pixel-art",
+      "depth": "02-twilight",
+      "overlay": "creature-assets\\pixel-art\\02-twilight.png",
+      "overlaySha256": "239b6579ac60f7d70f595f4623512482f1817cb364ebd9d8c04388079fbb4772",
+      "expectedSpeciesFamilies": [
+        "Twilight anglerfish",
+        "Cuttlefish"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "pixel-art",
+      "depth": "03-midnight",
+      "overlay": "creature-assets\\pixel-art\\03-midnight.png",
+      "overlaySha256": "080927f1ef33daf982dd2b569188ac2743e66ba32bbfadbbcda5b4d191e0020d",
+      "expectedSpeciesFamilies": [
+        "Twilight anglerfish"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "pixel-art",
+      "depth": "04-abyss",
+      "overlay": "creature-assets\\pixel-art\\04-abyss.png",
+      "overlaySha256": "f565d53029fee80e45240cb05524250c26d2d1a91a4237192d4776736a233a33",
+      "expectedSpeciesFamilies": [
+        "Anglerfish",
+        "Cuttlefish",
+        "Mimic octopus",
+        "Isopod host fish",
+        "Barreleye"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "pixel-art",
+      "depth": "05-trench",
+      "overlay": "creature-assets\\pixel-art\\05-trench.png",
+      "overlaySha256": "03cfd4c6578672166a7c17499d0890e34c282999e53b802cf82670bcee291782",
+      "expectedSpeciesFamilies": [
+        "Siphonophore",
+        "Sea lamprey",
+        "Isopod host fish",
+        "Gulper eel",
+        "Moray eel",
+        "Barreleye",
+        "Viperfish",
+        "Kraken",
+        "Cookiecutter shark"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "field-guide",
+      "depth": "01-sunlight",
+      "overlay": "creature-assets\\field-guide\\01-sunlight.png",
+      "overlaySha256": "b807451a2cba5343bb86eda126266f52ccc1cd274390e3292ccf37136484e6cb",
+      "expectedSpeciesFamilies": [
+        "Frogfish",
+        "Blue-ringed octopus"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "field-guide",
+      "depth": "02-twilight",
+      "overlay": "creature-assets\\field-guide\\02-twilight.png",
+      "overlaySha256": "2ff6fd0c3562d8aa3d0313259cf3d7bee9a5ea0daabf00fe2fa39f1252796d75",
+      "expectedSpeciesFamilies": [
+        "Twilight anglerfish",
+        "Cuttlefish"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "field-guide",
+      "depth": "03-midnight",
+      "overlay": "creature-assets\\field-guide\\03-midnight.png",
+      "overlaySha256": "327f530e66aa33949dd42bc31ce9150a06e637f61194739bb0c29f02bae42287",
+      "expectedSpeciesFamilies": [
+        "Twilight anglerfish"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "field-guide",
+      "depth": "04-abyss",
+      "overlay": "creature-assets\\field-guide\\04-abyss.png",
+      "overlaySha256": "0e11e6c47e0ecf28b2b247a71566557bdec7e39d998730f2582f467aa311b761",
+      "expectedSpeciesFamilies": [
+        "Anglerfish",
+        "Cuttlefish",
+        "Mimic octopus",
+        "Isopod host fish",
+        "Barreleye"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "field-guide",
+      "depth": "05-trench",
+      "overlay": "creature-assets\\field-guide\\05-trench.png",
+      "overlaySha256": "331cde096ffbb636713b82433b289858142a216cd276faef1b62d62ec1a7c05b",
+      "expectedSpeciesFamilies": [
+        "Siphonophore",
+        "Sea lamprey",
+        "Isopod host fish",
+        "Gulper eel",
+        "Moray eel",
+        "Barreleye",
+        "Viperfish",
+        "Kraken",
+        "Cookiecutter shark"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "screen-print",
+      "depth": "01-sunlight",
+      "overlay": "creature-assets\\screen-print\\01-sunlight.png",
+      "overlaySha256": "0614707999e8552146aa0da28b19108897b0f50e8d7ed9333a46833a92612dbb",
+      "expectedSpeciesFamilies": [
+        "Frogfish",
+        "Blue-ringed octopus"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "screen-print",
+      "depth": "02-twilight",
+      "overlay": "creature-assets\\screen-print\\02-twilight.png",
+      "overlaySha256": "50e9e043f991471343ebd5c3d2c5aa2619b2f9089e241b221577a071bb32909d",
+      "expectedSpeciesFamilies": [
+        "Twilight anglerfish",
+        "Cuttlefish"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "screen-print",
+      "depth": "03-midnight",
+      "overlay": "creature-assets\\screen-print\\03-midnight.png",
+      "overlaySha256": "02467ee23e488839e1814cb17753d05db1751a01f307f731d39fc6d04c7735a3",
+      "expectedSpeciesFamilies": [
+        "Twilight anglerfish"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "screen-print",
+      "depth": "04-abyss",
+      "overlay": "creature-assets\\screen-print\\04-abyss.png",
+      "overlaySha256": "f2bfa8a931459839a8f3984e0f8b800e47bca72cf97cbea65f105a3dd2855d9a",
+      "expectedSpeciesFamilies": [
+        "Anglerfish",
+        "Cuttlefish",
+        "Mimic octopus",
+        "Isopod host fish",
+        "Barreleye"
+      ],
+      "manuallyReviewedInContactSheet": true
+    },
+    {
+      "style": "screen-print",
+      "depth": "05-trench",
+      "overlay": "creature-assets\\screen-print\\05-trench.png",
+      "overlaySha256": "0f97400cd660b209573fc24b4a9ba740648368c94a00308a017b0daaff89636f",
+      "expectedSpeciesFamilies": [
+        "Siphonophore",
+        "Sea lamprey",
+        "Isopod host fish",
+        "Gulper eel",
+        "Moray eel",
+        "Barreleye",
+        "Viperfish",
+        "Kraken",
+        "Cookiecutter shark"
+      ],
+      "manuallyReviewedInContactSheet": true
+    }
+  ],
+  "sourceHashes": {
+    "ocean-style-prototypes/creature-roster.json": "7b20b1b3d754f5caa0cecf82d2fc6c83ff8aab89eb7a467a635b461a2765e785",
+    "ocean-style-prototypes/creature-roster-view.js": "6794e7bf2a495789c505ec62bc289f158026bde5886df4a901f9628a278332a2",
+    "ocean-style-prototypes/index.html": "5c8cf858b8747876d2b1546967120a8267e639d1a9902a96cc8ca852d42e0196",
+    "ocean-style-prototypes/style-depth-delivery-evidence.json": "6459a9736b88ff8fc5082f91a82176ae7a8dffcf2a25d0063059c9b0b8910245",
+    "ocean-style-prototypes/creature-roster-artwork-contact-sheet.png": "a743660e536eeff1283f85fc2d80b4d70cc762b0c46c18ab91e4c52a7e74970d",
+    "ocean-style-prototypes/creature-roster-browser-verification.json": "f20084274ecb1e107caa8dcb85d7a3af0c49a217f3b91d2c3bd411775688ccba",
+    "ocean-style-prototypes/creature-roster-browser-preview.png": "98ea6b85dbd3f2629108fc9efeaf1b02f12499351d9df676d65fc7ef4f93b52a",
+    "ui/abyss/assets/index-D8CplD1t.js": "f7e9622bf58cb2263ba6acc18ab2bc04c9e9a2cb0522cb448741468173d12b7f",
+    "ui/abyss/index.html": "e4b22e5db61fc17889380781fd2e02c1c66466e755fe89840a7c517d9a59c5ef",
+    "ui/abyss/manifest.json": "e8578c94f9e5bdfc7f57f55a95e3e82b098245bcdbbc81f73dfe74915922706f",
+    "data/attacks.json": "a5caa38a0097fecb8d434c7fe875c467298f29a83e8353118ebe3eb01edb4bd8"
+  },
+  "verification": {
+    "testCommand": "node --test tests/creature-roster-view.test.mjs",
+    "testResult": "4 tests pass: renderer depth curve, vector/species rules, source-derived counts, projection, and 30 cells.",
+    "assetHashesAndTransparency": "ocean-style-prototypes/style-depth-delivery-evidence.json; each of 30 native/export hashes rechecked by this builder."
+  }
+}

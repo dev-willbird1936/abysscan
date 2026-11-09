@@ -76,13 +76,15 @@ never overwrites `/etc/detonation-ocean/env`.
 The Caddyfile imports `/etc/caddy/access.caddy`; Caddy will not start without it. Job reads carry a bearer token in `Authorization`, which `basic_auth` would reject, so exclude them from the gate:
 
 ```
-@gated not path_regexp ^/api/jobs/[^/]+
+@gated not path_regexp ^/(api/jobs/[^/]+|s/[A-Za-z0-9_-]{16,64}/previews/)
 basic_auth @gated {
 	<user> <hash from: caddy hash-password>
 }
 ```
 
-A host name without a domain: `<ip with dashes>.sslip.io` works with Let's Encrypt (for `149.28.93.208`: `149-28-93-208.sslip.io`).
+The second exclusion, `/s/<token>/previews/`, is for the training-desktop shells (`DESKTOP_SHELLS_PUBLIC=true`, step 6). The shells render in a sandboxed frame, so the browser fetches their scripts, fonts and images anonymously and the gate would refuse them. The controller serves a shell file there only for the random token it makes at each start and returns in `GET /api/desktop-templates/status`, which is behind the gate; any other `/s/` path is a 404. Without `DESKTOP_SHELLS_PUBLIC=true` nothing answers on `/s/`. The Win11React artwork is not cleared for redistribution (`THIRD-PARTY.md`): leave the variable unset, or set it to `false`, to take both shells off the public site.
+
+A host name without a domain: `<ip with dashes>.sslip.io` works with Let's Encrypt (for `<vm-ip>`: `<vm-ip-with-dashes>.sslip.io`).
 
 ### 6. Fill in the environment (on the VM)
 
@@ -100,15 +102,28 @@ sudo systemctl restart detonation-ocean
 
 Never commit a filled env file, paste a key into a chat, or put one in a command line (shell history).
 
+### 6a. Optional Scene Studio (operator-only)
+
+Scene Studio is included in the application source at `/scene-studio`; it does **not** need a separate service or public port. It reuses the shared Abysscan pixel theme and the existing desktop/guide engine. [Authoring and API guide](../../docs/desktop-parity/SCENE-STUDIO.md).
+
+It remains disabled unless `SCENE_STUDIO_ENABLED=true` is set. A reviewed production release also needs `APP_PUBLIC_ORIGIN=https://<your-host>` and `DESKTOP_SHELLS_PUBLIC=true`, with both verified desktop builds packaged in the release. Keep the Caddy login on `/scene-studio`, its assets/help, `/api/scene-studio/*` and `/api/desktop/guide`. **Origin checks are not authentication:** never add these paths to the anonymous shell-file exception in step 5a.
+
+Before enabling it, verify the release contains `backend/scene-studio.mjs`, `backend/scene-studio-routes.mjs`, the updated shared scene compiler and desktop parent, `ui/scene-studio/`, and the linked documentation. Run the authoring API tests and integrated browser workflow on that exact release. The standalone fork build directories on a developer's machine are not automatically deployed to the VM.
+
+After an explicitly approved rollout, test a fictional starter through validation, preview, Next/Back and both OSes; then recheck ordinary upload health. This authoring flow makes no inference call and executes no script. Drafts remain in the browser or downloaded `.scene` files; the process holds at most 20 temporary previews, cleared on restart.
+
+Rollback: set `SCENE_STUDIO_ENABLED=false` and restart the service through the approved deployment procedure. The ordinary app remains available; temporary authoring preview links expire. No Scene Studio deployment or environment change was performed when this documentation was added.
+
 ### 7. Check it
 
 ```
 curl -s https://detonation.example.org/api/health
-# {"ok":true,"buildId":"…","acceptingJobs":true,"queueDepth":0}
+# {"ok":true,"buildId":"…","acceptingJobs":false,"queueDepth":0}
 ```
 
-`acceptingJobs:true` means Docker answered and the start-up reaper pass was clean (SPEC 7.4). Check it after every deploy and every
-restart. Also:
+Public file upload is retired: `POST /api/jobs` answers 410 and `acceptingJobs` stays `false` unless `DETONATION_UPLOADS=true` is set in the
+env file (a private deployment of the sandbox; then `acceptingJobs:true` means Docker answered and the start-up reaper pass was clean, SPEC 7.4).
+Check `ok:true` after every deploy and every restart. Also:
 
 ```
 systemctl status detonation-ocean caddy --no-pager
@@ -126,6 +141,7 @@ Then run the checks at the end of [firewall.md](firewall.md) from another machin
 | Logs | `journalctl -u detonation-ocean` (kept 7 days), `journalctl -u caddy` |
 | Backup | Daily, to your machine only: `scp root@<vm-ip>:/var/lib/detonation-ocean/ocean-state.json .` |
 | Spend | Check Vultr billing daily during the event; `DAILY_INFERENCE_CALL_CAP` bounds inference |
+| Test a real sample | On the VM only: `bash tools/quarantine-fetch.sh <url> <sha256|-> <name>`, then `bash tools/detonate-sample.sh /root/quarantine/<name>`. The first stores the file unreadable and proves its hash; the second refuses to start unless the controller is accepting jobs and nothing else is running, then asserts that no container or volume is left and wipes the file. Never fetch or open a sample on a workstation. |
 | Health after restart | `curl -s https://<host>/api/health` |
 
 ## Kill switch
@@ -137,7 +153,7 @@ sudo sed -i 's/^DETONATION_ENABLED=.*/DETONATION_ENABLED=false/' /etc/detonation
 sudo systemctl restart detonation-ocean
 ```
 
-Uploads then answer 503 and `/api/health` loses its `acceptingJobs` and `queueDepth` fields (it answers only `{"ok":true,"buildId":"…"}`).
+The sandbox controller then stops and `/api/health` loses its `acceptingJobs` and `queueDepth` fields (it answers only `{"ok":true,"buildId":"…"}`).
 Set the value back to `true` and restart to resume. For a harder stop: `sudo systemctl stop detonation-ocean caddy`, or delete the 80 and 443 rules in the
 Vultr firewall group.
 

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#074da7"/><stop offset=".48" stop-color="#138cdb"/><stop offset="1" stop-color="#2bb5ed"/></linearGradient>
+    <radialGradient id="glow" cx=".53" cy=".48" r=".56"><stop stop-color="#a7edff" stop-opacity=".95"/><stop offset=".32" stop-color="#57caff" stop-opacity=".72"/><stop offset="1" stop-color="#1173ce" stop-opacity="0"/></radialGradient>
+    <linearGradient id="petalA" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d4faff" stop-opacity=".94"/><stop offset=".47" stop-color="#65d8ff" stop-opacity=".88"/><stop offset="1" stop-color="#257ee3" stop-opacity=".9"/></linearGradient>
+    <linearGradient id="petalB" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#f6ffff" stop-opacity=".9"/><stop offset=".38" stop-color="#73d8ff" stop-opacity=".92"/><stop offset="1" stop-color="#1761c1" stop-opacity=".82"/></linearGradient>
+    <linearGradient id="shadow" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#04408f" stop-opacity=".08"/><stop offset=".55" stop-color="#0756a8" stop-opacity=".62"/><stop offset="1" stop-color="#062c72" stop-opacity=".72"/></linearGradient>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h1600v1000H0z"/>
+  <path fill="url(#glow)" d="M0 0h1600v1000H0z"/>
+  <path fill="url(#shadow)" d="M-130 660C105 425 274 273 548 283c247 9 394 244 644 236 153-5 287-112 522-308v845H-130z"/>
+  <path fill="url(#petalA)" d="M-95 812C132 644 246 405 459 307c147-67 273-55 403 34-178-34-306 91-365 221-70 155-137 315-318 397-99 45-191 46-274 25z"/>
+  <path fill="url(#petalB)" d="M175 1058c186-112 274-300 314-477 36-161 110-291 291-346 138-42 279-13 412 95-152-55-272-35-363 54-105 101-139 245-174 385-46 183-147 309-338 347-51 10-98 10-142-3z"/>
+  <path fill="url(#petalA)" d="M448 1064c178-95 280-236 354-392 80-169 179-287 350-300 157-12 301 82 424 270-146-101-267-119-363-72-109 53-169 166-235 286-86 157-200 273-391 295-55 7-102 1-139-12z"/>
+  <path fill="url(#petalB)" d="M745 1063c192-64 304-185 401-314 111-148 216-230 370-201 87 16 173 77 261 190-132-75-244-79-337-23-96 59-169 159-250 247-138 149-276 219-445 180z"/>
+  <path fill="#f2ffff" fill-opacity=".3" d="M83 755c212-237 322-390 513-417-148 62-237 227-315 382-62 125-135 219-261 287 17-73 37-157 63-252z"/>
+  <path fill="#e7fbff" fill-opacity=".23" d="M556 819c106-220 134-374 277-481-88 114-110 251-146 400-29 120-77 217-172 303 13-77 25-148 41-222z"/>
+</svg>

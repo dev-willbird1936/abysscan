@@ -1,0 +1,314 @@
+# Ask Toolbar in the Java installer (2005-2015). A pre-ticked box in a trusted security update.
+# A quest (QUESTS.md): the trainee submits branch timesheets in the payroll portal, installs a security update IT asked for, and meets
+# the Ask Toolbar offer inside the real installer. The victim is invented: the bundle reached anyone who updated Java.
+# The update in the lure is a fictional runtime (Northgate Runtime): no real product is used as bait.
+os windows
+user Dana Okafor
+about
+  | For years the Java updater, the program that fixed Java's security holes, carried a second offer. A page in the installer asked to add the Ask Toolbar and make Ask the default search and home page, and both boxes were ticked already.
+  | Clicking Next without reading installed it, and the browser's search and home page changed to Ask, which earned money from every ad click. The installer was real and signed: the risk was the offer inside it. Dana's job, and the update she installs here, are invented: the real victims were anyone who updated Java.
+story
+  | You are Dana Okafor, payroll assistant at Northwind Traders. Every Friday you submit the branch timesheets in the payroll portal, whose hours grid needs Northgate Runtime, a browser add-on the company uses.
+  | It is Friday afternoon. You have submitted 4 of the 6 branch timesheets. Two to go.
+  | Your portal sign-in and the branch hours are in two text files on the desktop. That is a bad habit, but it keeps this training quick.
+quota 4 6 Timesheets submitted
+
+# Dana's desk (soft flags: careless, but only here to keep the training simple).
+file Desktop/payroll-login.txt
+  at 930 200
+  | Northwind Payroll Portal
+  | Username: dana.okafor
+  | Password: Payroll-2026!
+file Desktop/branch-hours.txt
+  at 930 300
+  | Branch hours for the week (training copy)
+  | Eastside Depot: 212.5 hours, 6 staff
+  | Westgate Store: 188.0 hours, 5 staff
+
+# The payroll portal: a sign-in page, and the timesheet behind it.
+page payroll-login payroll.northwind.example/sign-in
+  title Northwind Payroll: sign in
+  brand Northwind Payroll
+  favorite
+  heading Sign in to the Payroll Portal
+  | Welcome back. Sign in to submit the branch timesheets.
+  field Username = dana.okafor
+  field secret Password = Payroll-2026!
+  button Sign in
+page ts-east-done payroll.northwind.example/timesheets/east/submitted
+  title Timesheet submitted
+  brand Northwind Payroll
+  heading Timesheet submitted
+  | Eastside Depot, week ending 8 November 2026: 212.5 hours sent to the Friday pay run.
+page ts-east-held payroll.northwind.example/timesheets/east/returned
+  title Timesheet returned
+  brand Northwind Payroll
+  heading Timesheet returned
+  | Eastside Depot's timesheet was sent back to the branch. Nothing was submitted.
+page ts-east payroll.northwind.example/timesheets/east
+  title Timesheet: Eastside Depot
+  brand Northwind Payroll
+  requires payroll-login
+  heading Timesheet: Eastside Depot
+  | A branch timesheet is waiting for you to submit.
+  | Branch: Eastside Depot. Week ending 8 November 2026. Staff: 6. Hours: 212.5.
+  button Submit to payroll -> ts-east-done
+  button Return to branch -> ts-east-held
+
+mail mail-east
+  from Priya Shah <priya.shah@northwind.example>
+  subject Timesheet 5 of 6: Eastside Depot
+  link ts-east
+  | Hi Dana,
+  |
+  | Eastside's hours are in the portal, ready for you to submit. The link goes straight to their timesheet.
+  |
+  | Priya
+
+step Timesheet 5 of 6
+  look Mail: Priya's message with the timesheet link
+  | A new timesheet has come in from Priya, in Payroll. This one is routine. Submit it the normal way, so you know what normal looks like.
+  | Open her message. Its link goes to payroll.northwind.example, the company's own portal. Hover over a link before you click it, to check where it goes.
+notify mail Priya Shah
+  | Timesheet 5 of 6: Eastside Depot
+
+step Sign in as usual
+  look the two boxes: Username and Password, as on every visit
+  when visit ts-east
+  move Copy the details from payroll-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The portal asks you to sign in first. Two boxes: Username and Password. Remember what this page normally looks like.
+open ts-east
+
+step Check, then submit
+  look the branch, the week and the hours
+  when choose payroll-login 1
+  | You are in. Check the branch and the hours against Priya's note, then submit the timesheet or send it back.
+signin payroll-login
+
+step 5 of 6 done
+  look the counter in the guide: one timesheet left
+  when choose ts-east any
+  | Done. One timesheet to go. And another email has just arrived, from IT.
+choose ts-east 1
+quota +1
+
+# The lure: a security update IT asked for. The installer is real and signed; the extra is the offer inside it.
+page runtime-download northgate-runtime.example/download
+  title Northgate Runtime: free download
+  brand Northgate Runtime
+  heading Download Northgate Runtime 4.2.1
+  | This update fixes security problems in the runtime. It is free.
+  section About this download
+  row Publisher = Northgate Runtime Corp
+  row Version = 4.2.1
+  row Size = 62 MB
+  row Price = Free
+  row Also offered = Optional partner software, chosen during setup
+  button Agree and start free download
+view runtime-setup wizard
+  title Runtime Setup
+  app Runtime Setup
+  publisher Northgate Runtime Corp
+  page Welcome to Northgate Runtime
+  icon program
+  | Northgate Runtime lets your browser run programs and games. This update fixes security problems.
+  | Click Install to update to version 4.2.1.
+  button Install -> next primary
+  button Cancel -> close
+  page Optional software
+  icon info
+  | Northgate Runtime is free. Optional software from our partner helps keep it that way.
+  section Ask Toolbar
+  check [x] Install the Ask Toolbar
+  check [x] Make Ask my default search provider and home page
+  note Both boxes are already ticked. You must untick them yourself to say no.
+  button Next -> next primary
+  button Cancel -> close
+  page Complete
+  icon shield-ok
+  | You have successfully installed Northgate Runtime.
+  button Finish -> done primary
+program runtimeup Runtime Setup (runtime-setup-4.2.1.exe)
+  publisher Northgate Runtime Corp
+  signed yes
+  prompt open-warning
+  prompt elevation
+  description Runtime update with the Ask Toolbar offer
+  process runtime-setup-4.2.1.exe
+  cpu 6
+  mem 34
+  parent explorer.exe
+  command C:\Users\Dana\Downloads\runtime-setup-4.2.1.exe
+  view runtime-setup
+mail mail-update
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Security update for the payroll grid: please install today
+  link runtime-download
+  | Hi Dana,
+  |
+  | The payroll grid needs Northgate Runtime 4.2.1 before Monday: the old version has security holes. It takes a few minutes. The download page is below.
+  |
+  | Marcus, IT
+notify mail Marcus Lee
+  | Security update for the payroll grid: please install today
+
+step A security update from IT
+  look the sender and the link under Marcus's message
+  when mail mail-update
+  | Marcus in IT asks every payroll PC to update the runtime. Updating is the right thing to do, and the link goes to the publisher, not to an unknown site.
+open mail-update
+
+step The download page
+  look the details: Price, Size and Also offered
+  when visit runtime-download
+  | A page for a free update from the publisher. Read the details before you press Download: the last line says partner software is offered during setup.
+open runtime-download
+
+step The computer checks the setup program
+  look the warning before the setup runs: Publisher "Northgate Runtime Corp", a signed program
+  when choose runtime-download 1
+  | This is the normal check for an installer. The publisher is known and the file is signed, so it is right to go on.
+  | That makes the next screens feel just as safe.
+choose runtime-download 1
+file Downloads/runtime-setup-4.2.1.exe
+  program runtimeup
+  size 1048576
+open Downloads/runtime-setup-4.2.1.exe
+
+step The setup opens
+  look the Runtime Setup window: the first page says only that this fixes security problems.
+  when run runtimeup
+  cue view-btn:next view-btn:done view:runtime-setup
+  move Click Install. On the next page, read the two boxes before you click Next: both are ticked, and to say no you would clear them. Then click Next and Finish.
+  | The first page is what you expect: Northgate Runtime, a security fix and an Install button. Nothing on it mentions Ask.
+  | The offer is on the next page: a box for the Ask Toolbar and a box for Ask as your search and home page, both ticked for you. The runtime itself is free, and this is how the publisher is paid.
+answer run
+answer run
+
+step Next accepts both offers
+  look the browser: a search page you did not choose, and the “Default search changed” banner
+  when done runtime-setup
+  move Open Task Manager (Activity Monitor on a Mac) and look at the list of running programs.
+  | Most people clicked straight through, so the training plays it that way: both offers went in. The runtime did update, and that was the bait. But the browser now opens on Ask, search goes to Ask, and the page shows ads next to every search.
+  | A small updater called AskToolbarUpdater.exe now starts with the computer. The system announced it as a new start-up item.
+press runtime-setup next
+press runtime-setup next
+run AskToolbarUpdater.exe
+  cpu 1
+  mem 14
+  parent runtime-setup-4.2.1.exe
+  command C:\Program Files\Askline\Toolbar\AskToolbarUpdater.exe
+startup AskToolbarUpdater C:\Program Files\Askline\Toolbar\AskToolbarUpdater.exe
+  location HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+  publisher Askline Media
+page ask ask-search.invalid
+  title Ask Search
+  heading Ask
+  toolbar Ask Toolbar
+  | Ask a question...
+  section Sponsored results
+  item Cheap flights: compare 40 sites
+  item Free PC speed-up scan
+  item Win a gift card, click here
+  note Ads like these now appear next to your searches. Askline Media is paid for each click.
+press runtime-setup done
+homepage ask
+notify browser Default search changed
+  | Your search provider and home page are now ask-search.invalid.
+open ask
+
+# The last timesheet, in the portal's own page, now seen through the toolbar.
+page ts-west-done payroll.northwind.example/timesheets/west/submitted
+  title Timesheet submitted
+  brand Northwind Payroll
+  toolbar Ask Toolbar
+  heading Timesheet submitted
+  | Westgate Store, week ending 8 November 2026: 188.0 hours sent to the Friday pay run.
+page ts-west-held payroll.northwind.example/timesheets/west/returned
+  title Timesheet returned
+  brand Northwind Payroll
+  toolbar Ask Toolbar
+  heading Timesheet returned
+  | Westgate Store's timesheet was sent back to the branch. Nothing was submitted.
+page ts-west payroll.northwind.example/timesheets/west
+  title Timesheet: Westgate Store
+  brand Northwind Payroll
+  toolbar Ask Toolbar
+  requires payroll-login
+  heading Timesheet: Westgate Store
+  | A branch timesheet is waiting for you to submit.
+  | Branch: Westgate Store. Week ending 8 November 2026. Staff: 5. Hours: 188.0.
+  button Submit to payroll -> ts-west-done
+  button Return to branch -> ts-west-held
+mail mail-west
+  from Priya Shah <priya.shah@northwind.example>
+  subject Last timesheet: Westgate Store
+  link ts-west
+  | Dana,
+  |
+  | Westgate's hours are the last ones. Same as before: the link opens their timesheet in the portal.
+  |
+  | Priya
+
+step A helper keeps running
+  look Task Manager (Activity Monitor on a Mac): AskToolbarUpdater.exe, and the “Connection blocked” banner
+  when open taskmanager
+  move Open Priya's email and click the link.
+  | AskToolbarUpdater.exe keeps the toolbar and the search setting in place, so changing them back may not last. It starts again every time the computer does, and it has just tried to reach its owner's server.
+  | The runtime itself needs no such helper. A new email from Priya has just arrived.
+open taskmanager
+block updates.askline-media.invalid 443
+notify mail Priya Shah
+  | Last timesheet: Westgate Store
+
+step The portal page looks different
+  look the toolbar across the top: the Eastside timesheet had none
+  when visit ts-west
+  move Compare the page with the Eastside timesheet from earlier, then click “Submit to payroll”.
+  | The link goes to the company's own portal, and you are still signed in. But the browser now shows a toolbar across the top of every page, the portal's too.
+  | The portal did not add it. The Ask Toolbar, installed by the offer Dana accepted, did.
+open ts-west
+
+step 6 of 6, or so Dana thinks
+  look the counter in the guide: all six timesheets are submitted
+  when choose ts-west any
+  | The timesheet goes through, and all six are done. Nothing on the screen says anything went wrong. Press Next to see what the runtime update brought with it.
+choose ts-west 1
+quota +1
+
+step What the offer left behind
+  look the animation: the toolbar, the search and the home page that came with the update
+  | Dana wanted a security fix. She also got a toolbar, a home page and a search engine she never chose, a helper that starts with the computer, and a toolbar of offers across every page she uses for work.
+  | Nothing was stolen and nothing was locked. The harm was the clutter and the ads: every search went through Ask, which was paid for each ad clicked.
+open ask
+attack spyware-surveillance
+  | Runtime update from IT
+  | Ask Toolbar boxes ticked
+  | home page changed to Ask
+  | every search goes to Ask
+  | Ask Toolbar on every page
+
+flag hard section runtime-download 1
+  | The page says partner software is offered during setup. A free update has to be paid for somehow.
+flag hard notice browser default search changed
+  | The browser's search provider was changed without asking you.
+flag hard notice taskmanager connection blocked
+  | The Ask helper, not the update, tried to reach Askline's server as soon as it was installed.
+flag hard process AskToolbarUpdater.exe
+  | A helper the Ask offer installed, running in the background. Dana updated the runtime, not this.
+flag hard startup AskToolbarUpdater
+  | The helper added itself to the programs that start every time the computer does.
+flag hard section ask 1
+  | A search site Dana never chose, full of paid ads: Askline is paid for every click.
+flag hard page ts-west
+  label The payroll page, with the Ask toolbar across the top
+  | The Ask Toolbar sits across the top of every page, the company's payroll portal included. The browser added it, not the portal.
+flag soft file Desktop/payroll-login.txt
+  | A payroll password in a text file on the desktop: any program that runs can read it. Use a password manager.
+flag soft file Desktop/branch-hours.txt
+  | Staff hours in a loose text file. They belong in the payroll system only.
+
+lesson
+  | Read every page of an installer before clicking Next, and untick offers you did not ask for. A real, signed update can still carry an extra.
+  | Choose "Custom" or "Advanced" install when there is one: that is where the extras and the Decline choice hide.
+  | If a toolbar, a home page or a search engine you did not choose appears, remove it in Settings, then Apps (System Settings, then Login Items on a Mac), and set the browser back.

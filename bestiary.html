@@ -14,13 +14,14 @@
   <link rel="preload" href="/ui/abyss/fonts/Jersey10-Regular.woff" as="font" type="font/woff" crossorigin>
   <link rel="stylesheet" href="/ui/abyss/retro-pixel.css">
   <link rel="stylesheet" href="/ui/bestiary/bestiary.css">
+  <link rel="stylesheet" href="/ui/abyss/site.css">
 </head>
-<body class="pg">
+<body data-site="content" class="pg">
   <a class="pg-skip" href="#main">Skip to the Bestiary</a>
   <header class="pg-bar">
     <a class="pg-brand" href="/"><span class="pg-mark" aria-hidden="true"></span><span>Detonation Ocean <b>The Abyss</b></span></a>
     <nav class="pg-nav" aria-label="Page">
-      <a href="/#upload">Upload</a>
+      <a href="/#threat-search">Search</a>
       <a href="/bestiary" aria-current="page">Bestiary</a>
       <a href="/about">How it works</a>
     </nav>
@@ -28,29 +29,43 @@
 
   <main class="pg-main" id="main">
     <h1>Bestiary</h1>
-    <p class="pg-lede">Every creature in the ocean. The collection fills as real files prove real behaviour.</p>
+    <p class="pg-lede">Explore creatures for historical examples and behaviours observed in analysed files. The examples are illustrations, not sandbox results.</p>
     <p class="pg-status mono" id="status" role="status" aria-live="polite">Loading the creatures…</p>
     <noscript><p>The Bestiary needs JavaScript to list the creatures.</p></noscript>
+    <nav class="bestiary-sections" aria-label="Bestiary sections">
+      <a href="#h-creatures">Behaviours</a><a href="#h-depths">Depths</a><a href="#h-fish">File types</a><a href="#h-system">The sandbox</a>
+    </nav>
+    <p id="training-link" hidden><a href="/ocean-profiles.html">Practise on a fictional desktop →</a> Historical training scenes use separate entry-action categories, not sandbox verdicts.</p>
+    <form class="bestiary-search" role="search">
+      <label for="bestiary-search">Find a behaviour, creature, file type or historical example
+        <input id="bestiary-search" type="search" placeholder="Try passwords, ransomware or .pdf" autocomplete="off">
+      </label>
+      <label for="bestiary-depth">Creature depth
+        <select id="bestiary-depth"><option value="">All depths</option><option value="midnight">Midnight</option><option value="abyss">Abyss</option><option value="trench">Trench</option></select>
+      </label>
+      <button type="reset">Clear filters</button>
+    </form>
+    <p id="bestiary-results" role="status" aria-live="polite"></p>
 
-    <section aria-labelledby="h-depths">
+    <section aria-labelledby="h-creatures" data-bestiary-section>
+      <h2 id="h-creatures">Behaviours and creatures</h2>
+      <p>Each creature represents an observed behaviour, not a complete diagnosis. Open the historical training scenes separately to practise the warning signs.</p>
+      <div id="creatures"></div>
+    </section>
+
+    <section aria-labelledby="h-depths" data-bestiary-section>
       <h2 id="h-depths">Depths</h2>
       <p>How harmful the file proved to be. The deeper the water, the more harm it did.</p>
       <div id="depths"></div>
     </section>
 
-    <section aria-labelledby="h-fish">
+    <section aria-labelledby="h-fish" data-bestiary-section>
       <h2 id="h-fish">Fish</h2>
-      <p>Every upload starts as one fish for its file type. Fish of one type gather in a school; a bigger school means more files of that type.</p>
+      <p>Every analysed file starts as one fish for its file type. Fish of one type gather in a school; a bigger school means more files of that type.</p>
       <div id="fish"></div>
     </section>
 
-    <section aria-labelledby="h-creatures">
-      <h2 id="h-creatures">Creatures</h2>
-      <p>One creature for each finding in the three deepest tiers, and the giant squid for harm that fits no named finding. A creature grows as it eats more files.</p>
-      <div id="creatures"></div>
-    </section>
-
-    <section aria-labelledby="h-system">
+    <section aria-labelledby="h-system" data-bestiary-section>
       <h2 id="h-system">The system</h2>
       <p>The two parts of the sandbox itself.</p>
       <div id="system"></div>
@@ -63,5 +78,6 @@
 <script src="/ui/abyss/pixel-fish.js"></script>
   <script src="/ui/bestiary/render.js"></script>
   <script src="/ui/bestiary/bestiary.js"></script>
+  <script src="/ui/abyss/site-nav.js"></script>
 </body>
 </html>

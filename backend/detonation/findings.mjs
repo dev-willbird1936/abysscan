@@ -13,6 +13,9 @@ export const FAMILIES = {
   'data-access': { neutral: 'data-access', attack: 'theft-surveillance' },
   'file-changes': { neutral: 'file-changes', attack: 'extortion-destruction' },
   drifter: { neutral: 'drifter', attack: 'drifter' },
+  // Above Sunlight a file that raised a signal but no finding is not a drifter (that is the computes-only case): it is
+  // unclassified, and the report says so instead of borrowing a creature the design reserves for Sunlight.
+  unclassified: { neutral: 'unclassified', attack: 'unclassified' },
 };
 
 // Row order is the tie-break order inside a tier (design §5). `family` is a FAMILIES key.
@@ -25,6 +28,9 @@ export const FINDING_TABLE = [
   { id: 'clipboard-swap', depth: 'midnight', family: 'data-access', label: 'Swaps clipboard contents' },
   { id: 'fake-login', depth: 'midnight', family: 'disguise', label: 'Fake login form captures typed text' },
   { id: 'exfil-attempt', depth: 'midnight', family: 'network', label: 'Tries to send data out (blocked)' },
+  // A copy of the sample in the user area is a staged payload even when it is the only one: a real i386 botnet drops
+  // exactly one runnable copy of itself and the report used to say "no harmful behaviour observed".
+  { id: 'self-copy', depth: 'midnight', family: 'network', label: 'Writes a copy of itself into the user area' },
   { id: 'privilege-escalation', depth: 'abyss', family: 'access', label: 'Privilege escalation attempt' },
   { id: 'persistence', depth: 'abyss', family: 'access', label: 'Persists across restarts' },
   { id: 'defence-tamper', depth: 'abyss', family: 'access', label: 'Disables security tools, clears logs or hides itself' },
@@ -220,6 +226,9 @@ const FINDING_RULES = {
     return ids([...(lost.length >= 3 ? lost : []), ...c.ev.filter((e) => e.kind === 'execve' && BACKUP_DELETE.test(cmdline(e)))]);
   },
 
+  // One self-copy is enough: `spread` needs three distinct paths, which missed the single staged copy most botnets write.
+  'self-copy': (c) => ids(c.ev.filter((e) => e.kind === 'added' && e.copyOfSample === true)),
+
   spread: (c) => {
     const copies = c.ev.filter((e) => e.kind === 'added' && e.copyOfSample === true);
     const mails = c.ev.filter((e) => e.kind === 'mail-send');
@@ -246,7 +255,7 @@ const SIGNAL_RULES = {
   'anti-analysis': (c) => {
     const sleeps = c.ev.filter((e) => e.kind === 'sleep');
     return ids([
-      ...c.ev.filter((e) => e.kind === 'anti-analysis' || e.kind === 'file-check' || isApi(e, ['wine_get_version'])
+      ...c.ev.filter((e) => e.kind === 'anti-analysis' || e.kind === 'daemonised' || e.kind === 'file-check' || isApi(e, ['wine_get_version'])
         || (e.kind === 'registry-read' && /^HKCU\\Software\\Wine(\\|$)/i.test(`${e.hive}\\${e.key}`))
         || (e.kind === 'unlink' && (e.self === true || norm(e.path) === '/in/sample'))),
       ...(sleeps.reduce((n, e) => n + e.seconds, 0) >= 20 ? sleeps : []),
@@ -265,9 +274,20 @@ const SIGNAL_RULES = {
 };
 
 // Each evidence item counts for one family: first the finding or signal that used it, then by kind.
-function dominantFamily(c, fired, signalEvidence, deepest) {
+function dominantFamily(c, fired, signalEvidence, deepest, depth) {
+  // A finding owns its evidence. When something fired, only findings vote for the family: an archive leaves `added` items in
+  // the diff and a botnet leaves `connect` items in the trace, and counting those labelled a credential-stealing package
+  // `extortion-destruction`, a claim no finding made.
+  if (fired.length) {
+    const counts = new Map();
+    for (const { familyKey } of fired) counts.set(familyKey, (counts.get(familyKey) ?? 0) + 1);
+    const top = Math.max(...counts.values());
+    const tied = Object.keys(FAMILIES).filter((f) => counts.get(f) === top);
+    return tied.includes(deepest?.familyKey) ? deepest.familyKey : tied[0];
+  }
+  // Nothing fired, so the family only picks a neutral name below Midnight (disguise, file-changes, network...): weak
+  // evidence may steer it without overclaiming an attack family.
   const owner = new Map();
-  for (const { evidenceIds, familyKey } of fired) evidenceIds.forEach((id) => owner.has(id) || owner.set(id, familyKey));
   for (const { id, family } of SIGNAL_ORDER) signalEvidence[id].forEach((evId) => family && !owner.has(evId) && owner.set(evId, family));
   for (const e of c.ev) {
     if (owner.has(e.id)) continue;
@@ -278,8 +298,8 @@ function dominantFamily(c, fired, signalEvidence, deepest) {
   for (const family of owner.values()) counts.set(family, (counts.get(family) ?? 0) + 1);
   const top = Math.max(0, ...counts.values());
   const tied = Object.keys(FAMILIES).filter((f) => counts.get(f) === top);
-  if (!top) return 'drifter';
-  return tied.includes(deepest?.familyKey) ? deepest.familyKey : tied[0];
+  if (!top) return depth === 'sunlight' ? 'drifter' : 'unclassified';
+  return tied[0];
 }
 
 function statement(depth, complete, findings, signals) {
@@ -305,13 +325,15 @@ function evaluateWithDepthPolicy({ evidence = [], path, complete = true, seedMan
 
   const signalEvidence = Object.fromEntries(SIGNAL_ORDER.map(({ id }) => [id, SIGNAL_RULES[id](c)]));
   const signals = SIGNAL_ORDER.map(({ id }) => id)
-    .filter((id) => signalEvidence[id].length || (id === 'incomplete' && (!complete || inspectOnly)));
+    // An inspect-only path used to force `incomplete`. A file whose type is known and fully inspected is complete coverage;
+    // only a truncated run (`complete` false) or an item that stopped the analysis keeps the verdict incomplete.
+    .filter((id) => signalEvidence[id].length || (id === 'incomplete' && !complete));
 
   const rank = (f) => DEPTHS.indexOf(f.depth);
   const deepest = fired.reduce((best, f) => (!best || rank(f) > rank(best) ? f : best), null);
   const verdictComplete = !signals.includes('incomplete');
   const depth = capIncompleteDepth && !verdictComplete ? 'twilight' : deepest ? deepest.depth : signals.length ? 'twilight' : 'sunlight';
-  const familyKey = dominantFamily(c, fired, signalEvidence, deepest);
+  const familyKey = dominantFamily(c, fired, signalEvidence, deepest, depth);
   const findings = fired.map(({ id, depth: d, familyKey: key, evidenceIds }) => ({ id, depth: d, family: FAMILIES[key].attack, evidenceIds }));
 
   return {

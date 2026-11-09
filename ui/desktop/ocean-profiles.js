@@ -1,7 +1,7 @@
 (() => {
   const depthOrder = ['sunlight', 'twilight', 'midnight', 'abyss', 'trench'];
   const depthNames = { sunlight: 'Sunlight', twilight: 'Twilight', midnight: 'Midnight', abyss: 'Abyss', trench: 'Trench' };
-  const depthZones = { sunlight: '0–200 m', twilight: '200–1,000 m', midnight: '1,000–4,000 m', abyss: '4,000–6,000 m', trench: '6,000 m +' };
+  const entryActions = { sunlight: 'Open a file', twilight: 'Share a sign-in code', midnight: 'Submit a password', abyss: 'Grant access or follow a link', trench: 'No new user action' };
   const $ = selector => document.querySelector(selector);
   const matrix = $('#profile-matrix');
   const status = $('#catalog-status');
@@ -82,7 +82,9 @@
         labels.append(node('span', `scenario-evidence ${entry.status}`, statusLabels[entry.status]));
         card.append(labels, node('h4', 'scenario-name', `${entry.name}${entry.year ? ` (${entry.year})` : ''}`));
         if (entry.family) card.append(node('p', 'scenario-family', `${entry.family} · ${entry.creature}`));
-        card.append(node('p', 'scenario-action', entry.victimAction), node('p', 'scenario-evidence-note', entry.note || statusNotes[entry.status]));
+        card.append(node('p', 'scenario-action', entry.victimAction));
+        const details = node('details', 'scenario-research');
+        details.append(node('summary', '', 'Sources and limitations'), node('p', 'scenario-evidence-note', entry.note || statusNotes[entry.status]));
         const links = node('div', 'scenario-source-links');
         for (const [index, source] of entry.sources.entries()) {
           const link = node('a', '', `Source ${index + 1}`);
@@ -92,7 +94,8 @@
           link.title = source;
           links.append(link);
         }
-        if (entry.sources.length) card.append(links);
+        if (entry.sources.length) details.append(links);
+        card.append(details);
         if (entry.role === 'anchor') {
           const profile = profileById.get(`${entry.familyId}-${entry.depthId}`);
           const button = node('button', 'scenario-open-profile', 'View creature profile');
@@ -117,7 +120,7 @@
   function showProfile(profile) {
     const creature = profile.displayCreature || profile.creature;
     $('#profile-family').textContent = `${profile.family} · ${creature} · ${profile.morphologyLabel}`;
-    $('#profile-title').textContent = profile.depth;
+    $('#profile-title').textContent = `${profile.depth} · training category`;
     $('#profile-action').textContent = `${anchorLabel(profile)} · ${profile.anchor.victimAction}${profile.anchor.status === 'sourced' ? '' : ` (${profile.anchor.status})`}`;
     setMorphologyImage($('#profile-creature'), profile.morphologyUrl);
     $('#profile-note').textContent = profile.id === 'deception-abyss'
@@ -149,7 +152,7 @@
     for (const depthId of depthOrder) {
       const item = node('li');
       item.dataset.depth = depthId;
-      item.append(node('strong', '', depthNames[depthId]), node('span', '', depthZones[depthId]));
+      item.append(node('strong', '', depthNames[depthId]), node('span', '', entryActions[depthId]));
       depthKey.append(item);
     }
 
@@ -163,7 +166,7 @@
       const heading = node('div', 'grid-heading');
       heading.dataset.depth = depthId;
       heading.setAttribute('role', 'columnheader');
-      heading.append(node('strong', '', depthNames[depthId]), node('span', '', profile?.action || ''));
+      heading.append(node('strong', '', depthNames[depthId]), node('span', '', entryActions[depthId]));
       headingRow.append(heading);
     }
     matrix.append(headingRow);
@@ -186,18 +189,18 @@
           button.type = 'button';
           button.dataset.depth = profile.depthId;
           const creature = profile.displayCreature || profile.creature;
-          button.setAttribute('aria-label', `${profile.family}, ${profile.depth}. ${creature}. ${profile.morphologyLabel}. ${profile.action}`);
+          button.setAttribute('aria-label', `${profile.family}, ${profile.depth}. ${creature}. ${entryActions[depthId]}`);
           const image = node('img', 'creature-thumb');
           image.alt = '';
           image.width = 128;
           image.height = 96;
-          const refreshLabel = 'Candidate · depth colour';
+          image.loading = 'lazy';
+          image.decoding = 'async';
           button.append(
             node('span', 'depth-tag', profile.depth),
             image,
             node('strong', '', creature),
             node('small', 'morphology-label', profile.morphologyLabel),
-            node('small', `morphology-status ${profile.morphologyStatus}`, refreshLabel),
             node('small', '', anchorLabel(profile)),
           );
           setMorphologyImage(image, profile.morphologyUrl);

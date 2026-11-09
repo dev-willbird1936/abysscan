@@ -9,6 +9,7 @@ const text = (value, size = 120) => String(value ?? '').slice(0, size);
 export const WRAPPER_LABELS = {
   upx: 'a UPX-packed program', inno: 'an Inno Setup installer', nsis: 'an NSIS installer', sfx: 'a self-extracting archive', '7z': 'an archive',
   msi: 'an MSI package', pyinstaller: 'a PyInstaller bundle', asar: 'an Electron archive', electron: 'an Electron app', dotnet: 'a .NET assembly',
+  payload: 'the payload appended after the last section',
 };
 
 /**
@@ -38,9 +39,13 @@ export function mapUnwrap(unwrap, { at, budget, itemIndex, depth }) {
     status = 'stopped';
     detail = `Unwrapped ${label}: ${children.length} part(s), then stopped at a limit`;
   }
+  // A payload appended to the program is a statement about the file, so it is evidence as well as a child.
+  const payloadNote = data.format === 'payload' && children.length
+    ? [{ source: 'static', kind: 'suspicious', detail: `The program carries ${Number(data.size) || 0} bytes appended after its last section, and they are not data: ${text(data.format, 20) === 'payload' ? 'a payload' : 'it'} was unpacked from there.`, at, indicator: 'appended payload', tool: 'identify' }]
+    : [];
   return {
     children: children.map(child => ({ ...child, inspectOnly })),
-    evidence,
+    evidence: [...evidence, ...payloadNote],
     step: { step: 'unwrap', status, detail: `${[detail, ...notes].join('; ')}.` },
   };
 }

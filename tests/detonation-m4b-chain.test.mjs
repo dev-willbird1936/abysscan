@@ -163,14 +163,20 @@ test('an installer innoextract cannot read: the unwrap step failed, the chain go
   assert.ok(verdictOf(out.evidence, out.path).signals.includes('incomplete'));
 });
 
-test('a .NET assembly is read statically only: Wine and the emulator are skipped and the item is incomplete (dotnet-static-only)', async () => {
-  const { requests, go } = setup({ wineApproved: true, answers: { identify: dotnetIdentify } });
+test('a .NET assembly is executed under Mono, not skipped: Wine stays out and the run names its engine', async () => {
+  const mono = { detonationRunner: 1, kind: 'exe', started: true, file: 'tmp/dt/sample.exe',
+    emulation: { entryPoints: [], instructions: 0, seconds: 1, timeoutSeconds: 25, maxInstructions: 0, failure: null,
+      mono: { engine: 'mono', exitCode: 0, stdout: 'gate http://198.51.100.7/c2/ping.aspx?id=7', stderr: '' } } };
+  const { requests, go } = setup({ wineApproved: true, answers: { identify: dotnetIdentify, exe: mono } });
   const out = await go();
-  assert.deepEqual(kindsOf(requests), ['identify', 'static']);
-  assert.deepEqual(stepsOf(out), [['unwrap', 'done'], ['wine', 'skipped'], ['emulate', 'skipped'], ['static', 'done']]);
+  assert.deepEqual(kindsOf(requests), ['identify', 'exe', 'static']);
+  assert.deepEqual(stepsOf(out), [['unwrap', 'done'], ['wine', 'skipped'], ['emulate', 'done'], ['static', 'done']]);
   assert.match(out.steps[1].detail, /needs Wine Mono, which is not installed/);
-  assert.ok(out.evidence.some(item => item.kind === 'emulation-stopped' && item.reason === 'dotnet-static-only'));
-  assert.equal(out.label, 'Inspected');
+  assert.match(out.steps[2].detail, /Executed under Mono; exit code 0/);
+  assert.ok(out.evidence.some(item => item.kind === 'identified' && item.tool === 'mono'));
+  assert.ok(out.evidence.some(item => item.kind === 'suspicious' && item.text === 'http://198.51.100.7/c2/ping.aspx?id=7'));
+  assert.equal(out.label, 'Ran under Mono');
+  assert.equal(out.path, 'mono');
 });
 
 test('nesting deeper than 3 levels: identify unwraps nothing and the step says so', async () => {

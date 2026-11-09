@@ -1,0 +1,20 @@
+{
+  "browser": "Chrome via chrome-devtools",
+  "mode": "file:// standalone",
+  "styles": 6,
+  "panelsPerStyle": 5,
+  "decodedImages": 30,
+  "allImages1600x900": true,
+  "verticallyStacked": true,
+  "stickySelector": true,
+  "horizontalOverflow": false,
+  "earlierNarrowWindow": {
+    "requested": 390,
+    "actual": 500,
+    "overflow": false
+  },
+  "limitations": [
+    "390px viewport not verified because the browser clamped the requested window size.",
+    "LSP diagnostics skipped unavailable default servers; browser behavior and Node syntax were checked."
+  ]
+}

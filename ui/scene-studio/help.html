@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07162a">
+  <title>Scene Studio guide — The Abyss</title>
+  <link rel="stylesheet" href="/ui/abyss/retro-pixel.css">
+  <link rel="stylesheet" href="/ui/abyss/site.css">
+</head>
+<body data-site="content" class="pg">
+  <a class="pg-skip" href="#main">Skip to the guide</a>
+  <header class="pg-bar">
+    <a class="pg-brand" href="/"><span class="pg-mark" aria-hidden="true"></span><span>Detonation Ocean <b>The Abyss</b></span></a>
+    <nav class="pg-nav" aria-label="Page"><a href="/scene-studio">Scene Studio</a><a href="/scene-studio/help" aria-current="page">Script guide</a><a href="/about">How it works</a></nav>
+  </header>
+  <main class="pg-main" id="main">
+    <h1>Scene Studio guide</h1>
+    <p class="pg-lede">Write one fictional scene, then preview it on Windows and macOS. These scripts change the training world only. They never execute programs on your computer.</p>
+    <h2>Write → check → play</h2>
+    <ol>
+      <li>Open <a href="/scene-studio">Scene Studio</a> and choose an example. Press <b>Load example</b>.</li>
+      <li>Change the title, fictional user and explanations. Each step needs a <code>look</code> hint, an explanation beginning with <code>|</code>, and an action that changes the desktop.</li>
+      <li>Press <b>Check script</b>. An error identifies the command and line to fix.</li>
+      <li>Press <b>Preview scene</b> or Ctrl/⌘ + Enter. Sign in to the fictional account; no password is needed. Use Start, Next and Back, or switch operating systems.</li>
+      <li>Use <b>Download .scene</b> to keep the script. Your draft also stays in this browser. Preview links expire on restart or after 20 newer previews.</li>
+    </ol>
+    <h2>A complete short scene</h2>
+    <pre><code>title An unexpected note
+os windows
+user Alex Rivera
+  email alex@northwind.example
+theme dark
+
+about
+  | A fictional training scene. No malware runs here.
+
+step A note appears
+  look Files: Documents/review.txt
+  | Check the sender before opening an unexpected attachment.
+file Documents/review.txt
+  | This is a harmless fictional document.
+open files
+
+lesson
+  | Confirm unexpected files with the sender through a known channel.
+</code></pre>
+    <h2>Commands you will use most</h2>
+    <dl>
+      <dt><code>title</code>, <code>os</code>, <code>user</code>, <code>theme</code></dt><dd>Set these before the steps. Use <code>windows</code> or <code>macos</code> and <code>dark</code> or <code>light</code>.</dd>
+      <dt><code>step</code>, <code>look</code>, <code>|</code></dt><dd>Name the step, tell the trainee where to look, and explain what changed. Finish the scene with <code>lesson</code> and its explanation.</dd>
+      <dt><code>mail</code>, <code>page</code>, <code>file</code>, <code>open</code></dt><dd>Create a fictional message, web page or file, then open an app or named item. Use .example or .invalid domains, not real accounts.</dd>
+      <dt><code>run</code>, <code>block</code>, <code>startup</code></dt><dd>Show a simulated process, blocked connection or startup entry. These are world changes, not executable commands.</dd>
+      <dt><code>encrypt</code>, <code>delete</code>, <code>rename</code>, <code>homepage</code></dt><dd>Illustrate changes to pretend files or browser settings. No host files change.</dd>
+    </dl>
+    <p>Use <b>Insert an action</b> and <b>Script reference</b> inside the editor for exact syntax and ready-to-use snippets. Keep the scene short and focus on one lesson.</p>
+    <p class="pg-foot"><a href="/scene-studio">Return to Scene Studio →</a> · Authoring tools are for operators. Historical and authored scenes are illustrations, not observed sandbox results.</p>
+  </main>
+  <script src="/ui/abyss/site-nav.js"></script>
+</body>
+</html>

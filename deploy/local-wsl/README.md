@@ -22,7 +22,7 @@ One-time set-up, inside the distro:
    `deploy/detonation/images.lock.json`. Containers run with `--pull never`, so build before the first job.
 
 Under Git Bash set `MSYS_NO_PATHCONV=1` before `wsl`, and refer to the project as
-`/mnt/c/SyncedProjects/Websites/Vultr-Phishing-Sandbox`.
+`/mnt/c/abysscan`.
 
 ## Local demo with uploads
 
@@ -37,7 +37,7 @@ the rule engine alone. `node tools/record-upload.mjs <file> <out.mp4>` records o
 | Where | Command | Covers |
 |---|---|---|
 | Windows | `node --test tests/detonation-*.test.mjs` | Everything that needs no Docker; `detonation-live.test.mjs` skips |
-| `detonation-ocean` | `cd /mnt/c/SyncedProjects/Websites/Vultr-Phishing-Sandbox && node --test tests/detonation-live.test.mjs` | AT-1, AT-9, AT-10, AT-16 and an unsupported upload through the real stages, with harmless commands only |
+| `detonation-ocean` | `cd /mnt/c/abysscan && node --test tests/detonation-live.test.mjs` | AT-1, AT-9, AT-10, AT-16 and an unsupported upload through the real stages, with harmless commands only |
 
 The live file skips itself unless `docker info` works, the `runsc-trace` runtime is registered, `/var/log/runsc` exists and the
 three images are built.

@@ -1,0 +1,1091 @@
+{
+  "verifiedAtUtc": "2026-10-06T21:51:30.592445+00:00",
+  "filesChecked": 60,
+  "nativeSourcesChecked": 30,
+  "finalExportsChecked": 30,
+  "allFilesAreRGBAColorType6": true,
+  "allFilesHaveExpectedHashesDimensionsAndAlpha": true,
+  "failures": [],
+  "files": [
+    {
+      "kind": "native",
+      "style": "minimal-silhouettes",
+      "depth": "01-sunlight",
+      "path": "creature-approved-sources/minimal-silhouettes/01-sunlight.png",
+      "sha256": "c47c42cc35c94433d39d5f3b3a9626aa68c9e5901413c2357f50197adec1ab02",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "minimal-silhouettes",
+      "depth": "01-sunlight",
+      "path": "creature-assets\\minimal-silhouettes\\01-sunlight.png",
+      "sha256": "3452c2f57b22fb5b8c111a4f599f4c26977005c440aae8af4beebe2cdfbeeb51",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "minimal-silhouettes",
+      "depth": "02-twilight",
+      "path": "creature-approved-sources/minimal-silhouettes/02-twilight.png",
+      "sha256": "4bcd01e4d83a0b7a7142d4380fae82469a3f0a169685e1795de378463af783b4",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        940
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "minimal-silhouettes",
+      "depth": "02-twilight",
+      "path": "creature-assets\\minimal-silhouettes\\02-twilight.png",
+      "sha256": "2d1b3556325389c2170b4abe5241d666a86fbc45abd48f5b0ea7692f06f3b9fa",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "minimal-silhouettes",
+      "depth": "03-midnight",
+      "path": "creature-approved-sources/minimal-silhouettes/03-midnight.png",
+      "sha256": "d930582686f580617ae54b1d04c6c2dc0274b13ea5f74d9f8cd191b8d00001da",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "minimal-silhouettes",
+      "depth": "03-midnight",
+      "path": "creature-assets\\minimal-silhouettes\\03-midnight.png",
+      "sha256": "0b0e342ca3ce64ece4c0c29920a76181c8df043202c482e8842ec03093c4c2b9",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "minimal-silhouettes",
+      "depth": "04-abyss",
+      "path": "creature-approved-sources/minimal-silhouettes/04-abyss.png",
+      "sha256": "db95826982f472ee55568834a8cd5245ae8dd844a013f7f66c1963c5b03679f6",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "minimal-silhouettes",
+      "depth": "04-abyss",
+      "path": "creature-assets\\minimal-silhouettes\\04-abyss.png",
+      "sha256": "aad0894476e43d693c3158f7441403dd0370dc5cd49a3455411ed2b8ed5eb473",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "minimal-silhouettes",
+      "depth": "05-trench",
+      "path": "creature-approved-sources/minimal-silhouettes/05-trench.png",
+      "sha256": "c35863f0191d061bee40bbc2813d3205647df05cd1d0c60d8dd538a6d891bca6",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "minimal-silhouettes",
+      "depth": "05-trench",
+      "path": "creature-assets\\minimal-silhouettes\\05-trench.png",
+      "sha256": "891f9d375acac7f45779d99e73fcc56fd7b3125082aa55f0b3cb39b1a8c8cf80",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "paper-cut",
+      "depth": "01-sunlight",
+      "path": "creature-source-assets\\paper-cut\\01-sunlight.png",
+      "sha256": "1639ee333ee9ba5e45759cd29aad9bd12dc6193e26ce2983282b5916bfa0d0de",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "paper-cut",
+      "depth": "01-sunlight",
+      "path": "creature-assets\\paper-cut\\01-sunlight.png",
+      "sha256": "e44eaa9a179a34cfe3ce9b7098bb263dbbfe4a4dc2c81583dde8d5767762d6e1",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "paper-cut",
+      "depth": "02-twilight",
+      "path": "creature-source-assets\\paper-cut\\02-twilight.png",
+      "sha256": "f7e73d26a68a6b572ff34163b2f47b280e79380e6388726e0ad3b045818f0e55",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "paper-cut",
+      "depth": "02-twilight",
+      "path": "creature-assets\\paper-cut\\02-twilight.png",
+      "sha256": "3f7fd74c258a02e88d1670f63b8abb0aedb2ee92809a98ba3e93d84db6d4f4d3",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "paper-cut",
+      "depth": "03-midnight",
+      "path": "creature-source-assets\\paper-cut\\03-midnight.png",
+      "sha256": "51628139296ba9f9a00f9f1a75fd95e3154cfb667f9437d2eaf095fd455538a0",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "paper-cut",
+      "depth": "03-midnight",
+      "path": "creature-assets\\paper-cut\\03-midnight.png",
+      "sha256": "e3840ac9fa3d82c5cf07c1632b72ab70ecb042a814856086e3697af3f1a111d7",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "paper-cut",
+      "depth": "04-abyss",
+      "path": "creature-source-assets\\paper-cut\\04-abyss.png",
+      "sha256": "a08d8df951b92339a09ec8257f66c84030ae36448c2058b7404899f326750697",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "paper-cut",
+      "depth": "04-abyss",
+      "path": "creature-assets\\paper-cut\\04-abyss.png",
+      "sha256": "03bbc65b225062014fffd65d74f6772f07a1bc95c088625dc079b2dd6a79b7d9",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "paper-cut",
+      "depth": "05-trench",
+      "path": "creature-source-assets\\paper-cut\\05-trench.png",
+      "sha256": "60928348ddadbd6958413c26aca18a9ec34c69d8b7f351faa5cc64f74a1d2cde",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "paper-cut",
+      "depth": "05-trench",
+      "path": "creature-assets\\paper-cut\\05-trench.png",
+      "sha256": "c49266b5ba57488f59617da55a986632e6c887f6ca79f2bdbcd87904fa212c65",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "watercolor",
+      "depth": "01-sunlight",
+      "path": "creature-source-assets\\watercolor\\01-sunlight.png",
+      "sha256": "1fc48598622ff096e51e6a20b6f4355aea3490ad7cb210d82e6ea8008defc5f0",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "watercolor",
+      "depth": "01-sunlight",
+      "path": "creature-assets\\watercolor\\01-sunlight.png",
+      "sha256": "98d7e64753a8ae0c0e8e5564dfb8a0bbfe332ed52750eee604569bb7471c9f09",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "watercolor",
+      "depth": "02-twilight",
+      "path": "creature-source-assets\\watercolor\\02-twilight.png",
+      "sha256": "72787e17416bc2d728be9655461665511af770bc7fd16243567261f59df1ebdb",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "watercolor",
+      "depth": "02-twilight",
+      "path": "creature-assets\\watercolor\\02-twilight.png",
+      "sha256": "9d5c58834580d8ab99a0a0b86fa3bffce299e730a8848f74b625a97cd8e73d0a",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "watercolor",
+      "depth": "03-midnight",
+      "path": "creature-source-assets\\watercolor\\03-midnight.png",
+      "sha256": "9cfc4b0e0683276f90d0b7f018bd6920c2c0fe0e6d234ee994c57184cdbb5810",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "watercolor",
+      "depth": "03-midnight",
+      "path": "creature-assets\\watercolor\\03-midnight.png",
+      "sha256": "e758c8cdfb05ab3b13ea01529970d9c56532512a0a6420bea738777bbe5f0bc1",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "watercolor",
+      "depth": "04-abyss",
+      "path": "creature-source-assets\\watercolor\\04-abyss.png",
+      "sha256": "3825c4a93c3b24ea8c96d5a5a64009c73f50f9f6d98ba5ed44263a2cd5472649",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "watercolor",
+      "depth": "04-abyss",
+      "path": "creature-assets\\watercolor\\04-abyss.png",
+      "sha256": "183a9ebe0fcde4222b74239eb5b532f94ae930ac4b106412de1a8f8ec7d7ce4e",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "watercolor",
+      "depth": "05-trench",
+      "path": "creature-source-assets\\watercolor\\05-trench.png",
+      "sha256": "0cc2f31e75c63e61dffc802e37088a5e995b36d43a636cd7aa43405d3013c71c",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "watercolor",
+      "depth": "05-trench",
+      "path": "creature-assets\\watercolor\\05-trench.png",
+      "sha256": "4499aab182acd087f88a75d21f5deb4e2fd379cc6c7bf2efca11ccf67715c9d2",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "pixel-art",
+      "depth": "01-sunlight",
+      "path": "creature-source-assets\\pixel-art\\01-sunlight.png",
+      "sha256": "f1b1174cc459e923d7458789cf1b211d83871eff35133d6348e4d6132bc7c4ab",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "pixel-art",
+      "depth": "01-sunlight",
+      "path": "creature-assets\\pixel-art\\01-sunlight.png",
+      "sha256": "8dd4d51d890d65b9644ca11d73c4960e0fafd140eefda216b6b3c013a20ebd92",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "pixel-art",
+      "depth": "02-twilight",
+      "path": "creature-source-assets\\pixel-art\\02-twilight.png",
+      "sha256": "1db66a7e90d59d22901b37c235e2f410e0ec0f1abbc1cd2c84662456859bbd65",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "pixel-art",
+      "depth": "02-twilight",
+      "path": "creature-assets\\pixel-art\\02-twilight.png",
+      "sha256": "239b6579ac60f7d70f595f4623512482f1817cb364ebd9d8c04388079fbb4772",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "pixel-art",
+      "depth": "03-midnight",
+      "path": "creature-source-assets\\pixel-art\\03-midnight.png",
+      "sha256": "2d43b1ba61603a75a2dd301c0c7e59f9cdf970509fc6c14d734940b466b94af8",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "pixel-art",
+      "depth": "03-midnight",
+      "path": "creature-assets\\pixel-art\\03-midnight.png",
+      "sha256": "080927f1ef33daf982dd2b569188ac2743e66ba32bbfadbbcda5b4d191e0020d",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "pixel-art",
+      "depth": "04-abyss",
+      "path": "creature-source-assets\\pixel-art\\04-abyss.png",
+      "sha256": "635fd01adc5e2b75e5362ef890e096bb6be10d6d5bcf89feb7071ab4e636ce02",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "pixel-art",
+      "depth": "04-abyss",
+      "path": "creature-assets\\pixel-art\\04-abyss.png",
+      "sha256": "f565d53029fee80e45240cb05524250c26d2d1a91a4237192d4776736a233a33",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "pixel-art",
+      "depth": "05-trench",
+      "path": "creature-source-assets\\pixel-art\\05-trench.png",
+      "sha256": "8821f791be51e475d4fea8fbe531c3c816be9e9a173eae05ce407c19a0083e6e",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "pixel-art",
+      "depth": "05-trench",
+      "path": "creature-assets\\pixel-art\\05-trench.png",
+      "sha256": "03cfd4c6578672166a7c17499d0890e34c282999e53b802cf82670bcee291782",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "field-guide",
+      "depth": "01-sunlight",
+      "path": "creature-source-assets\\field-guide\\01-sunlight.png",
+      "sha256": "7d9fb6947c7f5600e57f3cc24996dcba90d5a9561ca4123e6bdfa3a4051eb35a",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "field-guide",
+      "depth": "01-sunlight",
+      "path": "creature-assets\\field-guide\\01-sunlight.png",
+      "sha256": "b807451a2cba5343bb86eda126266f52ccc1cd274390e3292ccf37136484e6cb",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "field-guide",
+      "depth": "02-twilight",
+      "path": "creature-source-assets\\field-guide\\02-twilight.png",
+      "sha256": "c9f605b798c4355193a672cbab9668169b2385cdca0df865c7f736c636953592",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "field-guide",
+      "depth": "02-twilight",
+      "path": "creature-assets\\field-guide\\02-twilight.png",
+      "sha256": "2ff6fd0c3562d8aa3d0313259cf3d7bee9a5ea0daabf00fe2fa39f1252796d75",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "field-guide",
+      "depth": "03-midnight",
+      "path": "creature-source-assets\\field-guide\\03-midnight.png",
+      "sha256": "aad811ec93a0e001f4c817b9c15c266f4a40c7f80a93902d6faa043a9c436b38",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "field-guide",
+      "depth": "03-midnight",
+      "path": "creature-assets\\field-guide\\03-midnight.png",
+      "sha256": "327f530e66aa33949dd42bc31ce9150a06e637f61194739bb0c29f02bae42287",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "field-guide",
+      "depth": "04-abyss",
+      "path": "creature-source-assets\\field-guide\\04-abyss.png",
+      "sha256": "956f93cb82065518beee0b5c0644a911504e2bb3fa5e72065aa05020d17c3570",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "field-guide",
+      "depth": "04-abyss",
+      "path": "creature-assets\\field-guide\\04-abyss.png",
+      "sha256": "0e11e6c47e0ecf28b2b247a71566557bdec7e39d998730f2582f467aa311b761",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "field-guide",
+      "depth": "05-trench",
+      "path": "creature-source-assets\\field-guide\\05-trench.png",
+      "sha256": "01b963ac7565b30ff4a61bb54c39dfb0d947e0058db091c591c2520ae81e3746",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "field-guide",
+      "depth": "05-trench",
+      "path": "creature-assets\\field-guide\\05-trench.png",
+      "sha256": "331cde096ffbb636713b82433b289858142a216cd276faef1b62d62ec1a7c05b",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "screen-print",
+      "depth": "01-sunlight",
+      "path": "creature-source-assets\\screen-print\\01-sunlight.png",
+      "sha256": "088c136612afee9f18c14003e99fab10709dbaf1e425cbeb51eb0d19b2994b58",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "screen-print",
+      "depth": "01-sunlight",
+      "path": "creature-assets\\screen-print\\01-sunlight.png",
+      "sha256": "0614707999e8552146aa0da28b19108897b0f50e8d7ed9333a46833a92612dbb",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "screen-print",
+      "depth": "02-twilight",
+      "path": "creature-source-assets\\screen-print\\02-twilight.png",
+      "sha256": "d2a8947cf0a0717a9429ec15b2305f1a6418d3ffa4169e042edb94ac5f08ec3b",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "screen-print",
+      "depth": "02-twilight",
+      "path": "creature-assets\\screen-print\\02-twilight.png",
+      "sha256": "50e9e043f991471343ebd5c3d2c5aa2619b2f9089e241b221577a071bb32909d",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "screen-print",
+      "depth": "03-midnight",
+      "path": "creature-source-assets\\screen-print\\03-midnight.png",
+      "sha256": "9416c199c1f7967c116360b2e4fb55d15133d25a41bc4a43fae6d043f2155e7c",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "screen-print",
+      "depth": "03-midnight",
+      "path": "creature-assets\\screen-print\\03-midnight.png",
+      "sha256": "02467ee23e488839e1814cb17753d05db1751a01f307f731d39fc6d04c7735a3",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "screen-print",
+      "depth": "04-abyss",
+      "path": "creature-source-assets\\screen-print\\04-abyss.png",
+      "sha256": "ccee4af1380f57a57e2afb23bfd5751d8a61bbe60946dd0e35b5e03e599c5d2e",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "screen-print",
+      "depth": "04-abyss",
+      "path": "creature-assets\\screen-print\\04-abyss.png",
+      "sha256": "f2bfa8a931459839a8f3984e0f8b800e47bca72cf97cbea65f105a3dd2855d9a",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "native",
+      "style": "screen-print",
+      "depth": "05-trench",
+      "path": "creature-source-assets\\screen-print\\05-trench.png",
+      "sha256": "dc3d88baaa830f91b31ae091192fe75a8b044eafec4f37c84706bbdb59bd0333",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "kind": "export",
+      "style": "screen-print",
+      "depth": "05-trench",
+      "path": "creature-assets\\screen-print\\05-trench.png",
+      "sha256": "0f97400cd660b209573fc24b4a9ba740648368c94a00308a017b0daaff89636f",
+      "pillowMode": "RGBA",
+      "pngColorType": 6,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "passed": true
+    }
+  ]
+}

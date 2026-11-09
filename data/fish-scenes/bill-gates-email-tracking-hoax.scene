@@ -1,0 +1,266 @@
+# Bill Gates email-tracking hoax (1997 onwards). A chain email promised money for forwarding. No tracking and no payment ever existed.
+# A quest (QUESTS.md): the trainee sends the office's staff notices, does one real notice safely, then meets the chain letter.
+# The harm of this hoax was the flood of forwards, so the quest is about not sending it on. The office and the people are invented.
+os windows
+user Dana Okafor
+about
+  | The Bill Gates email-tracking hoax was a chain letter. It said a famous software founder (here, the made-up Gil Harmon) was testing an email tracker and would pay everyone who forwarded the message.
+  | There was no tracker and no payment. The harm was the flood of forwards, the addresses spread to strangers in every long list, and the habit of trusting a message because many names are on it. The office here is made up; the letter went round real offices for years.
+story
+  | You are Dana Okafor, office coordinator at Northwind Traders. Part of your day is sending the notices that managers hand you to all staff, through the Staff Notices tool on the company intranet.
+  | It is mid-afternoon. You have handled 3 of today's 5 notices. Two to go.
+  | Your intranet details are in a text file on the desktop. That is a bad habit, but it keeps this training quick.
+quota 3 5 Staff notices handled today
+spotted signs it was a hoax
+
+# Dana's desk: the details she copies from (a soft flag: careless, but only here to keep the training simple).
+file Desktop/intranet-login.txt
+  at 930 200
+  | Northwind Intranet
+  | Staff ID: dana.okafor
+  | Password: Harbor-2026!
+
+# The intranet: a sign-in page, and the Staff Notices pages behind it.
+page intranet-login intranet.northwind.example/sign-in
+  title Northwind Intranet: sign in
+  brand Northwind Intranet
+  favorite
+  heading Sign in to the intranet
+  | Welcome back. Sign in to send your staff notices.
+  field Staff ID = dana.okafor
+  field secret Password = Harbor-2026!
+  button Sign in
+page sent-drill intranet.northwind.example/notices/sent
+  title Notice sent
+  brand Northwind Staff Notices
+  heading Notice sent
+  | "Fire drill, Thursday 12 November" went to all 212 staff.
+page held-drill intranet.northwind.example/notices/held
+  title Notice held
+  brand Northwind Staff Notices
+  heading Notice held
+  | The fire drill notice is on hold. Facilities will be asked to confirm it.
+page notice-drill intranet.northwind.example/notices/draft-2296
+  title Staff Notices: Fire drill
+  brand Northwind Staff Notices
+  requires intranet-login
+  heading Send to all staff: Fire drill
+  | A notice is waiting for you to send.
+  section Where it came from
+  row Requested by = Priya Shah, Facilities
+  row Approved by = Facilities manager, reference FAC-114
+  row Source = the Facilities calendar
+  section What it says
+  row Subject = Fire drill, Thursday 12 November, 10:30
+  row Action = Leave by the nearest stairs. Meet at the car park.
+  row Asks for = nothing
+  button Send to all staff -> sent-drill
+  button Hold this notice -> held-drill
+
+mail mail-drill
+  from Priya Shah <priya.shah@northwind.example>
+  subject Fire drill notice to send (Thursday)
+  link notice-drill
+  sent 2026-11-02 14:20
+  | Hi Dana,
+  |
+  | Facilities has approved the fire drill for Thursday. I have put the notice in the Staff Notices tool for you. The link goes straight to it.
+  |
+  | Priya
+
+step Notice 4 of 5
+  look Mail: Priya's message with the notice link
+  | A new notice has come in from Priya, in Facilities. This one is real and approved. Send it the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Fire drill notice to send (Thursday)
+
+step The link goes to the intranet
+  look the link under Priya's message
+  when mail mail-drill
+  | The email links to the company's own address, intranet.northwind.example. Hover over a link before you click it, to check where it goes.
+open mail-drill
+
+step Sign in as usual
+  look the two boxes: Staff ID and Password, as on every visit
+  when visit notice-drill
+  move Copy the details from intranet-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The intranet asks you to sign in first. Two boxes: Staff ID and Password. Remember what this page normally looks like.
+open notice-drill
+
+step Check, then send
+  look who asked for the notice and who approved it
+  when choose intranet-login 1
+  | You are in. A real notice names who asked for it, who approved it and where it came from. Check them, then send it.
+signin intranet-login
+
+step 4 of 5 done
+  look the counter in the guide: one notice left
+  when choose notice-drill 1
+  | Done. One notice to go. And another email has just arrived.
+choose notice-drill 1
+quota +1
+
+# The lure: the chain letter, from a colleague who believes it. A button can only lead to a page that is already defined,
+# and the hoax list and the confirm box lead back to the notice, so notice-chain is declared as a title-only stub first.
+page sent-chain intranet.northwind.example/notices/sent-chain
+  title Notice sent
+  brand Northwind Staff Notices
+  heading Notice sent
+  | "Get paid for forwarding this!!" went to all 212 staff.
+page told-sam intranet.northwind.example/notices/not-sent
+  title Notice not sent
+  brand Northwind Staff Notices
+  heading Notice not sent
+  | The draft was deleted. A reply to Sam says it is a known hoax, with a link to the hoax list.
+page notice-chain intranet.northwind.example/notices/draft-2297
+  title Staff Notices: Get paid for forwarding
+page hoax-check hoax-check.example/chain-letters
+  title Hoax reference: "Get paid for forwarding"
+  brand Hoax Check
+  heading Chain letter, not true
+  | Verdict: hoax. First seen in 1997 and sent around again ever since.
+  | No company counts forwards or pays for them. There is no email tracker to test.
+  section How to spot it
+  item It promises money or prizes for doing something easy.
+  item It tells you to forward it to as many people as you can.
+  item It has a long list of names, but no way to check any of them.
+  item It names a famous company or person, but there is no link to a real announcement.
+  note The only real effect of this message is extra mail for everyone who gets it.
+  button Back to the notice -> notice-chain
+page confirm-chain intranet.northwind.example/notices/confirm-2297
+  title Confirm: send to all staff
+  brand Northwind Staff Notices
+  heading Send to all 212 staff?
+  | "Get paid for forwarding this!!" goes to every member of staff. This cannot be taken back.
+  button Cancel -> notice-chain
+  button Send now -> sent-chain
+page notice-chain intranet.northwind.example/notices/draft-2297
+  title Staff Notices: Get paid for forwarding
+  brand Northwind Staff Notices
+  requires intranet-login
+  heading Send to all staff: Get paid for forwarding this!!
+  | A notice is waiting for you to send.
+  section Where it came from
+  row Requested by = Sam Patel, Sales
+  row Approved by = not yet approved
+  row Source = forwarded email
+  section What it says
+  row Subject = FW: FW: FW: FW: Get paid for forwarding this!!
+  row Offer = $245 from Quillon Software for each person you send it to
+  row Asks for = send it to everyone, do not break the chain
+  row Proof = forwarded by 65 people, none of them checkable
+  button Look it up in the hoax list -> hoax-check
+  button Send to all staff -> confirm-chain
+  button Delete draft and reply to Sam -> told-sam
+mail chain
+  from Sam Patel <sam.patel@northwind.example>
+  subject FW: FW: FW: FW: Get paid for forwarding this!!
+  link notice-chain
+  sent 2026-11-02 14:35
+  | Hi Dana, can you send this one to all staff? It's real, my cousin's boss told him! I put it in the notices tool for you (the link).
+  |
+  | Gil Harmon, founder of Quillon Software, is beta-testing an email tracker. Every copy of this message is counted.
+  | For each person you send this to, Quillon will pay you $245. For each person they send it to, $243. For each third-generation person, $241.
+  | You will be sent a cheque within 2 weeks. Please do not break the chain!!
+  |
+  | > From: Jo Ellis <jo.ellis@chainmail.example>, To: Kim Larsen, Lee Quinn and 38 more
+  | > Forwarded by Pat Moreno, Ana Reyes, Tom Hale, Ivy Chen and 61 more
+  | > I did it and a friend of mine got his money, so it works!
+notify mail Sam Patel
+  | FW: FW: FW: FW: Get paid for forwarding this!!
+
+step A message from Sam
+  look the money offer, the long list of names, and "do not break the chain"
+  when mail chain
+  | Sam, from Sales, wants this sent to every member of staff. It promises $245 for forwarding it and says a famous software founder, Gil Harmon, is counting the copies.
+  | The list of names under it is longer than the message. A long list looks like proof. It is not.
+open chain
+
+step The notice in the tool
+  look who asked for it, who approved it, and what it says
+  when visit notice-chain
+  move Compare it with Priya's notice, then click “Look it up in the hoax list”.
+  | The notice is ready to send, like Priya's. Priya's named Facilities, an approver and the calendar. This one is not yet approved, and the source is a forwarded email.
+  | Sending reaches all 212 staff and cannot be taken back. A quick look-up first costs nothing.
+open notice-chain
+
+step Known hoax
+  look the hoax-reference page: "Chain letter, not true"
+  when choose notice-chain 1
+  move Read the page, then click “Back to the notice”.
+  | The hoax list has it: a chain letter from 1997, still going round. No company counts forwards, and no cheque ever came.
+  | The giveaways: it promises a lot for doing nothing, it says "forward to everyone", and it names a famous founder but gives no proof.
+choose notice-chain 1
+
+step Back on the notice
+  look the notice again: the three buttons at the bottom
+  when choose hoax-check 1
+  move Click “Delete draft and reply to Sam”.
+  | Back on the notice, the decision is still yours. Sending reaches 212 people. Deleting the draft stops the chain here.
+choose hoax-check 1
+
+step 5 of 5 done
+  look the counter in the guide: the last notice is handled
+  when choose notice-chain 3
+  | Not sent. You told Sam kindly that it is a known hoax, and the day's notices are done. Stopping was the right job here.
+  | Press Next to see what the chain letter did in the office without you.
+choose notice-chain 3
+quota +1
+
+step Two weeks later
+  look the inbox: the same chain letter, again and again, and the note from IT
+  | Sam sent the letter round himself, and others passed it on. In two weeks no cheque arrived, because there was never any tracker.
+  | The only real effect was the flood of copies, and a list of addresses that spammers pick up. You did not add to it.
+# The effect: Sam sent it round himself, and the office forwarded it on.
+mail sam-fwd
+  from Sam Patel <sam.patel@northwind.example>
+  to All staff <all-staff@northwind.example>
+  subject Fwd: Get paid for forwarding this!! Please read
+  sent 2026-11-13 10:05
+  | Everyone, please read, it might be real! Do not break the chain.
+mail priya-fw
+  from Priya Shah <priya.shah@northwind.example>
+  subject Re: Get paid for forwarding this!!
+  sent 2026-11-13 14:12
+  | Dana, I have had this from three different people today. Has anyone seen a cheque yet? Priya
+mail it-stop
+  from Northwind IT <it@northwind.example>
+  subject Please stop forwarding "Get paid for forwarding"
+  sent 2026-11-16 09:30
+  | Hi all,
+  |
+  | The mail server counted over 3,000 copies of this chain letter this week. It is a hoax: no email tracker exists and nobody is paying anyone.
+  | Every copy also carries a list of strangers' email addresses, and spammers collect those lists. Please delete it and do not forward it.
+  |
+  | Northwind IT
+notify mail Northwind IT
+  | Please stop forwarding "Get paid for forwarding"
+attack mass-mail-worm
+  | Sam sends it to all staff
+  | to Priya
+  | to Marcus
+  | and on from them
+open it-stop
+
+flag hard mail chain
+  label Sam's email "Get paid for forwarding this!!"
+  | It promises money for forwarding an email, and says "do not break the chain". No company pays for that.
+flag hard section notice-chain 1
+  label Where the notice came from
+  | Not yet approved, and the source is a forwarded email. A real notice names an approver and a source you can check.
+flag hard section notice-chain 2
+  label What the notice says
+  | Money for sending it on, "send it to everyone", and 65 names as proof. That is how every chain letter works.
+flag hard choice notice-chain 2
+  label The Send to all staff button
+  | Sending it makes you the next link. 212 people would get a message that pays nobody and carries strangers' addresses.
+flag hard mail sam-fwd
+  label Sam's copy to all staff
+  | The chain letter, sent on to everyone. This is the flood the hoax lives on, and each copy carries strangers' addresses.
+flag soft file Desktop/intranet-login.txt
+  | Passwords in a text file on the desktop: any program that runs can read them. Use a password manager.
+
+lesson
+  | A message that offers money for forwarding it is a hoax. Do not forward it, and do not trust it because many names are on the list.
+  | Look it up before you send: search the headline, or ask IT. A real notice names who asked for it, who approved it and where it came from.
+  | Nothing here needed a panic or a security alarm. The right move was to stop, check, and tell Sam kindly.

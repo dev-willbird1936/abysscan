@@ -6,6 +6,7 @@
     "signals": [],
     "depth": "trench",
     "findings": [
+      "self-copy",
       "spread"
     ]
   },

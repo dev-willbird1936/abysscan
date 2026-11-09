@@ -17,13 +17,16 @@ export function mapPdf(report, { at }) {
   const counts = isObject(report?.pdfid) ? report.pdfid : {};
   const found = PDF_EXPLOIT_NAMES.filter(name => Number(counts[name]) > 0);
   const items = found.map(name => item('exploit-indicator', at, `pdfid found ${name} ${Number(counts[name])} time(s)`, { indicator: `pdf ${name}`, tool: 'pdfid' }));
+  const carve = isObject(report?.carve) ? report.carve : null;
+  if (carve && Number(carve.executables) > 0) items.push(item('suspicious', at, 'binwalk found an executable inside the PDF.', { indicator: 'embedded executable', tool: 'binwalk' }));
+  if (carve && Number(carve.archives) > 0) items.push(item('suspicious', at, 'binwalk found an archive inside the PDF.', { indicator: 'embedded archive', tool: 'binwalk' }));
   if (Object.keys(counts).length === 0) items.push(item('emulation-stopped', at, 'pdfid produced no counts.', { reason: 'pdfid-failed' }));
   else if (Array.isArray(report?.errors) && report.errors.length > 0) items.push(item('emulation-stopped', at, 'A PDF static tool returned an error.', { reason: 'pdf-static-failed' }));
   return items;
 }
 
 // Hits of ps1_static.py by pattern id. `encoded-command` and `base64-decode` hide a payload; the two flags hide the process.
-const PS1_OBFUSCATION = { 'base64-decode': 'base64 decoding', 'encoded-command': 'encoded command', 'char-join': 'character-code string building' };
+const PS1_OBFUSCATION = { 'base64-decode': 'base64 decoding', 'encoded-command': 'encoded command', 'encoded-command-flag': 'an encoded command', 'base64-blob': 'a long base64 literal', 'char-join': 'character-code string building' };
 const PS1_HIDDEN = { 'hidden-window': 'hidden window', 'execution-policy-bypass': 'execution policy bypass' };
 
 /** `ps1_static.py` output (`{hits: [{id, count, preview}], truncated?}`). A truncated prefix is incomplete coverage. */
@@ -59,6 +62,15 @@ export function mapOffice(report, { at }) {
     ...capped(rows.filter(row => OLEVBA_OBFUSCATION.has(row.type))).map(row => item('obfuscation', at, `olevba found ${text(row.type)}.`, { technique: text(row.type, 60) })),
   ];
   if (olevba.ok !== true) items.push(item('emulation-stopped', at, 'olevba could not read the document.', { reason: 'olevba-failed' }));
+  // Template injection: the package holds only a link, so the body reads clean while Word fetches the payload on open.
+  const ooxml = isObject(report?.ooxml) ? report.ooxml : {};
+  const external = Array.isArray(ooxml.external) ? ooxml.external.filter(isObject) : [];
+  for (const link of external.slice(0, 5)) {
+    items.push(item('suspicious', at, `The document pulls ${text(link.target, 200)} from the network when it is opened.`, { indicator: 'remote template or media reference', tool: 'ooxml', target: text(link.target, 300), part: text(link.part, 120) }));
+  }
+  if (ooxml.attachedTemplate === true && external.length === 0) {
+    items.push(item('suspicious', at, 'The document attaches a template from outside the package.', { indicator: 'external attached template', tool: 'ooxml' }));
+  }
   const office = isObject(report?.libreoffice) ? report.libreoffice : {};
   if (office.opened !== true) {
     items.push(item('emulation-stopped', at, office.timedOut ? 'LibreOffice did not finish opening the document in time.' : 'LibreOffice could not open the document.', { reason: office.timedOut ? 'libreoffice-timeout' : 'libreoffice-failed' }));
@@ -79,6 +91,27 @@ const CAPA_SURVEY = /^host-interaction\/(?:os\/info|hardware|network\/adapter)/;
 const CAPA_ADMIN = /^host-interaction\/uac/;
 const CAPA_ALWAYS = /^(?:persistence|impact|c2|collection|communication\/http\/server)(?:\/|$)/;
 const CAPA_QUIET = /^(?:load-code\/pe|executable|linking|runtime|compiler)(?:\/|$)/;
+
+/**
+ * RTF carrier markers (runnerlib.rtf_scan, shared by generic.py and unpack.py): an object that updates itself, an embedded OLE
+ * object, an ActiveX control or an OLE datastore. Word activates these; they are never text it renders.
+ */
+export function mapRtf(hits, { at }) {
+  const RTF_KINDS = {
+    'rtf-objupdate': ['exploit-indicator', 'The document forces an embedded object to update when it opens.', 'rtf object update'],
+    'rtf-embedded-object': ['suspicious', 'The document embeds an OLE object.', 'rtf embedded object'],
+    'rtf-activex': ['suspicious', 'The document embeds an ActiveX control.', 'rtf activex control'],
+    'rtf-datastore': ['exploit-indicator', 'The document carries an OLE datastore, the carrier used by the Equation Editor exploit.', 'rtf ole datastore'],
+  };
+  const items = [];
+  for (const hit of Array.isArray(hits) ? hits.slice(0, 6) : []) {
+    const shape = RTF_KINDS[hit?.id];
+    if (!shape || !Number.isFinite(Number(hit.count))) continue;
+    const [kind, detail, indicator] = shape;
+    items.push(item(kind, at, `${detail} (${Number(hit.count)} time(s))`, { indicator, tool: 'generic', preview: text(hit.preview, 160) }));
+  }
+  return items;
+}
 
 /**
  * `static.py` capa report (`{ok, rules: [{name, namespace, attack: [id], count}]}`). Twilight signals only (EVIDENCE.md): packer rules give
@@ -150,6 +183,72 @@ export function mapGeneric(report, { at }) {
   const data = isObject(report) ? report : {};
   const binwalkFailed = !isObject(data.binwalk) || data.binwalk.ok !== true;
   const items = [];
+  // Windows script constructs (generic.py wsh_scan): the phishing payload this build cannot execute, so the intent is the evidence.
+  const WSH_KINDS = {
+    'wsh-object': ['exploit-indicator', (name, count) => `The script uses ${name} ${count} time(s): a browser or shell cannot do this, it needs the Windows scripting host.`, name => `script uses ${name}`],
+    download: ['suspicious', (name, count) => `The script downloads from the network ${count} time(s).`, () => 'script download cradle'],
+    persistence: ['suspicious', (name, count) => `The script adds persistence ${count} time(s).`, () => 'script persistence command'],
+    'host-tool': ['suspicious', (name, count) => `The script runs a Windows host tool ${count} time(s).`, () => 'script runs a host tool'],
+    obfuscation: ['obfuscation', (name, count) => `The script hides its own text ${count} time(s).`, () => 'encoded script text'],
+    'self-delete': ['suspicious', (name, count) => `The script deletes itself ${count} time(s).`, () => 'script self-deletion'],
+    'batch-infect': ['suspicious', (name, count) => `The script copies itself into other files ${count} time(s).`, () => 'script infects other files'],
+    stealth: ['suspicious', (name, count) => `The script hides files or takes the console ${count} time(s).`, () => 'script hides itself'],
+    destroy: ['suspicious', (name, count) => `The script uses a destructive disk command ${count} time(s).`, () => 'destructive disk command'],
+  };
+  const WSH_LABELS = { 'wsh-object': 'Windows scripting-host objects', download: 'a download call', persistence: 'a persistence command', 'host-tool': 'a Windows host tool', obfuscation: 'character-code or base64 text', 'self-delete': 'a self-deletion command', 'batch-infect': 'a self-copying pattern', stealth: 'a hidden-file or console command', destroy: 'a destructive disk command' };
+  for (const hit of Array.isArray(data.wsh?.hits) ? data.wsh.hits.slice(0, 10) : []) {
+    const shape = WSH_KINDS[hit?.id];
+    if (!shape || !Number.isFinite(Number(hit.count))) continue;
+    const [kind, detail, field] = shape;
+    const fields = kind === 'obfuscation' ? { technique: field(hit.id) } : { indicator: field(hit.id), tool: 'wsh' };
+    items.push(item(kind, at, detail(text(WSH_LABELS[hit.id] ?? hit.id, 40), Number(hit.count)), { ...fields, preview: text(hit.preview, 160) }));
+  }
+  items.push(...mapRtf(data.rtf?.hits, { at }));
+  // An Internet Shortcut is a pointer and nothing else (generic.py shortcut): the URL is the payload.
+  const shortcutUrl = text(data.shortcut?.url, 300);
+  if (shortcutUrl) {
+    items.push(item('suspicious', at, `The shortcut opens ${shortcutUrl}.`, { indicator: 'internet shortcut target', tool: 'generic', target: shortcutUrl }));
+  }
+  // A Dalvik executable names itself and the APIs it can use (generic.py -> identify.dex_facts): intent, read from the string table.
+  const DEX_APIS = {
+    exec: 'runs other programs', sms: 'sends text messages', identifiers: 'reads device identifiers',
+    loader: 'loads code at runtime', network: 'talks to the network', crypto: 'uses cryptography',
+    admin: 'asks for device administrator rights', reflection: 'uses reflection',
+  };
+  // A Windows shell link is a command in a wrapper: the target is the payload, the arguments are the launcher.
+  const LNK_HOST_TOOL = /powershell|pwsh|cmd(?:\.exe)?|mshta|rundll32|regsvr32|certutil|bitsadmin|wscript|cscript|wmic|curl|ftp/i;
+  const lnk = isObject(data.lnk) ? data.lnk : null;
+  if (lnk) {
+    const target = text(lnk.target || lnk.networkPath || lnk.relativePath, 200);
+    const args = text(lnk.arguments, 200);
+    if (target || args) {
+      items.push(item('identified', at, `The shortcut points at ${target || '(no target)'}${args ? ` with arguments ${args}` : ''}.`, { tool: 'lnk', target, arguments: args }));
+    }
+    const command = `${target} ${args}`.trim();
+    if (LNK_HOST_TOOL.test(command)) {
+      items.push(item('suspicious', at, 'The shortcut launches a Windows host tool or a script host.', { indicator: 'shortcut runs a host tool', tool: 'lnk', commandPreview: command.slice(0, 160) }));
+    }
+    if (/^\\\\[^\\]/i.test(target)) {
+      items.push(item('suspicious', at, `The shortcut targets the network share ${target}.`, { indicator: 'shortcut points at a network share', tool: 'lnk', target }));
+    }
+    if (/https?:\/\//i.test(command)) {
+      items.push(item('suspicious', at, 'The shortcut carries a web address.', { indicator: 'shortcut carries a URL', tool: 'lnk', target: text(lnk.arguments || target, 200) }));
+    }
+  }
+  const dex = isObject(data.dex) ? data.dex : null;
+  if (dex) {
+    items.push(item('identified', at, `Android DEX ${text(dex.version, 8)}: ${Number(dex.classes) || 0} class(es), ${Number(dex.methods) || 0} method reference(s), ${Number(dex.readStrings) || 0} string(s) read.`, { tool: 'dex', version: text(dex.version, 8) }));
+    for (const [group, values] of Object.entries(isObject(dex.apis) ? dex.apis : {}).slice(0, 6)) {
+      const label = DEX_APIS[group];
+      if (!label || !Array.isArray(values) || values.length === 0) continue;
+      items.push(item('suspicious', at, `The code ${label}: ${values.slice(0, 3).map(value => text(value, 60)).join(', ')}.`, { indicator: `dex ${label}`, tool: 'dex' }));
+    }
+  }
+  for (const url of Array.isArray(data.wsh?.urls) ? data.wsh.urls.slice(0, 5) : []) {
+    items.push(item('suspicious', at, `The script text names ${text(url, 120)}.`, { indicator: 'url in script text', tool: 'wsh' }));
+  }
+  const magic = isObject(data.magic) ? data.magic : {};
+  if (magic.description) items.push(item('identify', at, `libmagic: ${text(magic.description, 200)}`, { tool: 'libmagic', mime: text(magic.mime, 80) }));
   if (Number(data.entropy?.overall) >= HIGH_ENTROPY && Number(data.entropy?.mean) >= HIGH_ENTROPY - 0.4) {
     items.push(item('obfuscation', at, `The content is near-random (entropy ${Number(data.entropy.overall)}).`, { technique: 'high-entropy content' }));
   }

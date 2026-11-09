@@ -1,0 +1,103 @@
+.nt-app {
+  .nt-sections {
+    width: 180px;
+    flex-shrink: 0;
+    background: var(--oc-pane);
+    border-right: 1px solid var(--oc-stroke);
+  }
+  .nt-notebook {
+    gap: 8px;
+    padding: 14px 12px 10px;
+    svg {
+      width: 14px;
+    }
+  }
+  .nt-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 34px;
+    padding: 0 12px;
+    margin: 0 6px 2px;
+    border-radius: 5px;
+
+    &:hover {
+      background: var(--oc-hover);
+    }
+    &[data-active="true"] {
+      background: var(--oc-sel);
+      font-weight: 600;
+    }
+  }
+  .nt-swatch {
+    width: 10px;
+    height: 18px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .nt-add {
+    margin: 6px;
+    justify-content: flex-start;
+  }
+  .nt-pages {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--oc-layer);
+    border-right: 1px solid var(--oc-stroke);
+  }
+  .nt-pages-head {
+    padding: 10px;
+  }
+  .nt-page-item {
+    padding: 8px 12px;
+    margin: 0 6px 2px;
+    border-radius: 5px;
+
+    &:hover {
+      background: var(--oc-hover);
+    }
+    &[data-active="true"] {
+      background: color-mix(in srgb, var(--oc-accent) 16%, transparent);
+    }
+  }
+  .nt-pin {
+    width: 10px;
+    color: var(--oc-accent);
+  }
+  .nt-page {
+    background: var(--oc-card);
+    padding: 22px 34px;
+  }
+  .nt-title {
+    font-size: 24px;
+    font-weight: 600;
+    border: none;
+    outline: none;
+    background: transparent;
+    border-bottom: 1px solid var(--oc-stroke2);
+    padding-bottom: 4px;
+    max-width: 420px;
+  }
+  .nt-stamp {
+    margin: 6px 0 16px;
+  }
+  .nt-body {
+    border: none;
+    outline: none;
+    resize: none;
+    background: transparent;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 200px;
+    user-select: text;
+  }
+}
+
+@container (max-width: 640px) {
+  .nt-app .nt-sections {
+    width: 140px;
+  }
+  .nt-app .nt-pages {
+    width: 170px;
+  }
+}

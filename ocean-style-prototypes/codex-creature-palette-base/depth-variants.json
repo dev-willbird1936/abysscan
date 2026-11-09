@@ -1,0 +1,918 @@
+{
+  "families": 6,
+  "depths": [
+    "sunlight",
+    "twilight",
+    "midnight",
+    "abyss",
+    "trench"
+  ],
+  "variant_count": 30,
+  "palette_source": "depth-palettes.json",
+  "same_shape_per_family": true,
+  "method": "Replace only exact primary/secondary/tertiary swatch RGB values; preserve neutral details and source alpha bytes.",
+  "variants": [
+    {
+      "id": "anglerfish-sunlight",
+      "family": "anglerfish",
+      "depth": "sunlight",
+      "depth_name": "Sunlight",
+      "file": "depth-variants/anglerfish-sunlight-128.png",
+      "display_file": "depth-variants/anglerfish-sunlight-256.png",
+      "sha256": "eca3ce52f1554a97743543d119259a1475d07a38e03bca02a8bc3669a5dae882",
+      "display_sha256": "614219edfaf249d221442c3255b79b0fca7324d7a6ffc492107d104b68502350",
+      "source_base": "indexed/anglerfish-indexed-128.png",
+      "source_base_sha256": "e056a8e48c48c1e690e32d5945b7597fbcd648b61b8be413e90091adb790a242",
+      "native_creature_sha256": "f9a9d2b5e12bd99eeaa8a43d33e02507f5a6c2905b789937ce11574ae9418d9d",
+      "palette": {
+        "primary": "#169B93",
+        "secondary": "#D2B984",
+        "tertiary": "#F4B942"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "anglerfish-twilight",
+      "family": "anglerfish",
+      "depth": "twilight",
+      "depth_name": "Twilight",
+      "file": "depth-variants/anglerfish-twilight-128.png",
+      "display_file": "depth-variants/anglerfish-twilight-256.png",
+      "sha256": "4ad7eacce9429c43676c18cda7aa4712ab9b0b85ad1c0ec70d8d1e5094d27691",
+      "display_sha256": "b1cd036b6ae4a0dad280c86a6aa0b288a3a8c9998c9819cf7d7696516d905f89",
+      "source_base": "indexed/anglerfish-indexed-128.png",
+      "source_base_sha256": "e056a8e48c48c1e690e32d5945b7597fbcd648b61b8be413e90091adb790a242",
+      "native_creature_sha256": "f9a9d2b5e12bd99eeaa8a43d33e02507f5a6c2905b789937ce11574ae9418d9d",
+      "palette": {
+        "primary": "#315FBA",
+        "secondary": "#858BB9",
+        "tertiary": "#58D0E4"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "anglerfish-midnight",
+      "family": "anglerfish",
+      "depth": "midnight",
+      "depth_name": "Midnight",
+      "file": "depth-variants/anglerfish-midnight-128.png",
+      "display_file": "depth-variants/anglerfish-midnight-256.png",
+      "sha256": "170813528de5a87a2ef7cb5510330d405dde0f130c19e96dfacb2e48cd5d7e66",
+      "display_sha256": "55facd2e1f0e5917cb4096b3754993c55f07a7ca64b9c629f1f461f0872dee1f",
+      "source_base": "indexed/anglerfish-indexed-128.png",
+      "source_base_sha256": "e056a8e48c48c1e690e32d5945b7597fbcd648b61b8be413e90091adb790a242",
+      "native_creature_sha256": "f9a9d2b5e12bd99eeaa8a43d33e02507f5a6c2905b789937ce11574ae9418d9d",
+      "palette": {
+        "primary": "#47429C",
+        "secondary": "#236B98",
+        "tertiary": "#38E3F2"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "anglerfish-abyss",
+      "family": "anglerfish",
+      "depth": "abyss",
+      "depth_name": "Abyss",
+      "file": "depth-variants/anglerfish-abyss-128.png",
+      "display_file": "depth-variants/anglerfish-abyss-256.png",
+      "sha256": "be7933d3d67d577e1c2b55fac1e47d6be9dc37742ffe67b0c12b5e8460b2d678",
+      "display_sha256": "fdb59f78b98173b3b4b30824267717ac6c080e943dc602ab703efc9408a4fc92",
+      "source_base": "indexed/anglerfish-indexed-128.png",
+      "source_base_sha256": "e056a8e48c48c1e690e32d5945b7597fbcd648b61b8be413e90091adb790a242",
+      "native_creature_sha256": "f9a9d2b5e12bd99eeaa8a43d33e02507f5a6c2905b789937ce11574ae9418d9d",
+      "palette": {
+        "primary": "#17354F",
+        "secondary": "#2C6078",
+        "tertiary": "#7CCEDC"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "anglerfish-trench",
+      "family": "anglerfish",
+      "depth": "trench",
+      "depth_name": "Trench",
+      "file": "depth-variants/anglerfish-trench-128.png",
+      "display_file": "depth-variants/anglerfish-trench-256.png",
+      "sha256": "da6d23778c644013ba40157ce7c5dd914b6306a11ada89155a8b7156b36c4b3a",
+      "display_sha256": "47d8922a915fedcce3d35f8d8ced6b6b5151b38958e76ab36469cf75791f7614",
+      "source_base": "indexed/anglerfish-indexed-128.png",
+      "source_base_sha256": "e056a8e48c48c1e690e32d5945b7597fbcd648b61b8be413e90091adb790a242",
+      "native_creature_sha256": "f9a9d2b5e12bd99eeaa8a43d33e02507f5a6c2905b789937ce11574ae9418d9d",
+      "palette": {
+        "primary": "#111A2B",
+        "secondary": "#302B50",
+        "tertiary": "#91DCEA"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "viperfish-sunlight",
+      "family": "viperfish",
+      "depth": "sunlight",
+      "depth_name": "Sunlight",
+      "file": "depth-variants/viperfish-sunlight-128.png",
+      "display_file": "depth-variants/viperfish-sunlight-256.png",
+      "sha256": "556d55c24d4ab08945526f1c8e8101d675b5765662f6ef469ea6d1b0e6144ef7",
+      "display_sha256": "d3c1703068aa921ed88c8d47b7f015a268bda33190a321698d79bcd3fd427723",
+      "source_base": "indexed/viperfish-indexed-128.png",
+      "source_base_sha256": "bcc88d51b136942245924232648b7f3065adcee4dc7996b2d0862fe8f2abf07b",
+      "native_creature_sha256": "ab8771d2e47359347cfec67e77336e8775b0db378c66521fa027419def78882e",
+      "palette": {
+        "primary": "#169B93",
+        "secondary": "#D2B984",
+        "tertiary": "#F4B942"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "viperfish-twilight",
+      "family": "viperfish",
+      "depth": "twilight",
+      "depth_name": "Twilight",
+      "file": "depth-variants/viperfish-twilight-128.png",
+      "display_file": "depth-variants/viperfish-twilight-256.png",
+      "sha256": "96b814569acfe75e6f049e37f9dd3cb94ab9c6923085f527ff2a008cb1a0c80c",
+      "display_sha256": "20323b8dbab70a3d3eb42d33ec6d145d912cf967f1bc645eba9b856551bf427d",
+      "source_base": "indexed/viperfish-indexed-128.png",
+      "source_base_sha256": "bcc88d51b136942245924232648b7f3065adcee4dc7996b2d0862fe8f2abf07b",
+      "native_creature_sha256": "ab8771d2e47359347cfec67e77336e8775b0db378c66521fa027419def78882e",
+      "palette": {
+        "primary": "#315FBA",
+        "secondary": "#858BB9",
+        "tertiary": "#58D0E4"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "viperfish-midnight",
+      "family": "viperfish",
+      "depth": "midnight",
+      "depth_name": "Midnight",
+      "file": "depth-variants/viperfish-midnight-128.png",
+      "display_file": "depth-variants/viperfish-midnight-256.png",
+      "sha256": "e19836fcad918557cdf0266d396851d96ccf1d17c2553ea80478c3965017293b",
+      "display_sha256": "9ce3f9d7a5bd27783ae3fe78e77e29eb50951b862f056b342cc62227413e9976",
+      "source_base": "indexed/viperfish-indexed-128.png",
+      "source_base_sha256": "bcc88d51b136942245924232648b7f3065adcee4dc7996b2d0862fe8f2abf07b",
+      "native_creature_sha256": "ab8771d2e47359347cfec67e77336e8775b0db378c66521fa027419def78882e",
+      "palette": {
+        "primary": "#47429C",
+        "secondary": "#236B98",
+        "tertiary": "#38E3F2"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "viperfish-abyss",
+      "family": "viperfish",
+      "depth": "abyss",
+      "depth_name": "Abyss",
+      "file": "depth-variants/viperfish-abyss-128.png",
+      "display_file": "depth-variants/viperfish-abyss-256.png",
+      "sha256": "20c308a7a6e17ff73ad452ba2f40e880ed25b2862c1e95c63bc3992edddb03ad",
+      "display_sha256": "f1aa32c18d71941315beb0d30682a3fc925b24f8fd1b8a2b7f833cdf3a062ce9",
+      "source_base": "indexed/viperfish-indexed-128.png",
+      "source_base_sha256": "bcc88d51b136942245924232648b7f3065adcee4dc7996b2d0862fe8f2abf07b",
+      "native_creature_sha256": "ab8771d2e47359347cfec67e77336e8775b0db378c66521fa027419def78882e",
+      "palette": {
+        "primary": "#17354F",
+        "secondary": "#2C6078",
+        "tertiary": "#7CCEDC"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "viperfish-trench",
+      "family": "viperfish",
+      "depth": "trench",
+      "depth_name": "Trench",
+      "file": "depth-variants/viperfish-trench-128.png",
+      "display_file": "depth-variants/viperfish-trench-256.png",
+      "sha256": "019862f9698891fcfef243b177a9b55d849539e8acc562bda29dfa214909f63b",
+      "display_sha256": "206ab4bbdb8a64df095703954af12a7c6e6b49c558167d8e5035dac4ab161f3c",
+      "source_base": "indexed/viperfish-indexed-128.png",
+      "source_base_sha256": "bcc88d51b136942245924232648b7f3065adcee4dc7996b2d0862fe8f2abf07b",
+      "native_creature_sha256": "ab8771d2e47359347cfec67e77336e8775b0db378c66521fa027419def78882e",
+      "palette": {
+        "primary": "#111A2B",
+        "secondary": "#302B50",
+        "tertiary": "#91DCEA"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "siphonophore-sunlight",
+      "family": "siphonophore",
+      "depth": "sunlight",
+      "depth_name": "Sunlight",
+      "file": "depth-variants/siphonophore-sunlight-128.png",
+      "display_file": "depth-variants/siphonophore-sunlight-256.png",
+      "sha256": "62102d61d79a71f5b9f0b4437a641961d20d90d9596ed1a1ffaa040d494f976b",
+      "display_sha256": "750517f004b1ba6a94777706fe660e42234324dbbd5ed2e361f8c519485bd647",
+      "source_base": "indexed/siphonophore-indexed-128.png",
+      "source_base_sha256": "f2a6c5417f8e6adfb48405d212ec585c9b9d266b3b1cbbebb03411735f3a0017",
+      "native_creature_sha256": "4702dc8806d81829da5ba2474a33f9573ff5e19c27c6112c1199125bcc52e09b",
+      "palette": {
+        "primary": "#169B93",
+        "secondary": "#D2B984",
+        "tertiary": "#F4B942"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "siphonophore-twilight",
+      "family": "siphonophore",
+      "depth": "twilight",
+      "depth_name": "Twilight",
+      "file": "depth-variants/siphonophore-twilight-128.png",
+      "display_file": "depth-variants/siphonophore-twilight-256.png",
+      "sha256": "df193e52e28d1c5f6b6ad3ff8cd7cf2a505ca277c39f5ec1cda7444b2c5900e2",
+      "display_sha256": "2cc54810bb70140c05d404b9ca8cbba16c520abb7483d29662dba0ad581e4680",
+      "source_base": "indexed/siphonophore-indexed-128.png",
+      "source_base_sha256": "f2a6c5417f8e6adfb48405d212ec585c9b9d266b3b1cbbebb03411735f3a0017",
+      "native_creature_sha256": "4702dc8806d81829da5ba2474a33f9573ff5e19c27c6112c1199125bcc52e09b",
+      "palette": {
+        "primary": "#315FBA",
+        "secondary": "#858BB9",
+        "tertiary": "#58D0E4"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "siphonophore-midnight",
+      "family": "siphonophore",
+      "depth": "midnight",
+      "depth_name": "Midnight",
+      "file": "depth-variants/siphonophore-midnight-128.png",
+      "display_file": "depth-variants/siphonophore-midnight-256.png",
+      "sha256": "6b058f00620c4e26d526cb6e5ac71242f3f392e057dbd61150bcac96a3f5854c",
+      "display_sha256": "d142e8ad596e48292e9deb9c982aa3267ccf1cdf4dce3c587773cba4ad5ae37d",
+      "source_base": "indexed/siphonophore-indexed-128.png",
+      "source_base_sha256": "f2a6c5417f8e6adfb48405d212ec585c9b9d266b3b1cbbebb03411735f3a0017",
+      "native_creature_sha256": "4702dc8806d81829da5ba2474a33f9573ff5e19c27c6112c1199125bcc52e09b",
+      "palette": {
+        "primary": "#47429C",
+        "secondary": "#236B98",
+        "tertiary": "#38E3F2"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "siphonophore-abyss",
+      "family": "siphonophore",
+      "depth": "abyss",
+      "depth_name": "Abyss",
+      "file": "depth-variants/siphonophore-abyss-128.png",
+      "display_file": "depth-variants/siphonophore-abyss-256.png",
+      "sha256": "6937a64eb365ccb3e75f6defe26f334f793122b9f314fc1b47dc417c610bb111",
+      "display_sha256": "0700966cd5c6423b8f7b24bc5f974ce988516dbec9643ad3825e6719a69236dc",
+      "source_base": "indexed/siphonophore-indexed-128.png",
+      "source_base_sha256": "f2a6c5417f8e6adfb48405d212ec585c9b9d266b3b1cbbebb03411735f3a0017",
+      "native_creature_sha256": "4702dc8806d81829da5ba2474a33f9573ff5e19c27c6112c1199125bcc52e09b",
+      "palette": {
+        "primary": "#17354F",
+        "secondary": "#2C6078",
+        "tertiary": "#7CCEDC"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "siphonophore-trench",
+      "family": "siphonophore",
+      "depth": "trench",
+      "depth_name": "Trench",
+      "file": "depth-variants/siphonophore-trench-128.png",
+      "display_file": "depth-variants/siphonophore-trench-256.png",
+      "sha256": "af4a9fe136c93a2e9ac64e09d612c762740307a46b7449247d74736b1c8bed72",
+      "display_sha256": "29d15498c4ed6bdcec964f8ab41bf68e770efa80948e5ee4cbd967cf98de0003",
+      "source_base": "indexed/siphonophore-indexed-128.png",
+      "source_base_sha256": "f2a6c5417f8e6adfb48405d212ec585c9b9d266b3b1cbbebb03411735f3a0017",
+      "native_creature_sha256": "4702dc8806d81829da5ba2474a33f9573ff5e19c27c6112c1199125bcc52e09b",
+      "palette": {
+        "primary": "#111A2B",
+        "secondary": "#302B50",
+        "tertiary": "#91DCEA"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "isopod-host-sunlight",
+      "family": "isopod-host",
+      "depth": "sunlight",
+      "depth_name": "Sunlight",
+      "file": "depth-variants/isopod-host-sunlight-128.png",
+      "display_file": "depth-variants/isopod-host-sunlight-256.png",
+      "sha256": "3df29579aba725054ed189f7a6acaeeb312a4cb8bc974b8b7ee22d4e4b7fee2a",
+      "display_sha256": "3c174309851f14073000f7527bda29f6f94b0d46b4f69517f7f3286e2e673600",
+      "source_base": "indexed/isopod-host-indexed-128.png",
+      "source_base_sha256": "e888e159471500671e6bfc194bad2fc320ae9680abf258ea09d7545bab312389",
+      "native_creature_sha256": "9c8cea3972ffb88db7e731f0624997f0a9c1c25c245dde9dcd80f4970a5aaa99",
+      "palette": {
+        "primary": "#169B93",
+        "secondary": "#D2B984",
+        "tertiary": "#F4B942"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "isopod-host-twilight",
+      "family": "isopod-host",
+      "depth": "twilight",
+      "depth_name": "Twilight",
+      "file": "depth-variants/isopod-host-twilight-128.png",
+      "display_file": "depth-variants/isopod-host-twilight-256.png",
+      "sha256": "cd90a0b2ddfc7393de799d0f300ed6b798618ca2984f3df3e3f821488892fe6d",
+      "display_sha256": "4980fcce1490ef6162a07ccffd07f1b555d4fadf211086fde88d9393dcbcc093",
+      "source_base": "indexed/isopod-host-indexed-128.png",
+      "source_base_sha256": "e888e159471500671e6bfc194bad2fc320ae9680abf258ea09d7545bab312389",
+      "native_creature_sha256": "9c8cea3972ffb88db7e731f0624997f0a9c1c25c245dde9dcd80f4970a5aaa99",
+      "palette": {
+        "primary": "#315FBA",
+        "secondary": "#858BB9",
+        "tertiary": "#58D0E4"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "isopod-host-midnight",
+      "family": "isopod-host",
+      "depth": "midnight",
+      "depth_name": "Midnight",
+      "file": "depth-variants/isopod-host-midnight-128.png",
+      "display_file": "depth-variants/isopod-host-midnight-256.png",
+      "sha256": "b2715ed377015f4305ca206f2a8b1f183da82fb0a38f5352d8b56fdfc6c849ce",
+      "display_sha256": "b103ab5dbdf89664dd2fca40c498cc395b7ad764b89f06b2a24a1e561ccb846e",
+      "source_base": "indexed/isopod-host-indexed-128.png",
+      "source_base_sha256": "e888e159471500671e6bfc194bad2fc320ae9680abf258ea09d7545bab312389",
+      "native_creature_sha256": "9c8cea3972ffb88db7e731f0624997f0a9c1c25c245dde9dcd80f4970a5aaa99",
+      "palette": {
+        "primary": "#47429C",
+        "secondary": "#236B98",
+        "tertiary": "#38E3F2"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "isopod-host-abyss",
+      "family": "isopod-host",
+      "depth": "abyss",
+      "depth_name": "Abyss",
+      "file": "depth-variants/isopod-host-abyss-128.png",
+      "display_file": "depth-variants/isopod-host-abyss-256.png",
+      "sha256": "187725b0c261007c23b369ef9598ff7bd7fd684c1f7efe800df9f720d1c7c609",
+      "display_sha256": "96fe91af8d0d7b5440bc36e0b27c302e40d02b6ae328673dac1e0de3a5e23009",
+      "source_base": "indexed/isopod-host-indexed-128.png",
+      "source_base_sha256": "e888e159471500671e6bfc194bad2fc320ae9680abf258ea09d7545bab312389",
+      "native_creature_sha256": "9c8cea3972ffb88db7e731f0624997f0a9c1c25c245dde9dcd80f4970a5aaa99",
+      "palette": {
+        "primary": "#17354F",
+        "secondary": "#2C6078",
+        "tertiary": "#7CCEDC"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "isopod-host-trench",
+      "family": "isopod-host",
+      "depth": "trench",
+      "depth_name": "Trench",
+      "file": "depth-variants/isopod-host-trench-128.png",
+      "display_file": "depth-variants/isopod-host-trench-256.png",
+      "sha256": "90fbf8bf830dd9bece68606454b12286664f30a341519c06c696d1331f56d970",
+      "display_sha256": "37ef85e7a36718550b55f46d2b253846274ad20d1c0dfdaeafb0901652c80962",
+      "source_base": "indexed/isopod-host-indexed-128.png",
+      "source_base_sha256": "e888e159471500671e6bfc194bad2fc320ae9680abf258ea09d7545bab312389",
+      "native_creature_sha256": "9c8cea3972ffb88db7e731f0624997f0a9c1c25c245dde9dcd80f4970a5aaa99",
+      "palette": {
+        "primary": "#111A2B",
+        "secondary": "#302B50",
+        "tertiary": "#91DCEA"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "cookiecutter-sunlight",
+      "family": "cookiecutter",
+      "depth": "sunlight",
+      "depth_name": "Sunlight",
+      "file": "depth-variants/cookiecutter-sunlight-128.png",
+      "display_file": "depth-variants/cookiecutter-sunlight-256.png",
+      "sha256": "8220303f14b024780bff895042247ffa049d2862e04f93dc6b90abdf44542455",
+      "display_sha256": "b123e8f9ef9e3bd848325a5410225fb48b688eb665d2b954c308b7f0d481283f",
+      "source_base": "indexed/cookiecutter-indexed-128.png",
+      "source_base_sha256": "0b9fb9e13470acf42b2bf20710ec8f111e4f4420f459f7fb7296b1bf9631aa55",
+      "native_creature_sha256": "b7f00d012c37c91b8a0385ea57fdc53cbad1bfb644aa0a9c83daae00ea08aa9d",
+      "palette": {
+        "primary": "#169B93",
+        "secondary": "#D2B984",
+        "tertiary": "#F4B942"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "cookiecutter-twilight",
+      "family": "cookiecutter",
+      "depth": "twilight",
+      "depth_name": "Twilight",
+      "file": "depth-variants/cookiecutter-twilight-128.png",
+      "display_file": "depth-variants/cookiecutter-twilight-256.png",
+      "sha256": "75d0fc6c7170e5e31e08273ca834393e91e23f26c7cff8041a9e4e7c21173d94",
+      "display_sha256": "7fdc35c88d2f8907963457f2980c234e36a53b2784fa1845b8ae30357df68091",
+      "source_base": "indexed/cookiecutter-indexed-128.png",
+      "source_base_sha256": "0b9fb9e13470acf42b2bf20710ec8f111e4f4420f459f7fb7296b1bf9631aa55",
+      "native_creature_sha256": "b7f00d012c37c91b8a0385ea57fdc53cbad1bfb644aa0a9c83daae00ea08aa9d",
+      "palette": {
+        "primary": "#315FBA",
+        "secondary": "#858BB9",
+        "tertiary": "#58D0E4"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "cookiecutter-midnight",
+      "family": "cookiecutter",
+      "depth": "midnight",
+      "depth_name": "Midnight",
+      "file": "depth-variants/cookiecutter-midnight-128.png",
+      "display_file": "depth-variants/cookiecutter-midnight-256.png",
+      "sha256": "00b44969c70847ce054d66b362e241c4257e80d1296db0323fc733dfc532fec5",
+      "display_sha256": "0495c6234685cbe001a76214e5a51fd22b93fd12f2ce045f29e508c674497890",
+      "source_base": "indexed/cookiecutter-indexed-128.png",
+      "source_base_sha256": "0b9fb9e13470acf42b2bf20710ec8f111e4f4420f459f7fb7296b1bf9631aa55",
+      "native_creature_sha256": "b7f00d012c37c91b8a0385ea57fdc53cbad1bfb644aa0a9c83daae00ea08aa9d",
+      "palette": {
+        "primary": "#47429C",
+        "secondary": "#236B98",
+        "tertiary": "#38E3F2"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "cookiecutter-abyss",
+      "family": "cookiecutter",
+      "depth": "abyss",
+      "depth_name": "Abyss",
+      "file": "depth-variants/cookiecutter-abyss-128.png",
+      "display_file": "depth-variants/cookiecutter-abyss-256.png",
+      "sha256": "6c370ec174dcb7b7367a0a8511feeb186b4b14e0de879daf5def782a6a952328",
+      "display_sha256": "e27172245537516db0e6b0cf94c19e6fe0530ab4e7986d846a8d8f7ed2a0dd5a",
+      "source_base": "indexed/cookiecutter-indexed-128.png",
+      "source_base_sha256": "0b9fb9e13470acf42b2bf20710ec8f111e4f4420f459f7fb7296b1bf9631aa55",
+      "native_creature_sha256": "b7f00d012c37c91b8a0385ea57fdc53cbad1bfb644aa0a9c83daae00ea08aa9d",
+      "palette": {
+        "primary": "#17354F",
+        "secondary": "#2C6078",
+        "tertiary": "#7CCEDC"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "cookiecutter-trench",
+      "family": "cookiecutter",
+      "depth": "trench",
+      "depth_name": "Trench",
+      "file": "depth-variants/cookiecutter-trench-128.png",
+      "display_file": "depth-variants/cookiecutter-trench-256.png",
+      "sha256": "e4a690c764ca981c8ed1a6dc98c620a833a3b6733e3cba4adc4d588ec7c25825",
+      "display_sha256": "1418060e7e0a82fe248923ecf04b6e238d8c07479681a5ad10b6cd4262e7f528",
+      "source_base": "indexed/cookiecutter-indexed-128.png",
+      "source_base_sha256": "0b9fb9e13470acf42b2bf20710ec8f111e4f4420f459f7fb7296b1bf9631aa55",
+      "native_creature_sha256": "b7f00d012c37c91b8a0385ea57fdc53cbad1bfb644aa0a9c83daae00ea08aa9d",
+      "palette": {
+        "primary": "#111A2B",
+        "secondary": "#302B50",
+        "tertiary": "#91DCEA"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "octopus-sunlight",
+      "family": "octopus",
+      "depth": "sunlight",
+      "depth_name": "Sunlight",
+      "file": "depth-variants/octopus-sunlight-128.png",
+      "display_file": "depth-variants/octopus-sunlight-256.png",
+      "sha256": "030e99adfc4ad238c8847bc06944f06a6ca5788e189fa97d0ebf8917794a79b2",
+      "display_sha256": "e0dbdcc3ef57809fef424303caff99621c983692ab6587e695263d0fb5a51347",
+      "source_base": "indexed/octopus-indexed-128.png",
+      "source_base_sha256": "3a331480199f1e0c943ddc15717c8fc42d3e0e42b0c077866c8391156395cac1",
+      "native_creature_sha256": "14bba5459fa54795eda77b94adb1f33d08b8303e0ead85dcbcf315c4383cfd91",
+      "palette": {
+        "primary": "#169B93",
+        "secondary": "#D2B984",
+        "tertiary": "#F4B942"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "octopus-twilight",
+      "family": "octopus",
+      "depth": "twilight",
+      "depth_name": "Twilight",
+      "file": "depth-variants/octopus-twilight-128.png",
+      "display_file": "depth-variants/octopus-twilight-256.png",
+      "sha256": "2b8690892532034d3b6741f418a5a62123f6e14e3eecf053828f9e07c4704d4f",
+      "display_sha256": "fe03b82c0ecec95397257471762381cde3fee526dd0414635e62b88a23ec7be2",
+      "source_base": "indexed/octopus-indexed-128.png",
+      "source_base_sha256": "3a331480199f1e0c943ddc15717c8fc42d3e0e42b0c077866c8391156395cac1",
+      "native_creature_sha256": "14bba5459fa54795eda77b94adb1f33d08b8303e0ead85dcbcf315c4383cfd91",
+      "palette": {
+        "primary": "#315FBA",
+        "secondary": "#858BB9",
+        "tertiary": "#58D0E4"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "octopus-midnight",
+      "family": "octopus",
+      "depth": "midnight",
+      "depth_name": "Midnight",
+      "file": "depth-variants/octopus-midnight-128.png",
+      "display_file": "depth-variants/octopus-midnight-256.png",
+      "sha256": "c6ef440523b02cc370ea444dab544889e92fef173240f19723a33ddf66ce6a7b",
+      "display_sha256": "eba3c01ae225883f5ab681668a6486db355e7ef2c7d0c692428c1d3f878f358f",
+      "source_base": "indexed/octopus-indexed-128.png",
+      "source_base_sha256": "3a331480199f1e0c943ddc15717c8fc42d3e0e42b0c077866c8391156395cac1",
+      "native_creature_sha256": "14bba5459fa54795eda77b94adb1f33d08b8303e0ead85dcbcf315c4383cfd91",
+      "palette": {
+        "primary": "#47429C",
+        "secondary": "#236B98",
+        "tertiary": "#38E3F2"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "octopus-abyss",
+      "family": "octopus",
+      "depth": "abyss",
+      "depth_name": "Abyss",
+      "file": "depth-variants/octopus-abyss-128.png",
+      "display_file": "depth-variants/octopus-abyss-256.png",
+      "sha256": "0f7f3167ed91afac4cbeb18cb103425986e452e8d2133b3f07ae3131a7bee736",
+      "display_sha256": "b48e4f625a92231a5f8ee96cd9feba0209d1279356706467736eb77351edaa20",
+      "source_base": "indexed/octopus-indexed-128.png",
+      "source_base_sha256": "3a331480199f1e0c943ddc15717c8fc42d3e0e42b0c077866c8391156395cac1",
+      "native_creature_sha256": "14bba5459fa54795eda77b94adb1f33d08b8303e0ead85dcbcf315c4383cfd91",
+      "palette": {
+        "primary": "#17354F",
+        "secondary": "#2C6078",
+        "tertiary": "#7CCEDC"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    },
+    {
+      "id": "octopus-trench",
+      "family": "octopus",
+      "depth": "trench",
+      "depth_name": "Trench",
+      "file": "depth-variants/octopus-trench-128.png",
+      "display_file": "depth-variants/octopus-trench-256.png",
+      "sha256": "b786639b3191b54bba05c4d2c3ebe27c6c9c7161cd500bcf11ef5079dca970ff",
+      "display_sha256": "26f7ad60af1daee3c007facbdfa4dfe84954872acd466c6c455ad8a75a9e3dcf",
+      "source_base": "indexed/octopus-indexed-128.png",
+      "source_base_sha256": "3a331480199f1e0c943ddc15717c8fc42d3e0e42b0c077866c8391156395cac1",
+      "native_creature_sha256": "14bba5459fa54795eda77b94adb1f33d08b8303e0ead85dcbcf315c4383cfd91",
+      "palette": {
+        "primary": "#111A2B",
+        "secondary": "#302B50",
+        "tertiary": "#91DCEA"
+      },
+      "neutral_colors_preserved": {
+        "outline": "#101820",
+        "dark_detail": "#080D10",
+        "light_detail": "#F4F0D8"
+      },
+      "dimensions": [
+        128,
+        128
+      ],
+      "visible_color_count": 6,
+      "alpha": "unchanged binary transparency mask",
+      "generation_method": "Offline exact-RGB palette replacement on one of the six indexed bases; no new generation/API request."
+    }
+  ],
+  "contact_sheet": "depth-contact-sheet.png",
+  "retro_diffusion_spend_for_these_derivatives": 0
+}

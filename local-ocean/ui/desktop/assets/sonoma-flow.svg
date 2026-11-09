@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="base" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#26185d"/><stop offset=".35" stop-color="#5942a9"/><stop offset=".7" stop-color="#e18091"/><stop offset="1" stop-color="#ffcc83"/></linearGradient>
+    <radialGradient id="sun" cx=".75" cy=".18" r=".7"><stop stop-color="#ffe3a5" stop-opacity=".95"/><stop offset=".38" stop-color="#ff9d9e" stop-opacity=".72"/><stop offset="1" stop-color="#9868da" stop-opacity="0"/></radialGradient>
+    <linearGradient id="ribbonA" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffd3a0"/><stop offset=".42" stop-color="#ff8d91"/><stop offset="1" stop-color="#c64da4"/></linearGradient>
+    <linearGradient id="ribbonB" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#3e44a8"/><stop offset=".42" stop-color="#7e5bd1"/><stop offset="1" stop-color="#f3a9d1"/></linearGradient>
+    <linearGradient id="ribbonC" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffe2b4" stop-opacity=".94"/><stop offset=".55" stop-color="#ff99a2" stop-opacity=".8"/><stop offset="1" stop-color="#754fc2" stop-opacity=".25"/></linearGradient>
+  </defs>
+  <path fill="url(#base)" d="M0 0h1600v1000H0z"/><path fill="url(#sun)" d="M0 0h1600v1000H0z"/>
+  <path fill="#362575" fill-opacity=".58" d="M-60 771C180 578 390 492 620 558c239 68 312 298 536 338 142 25 295-27 504-169v332H-60z"/>
+  <path fill="url(#ribbonA)" d="M-90 851C139 650 336 467 567 466c173 0 274 100 402 174 207 119 398 32 721-306-143 262-253 435-424 506-194 81-374-4-544-98-164-91-306-152-476-72-119 55-204 140-336 277z"/>
+  <path fill="url(#ribbonB)" d="M-70 1052c166-246 271-441 478-551 197-104 361-54 522 39 218 126 365 120 700-70-222 231-395 354-567 336-183-20-334-170-503-206-174-37-315 38-630 452z"/>
+  <path fill="url(#ribbonC)" d="M146 1004c181-246 293-452 488-552 182-94 320-62 438 7-155-34-289 27-395 131-116 113-175 261-311 390-67 63-137 99-220 107z"/>
+  <path fill="#fff0d4" fill-opacity=".38" d="M578 636c163-159 309-154 478-53 157 94 295 126 472 64-168 109-319 122-478 35-168-91-293-139-472-46z"/>
+  <path fill="#ffd8d8" fill-opacity=".27" d="M313 894c216-250 338-438 529-475-152 82-244 249-367 414-52 70-106 121-162 159z"/>
+</svg>

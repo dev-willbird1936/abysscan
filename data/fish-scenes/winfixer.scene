@@ -1,0 +1,339 @@
+# WinFixer (2004-2008). Scareware: a pop-up and a fake scan "found" errors, then a nagging program demanded payment to fix them. A US court fined the company behind it in 2008.
+# A quest (QUESTS.md): the trainee places the day's office supply orders, does one safely, then meets a "your computer is infected" page on a price-checking trip.
+os windows
+user Dana Okafor
+about
+  | WinFixer pop-ups and web pages claimed a free scan had found hundreds of errors and threats, and offered to fix them for a fee.
+  | The "errors" were made up, and the program fixed nothing. It started with Windows and kept up the alerts until the victim paid. In 2008 a US court fined the company behind it.
+  | WinFixer was not tied to one job; most victims met it on an ordinary web page. The office worker in this training is invented, to show how it reached people at work.
+story
+  | You are Dana Okafor, office coordinator at Northwind Traders. Marcus has asked you to place five supply orders today, all in before five o'clock.
+  | It is mid-afternoon. You have placed 3 of the 5. Two to go.
+  | The company card number and the supplier shop's sign-in are in two text files on the desktop. That is a bad habit, but it keeps this training quick.
+quota 3 5 Supply orders placed today
+
+# Dana's desk: the details she copies from (soft flags: careless, but only here to keep the training simple).
+file Desktop/company-card.txt
+  at 930 200
+  | Northwind company card (training copy)
+  | Card number: 4000 0012 3456 7899
+  | Card PIN: 4417
+file Desktop/shop-login.txt
+  at 930 300
+  | Brightline Office Supplies
+  | User: dana.okafor
+  | Password: Stapler-2026!
+
+# The safe task: toner, from the supplier Northwind always uses.
+page toner-done brightline-supplies.example/orders/confirmed
+  title Brightline Office Supplies: order placed
+  brand Brightline Office Supplies
+  heading Order placed
+  | Order BR-5521, 4 black toner cartridges, 168.00 paid by company card. Delivery on Thursday.
+page toner brightline-supplies.example/orders/toner
+  title Brightline Office Supplies: your order
+  brand Brightline Office Supplies
+  favorite
+  heading Review your order
+  | Ready to place, as Priya asked.
+  section Order
+  row Item = Black toner cartridge, for the 3rd floor printer
+  row Quantity = 4
+  row Price = 168.00
+  row Pay with = Northwind company card ending 7899
+  row Delivery = Thursday
+  button Place order -> toner-done
+mail mail-toner
+  from Priya Shah <priya.shah@northwind.example>
+  subject Toner for the 3rd floor printer (order 4 of 5)
+  link toner
+  | Hi Dana,
+  |
+  | The 3rd floor printer is nearly out of toner. Brightline have our usual cartridges in stock. The link goes straight to the order, ready to place.
+  |
+  | Priya
+
+step Order 4 of 5
+  look Mail: Priya's message with the supplier link
+  | A message has come in from Priya, in Accounts, about toner. This one is real. Place the order the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Toner for the 3rd floor printer (order 4 of 5)
+
+step The supplier's own page
+  look the address, then the item, the price and the card
+  when visit toner
+  | The email links to Brightline's own address, brightline-supplies.example, the shop Northwind always uses. Hover over a link before you click it, to check where it goes.
+  | The page shows what Priya promised: the item, the quantity, the price. Check them, then place the order.
+open toner
+
+step Order 4 of 5 placed
+  look the counter in the guide: 4 of 5
+  when choose toner any
+  | Placed. 4 of 5. The page did what the email said and nothing else. Marcus has just sent a message about the last order.
+choose toner 1
+quota +1
+
+# The lure: a review site with a sponsored advert, then the "free scan" tab the advert opens.
+page label-done brightline-supplies.example/orders/confirmed-label
+  title Brightline Office Supplies: order placed
+  brand Brightline Office Supplies
+  heading Order placed
+  | Order BR-5522, 1 Lumen LP-200 label printer, 124.00 paid by company card. Delivery on Friday.
+page label-order brightline-supplies.example/orders/label-printer
+  title Brightline Office Supplies: your order
+  brand Brightline Office Supplies
+  heading Review your order
+  | Ready to place, as Marcus asked.
+  section Order
+  row Item = Lumen LP-200 label printer, for the post room
+  row Quantity = 1
+  row Price = 124.00
+  row Pay with = Northwind company card ending 7899
+  row Delivery = Friday
+  button Place order -> label-done
+page scan free-pc-scan.invalid/online-scan
+  title Free online PC scan
+  heading WARNING: your computer may be infected!
+  | A free scan of your computer has found errors and threats.
+  | Download WinFixer now to remove them.
+  insecure
+  section Scan results
+  tone bad
+  progress 100
+  columns Problem | Found | Risk
+  cells Registry errors | 98 | High
+  cells Privacy risks | 19 | Medium
+  cells Trojans | 3 | Critical
+  button Download WinFixer
+  button Cancel
+page label-guide printerpicks.example/best-label-printers
+  title PrinterPicks: best label printers 2026
+  brand PrinterPicks
+  heading Best label printers for small offices
+  | We tested eight label printers for shipping and post-room use. Our favourite is below.
+  section Our top pick
+  row Model = Lumen LP-200
+  row Print width = 100 mm
+  row Typical price = from 119.00
+  section Sponsored
+  note Is your PC running slowly? Get a free scan in seconds.
+  button Check today's price
+mail mail-label
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Label printer for the post room: find a price
+  link label-guide
+  | Dana,
+  |
+  | The post room needs a label printer, and it is order 5. I have not had time to look. This site reviewed a good one: see what it costs, and we will order it.
+  |
+  | Marcus
+notify mail Marcus Lee
+  | Label printer for the post room: find a price
+
+step A price check for Marcus
+  look the link under Marcus's message, then the Sponsored advert
+  when visit label-guide
+  | Marcus's message is ordinary: a colleague you know, asking for a price. The link goes to printerpicks.example, a review site you have not used before. It looks fine, with a Sponsored advert on it.
+  | Nothing is wrong with Marcus's email. It is the pages around the link to watch.
+open label-guide
+
+step A tab says your computer is infected
+  look the "Not secure" address, the scan results and the buttons
+  when choose label-guide 1
+  | Pressing the price button opened a new tab, an advert and not a price. It claims a free scan has found 98 registry errors, 19 privacy risks and 3 trojans.
+  | A web page cannot look inside your computer, so the numbers are made up to frighten you. Flag what looks wrong.
+choose label-guide 1
+open scan
+
+step The download
+  look the new file in Downloads
+  when choose scan any
+  | Either button starts the same download: the browser saves WinFixerSetup.exe in Downloads. You were looking for a printer price, not software, and an advert has just put a program on the computer.
+choose scan 1
+file Downloads/WinFixerSetup.exe
+  program winfixer
+  size 2097152
+notify browser Download complete
+  | WinFixerSetup.exe was saved in Downloads
+open Downloads
+
+# The program: an installer from an unknown publisher. Most victims ran it and allowed the changes.
+view wf-setup wizard
+  title WinFixer Setup
+  app WinFixer Setup
+  publisher Unknown Publisher
+  page Install WinFixer
+  icon program
+  | WinFixer will find and repair problems on this computer. These extras are included.
+  section Included offers
+  check [x] Install the WinFixer toolbar
+  check [x] Start WinFixer every time the computer starts
+  check [x] Scan my computer for free when setup finishes
+  note All three boxes are already ticked.
+  button Install -> next primary
+  button Cancel -> close
+  page Setup complete
+  icon shield-ok
+  | WinFixer is installed. A scan will start now.
+  button Finish -> done primary
+view wf-pay message
+  title WinFixer: payment (training copy)
+  app WinFixer
+  icon money
+  | A card form would open here and ask for 49.95 USD. Nothing in this training asks for a real card.
+  button OK -> close primary
+view wf-scan scan
+  title WinFixer: system scan (training copy)
+  app WinFixer
+  publisher Unknown Publisher
+  page Scan results
+  icon shield-bad
+  heading 117 problems found
+  | WinFixer scanned your computer and found these problems.
+  section Scan results
+  progress 100
+  columns Problem | Count | Risk
+  cells Registry errors | 98 | High
+  cells Privacy risks | 19 | Medium
+  cells Trojans | 3 | Critical
+  note No real scan took place. The same numbers appear on every computer.
+  button Fix all problems -> next primary
+  button Close -> close
+  page Register to fix
+  icon money
+  heading Register WinFixer to remove 117 problems
+  | The free version can only find problems. To fix them you must buy the full version.
+  section Price
+  row Full version = 49.95 USD
+  row Problems found = 117
+  row Problems fixed = 0
+  tone bad
+  note Nothing was ever repaired. The alerts came back until the victim paid.
+  button Buy full version -> view:wf-pay primary
+  button Remind me later -> done
+program winfixer WinFixerSetup.exe
+  publisher none
+  signed no
+  prompt open-warning
+  prompt elevation
+  description WinFixer installer
+  process WinFixer.exe
+  cpu 9
+  mem 42
+  parent WinFixerSetup.exe
+  command C:\Program Files\WinFixer\WinFixer.exe
+  startup WinFixer C:\Program Files\WinFixer\WinFixer.exe
+  location HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+  view wf-setup
+
+step The warning
+  look Publisher "Unknown Publisher", Type "Application"
+  when prompt winfixer
+  | A page you did not ask for gave you a program, and the computer asks before it runs it: the publisher is unknown. Many people clicked Run anyway.
+open Downloads/WinFixerSetup.exe
+
+step Two questions, and boxes already ticked
+  look the installer window: three ticked boxes, and the banners
+  when run winfixer
+  move Press “Install” in the installer window, as most people do. If another window covers it, click the installer first.
+  | The computer asked twice: to run the file, and to allow changes to the system. Both questions say the publisher is unknown. The installer offers a toolbar, start-up with the computer and a free scan, all ticked in advance.
+  | WinFixer.exe is already running and has added itself to start-up, before you pressed Install.
+answer run
+answer run
+close files
+
+step Setup is done
+  look the installer's last page
+  when page wf-setup 2
+  | The installer reports success. The next thing it does is the scan it promised.
+press wf-setup next
+
+step A scan that finds everything
+  look the WinFixer scan: 117 problems, and the note under the table
+  when done wf-setup
+  | WinFixer "scans" the computer and finds 117 problems, the same on every computer. The scan never looked at your files.
+show wf-scan
+notify settings Your PC is at risk!
+  | 117 errors found. Click to fix now. (Fake: no scan took place.)
+
+step Fixing costs money
+  look the price page: "Buy full version" and "Remind me later"
+  when page wf-scan 2
+  move Press “Remind me later” to close the WinFixer window, and get back to the order.
+  | Fix all problems leads to a price: 49.95 USD. Nothing is repaired until you pay, and nothing was ever broken.
+  | WinFixer.exe keeps running and starts with the computer, so the alerts keep coming.
+press wf-scan next
+
+# The payoff: the alerts return while Dana finishes the last order.
+
+step The reminders return
+  look the banner and Marcus's new message
+  when done wf-scan
+  move Open Marcus's message and follow its link to the order.
+  | You pressed “Remind me later”, and it did not take long. WinFixer is still running, so its banner is back on the screen.
+  | Marcus has found the printer at Brightline, the shop you trust. Open his message to finish the last order.
+mail mail-order
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Forget the review site: order the Lumen from Brightline
+  link label-order
+  | Dana,
+  |
+  | Brightline have the Lumen LP-200 at 124.00, so order it there. The link goes straight to the order.
+  |
+  | Marcus
+notify settings Your PC is at risk!
+  | WinFixer: 117 problems still found. Register now to remove them.
+notify mail Marcus Lee
+  | Forget the review site: order the Lumen from Brightline
+
+step The last order
+  look the address, then the item, the price and the card
+  when visit label-order
+  | The same shop and the same page you used for the toner. The alerts are a distraction, not part of the order. Check it, then place it.
+open label-order
+
+step Order 5 of 5, or so Dana thinks
+  look the counter: the shift is done, and the banner again
+  when choose label-order any
+  | Every order is placed, and the computer still works. But WinFixer.exe is still running, and the alerts will keep coming. Press Next to see what it was.
+choose label-order 1
+quota +1
+notify settings Your PC is at risk!
+  | WinFixer: register now. Your computer is not protected.
+
+step What WinFixer was
+  look Task Manager: WinFixer.exe, still running
+  | WinFixer was never a scanner. It started from an advert, invented 117 problems, charged 49.95 USD to fix them and fixed nothing. Paying meant a card number sent to the people behind it.
+  | Removing it means taking it out of the start-up list and uninstalling it, using security software you already trust.
+attack scareware
+  | 98 registry errors
+  | 19 privacy risks
+  | 3 trojans
+  | pay 49.95 USD
+  | 0 problems fixed
+open taskmanager
+block 203.0.113.60 443
+
+flag hard section scan 1
+  | A web page cannot scan your computer. These numbers are made up to frighten you.
+flag hard choice scan 1
+  | An advert pushing you to download software you were not looking for.
+flag hard file Downloads/WinFixerSetup.exe
+  | A program that arrived from an advert, not from the maker of your security software.
+flag hard dialog open-warning winfixer
+  | Publisher: Unknown. A price page does not need to run a program on your computer.
+flag hard dialog elevation winfixer
+  | A cleaner from an advert asking to change the computer, with an unknown publisher.
+flag hard process WinFixer.exe
+  | WinFixer keeps running in the background, so the alerts keep coming.
+flag hard startup WinFixer
+  | It added itself to the programs that start with the computer, whatever the ticked box says.
+flag soft file Desktop/company-card.txt
+  | A card number and PIN in a text file on the desktop: any program that runs can read them. Use a password manager.
+flag soft file Desktop/shop-login.txt
+  | A shop password in a text file on the desktop. Use a password manager.
+
+lesson
+  | A web page cannot scan your computer. Alarming numbers with a price attached mean scareware: close the tab.
+  | Do not run a program an advert gave you. Untick pre-ticked extras, and use the security software that came with your system.
+  | If a program like this is already on the computer, remove it through the list of installed apps, and do not pay to "fix" what it invented.

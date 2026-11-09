@@ -13,11 +13,15 @@ An “intentionally vulnerable toy” must be code written for this project, not
 | Run an old OpenSSL build and exercise Heartbleed | Return fixed synthetic bytes from an original heartbeat toy |
 | Execute historical payloads or working exploit code | Reconstruct the user-facing moment and describe the backend effect |
 
-No code in this project may be copied into a real intrusion path. Never add malware samples, exploit payloads, vulnerable real products, binaries, or archives.
+No code in this project may be copied into a real intrusion path. Never add malware samples, exploit payloads, vulnerable real
+products, binaries or archives to this repository. The detonation sandbox is the one place that runs an upload, and it does so
+under the amendment of 2026-10-23: [`safety-amendment-2026-10-23.md`](safety-amendment-2026-10-23.md).
 
 ## 2. Never acquire or execute malware
 
-Do not download or clone malware, samples, exploit code, or real historical CVE implementations. Historical source URLs in the timeline are references for human readers; the browser loads no source page automatically. Never build a working credential harvester or payload from those references.
+Do not download or clone malware, samples, exploit code, or real historical CVE implementations **into this repository or onto
+a workstation**. A sample may be fetched onto the detonation host alone for a verification run, hashed first, never committed,
+and shredded afterwards, as the amendment sets out. Historical source URLs in the timeline are references for human readers; the browser loads no source page automatically. Never build a working credential harvester or payload from those references.
 
 ## 3. Keep network effects private
 

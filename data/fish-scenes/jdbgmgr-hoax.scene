@@ -1,0 +1,330 @@
+# jdbgmgr.exe "teddy bear" hoax (2002). The file was a real Windows part; the chain email about it was the problem.
+# A quest (QUESTS.md): the trainee sends the day's patient-reminder batches at a dental clinic, sends one real batch, then meets a
+# chain email from a friend that begs Dana to delete a genuine Windows file and warn everyone. There is no malware: the
+# quest is about not overreacting. The clinic, the people and the booking system are made up.
+os windows
+user Dana Okafor
+about
+  | In 2002 a chain email told people that a virus with a teddy-bear icon, jdbgmgr.exe, was hiding on their PC. It said antivirus could not see it, that it would wreck the disk in two weeks, and that the file had to be found by hand and deleted. Then it asked them to warn everyone in their address book.
+  | There was no virus. jdbgmgr.exe was a genuine Windows file, a helper for debugging old Java programs. Almost nobody noticed it was gone, which made the hoax feel like it had worked. The only harm came from people following the email. The clinic, the people and the booking system here are made up.
+story
+  | You are Dana Okafor, front-desk coordinator at Northwind Dental, a clinic with four chairs. Every day you send the patient reminder batches from the clinic's booking system: lists of tomorrow's patients. Priya, the practice manager, writes each batch and emails you a link to it. One of the dentists checks it before you send it.
+  | It is Monday afternoon. You have sent 8 of today's 10 reminder batches. Two to go.
+  | Your booking-system details are in a text file on the desktop. That is a bad habit, but it keeps this training quick.
+quota 8 10 Reminder batches sent today
+spotted signs it was only a hoax
+
+# Dana's desk: the details to copy from (a soft flag: careless, but only here to keep the training simple).
+file Desktop/booking-login.txt
+  at 930 200
+  | Northwind Dental booking system
+  | Staff ID: dana.okafor
+  | Password: Molar-2026!
+
+# The booking system: a sign-in page, and batch 9 behind it.
+page booking-login booking.northwind.example/reminders/sign-in
+  title Northwind Dental: sign in
+  brand Northwind Dental Booking
+  favorite
+  heading Sign in to Reminders
+  | Welcome back. Sign in to send patient reminders.
+  field Staff ID = dana.okafor
+  field secret Password = Molar-2026!
+  button Sign in
+page batch9-sent booking.northwind.example/reminders/b9/sent
+  title Batch 9 sent
+  brand Northwind Dental Booking
+  heading Batch 9 sent
+  | Reminders for Tuesday morning were sent to 6 patients.
+page batch9-held booking.northwind.example/reminders/b9/held
+  title Batch 9 on hold
+  brand Northwind Dental Booking
+  heading Batch 9 on hold
+  | Nothing was sent. Priya is told.
+page batch-9 booking.northwind.example/reminders/b9
+  title Reminder batch 9 of 10: Tuesday morning
+  brand Northwind Dental Booking
+  requires booking-login
+  heading Reminder batch 9 of 10: Tuesday morning
+  | A list of patients waiting for their reminder.
+  section Batch
+  row List = Tuesday 3 November, 8am to 12pm
+  row Patients = 6, from the clinic diary
+  row Message = Your appointment is tomorrow. Reply C to confirm.
+  row Written by = Priya Shah, practice manager
+  row Checked by = Dr Omar Reyes, dentist
+  button Send the reminders -> batch9-sent
+  button Hold and ask Priya -> batch9-held
+
+mail mail-b9
+  from Priya Shah <priya.shah@northwind.example>
+  subject Reminder batch 9: Tuesday morning
+  sent 2026-11-02 13:40
+  link batch-9
+  | Hi Dana,
+  |
+  | The Tuesday morning list is ready in the booking system. Please send the reminders when you can. The link opens the batch.
+  |
+  | Priya
+
+# The Windows folder on Dana's PC. It is there from sign-in, so the "what it has done" chips count only what the scene changes later.
+view jdbgmgr-confirm message
+  title Confirm File Delete
+  icon question
+  | Are you sure you want to delete 'jdbgmgr.exe'?
+  button Yes -> done primary
+  button No -> close
+program jdbgmgr Java Debug Manager
+  publisher Harbor Systems Corporation
+  signed yes
+  description Java Debug Manager (part of Windows)
+folder Home/Windows
+file Home/Windows/explorer.exe
+  size 1033728
+file Home/Windows/notepad.exe
+  size 69120
+file Home/Windows/win.ini
+  size 482
+  | [windows]
+  | load=
+  | run=
+file Home/Windows/jdbgmgr.exe
+  program jdbgmgr
+  size 28672
+
+step Batch 9 of 10
+  look Mail: Priya's message with the batch link
+  | A new reminder batch has come in from Priya, the practice manager. It is a routine one. Send it the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Reminder batch 9: Tuesday morning
+
+step The link goes to the booking system
+  look the link under Priya's message
+  when mail mail-b9
+  | The email links to the clinic's own booking address, booking.northwind.example. Hover over a link before you click it, to check where it goes.
+open mail-b9
+
+step Sign in as usual
+  look the two boxes: Staff ID and Password, as on every visit
+  when visit batch-9
+  move Copy the details from booking-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The booking system asks you to sign in first. Two boxes: Staff ID and Password. Remember what a normal batch looks like.
+open batch-9
+
+step Check, then send
+  look the Batch box: the patients, the message, who wrote it and who checked it
+  when choose booking-login 1
+  | You are in. The Batch box names the patients and the message, and who wrote it and who checked it. Priya wrote it and Dr Reyes checked it. Check the details, then send.
+signin booking-login
+
+step 9 of 10 done
+  look the counter in the guide: one batch left
+  when choose batch-9 any
+  | Done. One batch to go. And another email has just arrived, from Sam Patel, a friend of Dana's.
+choose batch-9 1
+quota +1
+
+# The lure: the chain email itself, from a friend who believes it.
+mail warning
+  from Sam Patel <sam.patel@mailbox.example>
+  subject VIRUS WARNING - please read and pass on!!
+  sent 2026-11-02 14:05
+  | I just found this virus on my computer. It came from my address book, so you probably have it too. Your antivirus will NOT find it!
+  |
+  | 1. Click Start, then Search, and look for the file jdbgmgr.exe (it has a little teddy bear icon).
+  | 2. If you find it, DO NOT OPEN IT. DELETE IT, then empty the Recycle Bin.
+  | 3. Warn everyone in your address book, today. They are at risk too.
+  |
+  | The virus sleeps for 14 days and then destroys your hard disk. Pass this on to everyone you care about.
+  |
+  | Sam
+notify mail Sam Patel
+  | VIRUS WARNING - please read and pass on!!
+
+step A warning from a friend
+  look the sender's private address, the capitals in the subject, and the three steps
+  when mail warning
+  | Sam, a friend of Dana's, sent this from a private address. The email says antivirus cannot see the virus, so it has to be found by hand. It asks Dana to search for jdbgmgr.exe, delete it, empty the {Recycle Bin|Trash} and warn the whole address book. Read it all the way down, and flag anything that looks wrong.
+open warning
+
+step The file is really there
+  look jdbgmgr.exe in the Windows folder, with the name the email gave
+  when open files
+  move Flag jdbgmgr.exe if it looks wrong to you, then press Next to open its Properties box.
+  | Dana searches for it and finds it in the Windows folder. That makes the email feel true. But finding a file is not the same as finding a virus.
+  | The email says it has a teddy-bear icon. This file has a plain program icon, with no bear.
+open Home/Windows
+
+step What Properties says
+  look the {Properties|Get Info} box: Application, a named publisher, a valid signature
+  cue dialog-btn:ok view-btn:done view:jdbgmgr-confirm
+  move Read the {Properties|Get Info} box and click OK. Then, in the Confirm box, click “Yes” or “No”.
+  | The {Properties|Get Info} box says Application, from a named publisher, with a valid digital signature. Malware rarely has a valid signature from a named publisher: that is a good sign, not proof.
+  | The computer also asks if you are sure you want to delete it. Nothing so far shows the email is true.
+dialog properties Home/Windows/jdbgmgr.exe
+show jdbgmgr-confirm
+
+step Delete it, the email says
+  look the Confirm File Delete box: “Yes” or “No”
+  when done jdbgmgr-confirm
+  move Click “Yes” to delete the file, or “No” to keep it.
+  | The email gave orders, a deadline and a scare, so it feels urgent. This is the moment to stop and check, not to click Yes.
+  | Yes sends a genuine Windows file to the {Recycle Bin|Trash} on the strength of one forwarded email. Dana clicks Yes. If you clicked No, the file stays on a real computer: press Next to see what happens to someone who clicks Yes.
+answer ok
+press jdbgmgr-confirm done
+delete Home/Windows/jdbgmgr.exe
+notify files jdbgmgr.exe deleted
+  | That was the Java Debug Manager, a normal Windows file. Nothing here was ever infected.
+open Home/Windows
+
+# What the hoax does: nothing to the computers, everything to the people.
+mail forward
+  folder sent
+  sent 2026-11-02 14:31
+  from Dana Okafor <dana.okafor@northwind.example>
+  to Northwind Dental All Staff <all-staff@northwind.example>
+  subject FW: VIRUS WARNING - please read and pass on!!
+  | Please check your PCs. Sam found this on Sam's computer. See below.
+  |
+  | Search for jdbgmgr.exe, delete it, empty the Recycle Bin and warn everyone in your address book.
+mail panic-priya
+  from Priya Shah <priya.shah@northwind.example>
+  subject Re: FW: VIRUS WARNING - I deleted it too
+  sent 2026-11-02 14:36
+  | Dana, thank you for the warning. I found jdbgmgr.exe on my PC and deleted it. I have also printed your message for the dentists and sent it to my whole address book, just in case.
+  |
+  | Should we stop taking bookings until IT looks at the computers?
+  |
+  | Priya
+notify mail Priya Shah
+  | Re: FW: VIRUS WARNING - I deleted it too
+
+step Dana passes it on
+  look Sent: the warning went to all staff. Then Priya's reply
+  when mail panic-priya
+  | The hoax lives on forwards. Dana sent it to all staff, as it asked, and within minutes Priya has deleted the file, printed the warning for the dentists and mailed it to Priya's own contacts.
+  | Nobody has checked whether it is true. A real alert would come from IT or from security software, with a name behind it.
+open panic-priya
+
+# IT's answer. The hoax reference is defined first so IT's mail can link to it.
+page hoaxcheck hoax-reference.example/jdbgmgr
+  title Hoax reference: the teddy bear email
+  brand Hoax Reference
+  heading The "jdbgmgr.exe teddy bear" email is a hoax
+  | A chain email says a virus with a teddy-bear icon, jdbgmgr.exe, is on your computer and tells you to delete it. This is false.
+  section What the file really is
+  row File = jdbgmgr.exe
+  row Part of = Windows
+  row What it does = Helps debug old Java programs
+  row Signed by = A named publisher, with a valid signature
+  note The file is genuine. Deleting it is not needed and does not make your computer safer. If you deleted it, restore it from the Recycle Bin or the Trash.
+  section Why the email is a hoax
+  item It says antivirus cannot find the virus, so you cannot check it
+  item It tells you to delete a file by hand instead of scanning
+  item It sets a countdown (14 days) to scare you into acting
+  item It tells you to warn everyone in your address book
+mail it-note
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject About the teddy bear warning
+  sent 2026-11-02 15:02
+  link hoaxcheck
+  | Dana, I have had a lot of calls about the jdbgmgr.exe warning. It is a hoax, and the file is a real part of Windows. It was never a virus.
+  |
+  | There is a page that explains how to spot this kind of hoax. Please do not send the warning on, and send any virus warning to me first. If you deleted the file, tell me and I will put it back.
+  |
+  | Marcus, IT
+notify mail Marcus Lee
+  | About the teddy bear warning
+
+step IT answers
+  look Marcus's message and its link
+  when visit hoaxcheck
+  move Open Marcus's message and click its link.
+  | Marcus, who looks after the clinic's computers, says the warning is a hoax and the file is real. The link goes to a hoax reference page.
+  | It lists what the file really is, and the signs of the hoax: a virus nobody can check, a file to delete instead of a scan, a countdown, and "warn everyone". Sam's email had all four.
+open hoaxcheck
+
+# The last real batch.
+page batch10-sent booking.northwind.example/reminders/b10/sent
+  title Batch 10 sent
+  brand Northwind Dental Booking
+  heading Batch 10 sent
+  | Reminders for Tuesday afternoon were sent to 5 patients.
+page batch10-held booking.northwind.example/reminders/b10/held
+  title Batch 10 on hold
+  brand Northwind Dental Booking
+  heading Batch 10 on hold
+  | Nothing was sent. Priya is told.
+page batch-10 booking.northwind.example/reminders/b10
+  title Reminder batch 10 of 10: Tuesday afternoon
+  brand Northwind Dental Booking
+  requires booking-login
+  heading Reminder batch 10 of 10: Tuesday afternoon
+  | A list of patients waiting for their reminder.
+  section Batch
+  row List = Tuesday 3 November, 1pm to 5pm
+  row Patients = 5, from the clinic diary
+  row Message = Your appointment is tomorrow. Reply C to confirm.
+  row Written by = Priya Shah, practice manager
+  row Checked by = Dr Omar Reyes, dentist
+  button Send the reminders -> batch10-sent
+  button Hold and ask Priya -> batch10-held
+mail mail-b10
+  from Priya Shah <priya.shah@northwind.example>
+  subject Last batch: Tuesday afternoon
+  sent 2026-11-02 15:20
+  link batch-10
+  | Dana,
+  |
+  | Marcus says it was a hoax, and is putting my file back. Sorry for the panic. The last list of the day is ready, and it is an ordinary one. The link opens the batch.
+  |
+  | Priya
+notify mail Priya Shah
+  | Last batch: Tuesday afternoon
+
+step Back to work
+  look Mail: Priya's message, then the Batch box on the page
+  when visit batch-10
+  | The last batch is an ordinary one from Priya. Its Batch box names who wrote it and who checked it, like batch 9. Check the details, then send it.
+open batch-10
+
+step 10 of 10, and the hoax is forgotten
+  look the counter: the shift is done
+  when choose batch-10 any
+  | Every batch is sent and the day looks normal. Press Next to see what one chain email cost the clinic.
+choose batch-10 1
+quota +1
+
+step What the hoax did
+  look the animation: a warning that spread by itself
+  | No virus touched a single computer. The hoax spread because kind, worried people did what it asked. It cost the clinic an afternoon of calls, a Windows file deleted on several computers, and trust in the next real warning.
+attack mass-mail-worm
+  | to all staff
+  | printed and mailed on by Priya
+  | a real Windows file deleted on many PCs
+  | no virus anywhere
+mail helpdesk
+  from Northwind IT <servicedesk@northwind.example>
+  subject Helpdesk: 14 messages about one hoax
+  sent 2026-11-02 16:05
+  | This afternoon the service desk took 14 calls and messages about the teddy bear warning. Nobody had a virus. Six people had deleted a real Windows file.
+  |
+  | Northwind IT
+notify mail Northwind IT
+  | Helpdesk: 14 messages about one hoax
+
+flag hard mail warning
+  | A frightening warning from a private address that says antivirus cannot see the virus and asks to be sent to everyone. That is how a chain hoax is built.
+flag hard file Home/Windows/jdbgmgr.exe
+  | The email calls it a virus, but it is a genuine Java debugging tool from a named publisher.
+flag hard dialog properties jdbgmgr
+  | Type: Application, from a named publisher with a valid digital signature. Malware rarely has that: a good sign, not proof.
+flag hard mail panic-priya
+  | Priya deleted the file and passed the warning on, without checking. That is how the hoax spreads.
+flag soft file Desktop/booking-login.txt
+  | Passwords in a text file on the desktop: any program that runs can read them. Use a password manager.
+
+lesson
+  | Do not delete a file because an email tells you to, even from a friend, and do not forward virus warnings. Search the warning on a hoax-reference site first.
+  | A real alert names who sent it, comes from IT or your security software, and does not ask you to pass it on. If a file looks suspicious, check its {Properties|Get Info}: a named publisher and a valid signature are good signs, not proof.
+  | Ask your IT team before you act on a warning. Checking costs a minute; deleting and forwarding costs the file and everyone's trust.

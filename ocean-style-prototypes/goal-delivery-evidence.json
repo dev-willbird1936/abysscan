@@ -1,0 +1,109 @@
+{
+  "primaryUserRequestRecord": "ocean-style-prototypes/USER-REQUEST.md",
+  "primaryDeliverable": {
+    "viewer": "ocean-style-prototypes/index.html",
+    "description": "Standalone six-style art-direction prototype. Each style has five vertically stacked 16:9 ocean-depth panels. Each panel uses its matching unchanged ocean background and a transparent Codex-generated creature composition. The style dropdown replaces all five image pairs.",
+    "styles": [
+      "minimal-silhouettes",
+      "paper-cut",
+      "watercolor",
+      "pixel-art",
+      "field-guide",
+      "screen-print"
+    ],
+    "depths": [
+      "01-sunlight",
+      "02-twilight",
+      "03-midnight",
+      "04-abyss",
+      "05-trench"
+    ],
+    "generator": "Codex native image_gen.imagegen",
+    "creatureLayers": 30,
+    "oceanBackgrounds": 30,
+    "finalLayerFormat": "RGBA PNG 1600x900, transparent backgrounds"
+  },
+  "acceptanceEvidence": [
+    {
+      "requirement": "Six distinct styles, each paired with all five depth tiers",
+      "status": "passed",
+      "evidence": [
+        "ocean-style-prototypes/index.html",
+        "ocean-style-prototypes/creature-browser-verification-after-audit.json"
+      ],
+      "observed": "Six dropdown choices; five 16:9 panels for every choice; all 60 background/creature image files decode and match their selected style folder."
+    },
+    {
+      "requirement": "Native Codex creature compositions exported as transparent overlays over existing ocean panels",
+      "status": "passed",
+      "evidence": [
+        "ocean-style-prototypes/style-depth-delivery-evidence.json",
+        "ocean-style-prototypes/style-depth-integrity-check.json",
+        "ocean-style-prototypes/style-depth-rgba-check.json",
+        "ocean-style-prototypes/creature-source-assets/",
+        "ocean-style-prototypes/creature-assets/"
+      ],
+      "observed": "Thirty distinct native source PNGs and thirty RGBA 1600x900 transparent overlay PNGs; all source and export hashes, dimensions, and alpha bounds rechecked on disk."
+    },
+    {
+      "requirement": "Displayed creature families and depth groupings match the packaged 3D renderer roster",
+      "status": "passed",
+      "evidence": [
+        "ocean-style-prototypes/creature-roster.json",
+        "ocean-style-prototypes/creature-roster-view.js",
+        "ocean-style-prototypes/creature-roster-artwork-audit.json",
+        "ocean-style-prototypes/independent-creature-visual-review.json",
+        "ocean-style-prototypes/creature-roster-browser-preview.png",
+        "ocean-style-prototypes/creature-roster-browser-verification.json",
+        "tools/build-creature-roster-artwork-audit.py",
+        "tests/creature-roster-view.test.mjs",
+        "ui/abyss/assets/index-D8CplD1t.js",
+        "ui/abyss/index.html",
+        "data/attacks.json"
+      ],
+      "observed": "Renderer depth curves, vector-to-creature rules, and attack records reproduce the roster; all 30 overlays were visually checked against the expected family set. Alt text now derives names from the canonical roster instead of a hard-coded per-depth list."
+    },
+    {
+      "requirement": "Changing style switches the complete five-depth set",
+      "status": "passed",
+      "evidence": [
+        "ocean-style-prototypes/creature-browser-verification-after-audit.json",
+        "ocean-style-prototypes/creature-browser-verification.json",
+        "ocean-style-prototypes/creature-roster-browser-verification.json"
+      ],
+      "observed": "Browser dropdown changed sequentially through all six styles; each time it rendered and decoded five backgrounds and five matching creature overlays, with alt names matching the canonical roster."
+    },
+    {
+      "requirement": "Preserve scope: no 3D implementation, no main-app/background changes, no publication",
+      "status": "passed",
+      "evidence": [
+        "ocean-style-prototypes/README.md",
+        "ocean-style-prototypes/USER-REQUEST.md"
+      ],
+      "observed": "The prototype is additive and standalone. Existing ocean backgrounds remain unchanged. The earlier RetroDiffusion comparisons and six-family recolor/evolution study are separate; neither is counted as proof for these 30 Codex-generated style/depth layers."
+    }
+  ],
+  "visualContactSheet": "ocean-style-prototypes/creature-contact-sheet.jpg",
+  "laterSeparateUserRequest": {
+    "viewer": "ocean-style-prototypes/codex-creature-depth-evolution/index.html",
+    "relationship": "Additive family-evolution study; it does not replace the primary six-style/five-depth viewer.",
+    "evidence": [
+      "ocean-style-prototypes/codex-creature-depth-evolution/generation-report.json",
+      "ocean-style-prototypes/codex-creature-depth-evolution/variant-manifest.json",
+      "ocean-style-prototypes/codex-creature-depth-evolution/integrity-verification-recheck.json",
+      "ocean-style-prototypes/codex-creature-depth-evolution/browser-verification-final.json",
+      "ocean-style-prototypes/codex-creature-depth-evolution/visual-review.json",
+      "ocean-style-prototypes/codex-creature-depth-evolution/morphology-review-iteration-01.json",
+      "ocean-style-prototypes/codex-creature-depth-evolution/browser-verification-layout-fix.json",
+      "ocean-style-prototypes/codex-creature-depth-evolution/browser-three-form-preview-layout-fix.png",
+      "ocean-style-prototypes/codex-creature-depth-evolution/browser-three-form-preview.png"
+    ],
+    "scope": "Six families, three forms each: existing base shared by Sunlight/Twilight; one new native Midnight/Abyss form; one new native advanced Trench form. Twelve new Codex-native images and six offline recolored bases."
+  },
+  "limitations": [
+    "Creature layers are representative compositions, not 50 separately interactive species instances.",
+    "Adjacent depth panels are not seamless panorama tiles.",
+    "Codex generation quota/price was not reported.",
+    "Creature layers represent the correct renderer species families by depth, but repeated individual counts are not guaranteed in each generated illustration; the audit records one confirmed Abyss anglerfish undercount."
+  ]
+}

@@ -18,8 +18,8 @@ export const SHELLS = process.env.E2E_SHELLS_URL || `http://${HOST}:${SHELLS_POR
 export const OUT = resolve(process.env.SHOTS_DIR || resolve(PROJECT, 'docs/desktop-parity/screens'));
 export const FAIL_DIR = resolve(process.env.E2E_FAIL_DIR || tmpdir());
 // The headless shell uses far less memory than full Chromium; it is preferred when installed.
-const HEADLESS_SHELL = 'C:/Users/warcr/AppData/Local/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-win64/chrome-headless-shell.exe';
-const CHROME = process.env.CHROME_PATH || (existsSync(HEADLESS_SHELL) ? HEADLESS_SHELL : 'C:/Users/warcr/AppData/Local/ms-playwright/chromium-1243/chrome-win64/chrome.exe');
+const HEADLESS_SHELL = 'C:/Users/<you>/AppData/Local/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-win64/chrome-headless-shell.exe';
+const CHROME = process.env.CHROME_PATH || (existsSync(HEADLESS_SHELL) ? HEADLESS_SHELL : 'C:/Users/<you>/AppData/Local/ms-playwright/chromium-1243/chrome-win64/chrome.exe');
 
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PLAYWRIGHT_CORE || 'C:/Temp/pw-kimi/node_modules/playwright-core');
@@ -31,8 +31,14 @@ const escape = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 export async function start() {
   delete process.env.VULTR_SANDBOX_MODE;
   delete process.env.VULTR_HACKATHON_MODE;
-  const app = createAppServer({ templateShellsEnabled: true, shellOrigin: SHELLS });
-  const shells = createComparisonServer();
+  const app = createAppServer({ templateShellsEnabled: true, shellOrigin: SHELLS,
+    sceneStudioEnabled: process.env.E2E_SCENE_STUDIO === 'true' });
+  const shellRoots = {
+    ...(process.env.E2E_WINDOWS_SHELL_ROOT ? { windows: resolve(process.env.E2E_WINDOWS_SHELL_ROOT) } : {}),
+    ...(process.env.E2E_MACOS_SHELL_ROOT ? { macos: resolve(process.env.E2E_MACOS_SHELL_ROOT) } : {}),
+  };
+  const shells = createComparisonServer({ shellRoots });
+  if (Object.keys(shellRoots).length) console.log('Local fork artifacts:', JSON.stringify(shellRoots));
   await new Promise(resolve => app.listen(PARENT_PORT, HOST, resolve));
   await new Promise(resolve => shells.listen(SHELLS_PORT, HOST, resolve));
   const browser = await chromium.launch(existsSync(CHROME) ? { executablePath: CHROME } : {});

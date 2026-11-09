@@ -216,7 +216,7 @@ for (const file of files) {
         const entry = { path: file.relative, specifier };
         if (file.relative === 'backend/browser-runner-entry.mjs' && specifier === 'playwright') {
           approvedContainerImports.push(entry);
-        } else if (file.relative === '.pi/ocean-check.mjs' && specifier === 'C:/Users/warcr/AppData/Roaming/npm/node_modules/promptfoo/node_modules/playwright-core') {
+        } else if (file.relative === '.pi/ocean-check.mjs' && specifier === 'C:/Users/<you>/AppData/Roaming/npm/node_modules/promptfoo/node_modules/playwright-core') {
           // Existing file-only 2D browser QA uses the harness installation, not an application dependency.
           approvedQaImports.push(entry);
         } else {

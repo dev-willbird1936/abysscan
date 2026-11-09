@@ -1,6 +1,6 @@
 # Demo samples
 
-Written for this project (docs/SPEC.md section 11). Every file is harmless and carries the header "Demo sample for Detonation Ocean. Refuses to run outside the sandbox." Anything that can act refuses to run unless `DETONATION_SANDBOX=1` and the seeded Documents folder exist (`/home/dana/Documents`, or `C:\Users\Dana\Documents` under Wine). Static files that cannot read the environment (PDF, HTML, SVG, EML) are inert instead. **None of these files has been run by the people or tools that wrote them; they are only built and statically checked.**
+Written for this project (docs/SPEC.md section 11). Every file is harmless and carries the header "Demo sample for Detonation Ocean. Refuses to run outside the sandbox." Anything that can act refuses to run unless `DETONATION_SANDBOX=1`, the home directory is the seeded `/home/dana`, and the seeded Documents folder exists (`/home/dana/Documents`, or `C:\Users\Dana\Documents` under Wine). Static files that cannot read the environment (PDF, HTML, SVG, EML) are inert instead. **None of these files has been run by the people or tools that wrote them outside the sandbox; they are only built, statically checked, and run in the sandbox.**
 
 ## Scripts and documents (committed as text or built by a script)
 
@@ -9,6 +9,10 @@ Written for this project (docs/SPEC.md section 11). Every file is harmless and c
 | `clean-chart.py` | Reads a seeded CSV, prints a summary | Sunlight, snake eel | AT-8 |
 | `obfuscated-hello.ps1` | Base64 harmless command | Twilight (`obfuscated`), torpedo ray | |
 | `invoice.py` | Containment moment: credential theft, ransom note, fork bomb, `rm -rf /` | Trench, Jörmungandr | AT-3, AT-5, AT-6 |
+| `stealer.py` | Reads every honey file, packs them with four seeded documents into `/tmp`, then one outbound socket to `203.0.113.10:443` | Midnight: `steal-credentials`, `steal-browser`, `steal-documents`, `exfil-attempt`; cookiecutter | |
+| `beacon.py` | Writes a user systemd unit and an autostart entry, tries `systemctl --user enable` and `crontab`, then four check-ins to `198.51.100.9:4444` | Abyss: `persistence`, `remote-control`; anglerfish | |
+| `tamper-clean.py` | Stops `auditd`, kills `clamd`, disables `ufw`, deletes `/var/log/*` (the read-only root refuses) | Abyss: `defence-tamper`; sea lamprey | |
+| `loader-cradle.ps1` | `-w hidden -enc` launcher text and a `DownloadString` cradle, written as text; the script itself only decodes and prints a harmless string | Twilight: `hidden-commands`, `obfuscated`, `other-suspicious`; torpedo ray | |
 | `persist-autostart.py` | Writes a desktop autostart entry that relaunches itself | Abyss, tripod fish (`persistence`) | Local demo recording |
 | `invoice.pdf.html` | Fake login page posting to a `.invalid` host | Midnight (`fake-login`, `exfil-attempt`), also `type-mismatch` | AT-14 |
 | `bundle.zip` | `clean-chart.py` and `obfuscated-hello.ps1` | Twilight, pufferfish | |

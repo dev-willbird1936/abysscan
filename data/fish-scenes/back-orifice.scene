@@ -1,0 +1,287 @@
+# Back Orifice (1998). A remote-control tool: whoever ran it handed their PC to a stranger on the internet.
+# A quest (QUESTS.md): the trainee files crew timesheets, does one safely, then runs a "funny game" a friend mailed and
+# finds out what the program with the blank name was doing. Dana's job is invented: Back Orifice's victims were ordinary
+# Windows 95 and 98 users, at home and at work, who ran a game or a greeting program someone sent them.
+os windows
+user Dana Okafor
+about
+  | Back Orifice was glued to a harmless-looking program, such as a game, and mailed around. The game ran normally while a hidden remote-control tool installed itself.
+  | Once it was running, a stranger could use the PC from the internet: open and read files, watch the screen, log every key typed, pop up messages and start programs. Its makers, a hacker group, released it in 1998 as a "joke" to show how weak Windows 98 was.
+story
+  | You are Dana Okafor, office coordinator at Northwind Traders. At the start of each week you key last week's warehouse hours into the company payroll portal, one timesheet per crew.
+  | It is Monday morning, 2 November. You have filed 8 of last week's 10 timesheets. Two to go.
+  | Your sign-in details and the crews' bank details sit in text files on the desktop. That is a bad habit, but it keeps this training quick.
+quota 8 10 Timesheets filed this week
+
+# Dana's desk: soft flags (careless, but only here to keep the training simple).
+file Desktop/payroll-login.txt
+  at 300 480
+  | Northwind Payroll Portal
+  | Staff ID: dana.okafor
+  | Password: Crew-Hours-26
+file Desktop/crew-bank-details.txt
+  at 430 480
+  | Warehouse crew bank details (training copy)
+  | Amir Haddad   00-00-00   12345678
+  | Lena Brandt   00-00-00   87654321
+  | Tomas Silva   00-00-00   55555555
+
+# The payroll portal: a sign-in page, and the timesheet pages behind it.
+page pay-login payroll.northwind.example/sign-in
+  title Northwind Payroll: sign in
+  brand Northwind Payroll
+  favorite
+  heading Sign in to the Payroll Portal
+  | Welcome back. Sign in to file your crew timesheets.
+  field Staff ID = dana.okafor
+  field secret Password = Crew-Hours-26
+  button Sign in
+page filed-9 payroll.northwind.example/timesheets/done
+  title Timesheet filed
+  brand Northwind Payroll
+  heading Timesheet filed
+  | Warehouse crew 9: 212 hours for the week ending 30 October 2026 are with Payroll.
+page back-9 payroll.northwind.example/timesheets/returned
+  title Timesheet sent back
+  brand Northwind Payroll
+  heading Timesheet sent back
+  | Warehouse crew 9 goes back to its supervisor to be checked.
+page ts-9 payroll.northwind.example/timesheets/crew-9
+  title File timesheet: Warehouse crew 9
+  brand Northwind Payroll
+  requires pay-login
+  heading File timesheet: Warehouse crew 9
+  | A crew timesheet is waiting to be filed.
+  section Timesheet
+  row Crew = Warehouse crew 9
+  row Week ending = 30 October 2026
+  row Total hours = 212
+  row Employees = 6
+  button File timesheet -> filed-9
+  button Send back to supervisor -> back-9
+
+mail mail-ts9
+  from Priya Shah <priya.shah@northwind.example>
+  subject Timesheet to file: Warehouse crew 9
+  link ts-9
+  | Hi Dana,
+  |
+  | Crew 9's hours are ready in the portal. The link goes straight to the timesheet.
+  |
+  | Priya, Payroll
+
+step Timesheet 9 of 10
+  look Mail: Priya's message with the timesheet link
+  | A new timesheet has come in from Priya, in Payroll. This one is real. File it the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Timesheet to file: Warehouse crew 9
+
+step The link goes to the portal
+  look the link under Priya's message
+  when mail mail-ts9
+  | The email links to the company's own address, payroll.northwind.example. Hover over a link before you click it, to check where it goes.
+open mail-ts9
+
+step Sign in as usual
+  look the two boxes: Staff ID and Password, as on every visit
+  when visit ts-9
+  move Copy the details from payroll-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The portal asks you to sign in first. Two boxes: Staff ID and Password. Remember how quiet the screen is while you type.
+open ts-9
+
+step Check, then file
+  look the crew, the week and the hours
+  when choose pay-login 1
+  | You are in. Check the crew and the hours, then file the timesheet or send it back.
+signin pay-login
+
+# The lure: a game from a friend, with the remote-control tool joined to it. Windows hides the .exe, so it reads whack-the-mole.
+step 9 of 10 done
+  look the counter in the guide: one timesheet left
+  when choose ts-9 any
+  | Done. One timesheet to go. And a personal email has just arrived at your work address.
+choose ts-9 1
+quota +1
+view bo-game panel
+  title Whack-the-Mole
+  app Whack-the-Mole
+  size 520x360
+  icon program
+  heading Whack-the-Mole
+  counter Score: {n} 0 12
+  | Click the moles as fast as you can. Press Quit when you have had enough.
+  button Quit -> close primary
+view bo-msg message
+  title Hello
+  icon info
+  | Hello from your new administrator. I can see your files, your screen and what you type. (Fictional message from the remote controller.)
+  button OK -> done primary
+program whack-the-mole whack-the-mole
+  publisher none
+  signed no
+  prompt open-warning
+  description Funny game
+  process ⠀.exe
+  cpu 3
+  mem 1
+  net UDP 0.0.0.0:31337 (listening for commands)
+  keylog yes
+  parent explorer.exe
+  command C:\Windows\System\ .exe
+  startup ⠀.exe C:\Windows\System\ .exe
+  location HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunServices
+  view bo-game
+mail game
+  from Sam Patel <sam.patel@mailbox.example>
+  subject Funny game, try it
+  attach Downloads/whack-the-mole.exe
+  | Dana, my cousin wrote this thing and it is hilarious. Whack-the-Mole, takes 2 minutes. Try it on your break!
+  |
+  | Sam
+file Downloads/whack-the-mole.exe
+  program whack-the-mole
+  size 233472
+notify mail Sam Patel
+  | Funny game, try it
+
+step A game from a friend
+  look the sender, and the attachment: whack-the-mole, with no document in sight
+  when mail game
+  | From Sam, a friend, at a personal address, with a program attached instead of a link. Windows hides the end of its name: it is really whack-the-mole.exe, a program. Sam's own PC may already be infected, which is how it reached you. Flag anything that looks wrong.
+open game
+
+step Windows asks before it runs
+  look Publisher "Unknown Publisher", Type "Application"
+  when prompt whack-the-mole
+  | A game from a friend still asks whether to run a program from an unknown publisher. Most victims clicked Run.
+open Downloads/whack-the-mole.exe
+
+step The game works fine
+  look the Whack-the-Mole window: it plays normally. And the firewall alert and the notice that appeared with it
+  when run whack-the-mole
+  move Flag the alert if it looks wrong and answer it, then press the chip “1 program running” in the guide to open {Task Manager|Activity Monitor}.
+  cue dialog-btn:ok app:taskmanager
+  | The game really does run, so nothing looks wrong. That is the trick: it also installed a second program, which copied itself into the system folder and now starts every time the computer starts.
+  | It has also just opened port 31337 and is waiting for a stranger to connect. A game has no reason to accept connections from the internet.
+answer run
+dialog firewall Downloads/whack-the-mole.exe
+
+# Priya's last timesheet arrives; the portal signs Dana out, as it does after a while.
+page filed-10 payroll.northwind.example/timesheets/done
+  title Timesheet filed
+  brand Northwind Payroll
+  heading Timesheet filed
+  | Warehouse crew 10: 188 hours for the week ending 30 October 2026 are with Payroll.
+page back-10 payroll.northwind.example/timesheets/returned
+  title Timesheet sent back
+  brand Northwind Payroll
+  heading Timesheet sent back
+  | Warehouse crew 10 goes back to its supervisor to be checked.
+page ts-10 payroll.northwind.example/timesheets/crew-10
+  title File timesheet: Warehouse crew 10
+  brand Northwind Payroll
+  requires pay-login
+  heading File timesheet: Warehouse crew 10
+  | A crew timesheet is waiting to be filed.
+  section Timesheet
+  row Crew = Warehouse crew 10
+  row Week ending = 30 October 2026
+  row Total hours = 188
+  row Employees = 5
+  button File timesheet -> filed-10
+  button Send back to supervisor -> back-10
+signout pay-login
+mail mail-ts10
+  from Priya Shah <priya.shah@northwind.example>
+  subject Last one of the week: Warehouse crew 10
+  link ts-10
+  | Dana,
+  |
+  | Crew 10 is the last timesheet. Same as before: the link opens it in the portal.
+  |
+  | Priya
+
+step A program with a blank name
+  look Task Manager (Activity Monitor on a Mac): a process whose name starts with a blank, and the same name in the start-up list
+  when open taskmanager
+  move Look through the list for a name that starts with a blank. Then open Priya's new email from Mail.
+  | Back Orifice copied itself into the system folder under a name that looks blank, so it hides in a list. It also added itself to the start-up list, so it comes back every time the computer starts.
+  | It is now listening on port 31337 for a stranger's commands, and it records every key. Flag what does not belong. Priya's last timesheet has just arrived.
+answer ok
+open taskmanager
+notify mail Priya Shah
+  | Last one of the week: Warehouse crew 10
+
+step The last timesheet
+  look Mail: Priya's last message
+  when mail mail-ts10
+  | Priya's last timesheet of the week, with a company link like the first one. Open it.
+open mail-ts10
+
+step Signed out
+  look the sign-in page: the same as before, but now something is reading every key
+  when visit ts-10
+  move Sign in again with the details from the desktop file. Watch the network icon while you type.
+  | The portal signed you out, so sign in again. The page is exactly the page you used earlier: nothing on it has changed.
+open ts-10
+
+step Someone else is at the controls
+  look the message box on top of the page, and the network icon
+  when choose pay-login 1
+  move Read the message box that has appeared, then press OK.
+  | You are signed in. Your Staff ID and password went to the stranger as you typed them. And a message box has appeared that you did not open: someone on the internet is using your PC.
+signin pay-login
+show bo-msg
+
+step Programs open by themselves
+  look the Calculator: nobody opened it
+  when done bo-msg
+  | The stranger can start programs on your PC, read your files, watch your screen and log your keys, and from your side of the screen it looks like ghosts. Close the Calculator whenever you like.
+open calculator
+
+step 10 of 10, or so Dana thinks
+  look the counter: the shift is done
+  when choose ts-10 any
+  | Every timesheet is filed, and the work looks normal. Press Next to see what the stranger saw.
+choose ts-10 1
+quota +1
+
+step What the stranger saw
+  look the crew bank details that just opened, and the animation: everything you typed after the game ran
+  | The stranger has the portal password, and opened the crews' bank details on your desktop to read them. Back Orifice gave them everything Dana could do on her PC, past one start-up notice and one firewall alert most people click away.
+open Desktop/crew-bank-details.txt
+attack spyware-surveillance
+  | {captured}
+  | the crew bank details
+  | the screen, live
+  | message boxes
+
+flag hard mail game
+  | A game nobody asked for, with a program attached, from a personal address. A friend's own PC may already be infected.
+flag hard file Downloads/whack-the-mole.exe
+  | A program sent by email, with no known author: running it gives it everything you can do on this PC. Windows hides the .exe at the end of its name.
+flag hard dialog open-warning whack-the-mole
+  | A game from a friend still asks to run as a program. Publisher: Unknown.
+flag hard dialog firewall whack-the-mole
+  | A game has no reason to accept connections from the internet: Back Orifice is opening port 31337 for a stranger.
+flag hard process ⠀.exe
+  label The process with the blank name
+  | Back Orifice running in the background under a name that looks blank, so it hides in the list.
+flag hard startup ⠀.exe
+  label The start-up entry with the blank name
+  | Back Orifice added itself to the programs that start every time Windows does.
+flag hard notice settings New startup item
+  | Windows said a program added itself to start-up when the game ran. A game has no reason to start with the PC.
+flag hard view bo-msg
+  | A message box you never opened, from someone who says they can see your screen: a stranger is controlling this PC.
+flag hard net
+  | Every key you type is recorded for the stranger, who collects the log over the open port.
+flag soft file Desktop/payroll-login.txt
+  | Passwords in a text file on the desktop: any program that runs, or any stranger at the controls, can read them.
+flag soft file Desktop/crew-bank-details.txt
+  | Other people's bank details belong in the payroll system, not in a file on the desktop.
+
+lesson
+  | Do not run programs sent by email, even from friends: their account or PC may already be infected. A game that nobody asked for is the oldest way in.
+  | A game is a program too: Properties (Get Info on a Mac) shows its kind as Application, and an Unknown Publisher warning means nobody vouches for it. A program with a blank or odd name in Task Manager is worth asking IT about.
+  | A personal firewall that blocks unknown programs from answering the internet, and anti-virus that knows the trojan, stop a remote-control tool before a stranger can use it. Keep nothing secret in plain files on the desktop.

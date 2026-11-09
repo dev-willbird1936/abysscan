@@ -1,0 +1,328 @@
+# Podesta phishing (March 2016). A fake "someone has your password" alert led to a lookalike password page.
+# A quest (QUESTS.md): the trainee keeps a campaign chair's diary, confirms one meeting safely, then gets the fake alert.
+# In 2016 the target was a campaign chairman's mail account, and the alert was passed to the campaign's IT staff.
+os windows
+user Dana Okafor
+about
+  | Podesta phishing (March 2016) began with a fake security alert: “Someone has your password”. The link in it was a Bitly short link to a fake Google sign-in page.
+  | The password typed there went to the attackers, who signed in to the mail account and copied its messages. WikiLeaks published tens of thousands of the emails from October 2016. Researchers attributed the attack to GRU's Fancy Bear (APT28), a Russian military-intelligence group.
+  | The campaign, the chair and the staff in this quest are invented.
+story
+  | You are Dana Okafor, scheduler to Helena Brandt, chair of the Northwind Civic campaign. You keep the chair's diary in Helena's mail account.
+  | It is mid-afternoon. Priya, from the events team, sends meeting requests one at a time. You have confirmed 6 of today's 8. Two to go.
+  | The same mail account holds the whole campaign's email: plans, donors, speeches. Your sign-in details are in two text files on the desktop. That is a bad habit, but it keeps this training quick.
+quota 6 8 Meetings confirmed today
+
+# Dana's desk: the details to copy from (soft flags: careless, but only here to keep the training simple).
+file Desktop/mail-login.txt
+  at 470 470
+  | Campaign mail account (the chair's login)
+  | Account: helena.brandt@northwind.example
+  | Password: Harbor-Light-26!
+file Desktop/recovery-codes.txt
+  at 600 470
+  | Campaign mail account: recovery codes (training copy)
+  | Code 1: 7731-4409
+  | Code 2: 2058-9162
+  | Two-step sign-in: switched off
+
+# The provider's own pages: a sign-in page, and the diary behind it.
+page mail-signin mail-account.example/signin
+  title Mail account: sign in
+  brand Mail account
+  favorite
+  heading Sign in to your mail account
+  | Welcome back. Sign in to see your mail and your diary.
+  field Account = helena.brandt@northwind.example
+  field secret Password = Harbor-Light-26!
+  button Sign in
+page confirmed-7 mail-account.example/diary/confirmed
+  title Meeting confirmed
+  brand Mail account
+  heading Meeting confirmed
+  | Meeting 7 of 8 is in the chair's diary. Priya has been told.
+page declined-7 mail-account.example/diary/declined
+  title Meeting declined
+  brand Mail account
+  heading Meeting declined
+  | Meeting 7 of 8 is not in the diary. Priya has been told.
+page meet-7 mail-account.example/diary/meeting-7
+  title Confirm meeting 7 of 8
+  brand Mail account
+  requires mail-signin
+  heading Confirm meeting 7 of 8
+  | A meeting request is waiting for your answer.
+  section Meeting
+  row Event = Donor briefing
+  row When = Tomorrow, 3:00 pm
+  row Place = Committee room 2
+  row Asked by = Priya Shah, events team
+  button Confirm meeting -> confirmed-7
+  button Decline -> declined-7
+
+mail mail-meet7
+  from Priya Shah <priya.shah@northwind.example>
+  to Helena Brandt <helena.brandt@northwind.example>
+  subject Meeting 7 of 8 to confirm: donor briefing
+  link meet-7
+  sent 2026-11-08 14:31
+  | Hi Helena,
+  |
+  | The donor briefing is tomorrow at 3. It is in the diary, waiting for an answer. The link goes straight to it.
+  |
+  | Priya
+
+step Meeting 7 of 8
+  look Mail: Priya's message with the diary link
+  | A new meeting request has come in from Priya. This one is real. Confirm it the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Meeting 7 of 8 to confirm: donor briefing
+
+step The link goes to the provider
+  look the link under Priya's message
+  when mail mail-meet7
+  | The email links to the provider's own address, mail-account.example. Look at where a link goes before you click it.
+open mail-meet7
+
+step Sign in as usual
+  look the two boxes: Account and Password, and the address bar
+  when visit meet-7
+  move Copy the details from mail-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The diary asks you to sign in first. Two boxes: Account and Password. Remember what this page, and its address, normally look like.
+open meet-7
+
+step Check, then confirm
+  look the event, the time and who asked
+  when choose mail-signin 1
+  | You are in. Check the meeting, then confirm it or decline it.
+signin mail-signin
+
+step 7 of 8 done
+  look the counter in the guide: one meeting left
+  when choose meet-7 any
+  | Done. One meeting to go. And another email has just arrived.
+choose meet-7 1
+quota +1
+
+# The lure: a "security alert" with a shortened link, and IT's reply.
+page mail-home mail-account.example/security
+  title Mail account: security checkup
+  brand Mail account
+  heading Your account is secure
+  | Security checkup: no problems found.
+page reset mail-account.example-security-settings.invalid/signin
+  title Mail account: change your password
+  brand Mail account
+  insecure
+  heading Change your password
+  | For your security, confirm your current password first.
+  section Confirm your current password
+  field Account = helena.brandt@northwind.example
+  field secret Password = Harbor-Light-26!
+  note We only use this to check that it is you. It takes a moment.
+  button Continue -> mail-home
+page short-alert short.example/Pk3x9
+  title Redirecting
+  heading Redirecting you
+  | Taking you to your page. If nothing happens, press Continue.
+  button Continue -> reset
+mail alert
+  from Mail account team <no-reply@mail-account-alerts.invalid>
+  to Helena Brandt <helena.brandt@northwind.example>
+  subject Someone has your password
+  link short-alert
+  sent 2026-11-08 15:09
+  | Hi Helena,
+  |
+  | Someone just used your password to try to sign in to your account.
+  | Details: today, 15:09, IP address 203.0.113.77, location: Ukraine.
+  |
+  | We stopped this sign-in attempt. You should change your password immediately.
+  |
+  | Change password:
+notify mail Mail account team
+  | Someone has your password
+
+step A security alert
+  look the sender's address, and the link under “Change password”
+  when mail alert
+  | A message says someone has Helena's password, and that it must be changed now. Look at the sender and the link before you trust them. Flag anything that looks wrong.
+  | Not sure it is real? Dana forwards it to IT (see Sent). IT's answer is already in your inbox.
+open alert
+mail ask-it
+  folder sent
+  from Dana Okafor <dana.okafor@northwind.example>
+  to IT Help Desk <helpdesk@northwind.example>
+  subject Fwd: Someone has your password
+  sent 2026-11-08 15:11
+  | Is this real? It says someone has Helena's password.
+  |
+  | Forwarded message: Someone just used your password to try to sign in to your account. You should change your password immediately.
+mail it-reply
+  from IT Help Desk <helpdesk@northwind.example>
+  subject Re: Someone has your password
+  link mail-home
+  sent 2026-11-08 15:12
+  | This is a legitimate email. Helena needs to change the password immediately, and make sure two-step sign-in is turned on.
+  |
+  | You can do both here:
+notify mail IT Help Desk
+  | Re: Someone has your password
+
+step IT says “legitimate”
+  look the reply from IT Help Desk, and its link
+  when mail it-reply
+  cue link:alert mail:alert app:mail
+  move Go back to the alert and click its “Change password” link. Or press Next.
+  | IT says “This is a legitimate email”. Read the reply twice, and compare IT's link with the alert's link.
+open it-reply
+
+step A short link
+  look the address bar: short.example, and nothing else
+  when visit short-alert
+  | A shortened link hides where it goes. The address says short.example and nothing about the mail provider. Press Continue to see where it leads.
+open short-alert
+
+step The short link opens a lookalike sign-in page
+  look the address bar of the sign-in page, and any warning the browser shows
+  when choose short-alert 1
+  move Change the password as the message says: click a box and press any keys to type the same details as before, then click “Continue”.
+  | Continue leads to a copy of the mail provider's sign-in page, at an address that only starts with the provider's name.
+  | Look at that address, and at the browser's warning. The page asks for your current password first.
+choose short-alert 1
+
+step The page says all is well
+  look the security checkup: nothing looks wrong
+  when choose reset 1
+  | The password went to the attackers when you pressed the button. The page then sends you to the provider's own site, which says all is well, so you suspect nothing.
+signin reset
+
+# Back to work: the provider signs Dana out, as it does after a while. The attackers' own computer is now in the mailbox.
+page mail-signin mail-account.example/signin
+  title Mail account: sign in
+  brand Mail account
+  favorite
+  heading Sign in to your mail account
+  | Your session has ended. Please sign in again.
+  field Account = helena.brandt@northwind.example
+  field secret Password = Harbor-Light-26!
+  button Sign in
+page confirmed-8 mail-account.example/diary/confirmed
+  title Meeting confirmed
+  brand Mail account
+  heading Meeting confirmed
+  | Meeting 8 of 8 is in the chair's diary. Priya has been told.
+page declined-8 mail-account.example/diary/declined
+  title Meeting declined
+  brand Mail account
+  heading Meeting declined
+  | Meeting 8 of 8 is not in the diary. Priya has been told.
+page meet-8 mail-account.example/diary/meeting-8
+  title Confirm meeting 8 of 8
+  brand Mail account
+  requires mail-signin
+  heading Confirm meeting 8 of 8
+  | The last meeting request is waiting for your answer.
+  section Meeting
+  row Event = Press call
+  row When = Tomorrow, 5:30 pm
+  row Place = Phone
+  row Asked by = Priya Shah, events team
+  section Signed-in devices
+  row Dana's laptop = 192.0.2.10, now
+  row Unknown device = 203.0.113.60, a few minutes ago
+  tone bad
+  note These devices can read your mail.
+  button Confirm meeting -> confirmed-8
+  button Decline -> declined-8
+signout mail-signin
+mail mail-meet8
+  from Priya Shah <priya.shah@northwind.example>
+  to Helena Brandt <helena.brandt@northwind.example>
+  subject Last one for today: press call
+  link meet-8
+  sent 2026-11-08 15:18
+  | Hi Helena,
+  |
+  | The press call is the last meeting. Same as before: the link opens it in the diary.
+  |
+  | Priya
+notify mail Priya Shah
+  | Last one for today: press call
+
+step The last meeting
+  look Mail: Priya's last message
+  when mail mail-meet8
+  | Priya's last request of the day, with a link to the provider's real address, like the first one. Open it.
+open mail-meet8
+
+step Signed out
+  look the sign-in page: it is the provider's real one
+  when visit meet-8
+  move Sign in again with the details from mail-login.txt: click a box and press any keys to type, then click “Sign in”.
+  | The provider signed you out, so sign in again. This is the real page. You “changed” your password, yet the old one still works.
+open meet-8
+
+step Confirm the last one
+  look the list of signed-in devices under the meeting
+  when choose mail-signin 1
+  | You are in. Under the meeting, the account lists the devices that are signed in: your laptop, and an unknown device with an address you have never used.
+signin mail-signin
+
+step 8 of 8, and the mailbox is copied
+  look the counter, then the recent activity list and the notifications
+  when choose meet-8 any
+  | Every meeting is confirmed, and almost nothing on the screen looks wrong.
+  | The unknown device did the damage: with the password, it signed in and downloaded every email. Tens of thousands were later published.
+choose meet-8 1
+quota +1
+
+view signins panel
+  title Mail account: recent activity
+  app Mail account
+  size 380x320
+  heading Recent sign-ins
+  icon shield-bad
+  section Devices that signed in
+  columns Device | Address | Time
+  cells Dana's laptop | 192.0.2.10 | Today 15:25
+  cells Unknown device | 203.0.113.60 | Today 15:22
+  tone bad
+  section Mailbox export
+  row Messages copied = about 50,000
+  row Started by = Unknown device
+  tone bad
+  note This is what the attackers did with the stolen password.
+  button Close -> close primary
+
+attack credential-phish
+  | the mail password
+  | a new sign-in
+  | every message copied
+notify mail New sign-in to the chair's mailbox
+  | The account was used from a new device at 203.0.113.60.
+notify mail Mailbox export started
+  | Every message in the mailbox is being downloaded by the new device.
+show signins
+
+flag hard mail alert
+  | An unknown sender, mail-account-alerts.invalid, not the provider, with a scare (“someone has your password”) and an order to change it now.
+flag hard link alert
+  | A shortened link: its address says nothing about where it goes, and it leads to a copy of the sign-in page.
+flag hard mail it-reply
+  | IT calls the alert “legitimate”, a one-word slip for “illegitimate”. IT's own link went to the provider; the alert's did not. Ask again, or go to the provider's site yourself.
+flag hard section reset 1
+  | A password page on mail-account.example-security-settings.invalid: it starts with the provider's name, but it belongs to someone else, and the browser flags it as not secure.
+flag hard field reset 2
+  | Your current password, typed on a lookalike page marked Not secure: this box sends it to the attackers.
+flag hard section meet-8 2
+  | An unknown device is signed in to the account: the attackers, using the password you typed.
+flag soft file Desktop/mail-login.txt
+  | A password in a text file on the desktop: any program that runs can read it. Use a password manager.
+flag soft file Desktop/recovery-codes.txt
+  | Recovery codes belong in no file at all, and two-step sign-in was switched off.
+
+lesson
+  | To change a password, go to the provider's site yourself, never through a link in a warning email. Even a link from IT should lead to the provider's own address: check it first.
+  | A shortened link hides where it goes. If you are unsure about a warning, ask IT, then check their answer against the provider's own address.
+  | Use two-factor sign-in, so a stolen password alone does not open the mailbox.

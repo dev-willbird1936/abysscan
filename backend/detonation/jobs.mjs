@@ -219,12 +219,13 @@ export function createJobController({
   logger = console.log,
   stages: stageOverrides = {},
   desktopHub, // the server's in-process DesktopEventHub: the evidence replay (9.1) is published to it under a random replay id; without it there is no replay
-  inference = createInferenceClient({ env }),
+  inference = createInferenceClient({ env, capFile: join(dataDir, 'inference-calls.log') }),
   caps: capOverrides = {},
   limits: limitOverrides = {},
   seedSource = SEED_SOURCE,
   reaperIntervalMs = MINUTE_MS,
   batchIntervalMs = 5 * MINUTE_MS,
+  oceanBase = [], // the base fish shown before any upload (ocean-state.mjs loadBase); the server passes data/ocean-base.json
 } = {}) {
   const stages = { ...defaultStages(env), ...Object.fromEntries(Object.entries(stageOverrides).filter(([, stage]) => stage)) };
   const caps = { ...CAPS_MS, ...capOverrides };
@@ -236,6 +237,8 @@ export function createJobController({
   const seedImage = env.DETONATION_SEED_IMAGE || env.DETONATION_DETONATE_IMAGE || 'detonation-ocean/detonate';
   const jobsDir = join(dataDir, 'jobs');
   const canaryFile = join(dataDir, 'host-canary');
+  const canaryBaselineFile = join(dataDir, 'host-canary.sha256');
+  const quarantineFile = join(dataDir, 'host-canary.quarantine');
   const oceanFile = join(dataDir, 'ocean-state.json');
   const now = () => clock().getTime();
   const jobs = new Map();
@@ -350,7 +353,8 @@ export function createJobController({
       const tier = sizeTier(sealed.size);
       const path = pathFor(found, tier, wineApproved);
       const extension = safeExtension(found.claimedExtension);
-      ctx.typed = { detectedType: found.detectedType, claimedExtension: extension, path, mismatch: found.mismatch, sizeTier: tier };
+      ctx.typed = { detectedType: found.detectedType, claimedExtension: extension, path, mismatch: found.mismatch, sizeTier: tier,
+        ...(found.recognitionUncertain ? { recognitionUncertain: true } : {}) };
       ctx.sizeBytes = sealed.size;
       ctx.head = Buffer.from(sealed.detectable.subarray(0, HEAD_BYTES)); // lets the compatibility chain recognise an .asar archive
       ctx.sampleSha256 = sealed.sha256; // memory only: dedup within the job (5.4)
@@ -468,6 +472,7 @@ export function createJobController({
           // Parts of a PyInstaller bundle or an Electron app are read, never run: the type stays what it is, the path is inspect.
           const typed = {
             detectedType: childFound.detectedType, claimedExtension: safeExtension(childFound.claimedExtension), mismatch: childFound.mismatch, sizeTier: childTier,
+            ...(childFound.recognitionUncertain ? { recognitionUncertain: true } : {}),
             path: child.inspectOnly ? 'inspect' : pathFor(childFound, childTier, wineApproved), ...(child.inspectOnly ? { inspectOnly: true } : {}),
           };
           const next = { index: items.length, parent: item.index, depth: item.depth + 1, typed, supported: childFound.supported && childTier !== 'static', from: child.path, size: child.size, head: child.head };
@@ -493,7 +498,19 @@ export function createJobController({
       const at = clock().toISOString();
       const identify = items.flatMap(item => tagged([
         ...(item.typed.mismatch ? [{ source: 'identify', kind: 'type-mismatch', detail: 'The content type differs from the extension.', at, detectedType: item.typed.detectedType, claimedExtension: item.typed.claimedExtension }] : []),
-        ...(item.supported ? [] : [{ source: 'identify', kind: 'unsupported-type', detail: 'Type outside the supported set or over 10 MB; inspected only.', at, detectedType: item.typed.detectedType }]),
+        // A file whose type is known and fully inspected is not an analysis gap: a text file, an image or a font has nothing to
+        // run, and saying the job is incomplete forever made every package holding a README look unfinished. Only content that
+        // could not be identified at all stays `unsupported-type`, which is the kind that raises the incomplete signal.
+        ...(item.supported ? [] : [{
+          source: 'identify',
+          kind: item.typed.detectedType === 'unknown' || item.typed.recognitionUncertain ? 'unsupported-type' : 'inspected-only',
+          detail: item.typed.recognitionUncertain
+            ? `Text was detected, but the claimed .${item.typed.claimedExtension} script format could not be confirmed. Inspected only; script behaviour was not tested.`
+            : item.typed.detectedType === 'unknown' ? 'The content could not be identified, so it was inspected only.'
+              : `Identified as ${item.typed.detectedType}; this type is not run in this build, so it was inspected instead.`,
+          at,
+          detectedType: item.typed.detectedType,
+        }]),
       ], item.index));
       const { evidence, truncated } = normaliseEvidence([...identify, ...produced, ...gathered.trace, ...(gathered.collected?.evidence ?? [])]);
       ctx.evidence = evidence;
@@ -547,9 +564,13 @@ export function createJobController({
       const uploadDeleted = await rm(jobDir, { recursive: true, force: true }).then(() => !existsSync(jobDir), () => false);
       const hostAfter = await hashFile(canaryFile).catch(() => null);
       const hostCanary = compareCanary(hostBefore, hostAfter);
-      if (!removed.confirmed || !uploadDeleted) {
+      if (!removed.confirmed || !uploadDeleted || hostCanary !== 'unchanged') {
         acceptingJobs = false;
-        log({ job: jobId, operator: 'teardown unconfirmed; uploads stopped until restart', containersAndVolumes: removed.confirmed, uploadDeleted });
+        if (hostCanary !== 'unchanged') {
+          try { await writeFile(quarantineFile, 'Host canary changed or could not be read. Reconcile before removing this marker.\n', { flag: 'wx', mode: 0o600 }); }
+          catch (error) { if (error.code !== 'EEXIST') log({ job: jobId, error: 'host canary quarantine marker could not be written' }); }
+        }
+        log({ job: jobId, operator: 'integrity or teardown unconfirmed; uploads stopped', containersAndVolumes: removed.confirmed, uploadDeleted, hostCanary });
       }
       const receipt = buildReceipt({
         jobId, containers: ctx.containers, teardown: removed, uploadDeleted, hostCanary,
@@ -557,7 +578,10 @@ export function createJobController({
       });
       if (validateReceipt(receipt).ok) emit(job, 'receipt', receipt);
       log({ job: jobId, limitsHit: receipt.limitsHit, teardownConfirmed: removed.confirmed, teardownErrors: removed.errors.length, uploadDeleted, hostCanary });
-      if (!failure && !receiptAllowsDone(receipt)) fail(new JobError(500, 'Teardown or the receipt check failed.'));
+      if (!failure && !receiptAllowsDone(receipt)) fail(new JobError(500, hostCanary === 'unknown'
+        ? 'The host canary could not be read. Uploads are paused.'
+        : hostCanary === 'changed' ? 'The host canary changed. Uploads are paused.'
+          : 'Sandbox cleanup could not be confirmed. Uploads are paused.'));
 
       if (failure) {
         job.state = 'failed';
@@ -631,7 +655,7 @@ export function createJobController({
 
   function applyPending() {
     try {
-      applyBatch(oceanState, pending);
+      applyBatch(oceanState, pending, clock());
       saveState(oceanFile, oceanState);
     } catch (error) {
       log({ error: `ocean batch: ${error?.name ?? 'Error'}` });
@@ -647,7 +671,7 @@ export function createJobController({
     submit,
     applyPending,
     reapOnce: housekeeping,
-    oceanView: () => publicView(oceanState, batchAt),
+    oceanView: () => publicView(oceanState, batchAt, oceanBase),
     getJob: id => jobs.get(id) ?? null,
     artifact: (job, name) => job.artifacts.get(name) ?? null,
     /** Constant-time check of a presented bearer token against the job's digest. */
@@ -665,12 +689,19 @@ export function createJobController({
     async start() {
       await rm(jobsDir, { recursive: true, force: true });
       await mkdir(jobsDir, { recursive: true, mode: 0o755 });
-      if (!existsSync(canaryFile)) await writeFile(canaryFile, randomBytes(32), { mode: 0o600 });
+      if (!existsSync(quarantineFile) && !existsSync(canaryFile) && !existsSync(canaryBaselineFile)) await writeFile(canaryFile, randomBytes(32), { flag: 'wx', mode: 0o600 });
+      // The first start on an existing installation records its current canary once. Later starts never silently accept a new baseline.
+      const canaryHash = await hashFile(canaryFile).catch(() => null);
+      if (canaryHash && !existsSync(canaryBaselineFile) && !existsSync(quarantineFile)) {
+        try { await writeFile(canaryBaselineFile, `${canaryHash}\n`, { flag: 'wx', mode: 0o600 }); }
+        catch (error) { if (error.code !== 'EEXIST') log({ error: 'host canary baseline could not be written' }); }
+      }
+      const expected = await readFile(canaryBaselineFile, 'utf8').catch(() => null);
       const first = await housekeeping(0);
-      acceptingJobs = first.errors.length === 0;
+      acceptingJobs = first.errors.length === 0 && canaryHash !== null && expected === `${canaryHash}\n` && !existsSync(quarantineFile);
       timers = [setInterval(() => housekeeping(), reaperIntervalMs), setInterval(applyPending, batchIntervalMs)];
       for (const timer of timers) timer.unref();
-      log({ started: true, acceptingJobs });
+      log({ started: true, acceptingJobs, canaryQuarantined: existsSync(quarantineFile) || expected !== `${canaryHash}\n` });
     },
     stop() { timers.forEach(clearInterval); timers = []; },
   };

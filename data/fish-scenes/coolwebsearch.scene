@@ -1,0 +1,331 @@
+# CoolWebSearch (2003-2006). A browser hijacker that changed the home page and search and kept coming back.
+# A quest (QUESTS.md): the trainee is an office coordinator finishing the staff newsletter. Dana approves a print proof safely,
+# then a colleague's tip for "free cursors" leads to a download page, and CoolWebSearch takes over the browser.
+# The victim is invented: the hijacker hit office and home users alike, mostly people who wanted free screensavers and cursors.
+os windows
+user Dana Okafor
+about
+  | CoolWebSearch was not one program but a family of them. It got in through browser flaws and "free" downloads such as cursors and screensavers, often with no window at all.
+  | It then took over the home page, the search page and the error pages, opened pop-ups, edited the hosts file so security sites would not load, and put itself back when removed.
+  | Dana and the company are invented: the hijacker hit anyone who went looking for something free to make their screen more fun.
+story
+  | You are Dana Okafor, office coordinator at Northwind Traders. Once a month you put together the staff newsletter, and today is deadline day.
+  | It is early afternoon. You have finished 3 of the 5 newsletter jobs. Your browser opens on the Northwind intranet, as it always does. Two jobs to go.
+  | IT has paused updates on this PC until the newsletter software is certified, and left a note on the desktop. That is a bad habit, and it is why this browser has no recent fixes.
+quota 3 5 Newsletter jobs done today
+
+# Dana's desk: a demo convenience, so a soft flag.
+file Desktop/it-note.txt
+  at 930 200
+  | IT note (training copy)
+  | Windows and browser updates are paused on this PC until the newsletter software is certified.
+
+# The browser as it should be: it opens on the company intranet.
+page intranet intranet.northwind.example
+  title Northwind intranet
+  brand Northwind Traders
+  favorite
+  heading Northwind intranet
+  | Welcome back, Dana.
+  section Today
+  row Newsletter deadline = Friday, 4 pm
+  row Printer proofs = printco.example
+  row Staff offsite = Hartley Hall
+homepage intranet
+open intranet
+
+# The safe round: the print shop's proof, on its own address.
+page proof-ok printco.example/proofs/NW-212/approved
+  title Proof approved
+  brand PrintCo Proofs
+  heading Proof approved
+  | Newsletter NW-212 goes to print this evening. Delivery tomorrow morning.
+page proof-changes printco.example/proofs/NW-212/changes
+  title Changes requested
+  brand PrintCo Proofs
+  heading Changes requested
+  | We will send a new proof within the hour.
+page proof printco.example/proofs/NW-212
+  title Approve proof: NW-212
+  brand PrintCo Proofs
+  heading Approve proof: NW-212
+  | The proof of the staff newsletter is ready for your approval.
+  section Proof
+  row Job = Northwind staff newsletter, November
+  row Pages = 4, full colour
+  row Copies = 120
+  row Delivery = Northwind Traders, front desk
+  button Approve proof -> proof-ok
+  button Ask for changes -> proof-changes
+mail mail-proof
+  from Priya Shah <priya.shah@northwind.example>
+  subject Newsletter job 4 of 5: approve the print proof
+  link proof
+  | Hi Dana,
+  |
+  | PrintCo has sent the proof of the newsletter. The link goes straight to it: look it over and approve it.
+  |
+  | Priya
+notify mail Priya Shah
+  | Newsletter job 4 of 5: approve the print proof
+
+step The link goes to the print shop
+  look Mail: Priya's message with the proof link
+  when mail mail-proof
+  | Priya has sent the print shop's proof of the newsletter. Approve it the usual way, so you know what normal looks like.
+  | The email links to the print shop's own address, printco.example, which Northwind has used for years. Hover over a link before you click it, to check where it goes.
+open mail-proof
+
+step Check the proof
+  look the job, the pages and the copies
+  when visit proof
+  move Check the job and the number of copies, then click “Approve proof”.
+  | The proof page is short: the job, the pages, the copies and two buttons. Nothing to install and nothing to sign in to.
+open proof
+
+step Job 4 of 5 done
+  look the counter in the guide: one job left, or so it seems
+  when choose proof any
+  | Approved. Four jobs done. And another email has just arrived: Marcus has found something for the newsletter.
+choose proof 1
+quota +1
+
+# The lure: a colleague's tip for free cursors, and a page that offers a program.
+view cws-installer message
+  title Smiley Cursors Plus
+  app Smiley Cursors Plus
+  icon info
+  | Thank you for installing Smiley Cursors Plus.
+  button OK -> close primary
+program cws SmileyCursorsPlus-setup
+  publisher none
+  signed no
+  prompt open-warning
+  description Free cursors and screensavers
+  process msconfd.exe
+  cpu 5
+  mem 21
+  parent explorer.exe
+  command C:\Windows\System32\msconfd.exe
+  startup msconfd C:\Windows\System32\msconfd.exe
+  location HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+  view cws-installer
+page cws-lure free-cursors.invalid
+  title Free cursors and screensavers
+  brand Free Cursors
+  heading Smiley Cursors Plus
+  | Free animated cursors and screensavers. Make your PC fun! Click Download, then run the file.
+  section Preview
+  item Bouncing smiley pointer
+  item Rainbow trail
+  item Falling snow screensaver
+  section Download
+  row File = SmileyCursorsPlus-setup.exe
+  row Size = 209 KB
+  row Cost = Free
+  button Download SmileyCursorsPlus-setup.exe
+mail mail-cursors
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Free cursors for the newsletter
+  link cws-lure
+  | Dana,
+  |
+  | For the newsletter's last page, I found a site with free animated cursors and screensavers. My PC looks great with them. Try the link.
+  |
+  | Marcus
+notify mail Marcus Lee
+  | Free cursors for the newsletter
+
+step A tip from Marcus
+  look Mail: Marcus's message with a link to a free-download site
+  when mail mail-cursors
+  | Marcus is a real colleague and means well, so the email itself is fine. The link goes to a site Dana has never used.
+  | The link does not go to Northwind or to the print shop. Look at the address before you click it.
+open mail-cursors
+
+step Free cursors
+  look the page: the Download section and the file name in it
+  when visit cws-lure
+  move Read the Download section under the preview, then click “Download SmileyCursorsPlus-setup.exe”.
+  | The page offers a small program. Cursors are pictures: they should not need a program to run.
+  | Many victims never got this far: on an unpatched browser the page could install CoolWebSearch by itself.
+open cws-lure
+
+step The program arrives
+  look the new file in Downloads
+  when choose cws-lure 1
+  | The download finished and left a program in Downloads. Nothing has run yet.
+file Downloads/SmileyCursorsPlus-setup.exe
+  program cws
+  size 214016
+notify browser Download complete
+  | SmileyCursorsPlus-setup.exe is in your Downloads folder.
+open Downloads
+
+step The warning almost nobody reads
+  look the warning: a program from an unknown publisher
+  when prompt cws
+  move Double-click “SmileyCursorsPlus-setup” in Downloads.
+  | When the file is opened, the computer asks whether to run a program from an unknown publisher. This warning was the last chance to stop it.
+open Downloads/SmileyCursorsPlus-setup.exe
+
+step It installs and hides
+  look the browser's new home page, and the activity chips: msconfd.exe and the start-up entry
+  when run cws
+  | A short thank-you box and nothing else. In the background it starts msconfd.exe, a name made to look like part of Windows, and adds itself to the start-up list so it starts every time Dana signs in.
+  | The home page and the search page are changed now too: the browser jumps to a page nobody asked for. Another email has come in: the last job.
+# The browser is Dana's no more. A dead venue link lands on the hijacker's results instead of the browser's error page.
+page cws coolwebsearch.invalid
+  title CoolWebSearch
+  heading CoolWebSearch
+  toolbar CoolBar
+  | Search the web
+  section Hot links
+  tone injected
+  item Casino bonus
+  item Pharmacy online
+  item Fast loans
+  item Free screensavers
+  note Sponsored results. This is a training copy.
+page venue hartley-hall.example/directions-2025
+  title CoolWebSearch: did you mean
+  heading Did you mean one of these?
+  toolbar CoolBar
+  | The page you asked for could not be found, so here are sponsored results instead.
+  section Sponsored results
+  tone injected
+  item Casino bonus
+  item Pharmacy online
+  item Fast loans
+  note Sponsored results. This is a training copy.
+  button Search again
+homepage cws
+open cws
+answer run
+mail mail-venue
+  from Priya Shah <priya.shah@northwind.example>
+  subject Newsletter job 5 of 5: offsite directions
+  link venue
+  | Dana,
+  |
+  | Last job: the offsite page needs the directions and parking for Hartley Hall. I have pasted the link from last year's offsite newsletter, which goes to the venue's own website.
+  |
+  | Priya
+notify mail Priya Shah
+  | Newsletter job 5 of 5: offsite directions
+
+step Job 5 of 5
+  look Mail: Priya's message about the offsite directions
+  when mail mail-venue
+  | The last newsletter job needs the venue's directions. Priya's link goes to the venue's own website.
+open mail-venue
+
+step The venue's page is not the venue's
+  look the address bar and the page: a "Did you mean" list, not the venue's directions
+  when visit venue
+  move Look at the page, then click “Search again”. Flag anything that looks wrong.
+  | The venue's page is gone, so the old link is dead. A dead link should show the browser's own "page not found" page.
+  | Instead, the browser shows a CoolWebSearch results list with a toolbar nobody asked for. Nothing else looks broken, only different.
+open venue
+
+# Pop-ups that come back: Close on the second one reopens the first, and the browser settings are locked.
+view cws-popup-1 message
+  title Message from the web
+  app Browser
+  icon warning
+  | You have been selected! Claim your free prize now.
+  | This is a training copy of the kind of pop-up CoolWebSearch opened.
+  button Claim now -> none primary
+  button Close -> close
+view cws-popup-2 message
+  title Hot links
+  app Browser
+  icon info
+  | Cheap pills, casino bonus, fast loans.
+  | A pop-up that opens again and again.
+  button Open -> none primary
+  button Close -> done
+view cws-options panel
+  title Browser settings: Home page
+  app Browser
+  icon gear
+  heading Home page and search
+  section On start
+  row Home page = http://coolwebsearch.invalid
+  row Search engine = CoolWebSearch
+  note This setting is greyed out and set by a program on this PC. Changing it does not stick.
+  button Use a blank page -> done
+  button Close -> close primary
+
+step Pop-ups on their own
+  look the two pop-up windows
+  when choose venue any
+  move Close both pop-ups with their Close button.
+  | The search does nothing useful, and pop-ups open on their own, even though no page asked for them.
+show cws-popup-1
+show cws-popup-2
+
+step They come back
+  look the browser settings window, and the pop-up that opened again
+  when done cws-popup-2
+  move In the settings window, click “Use a blank page”.
+  | Closing a pop-up does not end them: the program opens another. Dana opens the browser's settings to put the home page back, and finds the setting greyed out.
+show cws-popup-1
+show cws-options
+
+step It will not go away
+  look the hosts copy in Documents, and the browser's home page: CoolWebSearch again
+  when done cws-options
+  | Dana sets a blank page. It looks as if it worked, then a hidden program writes coolwebsearch.invalid back within minutes. The newsletter is finished, and the browser is not Dana's any more.
+  | The hosts copy in Documents shows why: the security sites point at the hijacker's address, so the cleanup tools cannot load. Dana gives up and phones the venue for the directions.
+close cws-popup-1
+close cws-options
+open cws
+file Documents/hosts.txt
+  | Copy of C:\Windows\System32\drivers\etc\hosts (training copy)
+  | 203.0.113.7 security-vendor.example
+  | 203.0.113.7 www.security-vendor.example
+open Documents
+quota +1
+
+step What CoolWebSearch did
+  look the animation: the home page, the searches, the pop-ups
+  | For years this family took over the home page, the search and the error pages of anyone who ran one "free" program or visited one unpatched page.
+  | It watched the searches and the mistyped addresses, and sold that traffic as advertising.
+  | Nothing was locked. The harm was the control, and how hard it was to give back: removal tools often had to be run in Safe Mode.
+attack spyware-surveillance
+  | the home page
+  | the search page
+  | pop-ups
+  | security sites blocked
+  | reinstalled itself
+block 203.0.113.7 80
+
+flag hard link mail-cursors
+  | A tip pointing to a free-download site nobody at Northwind uses, not to the company or the print shop. Check where a link goes before you click.
+flag hard section cws-lure 2
+  label The Download box: a setup program for cursors
+  | The page offers a setup program for cursors. Cursors are pictures and need no installer.
+flag hard dialog open-warning cws
+  | Windows said the publisher was unknown and the file was a program, not a picture.
+flag hard process msconfd.exe
+  | CoolWebSearch running in the background, under a name that looks like part of Windows.
+flag hard startup msconfd
+  | It added itself to the programs that start every time Windows does.
+flag hard section venue 1
+  label The venue's address showing sponsored links
+  | A dead link showed sponsored results instead of the browser's own "page not found" page.
+flag hard section cws 1
+  label The new home page
+  | A home page nobody chose, full of sponsored links, with a toolbar nobody installed.
+flag hard file Documents/hosts.txt
+  label The hosts file copy: security sites sent to another address
+  | The hosts file sends the security sites to the hijacker's address, so the cleanup sites cannot load.
+flag soft file Desktop/it-note.txt
+  | Switching off updates leaves the browser flaws CoolWebSearch used wide open. On a real PC, keep updates on.
+
+lesson
+  | Keep the system and the browser up to date: most of these installed through flaws that updates had already fixed.
+  | A friendly tip can still lead to a bad site. Do not run free-download programs from unknown publishers; a pointer or screensaver never needs to run as a program. Windows warns you for a reason.
+  | A dead or mistyped address should show the browser's own "page not found" page. Sponsored results instead mean a program changed your browser.
+  | If the home page keeps changing back, a program is resetting it. Do not only change the setting: run a cleanup tool or ask IT.

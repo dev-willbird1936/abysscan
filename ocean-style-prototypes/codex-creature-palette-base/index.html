@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Evolution grid · 6 families × 5 depths</title>
+<style>
+*{box-sizing:border-box}body{margin:24px;background:#071420;color:#d9eef5;font:16px system-ui}p{max-width:1120px;line-height:1.5}a{color:#9de9ee}.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.scroll{overflow:auto;border:1px solid #37586a;border-radius:8px}table{border-collapse:collapse;table-layout:fixed;min-width:1180px;width:100%}th,td{border:1px solid #37586a;padding:10px;text-align:center}th{background:#112738}th:first-child{width:190px;text-align:left}td{vertical-align:top}td img{display:block;width:160px;height:160px;object-fit:contain;image-rendering:pixelated;margin:auto;background:var(--ocean)}small{display:block;margin:5px}body[data-bg=light]td img,body[data-bg=light]article img{background:repeating-conic-gradient(#d4dce1 0% 25%,#f2f5f7 0% 50%) 50%/16px 16px}body[data-bg=dark]td img,body[data-bg=dark]article img{background:#111827}.depth-name{font-weight:700}.base-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}.base-grid article{border:1px solid #37586a;border-radius:9px;background:#112738;padding:14px}.base-grid img{display:block;width:192px;height:192px;object-fit:contain;image-rendering:pixelated;margin:auto;background:#243b4b}.chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.chip{width:24px;height:24px;border:1px solid #fff8;border-radius:4px;display:inline-block;vertical-align:middle}footer{margin-top:18px;line-height:1.6}@media(max-width:600px){body{margin:12px}}
+h1,h2{line-height:1.2}.notice{max-width:1120px;border:2px solid #edbb70;border-radius:8px;background:#2b2412;padding:12px 14px}.badges{display:flex;gap:4px;justify-content:center;flex-wrap:wrap}.badge{border:1px solid #6d8796;border-radius:999px;padding:1px 7px;font-size:12px}.badge.pass{border-color:#6fd7a1;color:#b9f3d3}.badge.unbound,.cell-error,.integrity.mismatch,.integrity.missing{color:#fca5a5;border-color:#fca5a5}.badge.candidate{border-color:#edbb70;color:#fde68a}.badge.pending{border-color:#9db1bb;color:#c2d0d6}.integrity.verified{color:#b9f3d3}.integrity.unverified{color:#9db1bb}.mapping{max-width:1120px;line-height:1.6}details#legacy{margin-top:28px;border:1px solid #37586a;border-radius:8px;padding:10px 14px}details#legacy summary{cursor:pointer;font-weight:700}:focus-visible{outline:3px solid #ffd987}
+</style>
+</head>
+<body data-bg="ocean">
+<h1>Evolution grid / 6 families × 5 depths</h1>
+<p>Thirty depth-coloured stills, one per family and depth, built from three shared morphology stages per family. Each cell shows the 256 px candidate PNG from the depth-colour manifest, its stage label, its status and its SHA-256 check. Depth is victim interaction, not severity or creature power.</p>
+<p id="animation-notice" class="notice" role="status"><strong>Animation playback pending.</strong> No animation has been generated or authorised for this grid, and no player exists yet. Play controls appear only after a reviewed animation manifest exists. The older RetroDiffusion loops do not match these sprites and are not used here.</p>
+<p class="mapping"><strong>Stage mapping.</strong> Sunlight + Twilight share the Base form · Midnight + Abyss share the Mid form · Trench has its own form. Each depth has its own palette. Planned animation: 6 families × 3 stages = 18 loops (pending).</p>
+<p class="controls"><label>Backdrop <select id="bg"><option value="ocean">Ocean</option><option value="light">Checkerboard</option><option value="dark">Dark</option></select></label> · <a href="../codex-creature-depth-evolution/depth-colors/depth-color-manifest.json">Depth-colour manifest</a> · <a href="evolution-grid-status.json">QVL and animation status</a> · <a href="../codex-creature-depth-evolution/index.html">Three-form evolution gallery</a></p>
+<p id="grid-status" role="status">Loading the 30 depth variants…</p>
+<div class="scroll"><table aria-label="Thirty depth variants, six families by five depths"><thead><tr><th scope="col">Creature / family</th><th scope="col">Sunlight</th><th scope="col">Twilight</th><th scope="col">Midnight</th><th scope="col">Abyss</th><th scope="col">Trench</th></tr></thead><tbody id="grid"></tbody></table></div>
+<details id="legacy">
+<summary>Legacy flat-palette study and RetroDiffusion loops (superseded, not current)</summary>
+<p>This archive keeps the earlier flat three-role palette study and its RetroDiffusion family loops. They animate earlier sprites that do not match the evolution forms above, and they use the older <code>octopus</code> family key. Kept only for provenance; do not read them as the current grid.</p>
+<p class="controls"><a class="zip-link" href="all-six-palette-bases.zip" download>Download legacy bases, masks and variants</a> · <a class="project-link" href="../retrodiffusion-family-depth-study/index.html">Original 30-image RetroDiffusion study</a> · <a class="project-link" href="../retrodiffusion-creature-animation/index.html">Legacy RetroDiffusion loops</a> · <a class="project-link" href="../retrodiffusion-creature-animation/all-animations.zip" download>Download legacy RD animations</a></p>
+<h2>Legacy 30 family × depth exports</h2>
+<div class="scroll"><table><thead><tr><th>Creature / family</th><th>Sunlight</th><th>Twilight</th><th>Midnight</th><th>Abyss</th><th>Trench</th></tr></thead><tbody id="legacy-variants"><tr><td colspan="6">Open this section to load the legacy archive.</td></tr></tbody></table></div>
+<h2>Legacy six bases and exact role masks</h2><p>Three role swatches change independently; outline, mouth, eyes and teeth stay neutral. Download a binary mask for a single role, or replace that exact RGB value in an image editor.</p>
+<main class="base-grid" id="legacy-bases"></main>
+</details>
+<footer><a href="generation-report.json">Native generation prompts and hashes</a> · <a href="indexed-manifest.json">Indexed manifest</a> · <a href="depth-variants.json">Legacy 30 variant manifest</a> · <a href="goal-delivery-evidence.json">Legacy RD and depth coverage evidence</a> · <a href="depth-palettes.json">Legacy depth palette definitions</a> · <a href="region-analysis.json">Region audit</a> · <a href="browser-verification.json">Browser checks (legacy page)</a> · <a href="README.md">Notes</a></footer>
+<script src="evolution-grid.js"></script>
+<script src="legacy-archive.js"></script>
+</body>
+</html>

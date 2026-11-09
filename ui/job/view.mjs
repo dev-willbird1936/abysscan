@@ -1,7 +1,7 @@
 // Live panels of the job view: sonar stage list, evidence log and the octopus terminal. Each function rebuilds
 // or extends one panel from the state; all event text is set with textContent.
 import { append, el, safeId } from './dom.mjs';
-import { MAX_ATTEMPTS, stageRows } from './state.mjs';
+import { executionText, MAX_ATTEMPTS, resultSummary, stageRows } from './state.mjs';
 
 const STATUS_TEXT = {
   received: 'File received. Detecting its type from its content.',
@@ -21,7 +21,7 @@ export function renderStages(doc, list, state) {
     const item = el(doc, 'li', 'jv-stage-row');
     item.dataset.status = row.status;
     item.dataset.key = row.key;
-    const mark = { done: 'Done', active: 'Now', failed: 'Failed', todo: 'Waiting' }[row.status];
+    const mark = { done: 'Done', active: 'Now', failed: 'Failed', todo: 'Waiting', skipped: 'Not run' }[row.status];
     append(item, el(doc, 'i', 'jv-ping'), el(doc, 'span', 'jv-stage-label', row.label), el(doc, 'em', 'jv-stage-mark', mark));
     return item;
   }));
@@ -29,6 +29,9 @@ export function renderStages(doc, list, state) {
 
 export function renderStatus(node, state) {
   if (state.error) node.textContent = `The job failed: ${state.error}`;
+  else if (state.failed) node.textContent = 'The job stopped. See the coverage and receipt for the checks completed.';
+  else if (state.finished) node.textContent = resultSummary(state).warning || 'Checks finished. Sandbox teardown and canary check confirmed.';
+  else if (state.stage === 'detonating') node.textContent = executionText(state.typed).detail;
   else node.textContent = STATUS_TEXT[state.stage] ?? 'Connecting to the job.';
 }
 
@@ -46,7 +49,9 @@ function attemptBlock(doc, attempt, title, last) {
   const block = el(doc, 'section', 'jv-attempt');
   block.dataset.n = String(attempt.n);
   block.dataset.state = ok ? 'ok' : 'failed';
-  block.append(el(doc, 'h3', '', `${title} ${attempt.n}${title === 'Attempt' ? ` of ${MAX_ATTEMPTS}` : ''} · exit code ${attempt.exitCode}`));
+  // exitCode null: the model sent no runnable script, so nothing ran (backend/detonation/analysis-loop.mjs).
+  const outcome = attempt.exitCode == null ? 'no script to run' : `exit code ${attempt.exitCode}`;
+  block.append(el(doc, 'h3', '', `${title} ${attempt.n}${title === 'Attempt' ? ` of ${MAX_ATTEMPTS}` : ''} · ${outcome}`));
   const code = el(doc, 'pre', 'jv-code', String(attempt.code ?? ''));
   code.tabIndex = 0;
   block.append(code);
@@ -63,16 +68,20 @@ function attemptBlock(doc, attempt, title, last) {
 
 export function renderOctopus(doc, terminal, statusLine, state) {
   const blocks = [];
-  state.parserAttempts.forEach((attempt, at, all) => blocks.push(attemptBlock(doc, attempt, 'Parser attempt', at === all.length - 1 && attempt.n >= MAX_ATTEMPTS)));
-  state.attempts.forEach((attempt, at, all) => blocks.push(attemptBlock(doc, attempt, 'Attempt', at === all.length - 1 && attempt.n >= MAX_ATTEMPTS)));
+  const terminalState = state.finished || state.failed;
+  state.parserAttempts.forEach((attempt, at, all) => blocks.push(attemptBlock(doc, attempt, 'Parser attempt', at === all.length - 1 && (terminalState || attempt.n >= MAX_ATTEMPTS))));
+  state.attempts.forEach((attempt, at, all) => blocks.push(attemptBlock(doc, attempt, 'Attempt', at === all.length - 1 && (terminalState || attempt.n >= MAX_ATTEMPTS))));
   if (!blocks.length) {
-    blocks.push(el(doc, 'p', 'jv-idle', state.rank >= 4 ? 'Writing analysis code…' : 'The octopus starts once the sandbox has run.'));
-  } else if (state.stage === 'analysing' && state.attempts.length && state.attempts.at(-1).exitCode !== 0 && state.attempts.at(-1).n < MAX_ATTEMPTS) {
+    const text = terminalState ? 'No model-written analysis code ran. See the report for the checks completed.'
+      : state.explanation?.modelAvailable === false ? 'Model unavailable. The verdict comes from the evidence and fixed rules.'
+        : state.stage === 'analysing' ? 'Writing analysis code…' : 'Model analysis has not started.';
+    blocks.push(el(doc, 'p', 'jv-idle', text));
+  } else if (!terminalState && state.stage === 'analysing' && state.attempts.length && state.attempts.at(-1).exitCode !== 0 && state.attempts.at(-1).n < MAX_ATTEMPTS) {
     blocks.push(el(doc, 'p', 'jv-idle', `Writing attempt ${state.attempts.at(-1).n + 1}…`));
   }
   terminal.replaceChildren(...blocks);
   terminal.scrollTop = terminal.scrollHeight;
-  statusLine.textContent = state.attempts.length
-    ? `${state.attempts.length} attempt${state.attempts.length === 1 ? '' : 's'} so far`
-    : 'Waiting';
+  statusLine.textContent = terminalState ? (state.failed ? 'Stopped' : state.attempts.length ? 'Complete' : 'Not run')
+    : state.explanation?.modelAvailable === false ? 'Unavailable'
+      : state.attempts.length ? `${state.attempts.length} attempt${state.attempts.length === 1 ? '' : 's'} so far` : 'Waiting';
 }

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Builds the harmless test binaries in samples/bin from the C sources and the Inno Setup script in samples/src (docs/SPEC.md 11, 12;
 # AT-19 to AT-24). Run where the Docker daemon runs (Linux or WSL), for example:
-#   wsl -d Ubuntu-24.04 -- bash -lc 'cd /mnt/c/SyncedProjects/Websites/Vultr-Phishing-Sandbox && tools/build-test-binaries.sh'
+#   wsl -d Ubuntu-24.04 -- bash -lc 'cd /mnt/c/abysscan && tools/build-test-binaries.sh'
 # The images are built from deploy/detonation/Dockerfile.builder (network on, for apt and the checksummed Inno Setup download).
 # The build containers then run with --network none. Nothing here runs a built binary: the containers compile, pack and
 # compile an installer script, and that is all.

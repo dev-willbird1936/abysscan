@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>The Abyss — File detonation sandbox</title>
-  <meta name="description" content="Drop a file. We open it in a sealed box and show you what it really does. The deeper it sinks, the more harm it did.">
+  <meta name="description" content="Search a known threat. We research it and rebuild it as a safe, simulated desktop. The deeper it sinks, the more harm it does.">
   <!-- The server sets content="production" on the public site. "auto" decides from the host name; "development" forces the local menu (see detonation-menu.js). -->
   <meta name="do-env" content="auto">
   <meta name="theme-color" content="#01060a">
@@ -22,8 +22,11 @@
   <link rel="modulepreload" crossorigin href="/ui/abyss/assets/flock-BUJDfhon.js">
   <link rel="stylesheet" crossorigin href="/ui/abyss/assets/index-DaFenpNB.css">
   <link rel="stylesheet" href="/ui/abyss/retro-pixel.css">
+  <link rel="stylesheet" href="/ui/abyss/threat-search.css">
+  <link rel="stylesheet" href="/ui/abyss/site.css">
 </head>
-<body>
+<body data-site="ocean">
+  <a class="site-skip" href="#threat-search">Skip to threat search</a>
   <canvas id="gl" aria-hidden="true"></canvas>
   <canvas id="gl-px" aria-hidden="true"></canvas>
 
@@ -41,7 +44,8 @@
     <!-- Title and premise stack in normal flow (the premise can never ride up over the title); the status is one
          quiet line at the foot. -->
     <p class="loader-name" aria-hidden="true">The <i>Abyss</i></p>
-    <p class="loader-premise" aria-hidden="true">Drop a file. We open it in a sealed box and show you what it really does. The deeper it sinks, the more harm it did.</p>
+    <p class="loader-premise" aria-hidden="true">Search a known threat. We research it and rebuild it as a safe, simulated desktop. The deeper it sinks, the more harm it does.</p>
+    <a class="loader-search" href="#threat-search">Go straight to search →</a>
     <p class="loader-title"><span class="loader-step">Loading the water</span> <span class="loader-pct mono">0%</span><i class="loader-bar" aria-hidden="true"></i></p>
   </div>
   <script>
@@ -101,7 +105,6 @@
   <header class="bar">
     <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"></span><span><span class="brand-pre">Detonation Ocean <i>·</i> </span><b>The Abyss</b></span></a>
     <nav aria-label="Page">
-      <a class="nav-upload" href="#upload">Upload</a>
       <a href="/bestiary">Bestiary</a>
       <a href="/about">How it works</a>
       <button class="snd" type="button" aria-pressed="false"><svg class="snd-ico" viewBox="0 0 18 14" aria-hidden="true"><path class="spk" d="M1.5 4.8h3l4-3.3v11l-4-3.3h-3z"/><path class="wav" d="M11.5 4.5q1.6 2.5 0 5M13.8 2.6q3 4.4 0 8.8"/><path class="mute" d="M11.6 4.6l4.8 4.8M16.4 4.6l-4.8 4.8"/></svg><span class="snd-txt">Sound off</span></button>
@@ -135,24 +138,10 @@
 
   <main id="top">
     <section class="stage hero" data-st="0">
-      <p class="eyebrow mono">File detonation sandbox · on Vultr</p>
+      <p class="eyebrow mono">Threat simulator · on Vultr</p>
       <h1><span class="l"><span>The</span></span> <span class="l"><span>Abyss</span></span></h1>
-      <p class="premise">Drop a file. We open it in a sealed box and show you what it really does. The deeper it sinks, the more harm it did.</p>
-      <form class="drop glass" id="upload" aria-labelledby="drop-h" novalidate>
-        <h2 class="drop-title" id="drop-h">Drop a file</h2>
-        <label class="drop-zone" for="drop-file">
-          <input class="drop-file" type="file" id="drop-file" name="file">
-          <span class="drop-prompt">Drag a file here, or choose one</span>
-          <span class="drop-name mono" aria-live="polite">No file chosen</span>
-        </label>
-        <div class="drop-side">
-          <label class="drop-consent"><input type="checkbox" id="drop-consent" name="consent" value="true"><span>I own this file or have permission to analyse it, and I understand it will be executed in a sandbox</span></label>
-          <button class="drop-go" type="submit">Upload</button>
-        </div>
-        <p class="drop-note mono">Up to 100 MB. Files over 10 MB get static analysis only.</p>
-        <p class="drop-msg mono" role="status" aria-live="polite"></p>
-      </form>
-      <p class="hint mono"><span class="hint-dot" aria-hidden="true"></span><span class="hint-text">Scroll to dive. Point at a creature to name it; click it to open its Bestiary card. Below 1,000 m your pointer is a torch.</span></p>
+      <p class="premise">Search a known threat. We research it and rebuild it as a safe, simulated desktop. The deeper it sinks, the more harm it does.</p>
+      <p class="hint mono"><span class="hint-dot" aria-hidden="true"></span><span class="hint-text">Scroll to dive. Point at a creature to name it; click it to see the fish inside it. Below 1,000 m your pointer is a torch.</span></p>
     </section>
 
     <section class="stage zone" data-st="1" data-sev="5"></section>
@@ -196,7 +185,7 @@
   </main>
 
   <footer class="foot">
-    <p class="foot-line">Files you drop here run only inside a sealed sandbox that is destroyed afterwards. The ocean shows anonymous counts, in batches.</p>
+    <p class="foot-line">Nothing here is uploaded, downloaded or run. Every desktop is a simulation built from public reporting, with fictional people and a fictional bank.</p>
     <p class="foot-credits mono">Anglerfish: 3D model from the Dioramas project, CC BY 4.0 · Every other animal sculpted in code (signed distance fields), the hydrothermal chimneys built from noise · Skin, rock and sediment textures: ambientCG Leather037, Rock035 and Ground054, CC0 · Sound synthesised in the browser, on from your first click or key press (the sound button turns it off) · Flocking model inspired by wasm-boids by tokachi269 (MIT) · Built with the Dioramas engine (MIT) · Pixel theme: Jersey 10 typeface (SIL OFL 1.1), creature sprites from the project’s RetroDiffusion studies (provider terms apply, no CC0 claim) · Part of the Detonation Chamber</p>
   </footer>
 
@@ -216,7 +205,9 @@
 
   <!-- Classic scripts at the end of <body> run before the deferred renderer module, so window.__menu exists when it starts. -->
   <script src="/ui/abyss/detonation-menu.js"></script>
-  <script src="/ui/abyss/drop-panel.js"></script>
+  <script src="/ui/abyss/creature-panel.js"></script>
+  <script src="/ui/abyss/threat-search.js"></script>
   <script src="/ui/abyss/menu-octopus.js"></script>
+  <script src="/ui/abyss/site-nav.js"></script>
 </body>
 </html>

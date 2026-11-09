@@ -46,8 +46,8 @@
     },
     {
       "path": "ui/abyss/index.html",
-      "sha256": "8937ea479868a5eecd3b07c1acae8caad7109a797d92ae013abd4b4a18328822",
-      "bytes": 14147,
+      "sha256": "af2aee5c272f99b81f4b0c70073118bc34a18049597309100a326dae1a143aa7",
+      "bytes": 13567,
       "mime": "text/html; charset=utf-8",
       "owner": "renderer"
     },
@@ -179,8 +179,8 @@
     },
     {
       "path": "ui/abyss/NOTICE.txt",
-      "sha256": "ab9d43f1c7d8b22b370bc5e90d84d6f64668b726b5c474a7f82db642722e470a",
-      "bytes": 906,
+      "sha256": "d08e953ffcc39c32981a66f813512bf01334221d9f12bd17e42b69b45757ead5",
+      "bytes": 1148,
       "mime": "text/plain; charset=utf-8",
       "owner": "renderer"
     },
@@ -355,15 +355,15 @@
     {
       "path": "ui/abyss/retro-pixel.css",
       "owner": "retro-theme",
-      "sha256": "c794a756ed182deee22bbb0f34d1e86b1cfe2ff76fe6113f9687bcc9ecb7fb1d",
-      "bytes": 35806,
+      "sha256": "dc954445ad0c3316e729c10f932dadba6df53fe4691b07b197d9cc99c2ebe006",
+      "bytes": 40511,
       "mime": "text/css; charset=utf-8"
     },
     {
       "path": "ui/abyss/retro-pixel.js",
       "owner": "retro-theme",
-      "sha256": "6b300d340313d4600f009a272046cdb19301f5d4e076eda66472889b91a02c71",
-      "bytes": 21635,
+      "sha256": "84db50d6ec115e57387694cf475c57e8f99ba7cc113630e54c6a07fb5ce296fb",
+      "bytes": 23719,
       "mime": "text/javascript; charset=utf-8"
     },
     {
@@ -481,8 +481,8 @@
     {
       "path": "ui/abyss/pixel/provenance.json",
       "owner": "retro-theme",
-      "sha256": "80a18e5f7dc9e60fb9c1cbb9ecb414697375bd6f904d0f1224a497de0fe748a9",
-      "bytes": 183433,
+      "sha256": "c2630040ca460933980556881942e9bb2616b2705ccdd08580cca5373e5d685f",
+      "bytes": 182028,
       "mime": "application/json; charset=utf-8"
     },
     {
@@ -740,15 +740,15 @@
     {
       "path": "ui/abyss/assets/index-retro.js",
       "owner": "retro-theme",
-      "sha256": "6ab6825700bede29ed72df31032bbc5c090a35174842a1b51fee13b33febac7b",
-      "bytes": 1375078,
+      "sha256": "8c0b3fdce6a17f5258f131088e6f2cbe429a6794db90860a7acc84b88293d286",
+      "bytes": 1375211,
       "mime": "text/javascript; charset=utf-8"
     },
     {
       "path": "ui/abyss/pixel/creatures/giant-clam-spritesheet.png",
       "owner": "retro-theme",
-      "sha256": "81bf6ab422d3b17674eb780e4a42994305f469d98e7e3d4e9129d3ff865197c0",
-      "bytes": 25088,
+      "sha256": "c362f977a2aa01b9fddab5ea286426c54b5b1ece203a8c909734819e6530b79f",
+      "bytes": 10161,
       "mime": "image/png"
     },
     {
@@ -873,15 +873,8 @@
     {
       "path": "ui/abyss/detonation-menu.js",
       "owner": "retro-theme",
-      "sha256": "f92f3ca3649eae1fcedbc3eacbdcbd1a6947e3143daddd0321669012c466eeca",
-      "bytes": 17962,
-      "mime": "text/javascript; charset=utf-8"
-    },
-    {
-      "path": "ui/abyss/drop-panel.js",
-      "owner": "retro-theme",
-      "sha256": "0a5d1f2e05a1f2474fcc95949da01406db9e0448b8ae18f13b166959a088f039",
-      "bytes": 4627,
+      "sha256": "8aa9163c6e7772c2d64b84c9352612241306dfc8bda70f45fc649aefe2dcb3bd",
+      "bytes": 25707,
       "mime": "text/javascript; charset=utf-8"
     },
     {
@@ -1083,8 +1076,8 @@
     {
       "path": "ui/abyss/menu-octopus.js",
       "owner": "retro-theme",
-      "sha256": "4a8796603889af6345040580546eea64bc3df606973fb6c110f2cec80d94b949",
-      "bytes": 6672,
+      "sha256": "ed4a2ec876c63ca1d997a7f7c204aa03736fb233825048163f3b4112d878a1a6",
+      "bytes": 8181,
       "mime": "text/javascript; charset=utf-8"
     },
     {
@@ -1643,8 +1636,8 @@
     {
       "path": "ui/abyss/pixel-lit.js",
       "owner": "retro-theme",
-      "sha256": "53455eae62e8a18c518b032ee846dea592adf798d8661ea2bdfd7abff9f0b0aa",
-      "bytes": 7035,
+      "sha256": "b765b6c48f04ca8b287eda2ebcbbc5d37789aa169a8fb3d9a4d31797f1b5939b",
+      "bytes": 10601,
       "mime": "text/javascript; charset=utf-8"
     },
     {
@@ -2098,8 +2091,8 @@
     {
       "path": "ui/abyss/pixel/normals/creatures/giant-clam-spritesheet.png",
       "owner": "retro-theme",
-      "sha256": "ceb24089aa526bb181a02e65ef0475852055d9333eab7074096755d3bf9d62a1",
-      "bytes": 176658,
+      "sha256": "47a0a5746f09d8785d162e33ef7dc58ff9c70e261fda0ade6dce1dac99c3214f",
+      "bytes": 212811,
       "mime": "image/png"
     },
     {
@@ -2850,6 +2843,76 @@
       "sha256": "d427b668521430814d35dd3b3174076b2476cc8f144a6608ffac556027aa58a5",
       "bytes": 4160,
       "mime": "image/png"
+    },
+    {
+      "path": "ui/abyss/pixel/creatures/giant-clam.json",
+      "owner": "retro-theme",
+      "sha256": "341cab7f8edfb27782098b6552987c84bad5b12dff926479daa737b03660cc2c",
+      "bytes": 1357,
+      "mime": "application/json; charset=utf-8"
+    },
+    {
+      "path": "ui/abyss/creature-panel.js",
+      "owner": "retro-theme",
+      "sha256": "46278e486009efe6d576138bcf166dfe6bfe62a5c960adc2b00b566b742c3582",
+      "bytes": 8252,
+      "mime": "text/javascript; charset=utf-8"
+    },
+    {
+      "path": "ui/abyss/site-nav.js",
+      "owner": "retro-theme",
+      "sha256": "d22c342151b127941d21b955b8d97df257767927f16ccb7730a307a02efe271f",
+      "bytes": 2163,
+      "mime": "text/javascript; charset=utf-8"
+    },
+    {
+      "path": "ui/abyss/site.css",
+      "owner": "retro-theme",
+      "sha256": "da5c9143d15655f7e135651805b6e0c504564f26434c1f2e7e63ca0cb713599b",
+      "bytes": 21745,
+      "mime": "text/css; charset=utf-8"
+    },
+    {
+      "path": "ui/abyss/fonts/ChakraPetch-Regular.woff2",
+      "owner": "retro-theme",
+      "sha256": "7d75be85dd1627e27ec151e9a3701e661bc4f8c2a93611bdd92f3a05d6bbd942",
+      "bytes": 9756,
+      "mime": "font/woff2"
+    },
+    {
+      "path": "ui/abyss/fonts/ChakraPetch-SemiBold.woff2",
+      "owner": "retro-theme",
+      "sha256": "a5888696e9eb1b4bbbecc8eb3922b8369f49d4bddb72263e033cbd17f399be76",
+      "bytes": 9968,
+      "mime": "font/woff2"
+    },
+    {
+      "path": "ui/abyss/fonts/ChakraPetch-sources.json",
+      "owner": "retro-theme",
+      "sha256": "619711a86e9b3459e1c3dd179d3e719151b5e96cd798744f4e80a8886ffa1cba",
+      "bytes": 887,
+      "mime": "application/json; charset=utf-8"
+    },
+    {
+      "path": "ui/abyss/fonts/OFL-ChakraPetch.txt",
+      "owner": "retro-theme",
+      "sha256": "13831d02389d917d22fcfa6c79f98f8acbf61d230add0e73a4d4dc5f3bfb9e56",
+      "bytes": 4396,
+      "mime": "text/plain; charset=utf-8"
+    },
+    {
+      "path": "ui/abyss/threat-search.js",
+      "owner": "retro-theme",
+      "sha256": "991a71dbe7bd61a310b7663601616b400c9427bca03e1592f52ebd932dc35752",
+      "bytes": 11346,
+      "mime": "text/javascript; charset=utf-8"
+    },
+    {
+      "path": "ui/abyss/threat-search.css",
+      "owner": "retro-theme",
+      "sha256": "543036efe735500c205af24ac2c4749545ef5c2b5e1bcaed91c6ab706d41b92c",
+      "bytes": 3540,
+      "mime": "text/css; charset=utf-8"
     }
   ]
 }

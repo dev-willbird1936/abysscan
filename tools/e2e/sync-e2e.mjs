@@ -666,8 +666,15 @@ define({
     windows: async (s, title) => {
       await openApp(s, 'windows', 'notes');
       const win = winWindow(s, 'notes');
-      if (title.startsWith('Sync note')) await win.getByRole('button', { name: 'Add page' }).click();
-      else await win.locator('.nt-page-item', { hasText: (await s.world()).data.notes.find(note => note.id === noteId).title }).click();
+      if (title.startsWith('Sync note')) {
+        const ids = new Set((await s.world()).data.notes.map(note => note.id));
+        const pages = await win.locator('.nt-page-item').count();
+        await win.getByRole('button', { name: 'Add page' }).click();
+        // Parent acknowledgement replaces the keyed editor. Do not type into the old page while creation is in flight.
+        await untilWorld(s, world => world.data.notes.some(note => !ids.has(note.id)), 'new Windows note committed');
+        await until(s, async () => (await win.locator('.nt-page-item').count()) === pages + 1
+          && (await win.locator('input.nt-title').inputValue()) === 'Untitled page', 'new Windows note editor mounted');
+      } else await win.locator('.nt-page-item', { hasText: (await s.world()).data.notes.find(note => note.id === noteId).title }).click();
       await win.locator('input.nt-title').fill(title);
       // The title commits on blur.
       await win.locator('.nt-stamp').click();

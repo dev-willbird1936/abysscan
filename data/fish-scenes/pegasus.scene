@@ -1,0 +1,249 @@
+# Pegasus (2016). A text message with a link silently installed spyware on an iPhone.
+# A quest (QUESTS.md): the trainee is a research officer at a small human-rights charity. Dana checks one real lead safely, then a text from an unknown number
+# offers "new secrets" and its link looks like one more lead. The phone was the target, so this desktop shows the text as a copy in Mail, the click, and nothing.
+os macos
+user Dana Okafor
+about
+  | Pegasus was spyware sold by a company called NSO Group. In August 2016 it reached the iPhone of a human-rights activist, as a text message with a link. One tap, and three hidden flaws in iOS (called Trident) opened the phone to the attacker: messages, calls, location, microphone and camera.
+  | He did not tap. He sent the text to researchers, who found the attack, and Apple closed all three flaws about ten days later.
+  | The infected device was the iPhone, not this computer. This desktop shows the text as a copy in Mail, the click that stands in for the tap, and then nothing. The victim in this story is an invented charity worker.
+story
+  | You are Dana Okafor, research officer at the Northwind Rights Fund, a small charity that records what happens to people held without charge. Each day you check leads (news reports and tips) and log the ones that hold up. You also set up meetings with witnesses.
+  | It is mid-afternoon. You have done 3 of today's 6 tasks. Three to go: two leads to check, and one witness meeting to confirm.
+  | Texts to your work phone are copied into Mail on this computer. In this training, clicking a text's link here stands in for tapping it on the phone.
+  | Your witness contacts are in a text file on the desktop. That is a bad habit, but it keeps this training quick.
+quota 3 6 Tasks done today
+
+# Dana's desk (a soft flag: careless, but only here to keep the training simple).
+file Desktop/witness-contacts.txt
+  at 930 200
+  | Witness contacts (training copy)
+  | H. (from the north district): +1 555 0173
+  | R. (family of a detainee): +1 555 0188
+
+# The safe task: a real lead from a colleague, about a newspaper Dana reads every day.
+page logged-4 casefile.northwind-fund.example/lead-log/4
+  title Lead 4 logged
+  brand Northwind Rights Fund
+  heading Lead 4 logged
+  | The Harbor Courier report on delayed prison inspections is in the lead log.
+page skipped-4 casefile.northwind-fund.example/lead-log/4-skipped
+  title Lead skipped
+  brand Northwind Rights Fund
+  heading Lead 4 skipped
+  | The report is not in the lead log. Priya will be told why.
+page courier-lead4 harbor-courier.example/news/prison-inspections-delayed
+  title Harbor Courier: Prison inspections delayed again
+  brand Harbor Courier
+  heading Prison inspections delayed again
+  | The state's independent inspectors have not visited a single prison this year, according to a report the ministry published last Friday.
+  | Relatives of people held without charge say they have had no news for months. The ministry says visits will resume "soon".
+  section About this report
+  row Published = 2 November 2026
+  row Written by = Tobias Wren, Harbor Courier
+  row Sources = the ministry's own report, two named relatives
+  button Add to the lead log -> logged-4
+  button Skip this lead -> skipped-4
+mail lead-4
+  from Priya Shah <priya.shah@northwind.example>
+  subject Lead 4: Harbor Courier on prison inspections
+  link courier-lead4
+  | Hi Dana,
+  |
+  | The Courier ran a piece on the delayed prison inspections. Can you read it and log it if it holds up? The link goes straight to it.
+  |
+  | Priya
+
+step A lead to check
+  look Mail: Priya's message with the link
+  | A new lead has come in from Priya, the editor. This one is real. Check it the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Lead 4: Harbor Courier on prison inspections
+
+step The link names the newspaper
+  look the link under Priya's message
+  when mail lead-4
+  | A colleague you know, a link to a newspaper you read every day. Hover over a link before you click it, to see where it goes.
+open lead-4
+
+step A normal article
+  look the headline, the date and the reporter's name
+  when visit courier-lead4
+  move Read who wrote it and when, then press “Add to the lead log”.
+  | A real report has a newspaper's name, a date, a named reporter and named sources. Remember what a lead normally looks like.
+open courier-lead4
+
+step 4 of 6 done
+  look the counter in the guide: one more task done
+  when choose courier-lead4 any
+  | Logged. Two tasks to go. And a text has just arrived on your phone, copied into Mail.
+choose courier-lead4 1
+quota +1
+
+# The lure: a text from an unknown number, with a short link and bait made for someone in this job.
+page logged-5 casefile.northwind-fund.example/lead-log/5
+  title Lead 5 logged
+  brand Northwind Rights Fund
+  heading Lead 5 logged
+  | The report is in the lead log.
+page skipped-5 casefile.northwind-fund.example/lead-log/5-skipped
+  title Lead skipped
+  brand Northwind Rights Fund
+  heading Lead 5 skipped
+  | The report is not in the lead log.
+page story-5 news-leaks.example/story
+  title Prison conditions: a report
+  brand News
+  heading A report on prison conditions
+  | Detainees held in the state prisons describe crowded cells and long waits for medical care.
+  button Add to the lead log -> logged-5
+  button Skip this lead -> skipped-5
+page lure news-leaks.example/a7Fq
+  title Loading
+  brand News
+  heading Loading
+  | One moment please.
+  button Tap here if the page does not load -> story-5
+# The text itself, as Messages on the Mac shows it (texts reach the Mac too), then its copy in Mail with the link to click.
+text sms-0142
+  from +1 555 0142
+  | New secrets about the detainees in the state prisons. Details here: https://news-leaks.example/a7Fq
+mail text-0142
+  from +1 555 0142 <sms-copy@northwind.example>
+  subject Text message from +1 555 0142
+  link lure
+  | New secrets about the detainees in the state prisons. Details here:
+  |
+  | (Text message copied from your work phone.)
+
+step A text from a number nobody knows
+  look the sender, and the short link instead of a newspaper's address
+  when mail text-0142
+  | A number that is not in your contacts, with bait made for someone who works on this subject: “new secrets”, and a short link that hides where it goes. Flag anything that looks wrong.
+open text-0142
+
+step One tap, and the page looks empty
+  look the browser: a page that says only "Loading"
+  when visit lure
+  move Nothing seems to load: press “Tap here if the page does not load”.
+  | Your click stands in for Dana's tap on her phone. On the phone, the page opened nearly blank: for a second or two, hidden code used three flaws in iOS (called Trident) to break in.
+  | The victim saw no warning, no download and no password box.
+open lure
+
+step An ordinary page
+  look the plain article: no date, no reporter, no links
+  when choose lure 1
+  move It looks like one more lead: press “Add to the lead log”.
+  | The browser went on to a normal-looking page, so the victim thought it was only a dull website. By then the spyware was installed.
+  | Nothing on screen showed it. It could read messages and calls, follow the phone's location and switch on the microphone.
+choose lure 1
+
+step 5 of 6 done
+  look the counter in the guide: nothing on the screen looks wrong
+  when choose story-5 any
+  | Logged. One task to go. Marcus has just sent you the plans for a witness meeting.
+choose story-5 1
+quota +1
+
+# The payoff: the last task is a private meeting, the kind of detail the spyware reads.
+page meeting-confirmed casefile.northwind-fund.example/meetings/0415/confirmed
+  title Meeting confirmed
+  brand Northwind Rights Fund
+  heading Meeting confirmed
+  | The witness meeting on Friday 13 November at 9:00 is confirmed.
+page meeting-postponed casefile.northwind-fund.example/meetings/0415/postponed
+  title Meeting postponed
+  brand Northwind Rights Fund
+  heading Meeting postponed
+  | Marcus will arrange a new time with the witness.
+page meeting casefile.northwind-fund.example/meetings/0415
+  title Witness meeting 0415
+  brand Northwind Rights Fund
+  heading Witness meeting 0415: confirm
+  | A witness has agreed to speak to the Fund. Please confirm the plans.
+  section The plans
+  row Witness = H. from the north district
+  row When = Friday 13 November, 9:00
+  row Where = the café on Dock Road, back table
+  row Phone = +1 555 0173
+  button Confirm the meeting -> meeting-confirmed
+  button Postpone -> meeting-postponed
+mail meeting-note
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Witness meeting on 13 November: please confirm
+  link meeting
+  | Dana,
+  |
+  | H. has agreed to meet on 13 November. The plans are in the case file: please confirm them. Keep this off the open channels.
+  |
+  | Marcus
+notify mail Marcus Lee
+  | Witness meeting on 13 November: please confirm
+
+step The last task
+  look Mail: Marcus's message about the witness meeting
+  when mail meeting-note
+  | A witness trusts you with a name, a place and a time. Open the link and confirm the plans.
+open meeting-note
+
+step The plans
+  look the witness, the place and the time
+  when visit meeting
+  move Check the plans, then press “Confirm the meeting”.
+  | Everything on this page is what the spyware wants: who the witness is, where they will be and when.
+open meeting
+
+step 6 of 6 done, or so Dana thinks
+  look the counter: the shift is done
+  when choose meeting any
+  | Every task is done, and nothing on the screen looks wrong. Press Next to see what Pegasus could do with your phone.
+choose meeting 1
+quota +1
+
+step What Pegasus could read
+  look the animation, the message about the meeting, and the blocked connection
+  | Within seconds of the tap, the attacker could read Dana's texts. Her work mail reaches her phone too, so Marcus's message about the meeting could be read as well. The witness, and Dana, are now in danger.
+  | On the real phone nothing showed. This desktop stands in for the phone: the notice on screen shows the one thing the spyware had to do, a call home to its attacker, and blocks it.
+attack spyware-surveillance
+  | a silent browser flaw
+  | the phone broken into
+  | messages and calls readable
+  | the witness meeting read
+  | the microphone switched on
+  | location followed day and night
+open meeting-note
+block 203.0.113.50 443
+
+step Ten days later: the fix
+  look the update item and the new message
+  | Marcus got the same text and did not tap. He sent it to researchers, who found the attack and told Apple. About ten days later Apple released updates that closed all three flaws.
+  | Anyone who installed the update promptly was safe from this text. Apple fixed the same flaws on the Mac too.
+mail lab-note
+  from Digital Safety Lab <help@digital-safety-lab.example>
+  subject About the text Marcus forwarded to us
+  | Marcus Lee sent us a text he did not open. We tested its link in a safe lab: opening it on an iPhone could install spyware with no warning.
+  |
+  | If you received the same text and tapped the link, tell us today. Update your phone and your Mac, and turn on Lockdown Mode.
+notify mail Digital Safety Lab
+  | About the text Marcus forwarded to us
+update Apple security update for iPhone and Mac (Trident flaws)
+  kb Security fix
+  size 14 MB
+  status available
+open updates
+
+flag hard mail text-0142
+  | A text from a number you do not know, with bait made for your job: “new secrets”. A real lead comes from a colleague, with the newspaper's name.
+flag hard link text-0142
+  | A short link that hides where it goes. A real lead names the newspaper: harbor-courier.example.
+flag hard page lure
+  | A page that says only “Loading”. The attack ran in those few seconds.
+flag hard page story-5
+  | A bland article with no date and no reporter. It is only cover: by now the phone was already broken into.
+flag soft file Desktop/witness-contacts.txt
+  | Witness names and numbers in a plain file on the desktop: any spyware that reaches this computer can read them.
+
+lesson
+  | Do not tap links in texts from numbers you do not know, even when the bait is something you care about. A real lead comes from someone you know, with the newspaper's name.
+  | Install system updates as soon as they appear: the fix for this attack came ten days after it was found.
+  | If you are at high risk, turn on Lockdown Mode on your iPhone, and keep suspicious texts so experts can check them. Marcus did, and that is how the attack was found.

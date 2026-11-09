@@ -85,10 +85,10 @@ function runWithoutSandbox(command, args) {
   assert.equal(result.status, 0);
 }
 
-test('invoice.py exits 0 at once when run without DETONATION_SANDBOX', () => {
-  runWithoutSandbox(python, ['samples/invoice.py']);
-});
-
-test('loop.js exits 0 at once when run without DETONATION_SANDBOX', () => {
-  runWithoutSandbox(process.execPath, ['samples/loop.js']);
+test('every runnable sample exits 0 at once when run without DETONATION_SANDBOX', () => {
+  for (const name of readdirSync(samplesDir)) {
+    if (!name.endsWith('.py') && !name.endsWith('.js')) continue;
+    const command = name.endsWith('.js') ? process.execPath : python;
+    runWithoutSandbox(command, [join('samples', name)]);
+  }
 });

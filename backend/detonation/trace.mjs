@@ -30,14 +30,15 @@ const MAX_ARGV = 32;
 const MAX_ARG_CHARS = 256;
 // Per-kind caps keep a noisy sample from pushing the job over the 500-item evidence limit (jobs.mjs MAX_EVIDENCE).
 const MAX_ITEMS = { 'file-read': 100, 'file-write': 100, unlink: 100, rmdir: 40, rename: 40, execve: 40, connect: 40, sendto: 40 };
-const SAMPLE_ARG = /\/(?:Downloads|tmp\/dt)\/sample\.(?:py|sh|js|ps1|docx|docm|xlsx|xlsm|doc|xls|pptx)$/;
-const INTERPRETERS = new Set(['python3', 'bash', 'node']);
+const SAMPLE_ARG = /\/(?:Downloads|tmp\/dt)\/sample\.(?:py|sh|js|pl|rb|php|lua|class|bin|ps1|docx|docm|xlsx|xlsm|doc|xls|pptx)$/;
+// qemu-user runs a sample the kernel cannot: `qemu-arm-static /tmp/dt/sample.bin` is the same sample by another spelling.
+const INTERPRETERS = new Set(['python3', 'bash', 'node', 'perl', 'php', 'ruby', 'lua5.4', 'java', 'qemu-i386-static', 'qemu-arm-static', 'qemu-aarch64-static', 'qemu-mips-static', 'qemu-ppc-static', 'qemu-ppc64-static', 'qemu-sparc-static']);
 // LibreOffice's launcher script (soffice) runs helpers first; the scope starts at the program it execs, which takes the file last.
 const FLAG_TAKING = new Set(['pwsh', 'soffice.bin', 'oosplash']);
 // LibreOffice's own start-up helpers (gpg key discovery, paper size) are not the document's doing.
 const LIBREOFFICE_EXEC = /^\/usr\/bin\/(?:gpgconf|gpg|gpgsm)(?: |$)|paperconf/;
 const QUIET_SOCKETS = new Set(['ps1', 'office']); // their runtimes send on sockets the trace never saw opened; those are internal pipes
-const TRACED_KINDS = new Set(['py', 'sh', 'node', 'ps1', 'office']);
+const TRACED_KINDS = new Set(['py', 'sh', 'node', 'perl', 'php', 'ruby', 'lua', 'java', 'elf', 'ps1', 'office']);
 const READ_PATH = /^\/(?:home|root|tmp|var\/tmp|dev\/shm)\//;
 const NOISE_PATH = /^\/(?:dev|proc|sys)\/|\/__pycache__\/|^\/tmp\/(?:dt\/|\.dotnet\/|clr-debug-pipe|CoreFxPipe_|OSL_PIPE_)/;
 const WRITE_FLAGS = /O_(?:WRONLY|RDWR|CREAT|TRUNC|APPEND)/;
@@ -85,11 +86,18 @@ function splitArgs(text) {
   return args;
 }
 
+// The runner starts in /home/dana (the image's WORKDIR), so a relative path opened from AT_FDCWD resolves there. Without this
+// a sample that writes "WIFIADAPT" instead of "/home/dana/WIFIADAPT" leaves no trace item at all.
+const RUNNER_CWD = '/home/dana';
+
 function resolvePath(dirfd, path) {
   const target = textOf(path);
   if (!target) return '';
   if (target.startsWith('/')) return posix.normalize(target);
+  // gVisor prints `AT_FDCWD <dir>` when it resolved the directory, and sometimes just `AT_FDCWD`: an empty base after the
+  // prefix is stripped is a relative open from the runner's own directory.
   const base = textOf(dirfd);
+  if (!base) return posix.normalize(posix.join(RUNNER_CWD, target));
   return base.startsWith('/') ? posix.join(base, target) : '';
 }
 
@@ -174,16 +182,23 @@ export async function parseTraceLines(lines, { now = new Date(), kind = 'py' } =
       const argv = quotedStrings(argvText).slice(0, MAX_ARGV).map(arg => arg.slice(0, MAX_ARG_CHARS));
       // The runner's own cp and chmod also name the sample path; only the interpreter takes it as its sole argument.
       const base = posix.basename(argv[0] ?? '');
-      if (SAMPLE_ARG.test(argv.at(-1) ?? '') && ((argv.length === 2 && INTERPRETERS.has(base)) || (argv.length >= 2 && FLAG_TAKING.has(base)))) { started = true; return; }
+      // An interpreter given the sample as its only argument, a flag-taking runtime, or the sample executed directly (ELF).
+      const only = argv.length === 1 && SAMPLE_ARG.test(argv[0] ?? '');
+      // The JVM is given a class name and the directory the sample was staged into, which is the same sample by another
+      // spelling: `java -cp /tmp/dt/java com.acme.Runner`.
+      const javaClass = base === 'java' && argv.some((arg, index) => arg === '-cp' && /^\/tmp\/dt\//.test(argv[index + 1] ?? ''));
+      if ((SAMPLE_ARG.test(argv.at(-1) ?? '') || javaClass) && (only || javaClass || (argv.length === 2 && INTERPRETERS.has(base)) || (argv.length >= 2 && FLAG_TAKING.has(base)))) { started = true; return; }
       if (started && path) pendingExec.set(pid, { at, path, argv });
       return;
     }
     if (!started || !traced) return;
     const failed = errno !== undefined;
     switch (name) {
-      case 'openat': case 'creat': {
+      case 'openat': case 'open': case 'creat': {
         if (!exit || failed) return;
-        const [dirfd, file, flags = ''] = name === 'creat' ? ['AT_FDCWD /', args[0], 'O_WRONLY'] : args;
+        // `open` takes the path where `openat` takes a directory descriptor: same evidence, one fewer argument.
+        const [dirfd, file, flags = ''] = name === 'creat' ? ['AT_FDCWD /', args[0], 'O_WRONLY']
+          : name === 'open' ? ['AT_FDCWD /', args[0], args[1] ?? ''] : args;
         const path = resolvePath(dirfd, file);
         if (!path || NOISE_PATH.test(path) || SAMPLE_ARG.test(path) || O_PATH_FLAG.test(flags)) return;
         if (WRITE_FLAGS.test(flags)) add('file-write', at, { path }, `write ${path}`, path);

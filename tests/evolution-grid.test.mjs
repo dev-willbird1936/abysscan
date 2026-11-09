@@ -226,10 +226,18 @@ test('3-form gallery shows the 18 normalized morphology sources and keeps its ow
 test('backend serves 30 hash-verified assets at /ocean-morphology/{form}/{depth}.png and keeps the legacy loops', () => {
   const { profiles, assets, morphologyAssets } = loadOceanProfiles(root);
   assert.deepEqual([...morphologyAssets.keys()], FAMILIES.flatMap(family => DEPTHS.map(depth => `/ocean-morphology/${family}/${depth}.png`)));
+  // What is served is the lit copy (tools/build-lit-ocean-sprites.py: the pipeline original with its normal map applied), and the lit
+  // manifest binds each copy to the original it came from, so the chain back to the hash-checked original is still verified.
+  const litRoot = path.join(root, 'ocean-style-prototypes/lit-ocean');
+  const lit = new Map(JSON.parse(readFileSync(path.join(litRoot, 'lit-manifest.json'), 'utf8')).morphology.map(entry => [entry.name, entry]));
   for (const item of manifest.variants) {
     const asset = morphologyAssets.get(`/ocean-morphology/${item.form}/${item.depth}.png`);
-    assert.equal(asset.sha256, item.display_sha256, item.id);
-    assert.ok(asset.bytes.equals(load(item.display_file)), item.id);
+    const entry = lit.get(item.display_file.replace(/\.png$/, ''));
+    assert.ok(entry, `${item.id} has a lit copy`);
+    assert.equal(entry.source_sha256, item.display_sha256, `${item.id}: the lit copy was made from the verified original`);
+    assert.equal(asset.sha256, entry.sha256, item.id);
+    assert.ok(asset.bytes.equals(readFileSync(path.join(litRoot, entry.file))), item.id);
+    assert.ok(existsSync(path.join(litRoot, entry.normal)), `${item.id} has a normal map`);
   }
   const stageLabels = { 'base-rich': 'Shared base · Sunlight / Twilight', 'midnight-abyss': 'Midnight / Abyss evolution', trench: 'Advanced Trench form' };
   for (const profile of profiles) {
@@ -245,16 +253,22 @@ test('backend serves 30 hash-verified assets at /ocean-morphology/{form}/{depth}
 test('backend refuses a tampered variant, a tampered source and a wrong manifest hash', () => {
   const temp = mkdtempSync(path.join(tmpdir(), 'evolution-grid-'));
   try {
-    for (const dir of ['data', 'ocean-style-prototypes/retrodiffusion-creature-animation', 'ocean-style-prototypes/codex-creature-depth-evolution/depth-colors']) {
+    for (const dir of ['data', 'ocean-style-prototypes/retrodiffusion-creature-animation', 'ocean-style-prototypes/codex-creature-depth-evolution/depth-colors', 'ocean-style-prototypes/lit-ocean']) {
       cpSync(path.join(root, dir), path.join(temp, dir), { recursive: true });
     }
     assert.doesNotThrow(() => loadOceanProfiles(temp));
     const colors = path.join(temp, 'ocean-style-prototypes/codex-creature-depth-evolution/depth-colors');
     const flip = file => { const bytes = readFileSync(file); bytes[bytes.length - 20] ^= 1; writeFileSync(file, bytes); };
-    const original = readFileSync(path.join(colors, 'viperfish-abyss-256.png'));
-    flip(path.join(colors, 'viperfish-abyss-256.png'));
-    assert.throws(() => loadOceanProfiles(temp), /ocean_profile_morphology_integrity_failed: viperfish\/abyss/);
-    writeFileSync(path.join(colors, 'viperfish-abyss-256.png'), original);
+    const litFile = path.join(temp, 'ocean-style-prototypes/lit-ocean/morphology/viperfish-abyss-256.png');
+    const original = readFileSync(litFile);
+    flip(litFile);
+    assert.throws(() => loadOceanProfiles(temp), /ocean_profile_morphology_integrity_failed: viperfish\/abyss/, 'a tampered lit copy is refused');
+    writeFileSync(litFile, original);
+    const litManifestFile = path.join(temp, 'ocean-style-prototypes/lit-ocean/lit-manifest.json');
+    const litManifest = readFileSync(litManifestFile, 'utf8');
+    writeFileSync(litManifestFile, litManifest.replace(/("name": "viperfish-abyss-256"[^}]*?"source_sha256": ")[0-9a-f]{64}/, `$1${'0'.repeat(64)}`));
+    assert.throws(() => loadOceanProfiles(temp), /ocean_profile_lit_morphology_rejected: viperfish\/abyss/, 'a lit copy that does not trace to its original is refused');
+    writeFileSync(litManifestFile, litManifest);
     flip(path.join(colors, 'morphology/squid-trench-128.png'));
     assert.throws(() => loadOceanProfiles(temp), /ocean_profile_morphology_integrity_failed: squid\/trench source/);
   } finally {

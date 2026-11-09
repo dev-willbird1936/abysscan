@@ -1,0 +1,331 @@
+# Beer-ad frog screensaver hoax (1997). A chain email said an advert screensaver would wipe your disk. It was an ordinary ad, and the warning was false.
+# A quest (QUESTS.md): the trainee sends the office's staff notices, sends one real notice, runs a funny advert screensaver a
+# colleague passed round, then gets a chain-email warning that it erases the disk and a request to post it to all staff. There is
+# no malware: the quest is about not overreacting. The screensaver here is an original stand-in ("Pond Party"): same story, no
+# real brand, art or characters. The office, the people and the intranet are made up.
+os windows
+user Dana Okafor
+about
+  | In 1997 a chain email warned that a free screensaver of singing frogs, from a beer advert, carried a deadly virus. It said the hard drive would crash, that someone on the Internet would get your screen name and password, and it told everyone to delete the file and pass the warning on.
+  | The screensaver was a real advert, and it was harmless. The warning was the hoax. The real warning named a program, BUDSAVER.EXE. Here the file is a .scr screensaver: an original stand-in ("Pond Party"), and the office, the people and the intranet are made up.
+  | What the hoax did teach is a true fact: a screensaver file, ending in .scr, is a program.
+story
+  | You are Dana Okafor, office coordinator at Northwind Traders. Part of your day is sending the notices that managers hand you to all staff, through the Staff Notices tool on the company intranet.
+  | It is Monday afternoon. You have handled 3 of today's 5 notices. Two to go.
+  | Your intranet details are in a text file on the desktop. That is a bad habit, but it keeps this training quick.
+quota 3 5 Staff notices handled today
+spotted signs it was a hoax
+
+# Dana's desk: the details Dana copies from (a soft flag: careless, but only here to keep the training simple).
+file Desktop/intranet-login.txt
+  at 930 200
+  | Northwind Intranet
+  | Staff ID: dana.okafor
+  | Password: Cedar-2026!
+
+# The intranet: a sign-in page, and the Staff Notices pages behind it.
+page intranet-login intranet.northwind.example/sign-in
+  title Northwind Intranet: sign in
+  brand Northwind Intranet
+  favorite
+  heading Sign in to the intranet
+  | Welcome back. Sign in to send your staff notices.
+  field Staff ID = dana.okafor
+  field secret Password = Cedar-2026!
+  button Sign in
+page sent-lock intranet.northwind.example/notices/sent
+  title Notice sent
+  brand Northwind Staff Notices
+  heading Notice sent
+  | "Lock your screen when you step away" went to all 212 staff.
+page held-lock intranet.northwind.example/notices/held
+  title Notice held
+  brand Northwind Staff Notices
+  heading Notice held
+  | The screen-lock notice is on hold. IT will be asked to confirm it.
+page notice-lock intranet.northwind.example/notices/draft-2301
+  title Staff Notices: Lock your screen
+  brand Northwind Staff Notices
+  requires intranet-login
+  heading Send to all staff: Lock your screen
+  | A notice is waiting for you to send.
+  section Where it came from
+  row Requested by = Marcus Lee, IT
+  row Approved by = IT manager, reference IT-208
+  row Source = the IT security calendar
+  section What it says
+  row Subject = Lock your screen when you step away
+  row Action = Press the Windows key and L. Screens also lock by themselves after 10 minutes.
+  row Asks for = nothing
+  button Send to all staff -> sent-lock
+  button Hold this notice -> held-lock
+
+mail mail-lock
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Screen-lock notice to send (this week)
+  link notice-lock
+  sent 2026-11-02 14:20
+  | Hi Dana,
+  |
+  | IT has approved the screen-lock reminder for this week. I have put the notice in the Staff Notices tool for you. The link goes straight to it.
+  |
+  | Marcus, IT
+
+step Notice 4 of 5
+  look Mail: Marcus's message with the notice link
+  | A new notice has come in from Marcus, in IT. This one is real and approved. Send it the normal way, so you know what normal looks like.
+notify mail Marcus Lee
+  | Screen-lock notice to send (this week)
+
+step The link goes to the intranet
+  look the link under Marcus's message
+  when mail mail-lock
+  | The email links to the company's own address, intranet.northwind.example. Hover over a link before you click it, to check where it goes.
+open mail-lock
+
+step Sign in as usual
+  look the two boxes: Staff ID and Password, as on every visit
+  when visit notice-lock
+  move Copy the details from intranet-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The intranet asks you to sign in first. Two boxes: Staff ID and Password. Remember what this page normally looks like.
+open notice-lock
+
+step Check, then send
+  look who asked for the notice and who approved it
+  when choose intranet-login 1
+  | You are in. A real notice names who asked for it, who approved it and where it came from. Check them, then send it.
+signin intranet-login
+
+step 4 of 5 done
+  look the counter in the guide: one notice left
+  when choose notice-lock 1
+  | Done. One notice to go. And another email has just arrived, from Ana in Sales: a funny advert.
+choose notice-lock 1
+quota +1
+
+# The harmless advert screensaver. It is a program, so it shows the same warning as any other. It has no process of its own
+# in Task Manager: a scene cannot end a process when its window closes, and a screensaver that has closed should not still run.
+view pond-screen screen
+  title Pond Party
+  bg #0b3d2e
+  fg #e8ffe8
+  fullscreen
+  heading Pond Party
+  | A pond at night. Three green frogs sit on lily pads and croak in turn.
+  section
+  |          (o o)                   (o o)                   (o o)
+  |          ( v )                   ( v )                   ( v )
+  | ~~~~~~~~(_____)~~~~~~~~~~~~~~~~~(_____)~~~~~~~~~~~~~~~~~(_____)~~~~~~~~~
+  button Close -> done primary
+program pond-party Pond Party screensaver
+  publisher none
+  signed no
+  prompt open-warning
+  description Advert screensaver
+  view pond-screen
+file Downloads/pond-party.scr
+  program pond-party
+  size 1548288
+mail ad
+  from Ana Ruiz <ana.ruiz@northwind.example>
+  subject FW: funny frog screensaver
+  attach Downloads/pond-party.scr
+  sent 2026-11-02 14:42
+  | Dana, you have to see this advert. The drinks rep sent it round the sales team this morning. The frogs are brilliant.
+  |
+  | Ana
+notify mail Ana Ruiz
+  | FW: funny frog screensaver
+
+step A funny advert
+  look the attachment pond-party.scr, and the Properties box: Type "Screen saver"
+  when mail ad
+  cue dialog-btn:ok file:fs-pond-party-scr-f05614e9 mail:m-ad app:mail
+  move Click OK, then double-click the attachment “pond-party” in the email.
+  | Ana, a colleague in Sales, passes on an advert from the drinks rep. It is a screensaver, which sounds like a picture. The file ending in .scr is a program.
+  | Properties says so: Type "Screen saver". The name is honest, and it is not a picture dressed up as something else. Read it, then click OK.
+open ad
+dialog properties Downloads/pond-party.scr
+
+step The Open File warning
+  look the Open File - Security Warning: Publisher "Unknown Publisher", Type "Screen saver"
+  when prompt pond-party
+  | Windows asks before it runs a program from an unknown publisher. A screensaver gets the same question as anything else.
+  | Ana got this from an outside drinks rep, not from a source you know. Dana runs it anyway, as most people did: this one is harmless, but the warning is right, because a .scr is a program.
+open Downloads/pond-party.scr
+
+step The frogs
+  look the Pond Party window: frogs on lily pads
+  when run pond-party
+  cue view-btn:done view:pond-screen
+  move Click Close in the Pond Party window.
+  | The frogs croak and the pond plays. It is just an advert. Press Close when you have had enough.
+answer run
+
+# Sam's notice and the hoax list, ready for the step after the pond closes.
+page sent-warn intranet.northwind.example/notices/sent-2302
+  title Notice sent
+  brand Northwind Staff Notices
+  heading Notice sent
+  | "FW: FW: FW: DANGER - frog screensaver erases your hard disk!!" went to all 212 staff.
+page told-sam intranet.northwind.example/notices/not-sent
+  title Notice not sent
+  brand Northwind Staff Notices
+  heading Notice not sent
+  | The draft was deleted. A reply to Sam says it is a known hoax, with a link to the hoax list.
+page hoaxbook intranet.northwind.example/it/known-hoaxes
+  title Known hoaxes: the frog screensaver warning
+  brand Northwind IT
+  heading The frog screensaver warning is a hoax
+  | IT's list of known hoaxes. Verdict: hoax. The advert screensaver was harmless and did not erase any disk.
+  | The warning has been copied by hand from person to person since 1997.
+  section What the screensaver really is
+  row File = a screensaver, ending in .scr
+  row What it does = plays an advert when the PC is idle
+  row Touches your files = no
+  note A .scr file is a real program, so be careful with strange ones. The warning is not real.
+  section How to spot this kind of hoax
+  item It names a harmless, popular file as a deadly virus.
+  item It claims a stranger will get your screen name and password.
+  item It says an expert has confirmed it, with nothing you can check.
+  item It ends with "send this to everyone you know".
+  button Delete the draft and reply to Sam -> told-sam
+page notice-warn intranet.northwind.example/notices/draft-2302
+  title Staff Notices: Frog screensaver warning
+  brand Northwind Staff Notices
+  requires intranet-login
+  heading Send to all staff: Frog screensaver warning
+  | A notice is waiting for you to send.
+  section Where it came from
+  row Requested by = Sam Patel, Sales
+  row Approved by = not yet approved
+  row Source = forwarded email
+  section What it says
+  row Subject = FW: FW: FW: DANGER - frog screensaver erases your hard disk!!
+  row Claim = the frog advert erases your whole hard disk and takes your password. A computer expert confirmed it.
+  row Asks for = delete it at once, and send this to everyone you know
+  row Proof = passed on many times, none of it checkable
+  button Look it up in the hoax list -> hoaxbook
+  button Send to all staff -> sent-warn
+  button Delete draft and reply to Sam -> told-sam
+
+# Dana closes the pond. The files are all still there. Then Sam's warning arrives.
+step Nothing is missing
+  look Documents, if you want to check it: every file is still there
+  when done pond-screen
+  | The pond closes. Dana's files are all still in Documents: Q3-report, budget, the contracts. Nothing was changed or deleted.
+  | Then another email arrives, from Sam in Sales.
+press pond-screen done
+mail warning
+  from Sam Patel <sam.patel@northwind.example>
+  subject FW: FW: FW: DANGER - frog screensaver erases your hard disk!!
+  link notice-warn
+  sent 2026-11-02 14:55
+  | Dana, please post this to all staff NOW. Ana just sent round a frog screensaver, and I think it is the one in this warning! I put it in the notices tool for you (the link).
+  |
+  | It looks like a fun advert from a beer company, but it will erase your whole hard disk, and someone from the Internet will get your screen name and password. A computer expert confirmed it, and there is no cure yet.
+  |
+  | Delete it at once and send this to everyone you know!
+  |
+  | Sam
+notify mail Sam Patel
+  | FW: FW: FW: DANGER - frog screensaver erases your hard disk!!
+
+step A message from Sam
+  look the capitals in the subject, "A computer expert confirmed it", and the last line: "send this to everyone you know"
+  when mail warning
+  | Sam wants this posted to all staff, right away. It says the frog screensaver Dana ran a minute ago will erase Dana's whole hard disk. That lands hard.
+  | Read it all the way down. Nobody says who first wrote it, "a computer expert" cannot be checked, and it ends by asking you to send it on. Flag anything that looks wrong.
+open warning
+
+step The notice in the tool
+  look who asked for it, who approved it, and what it says
+  when visit notice-warn
+  move Compare it with Marcus's notice, then click “Look it up in the hoax list”.
+  | The notice is ready to send, like Marcus's. Marcus's named IT, an approver and a calendar. This one is not yet approved, and the source is a forwarded email.
+  | Sending reaches all 212 staff and cannot be taken back. A quick look-up first costs nothing.
+open notice-warn
+
+step Known hoax
+  look the hoax page: "The frog screensaver warning is a hoax"
+  when choose notice-warn 1
+  move Read the page, then click “Delete the draft and reply to Sam”.
+  | The hoax list has it: the screensaver was an ordinary advert, and it touches no files. The warning has been going round since 1997.
+  | The giveaways: a harmless file named as a deadly virus, a stranger who will get your password, an expert nobody can check, and "send this to everyone". One true thing is in there: a .scr file is a program.
+choose notice-warn 1
+
+step 5 of 5 done
+  look the counter in the guide: the last notice is handled
+  when choose hoaxbook 1
+  | Not sent. You told Sam kindly that it is a known hoax, and the day's notices are done. Stopping was the right job here.
+  | Press Next to see what the chain email did in the office without you.
+choose hoaxbook 1
+quota +1
+
+step Two weeks later
+  look the inbox: the same warning, again and again, and the note from IT
+  | Sam sent the warning round again, and others passed it on. In two weeks not one disk was erased, because the advert never touched a file.
+  | The only real harm was the flood of copies, files deleted in a panic, and a loss of trust in the next real warning. You did not add to it.
+# The effect: Sam sent it round again, and the office forwarded it on.
+mail sam-fwd
+  from Sam Patel <sam.patel@northwind.example>
+  to All staff <all-staff@northwind.example>
+  subject FW: FW: FW: DANGER - frog screensaver erases your hard disk!! Please read
+  sent 2026-11-16 10:05
+  | Everyone, please read, it might be real! Delete the frog screensaver and send this on.
+mail priya-fw
+  from Priya Shah <priya.shah@northwind.example>
+  subject Re: frog screensaver warning
+  sent 2026-11-16 14:12
+  | Dana, I deleted the frog screensaver off my PC because of Sam's email, and I have sent it to the whole Accounts team. Was that right? Nobody can tell me where the warning came from. Priya
+mail it-stop
+  from Northwind IT <it@northwind.example>
+  subject Please stop forwarding the frog screensaver warning
+  sent 2026-11-17 09:30
+  | Hi all,
+  |
+  | The mail server counted over 900 copies of the frog screensaver warning this week. It is a hoax: the advert plays on an idle PC and touches no files. Nobody's disk was erased.
+  |
+  | A screensaver file is still a program, so run only ones from a source you know. Please delete the warning and do not forward it. Send any virus warning to IT first.
+  |
+  | Northwind IT
+notify mail Northwind IT
+  | Please stop forwarding the frog screensaver warning
+attack mass-mail-worm
+  | Sam sends it to all staff
+  | Priya sends it to Accounts
+  | the screensaver deleted in a panic
+  | no disk erased anywhere
+open it-stop
+
+flag hard mail warning
+  label Sam's email "DANGER - frog screensaver erases your hard disk!!"
+  | A frightening warning in capitals, backed by "a computer expert" nobody can name, that ends "send this to everyone you know". That is how a chain hoax is built.
+flag hard section notice-warn 1
+  label Where the notice came from
+  | Not yet approved, and the source is a forwarded email. A real notice names an approver and a source you can check, like Marcus's.
+flag hard section notice-warn 2
+  label What the notice says
+  | A harmless advert called a disk-eraser that steals passwords, an expert nobody can check, and "send it to everyone". Dana had run the screensaver and Dana's files were all still there.
+flag hard choice notice-warn 2
+  label The Send to all staff button
+  | Sending it makes you the next link. 212 people would get a warning that is false, and some would delete a file in a panic.
+flag hard section hoaxbook 1
+  label What the screensaver really is
+  | The reference page says what the file does: it plays an advert when the PC is idle and touches no files.
+flag hard section hoaxbook 2
+  label The signs of a hoax
+  | A harmless file named as a deadly virus, a password threat, an expert nobody can check, and "send this to everyone". Sam's email had all of them.
+flag hard dialog properties pond-party
+  label Properties for pond-party.scr
+  | Type: Screen saver, the name it says it is. The publisher is unknown, so the check is where it came from: a named colleague. A program to know about, not a reason to panic.
+flag hard mail sam-fwd
+  label Sam's copy to all staff
+  | The warning, sent on to everyone. This is the flood the hoax lives on: the real harm was never to the disk.
+flag soft file Desktop/intranet-login.txt
+  | Passwords in a text file on the desktop: any program that runs can read them. Use a password manager.
+
+lesson
+  | A warning that says "send this to everyone" is the hoax. Look it up in IT's list of known hoaxes, and send it to IT, not to your friends.
+  | A .scr screensaver is a program, not a picture. Check Properties and run only files from a source you know. The warning was false, but that fact is true.
+  | Nothing here needed a panic. The right move was to stop, check that your files were fine, and tell Sam kindly.

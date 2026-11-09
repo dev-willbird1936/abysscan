@@ -1,0 +1,312 @@
+# Business email compromise (about 2013 onwards). No malware at all: a convincing email asks for a payment to a new account.
+# A quest (QUESTS.md): the trainee works an accounts-payable shift, pays one invoice safely, then meets a supplier whose
+# bank details "changed" and a boss who wants it paid today. The victim is invented; the pattern is how real cases go.
+os windows
+user Dana Okafor
+about
+  | Business email compromise has no virus and no attachment that runs. The attack is the email itself: a supplier or a boss who looks real but writes from a lookalike address, asking for money to go to a new bank account, today, and quietly.
+  | Companies lose billions of dollars a year this way, because the mail looks like a normal day at the office. This story is invented, but it follows how real cases go.
+story
+  | You are Dana Okafor, accounts-payable clerk at Northwind Traders. Priya in Accounts emails you the approved supplier invoices, and you pay them from the company's online bank.
+  | It is Monday morning. You have paid 3 of today's 5 supplier invoices. Two to go.
+  | Your bank sign-in details are in a text file on the desktop. That is a bad habit, but it keeps this training quick.
+quota 3 5 Supplier payments made today
+
+# Dana's desk: the bank details she copies from (a soft flag: careless, but only here to keep the training simple), and
+# the supplier phone numbers she should use for any check.
+file Desktop/bank-login.txt
+  at 300 520
+  | Lakeshore Bank Business Online
+  | User ID: dana.okafor
+  | Password: Ledger-2026!
+file Desktop/supplier-phones.txt
+  at 440 520
+  | Supplier phone numbers (from the supplier contracts)
+  | Litware Inc: 555-0158
+  | Harbour Logistics, accounts: 555-0144
+  | Fabrikam Ltd: 555-0190
+
+# The last invoice from Harbour Logistics: the account Dana's bank has paid before.
+file Documents/invoice-4390-paid.pdf
+  size 46120
+  | HARBOUR LOGISTICS - INVOICE 4390 (PAID)
+  | Amount: 12,300.00 EUR, paid on 14 October 2026
+  | Pay to: Example Bank, account XX00 1111 2222 3333 4444 55
+  | Thank you for your business.
+  | Training copy: fictional document.
+
+# The real chief executive, Elena Voss, writes from northwind.example: the trainee can compare her address later.
+mail board
+  from Elena Voss <elena.voss@northwind.example>
+  subject Board papers for Friday
+  sent 2026-10-29 16:20
+  read yes
+  | Dana,
+  |
+  | The papers for Friday are in the shared folder. Thank you for getting them ready.
+  |
+  | Elena
+
+# The bank: a sign-in page, and the payment pages behind it.
+page bank-login lakeshore-bank.example/business/sign-in
+  title Lakeshore Bank: sign in
+  brand Lakeshore Bank Business
+  favorite
+  heading Sign in to Business Online
+  | Welcome back. Sign in to pay your suppliers.
+  field User ID = dana.okafor
+  field secret Password = Ledger-2026!
+  button Sign in
+# paid-4402 is defined twice: here so the Approve button can name it, and again with its own button below.
+page paid-4402 lakeshore-bank.example/business/payments/done
+  title Payment sent: INV-4402
+  brand Lakeshore Bank Business
+  heading Payment sent
+  | INV-4402 to Litware Inc: 1,240.00 EUR, paid on 2 November 2026.
+page held-4402 lakeshore-bank.example/business/payments/held
+  title Payment held
+  brand Lakeshore Bank Business
+  heading Payment held for review
+  | INV-4402 is on hold. Accounts will check it with Litware Inc.
+page pay-4402 lakeshore-bank.example/business/payments/INV-4402
+  title Pay supplier: INV-4402
+  brand Lakeshore Bank Business
+  requires bank-login
+  heading Pay supplier: INV-4402
+  | A supplier invoice is waiting for your payment.
+  section Payment
+  row Payee = Litware Inc
+  row Invoice = INV-4402, dated 26 October 2026
+  row Amount = 1,240.00 EUR
+  row Pay to = the account on file for Litware Inc
+  button Approve and pay -> paid-4402
+  button Reject and hold -> held-4402
+
+mail mail-4402
+  from Priya Shah <priya.shah@northwind.example>
+  subject Invoice INV-4402 to pay (Litware)
+  sent 2026-11-02 09:12
+  link pay-4402
+  | Hi Dana,
+  |
+  | Litware's invoice for the October stationery is approved and ready in the bank. The link goes straight to it.
+  |
+  | Priya
+
+step Payment 4 of 5
+  look Mail: Priya's message with the invoice link
+  | A new invoice has come in from Priya, in Accounts, and it is real. Pay it the normal way, so you know what normal looks like.
+notify mail Priya Shah
+  | Invoice INV-4402 to pay (Litware)
+
+step The link goes to the bank
+  look the link under Priya's message
+  when mail mail-4402
+  | The email is from Priya's own address, northwind.example, and links to the bank's own address, lakeshore-bank.example. Hover over a link before you click it, to check where it goes.
+open mail-4402
+
+step Sign in as usual
+  look the two boxes: User ID and Password, as on every visit
+  when visit pay-4402
+  move Copy the details from bank-login.txt on the desktop: click a box and press any keys to type, then click “Sign in”.
+  | The bank asks you to sign in first: User ID and Password. Remember what this page normally looks like.
+open pay-4402
+
+step Check, then pay
+  look the payee, the amount and the line "Pay to: the account on file"
+  when choose bank-login 1
+  | You are in. The bank pays Litware to the account it already holds, so you never type an account number.
+  | Check the payee and the amount against the invoice, then pay.
+signin bank-login
+
+step 4 of 5 done
+  look the counter in the guide: one payment left
+  when choose pay-4402 any
+  | Paid, one to go, and another email has just arrived from a supplier you know.
+choose pay-4402 1
+quota +1
+
+# The lure: a supplier whose bank details "changed". The PDF is an ordinary document, not a program: the fraud is its words.
+file Downloads/invoice-4471.pdf
+  size 48213
+  | HARBOUR LOGISTICS - INVOICE 4471
+  | Amount: 18,450.00 EUR, due on receipt
+  | IMPORTANT: our bank details have changed. Pay all open invoices to the new account from today. The old account closes this week.
+  | New account: Example Bank, XX00 9999 8888 7777 6666 55
+  | Training copy: fictional document, fictional account number.
+mail supplier
+  from Harbour Logistics Accounts <accounts@harbour-logistlcs.example>
+  subject Change of bank details: invoice 4471
+  sent 2026-11-02 10:14
+  attach Downloads/invoice-4471.pdf
+  | Hello Dana,
+  |
+  | Our bank has changed, and the old account closes this week. The new details are on the attached invoice 4471, which is due now. Please pay it, and all later invoices, to the new account.
+  | Our phone lines are being moved, so please reply by email.
+  |
+  | Accounts team, Harbour Logistics
+  | accounts@harbour-logistlcs.example
+notify mail Harbour Logistics Accounts
+  | Change of bank details: invoice 4471
+
+step A supplier changes its bank details
+  look the sender's address, and the invoice attached to the mail
+  when mail supplier
+  | Harbour Logistics is a supplier you pay every month, but the address says harbour-logistlcs, with an L where an I should be.
+  | This did not come through Priya, who sends every approved invoice. It came straight from the supplier.
+  | The attachment is an ordinary PDF, not a program. Compare it with invoice-4390-paid.pdf in Documents.
+  | Find Harbour's real number in supplier-phones.txt: the mail asks you not to use it. Flag anything that looks wrong.
+open supplier
+
+# The pressure: the boss, from a lookalike address, urges Dana to pay it today.
+mail ceo
+  from Elena Voss <elena.voss@northwlnd.example>
+  subject Harbour payment: today, please
+  sent 2026-11-02 10:22
+  | Dana,
+  |
+  | Harbour Logistics tell me invoice 4471 is overdue and that they changed banks. Please pay it today to the new account and keep it between us: the deal with them is sensitive.
+  | I am in meetings all day, so reply by email only. Do not call me.
+  |
+  | Elena Voss, Chief Executive
+  | elena.voss@northwlnd.example
+  | Sent from my phone
+notify mail Elena Voss
+  | Harbour payment: today, please
+
+step The boss presses
+  look the sender's address: northwlnd.example, with an L
+  when mail ceo
+  | Elena is the chief executive, and the name on the mail is hers. The address is not: northwlnd, with an L in place of the I.
+  | Urgency, secrecy and "email only" are the signs. Compare the address with her earlier mail, Board papers for Friday.
+open ceo
+
+# Harbour's payment pages. The bank's pay-a-supplier form asks Dana to type an account number; a normal payment never does.
+page sent-4471 lakeshore-bank.example/business/payments/sent
+  title Payment sent: INV-4471
+  brand Lakeshore Bank Business
+  heading Payment sent
+  | INV-4471 to Harbour Logistics: 18,450.00 EUR, sent on 2 November 2026.
+  section Status
+  row Account = XX00 9999 8888 7777 6666 55
+  row Status = Sent, cannot be cancelled
+page held-4471 lakeshore-bank.example/business/payments/held
+  title Payment held: INV-4471
+  brand Lakeshore Bank Business
+  heading Payment held for review
+  | INV-4471 is on hold. Accounts will check it with Harbour Logistics.
+page check-4471 lakeshore-bank.example/business/payments/check
+  title Check the payee: INV-4471
+  brand Lakeshore Bank Business
+  requires bank-login
+  heading Check the payee before we send
+  | The bank checks the name on the account you entered against the payee.
+  section Name check
+  tone bad
+  row Account holder = No match: not Harbour Logistics
+  note The name on this account is not Harbour Logistics. Check the details before you pay.
+  button Pay anyway -> sent-4471
+  button Stop and hold -> held-4471
+page pay-4471 lakeshore-bank.example/business/payments/new
+  title Pay supplier: Harbour Logistics
+  brand Lakeshore Bank Business
+  requires bank-login
+  heading Pay a supplier
+  | Choose the payee, then enter the account and amount from the invoice.
+  section Payment
+  row Payee = Harbour Logistics
+  row Last paid to = XX00 1111 2222 3333 4444 55 (invoice 4390, 14 October)
+  section Account to pay
+  field New account number = XX00 9999 8888 7777 6666 55
+  field Amount = 18,450.00 EUR
+  field Reference = INV-4471
+  button Send payment -> check-4471
+page paid-4402 lakeshore-bank.example/business/payments/done
+  title Payment sent: INV-4402
+  brand Lakeshore Bank Business
+  heading Payment sent
+  | INV-4402 to Litware Inc: 1,240.00 EUR, paid on 2 November 2026.
+  button Pay another supplier -> pay-4471
+
+step The bank's payment form
+  look the boxes under "Account to pay", and the line "Last paid to"
+  when choose paid-4402 1
+  move Open invoice-4471.pdf in Downloads. Type the new account number, the amount and the reference from it, then click “Send payment”.
+  | This form asks you to type the account. The bank shows the account Harbour was last paid at, and the new one is different.
+  | The safe payment never asked you to type an account number.
+open pay-4471
+
+step The bank checks the name
+  look the section "Name check": "No match: not Harbour Logistics"
+  when choose pay-4471 1
+  | Before it sends, the bank checks the account's name against the payee: it does not match Harbour Logistics.
+  | The bank warns you, but still lets you pay anyway.
+signin pay-4471
+
+step Sent
+  look the line "Sent, cannot be cancelled" and the counter in the guide
+  when choose check-4471 1
+  | Pay anyway, and it is sent: the bank says it cannot be cancelled. That was payment 5 of 5, and the shift is done.
+choose check-4471 1
+quota +1
+
+# Later, the real supplier asks where its money is.
+mail chase
+  from Harbour Logistics Accounts <accounts@harbour-logistics.example>
+  subject Invoice 4471: still unpaid?
+  sent 2026-11-05 09:40
+  | Hello Dana,
+  |
+  | We have not received payment for invoice 4471 (18,450.00 EUR). Could you check it, please? Our bank details have not changed.
+  |
+  | Accounts team
+notify mail Harbour Logistics Accounts
+  | Invoice 4471: still unpaid?
+
+step Days later
+  look the sender: harbour-logistics, with an I. Compare it with the earlier lookalike
+  when mail chase
+  | The real Harbour Logistics writes from harbour-logistics.example, with an I, and its bank details never changed. The 18,450 EUR went to an account the fraudster controls.
+open chase
+
+page recall-4471 lakeshore-bank.example/business/payments/recall
+  title Recall request: INV-4471
+  brand Lakeshore Bank Business
+  requires bank-login
+  heading Ask the bank to recall a payment
+  | Banks can sometimes recall a transfer, but only if they are told within hours.
+  section Transfer
+  tone bad
+  row Sent to = XX00 9999 8888 7777 6666 55
+  row Amount = 18,450.00 EUR
+  row Status = Already moved on to another account
+  note The account belonged to the fraudster. Once the money has moved on, very little can be recovered.
+
+step Where the money went
+  look the bank page: "Already moved on to another account"
+  | The fraudster moved the money on within hours, usually through several accounts. Nobody asked Harbour or phoned Elena, and no program ran on Dana's computer: the whole attack was in the words of two emails.
+attack money-transfer
+  | 18,450 EUR, "new bank details"
+  | boss pressing: today, in secret
+  | money gone within hours
+open recall-4471
+
+flag hard mail supplier
+  | A supplier's bank details "changed", from harbour-logistlcs.example, with an L. Not approved by Accounts, and it asks for email only because the "phones are down".
+flag hard file Downloads/invoice-4471.pdf
+  | A real PDF, not a program, but its words are the fraud: a new account, where invoice-4390-paid.pdf in Documents shows the old one. Check it with the supplier by phone, on the number in supplier-phones.txt.
+flag hard mail ceo
+  | The name is the chief executive's but the address is northwlnd.example. Urgent, secret, "email only", "sent from my phone".
+flag hard field pay-4471 1
+  | The account you typed is not the one Harbour was last paid at (invoice 4390). A normal payment uses the account on file.
+flag hard section check-4471 1
+  | The bank's own name check says no match. A warning like this is the last chance to stop before the money goes.
+flag hard section recall-4471 1
+  | The money had already moved on to another account. A recall works only if the bank is told within hours, so the check had to come before the payment.
+flag soft file Desktop/bank-login.txt
+  | Sign-in details in a text file on the desktop: anyone who gets into the computer can read them. Use a password manager.
+
+lesson
+  | Check any request for money, or for new bank details, by phone on a number you already have: from a contract or an earlier invoice, never from the email.
+  | Read the full address, not only the name: a letter swapped for another (northwlnd, harbour-logistlcs) is easy to miss. Urgency, secrecy and "email only" are the warning signs.
+  | A change of bank details needs a second person's approval and a call-back to a number on file. A name-check warning means stop.

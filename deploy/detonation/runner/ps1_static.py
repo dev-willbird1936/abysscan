@@ -8,12 +8,14 @@ PREVIEW = 120
 
 PATTERNS = [
     ("base64-decode", r"FromBase64String"),
-    ("encoded-command", r"(?<![\w-])-e(?:nc|ncodedcommand)?\s+[A-Za-z0-9+/=]{16,}"),
+    # The flag alone is the signal: the payload is often held in a variable, so requiring the blob on the same line misses it.
+    ("encoded-command-flag", r"(?<![\w-])-e(?:nc|ncodedcommand)\b"),
     ("hidden-window", r"-w(?:indowstyle)?\s+hidden"),
     ("execution-policy-bypass", r"-ex(?:ecutionpolicy)?\s+bypass"),
     ("invoke-expression", r"\b(?:Invoke-Expression|iex)\b"),
     ("char-join", r"(?:\[char\]\s*\d+\s*[,+]\s*){3,}|-join\s*\(?\s*\[char\[\]\]"),
     ("download-cradle", r"DownloadString|DownloadFile|Net\.WebClient|Invoke-WebRequest|Invoke-RestMethod|\biwr\b|Start-BitsTransfer"),
+    ("base64-blob", r"[A-Za-z0-9+/]{120,}={0,2}"),
 ]
 
 
@@ -37,4 +39,5 @@ def main():
     print(json.dumps({"hits": hits, "truncated": truncated}, separators=(",", ":")))
 
 
-main()
+if __name__ == "__main__":
+    main()

@@ -43,7 +43,7 @@ test('every finding row and signal has a fixture', () => {
 test('finding table and signal order match SPEC 6.5 and design 5', () => {
   assert.deepEqual(FINDING_TABLE.map((r) => r.id), [
     'steal-credentials', 'steal-browser', 'steal-documents', 'keylog', 'capture', 'clipboard-swap', 'fake-login', 'exfil-attempt',
-    'privilege-escalation', 'persistence', 'defence-tamper', 'traffic-redirect', 'browser-hijack', 'remote-control', 'injection',
+    'self-copy', 'privilege-escalation', 'persistence', 'defence-tamper', 'traffic-redirect', 'browser-hijack', 'remote-control', 'injection',
     'second-stage', 'resource-hijack', 'system-wipe', 'encrypt', 'destroy-files', 'spread', 'other-harm']);
   assert.deepEqual(SIGNAL_ORDER.map((s) => s.id), [
     'exploit-unproven', 'phishing-unproven', 'anti-analysis', 'type-mismatch', 'adware', 'admin-request', 'unknown-hosts',
@@ -181,12 +181,14 @@ test('Sunlight needs complete: true', () => {
   assert.equal(verdict.complete, false);
 });
 
-test('inspect-only results cannot exceed Twilight', () => {
+test('inspect-only results cannot exceed Twilight, and inspecting is complete coverage', () => {
   const verdict = run(load('invoice.py'), { path: 'inspect' });
+  // Nothing runs on an inspect path, so no finding can fire; the depth comes from signals alone.
   assert.equal(verdict.depth, 'twilight');
   assert.deepEqual(verdict.findings, []);
-  assert.ok(verdict.signals.includes('incomplete'));
-  assert.equal(verdict.complete, false);
+  // The file was identified and fully inspected, so the run is not reported as incomplete.
+  assert.ok(!verdict.signals.includes('incomplete'));
+  assert.equal(verdict.complete, true);
 });
 
 test('AT-24: reading HKCU\\Software\\Wine adds anti-analysis; AT-22: a Run key under Wine is persistence', () => {
@@ -194,6 +196,18 @@ test('AT-24: reading HKCU\\Software\\Wine adds anti-analysis; AT-22: a Run key u
   const verdict = run(load('wine-persistence'));
   assert.deepEqual(findingIds(verdict), ['persistence']);
   assert.equal(verdict.depth, 'abyss');
+});
+
+test('the family is named by the findings, not by the diff an archive left behind: credential theft is not extortion', () => {
+  const creds = { id: 'ev-1', source: 'trace', kind: 'file-read', path: '/home/dana/.aws/credentials', detail: '', at: 'x' };
+  const added = { id: 'ev-2', source: 'diff', kind: 'added', path: '/home/dana/Downloads/sample.deb', detail: '', at: 'x', seeded: false };
+  const connect = { id: 'ev-3', source: 'trace', kind: 'connect', host: '203.0.113.11', port: 443, detail: '', at: 'x' };
+  const verdict = run({ evidence: [added, connect, creds], path: 'run', complete: true });
+  assert.deepEqual(verdict.findings.map(finding => finding.id), ['steal-credentials']);
+  assert.equal(verdict.family, FAMILIES['data-access'].attack);
+  // With nothing fired the family only chooses a neutral name, so the diff may still steer it.
+  const quiet = run({ evidence: [added], path: 'run', complete: true });
+  assert.deepEqual([quiet.depth, quiet.family], ['sunlight', 'file-changes']);
 });
 
 test('second-stage: a download followed by execve counts, execve alone does not', () => {

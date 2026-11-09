@@ -30,7 +30,7 @@ test('roster files parse with the expected shape', () => {
 });
 
 test('every SPEC §6.5 finding ID appears exactly once in creatures', () => {
-  assert.equal(specFindingIds.length, 22);
+  assert.equal(specFindingIds.length, 23);
   const creatureIds = creatures.creatures.map((creature) => creature.findingId);
   for (const id of specFindingIds) {
     assert.equal(creatureIds.filter((found) => found === id).length, 1, id);

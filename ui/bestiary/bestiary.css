@@ -1,15 +1,42 @@
 /* Bestiary cards. Page chrome, palette and type come from ui/abyss/retro-pixel.css (content-page block). */
 .tiers-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--t) * 12)), 1fr)); gap: calc(var(--u) * 6); list-style: none; margin: 0; padding: 0; }
-.card { --bd: var(--tint, var(--p5)); --hi: var(--p3); list-style: none; display: flex; gap: calc(var(--u) * 4); align-items: flex-start; box-sizing: border-box; padding: calc(var(--u) * 4); background: var(--dither), var(--p1); }
+.card { scroll-margin-top: 100px; --bd: var(--tint, var(--p5)); --hi: var(--p3); list-style: none; display: flex; gap: calc(var(--u) * 4); align-items: flex-start; box-sizing: border-box; padding: calc(var(--u) * 4); background: var(--ui-panel, var(--p1)); border: 1px solid #31566b; border-top: 3px solid var(--tint, var(--p5)); box-shadow: none; }
 .tiers-list .card { display: block; }
+.pg-grid > .card { flex-direction: column; }
+.pg-grid > .card .card-text { width: 100%; }
 .card:target, .card.picked { --bd: var(--gold); }
 .card:focus-visible { box-shadow: var(--ring) !important; }
 .card-text { min-width: 0; flex: 1; }
 .card-text h3 { margin-bottom: calc(var(--u) * 2); }
-.card-text p { margin: 0 0 calc(var(--u) * 2); }
+.card-text p { margin: 0 0 14px; }
+.card .card-advice { padding: 14px; background: #123344; border-left: 2px solid var(--p6); }
+.card-context { margin: 16px 0; border-top: 1px solid #31566b; }
+.card-context summary { min-height: 44px; padding: 12px 0; color: var(--p6); cursor: pointer; font: 14px/1.5 var(--sans); }
+.card-context p { font-size: 14px; }
+.card-text .eaten { padding-top: 12px; border-top: 1px solid #31566b; font-size: 13px; color: #b6d0d1; }
 .card-text b { color: var(--tint, var(--p6)); font-weight: 400; }
 .card .eaten { color: var(--p8); }
+.ate { margin: 0 0 calc(var(--u) * 2); }
+.card-text .ate-head { margin: 0 0 var(--u); }
+.ate-list { list-style: none; margin: 0; padding: 0 calc(var(--u) * 2) 0 0; font-size: var(--t); max-height: calc(var(--t) * 9); overflow-y: auto; }
+.ate-list li { color: var(--dim); padding: 0 0 var(--u); }
+.ate-fish { color: var(--ink); }
+.ate-type { color: var(--tint, var(--p6)); }
+.ate-list time { color: var(--faint); }
+.ate-list time::before { content: "· "; }
 .pg-status { color: var(--faint); }
+.bestiary-sections { display: flex; flex-wrap: wrap; gap: 10px; margin: 24px 0; }
+.bestiary-sections a { display: inline-flex; align-items: center; min-height: 44px; padding: 9px 14px; border-bottom: 2px solid #31566b; background: #0b2133; font: 15px/1.4 var(--sans); text-decoration: none; }
+.bestiary-sections a:hover { border-color: var(--p6); background: #123344; }
+.bestiary-search { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px; padding: 20px; background: var(--p1); border: 2px solid var(--p4); margin: 24px 0 12px; }
+.bestiary-search label { display: grid; gap: 8px; font: 400 15px/1.5 var(--sans); }
+.bestiary-search label:first-child { flex: 1 1 300px; }
+.bestiary-search input, .bestiary-search select, .bestiary-search button { box-sizing: border-box; min-height: 44px; padding: 8px 12px; font: 400 16px var(--sans); color: var(--p8); background: var(--p0); border: 1px solid var(--p5); max-width: 100%; }
+.bestiary-search button { cursor: pointer; }
+.bestiary-search input { width: 100%; }
+#h-creatures, #h-depths, #h-fish, #h-system { scroll-margin-top: 100px; }
+.pg .card .pg-tag { color: var(--p0); }
+@media (max-width: 760px) { .bestiary-search { padding: 16px; } .bestiary-search label { width: 100%; } }
 
 /* One frame of a sheet at a time; steps() advances it. Cell sizes: creatures 128 px, fish 64 px. */
 .sprite { --s: calc(var(--u) * 24); flex: none; display: block; width: var(--s); height: var(--s); image-rendering: pixelated; background: no-repeat 0 0 / calc(var(--s) * 14) var(--s); animation: sheet 1.4s steps(14) infinite; }

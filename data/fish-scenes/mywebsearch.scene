@@ -1,0 +1,351 @@
+# MyWebSearch / Smiley Central (2004-2012). Free email smileys that replaced your search engine and home page.
+# A quest (QUESTS.md): the trainee writes the Friday thank-you cards in the company's own Card Desk, does one safely, then wants
+# smileys for a farewell card and meets the MyWebSearch toolbar in the Smiley Central installer.
+# The victim is invented: the toolbar reached anyone who wanted free smileys, mostly home users, not one job.
+os windows
+user Dana Okafor
+about
+  | Smiley Central offered free animated smileys for email. Its installer also carried the MyWebSearch toolbar, with a new home page and a new search engine, all ticked for you. Once installed it filled searches with its own adverts, recorded what was searched, and was hard to remove.
+  | Dana, her job, Northwind and Tom are invented. The toolbar's victims were anyone who wanted free smileys; the steps follow how the installer and the toolbar behaved.
+story
+  | You are Dana Okafor, office administrator at Northwind Traders. Every Friday you write the thank-you cards that staff nominate for each other. They go out as short emails from the company's Card Desk.
+  | It is mid-afternoon. You have written 3 of today's 5 cards. Two to go.
+  | IT's note on your desktop says office staff may install small tools themselves, and the staff list is a loose text file. That is a bad habit, but it keeps this training quick.
+quota 3 5 Cards written today
+
+# Dana's desk (soft flags: careless, but only here to keep the training simple).
+file Desktop/it-note.txt
+  at 930 200
+  | IT pilot note
+  | Office staff may install small tools they need themselves. No ticket needed.
+file Desktop/card-list.txt
+  at 930 300
+  | Friday thank-you cards (training copy)
+  | 1 Amira Haddad: sorted the stock room
+  | 2 Jonas Weber: trained the new starters
+  | 3 Lena Costa: covered reception
+  | 4 Sam Reyes: covered the front desk all week
+  | 5 Tom Berg: leaving after eleven years
+
+# The browser's normal home page, before the toolbar changes it.
+page intranet northwind.example/home
+  title Northwind Intranet
+  brand Northwind Traders
+  favorite
+  heading Northwind Intranet
+  | Welcome back. Notices: the Q4 offsite is on 2 December. Expense forms are due on Friday.
+homepage intranet
+
+# The safe round: the company's own Card Desk, on its own address.
+page card-sent card-desk.northwind.example/sent
+  title Card sent
+  brand Northwind Card Desk
+  heading Card sent
+  | Your card to Sam Reyes has gone out by email.
+page card-desk card-desk.northwind.example/new
+  title Northwind Card Desk
+  brand Northwind Card Desk
+  favorite
+  heading Write a thank-you card
+  | Cards go out as plain-text emails.
+  field To = Sam Reyes
+  field Message = Thanks for covering!
+  button Send card -> card-sent
+mail mail-sam
+  from Priya Shah <priya.shah@northwind.example>
+  subject Card 4 of 5: Sam Reyes (front desk cover)
+  link card-desk
+  | Hi Dana,
+  |
+  | Sam covered the front desk all last week, and Marcus nominated them. It is today's fourth card. The Card Desk link is below.
+  |
+  | Priya
+notify mail Priya Shah
+  | Card 4 of 5: Sam Reyes (front desk cover)
+
+step Card 4 of 5
+  look Mail: Priya's message about Sam's card
+  when mail mail-sam
+  move Hover over the link under Priya's message to see where it goes, then click it.
+  | A new card is waiting from Priya, in HR. This one is routine. Write it the normal way, so you know what normal looks like.
+open mail-sam
+
+step The company's Card Desk
+  look the two boxes and the button on the Card Desk page
+  when visit card-desk
+  | The link goes to card-desk.northwind.example, the company's own address. The Card Desk has two boxes and one button, and says plainly that it sends plain text only.
+open card-desk
+
+step Card 4 written
+  look the counter in the guide: 4 of 5
+  when choose card-desk 1
+  | The card has gone out. One card to go. And another email has just arrived.
+signin card-desk
+quota +1
+
+# The lure: a colleague's tip for smileys, and the free installer behind it.
+view smc-wizard wizard
+  title Smiley Central Setup
+  app Smiley Central
+  publisher Smiley Central Media
+  page Welcome to Smiley Central
+  icon program
+  | This will install 10,000 free smileys for your email.
+  button Next -> next primary
+  button Cancel -> close
+  page Special offers
+  icon info
+  | We recommend these free extras. They are already ticked for you.
+  section Recommended
+  check [x] Install the MyWebSearch toolbar
+  check [x] Make mywebsearch.invalid my home page
+  check [x] Make MyWebSearch my default search engine
+  line Clicking Next installs the three boxes ticked above, and accepts the MyWebSearch licence and privacy policy.
+  button Next -> next primary
+  button Back -> back
+  page Installing
+  icon gear
+  section Progress
+  progress 100
+  | Smileys installed. Toolbar installed. Home page changed.
+  button Finish -> done primary
+# Signed by its maker, as many real installers are: a known publisher does not mean the extras are not in the box.
+program smc SmileyCentralSetup.exe
+  publisher Smiley Central Media
+  signed yes
+  prompt open-warning
+  prompt elevation
+  description Smiley Central installer
+  view smc-wizard
+page smc-dl-done smiley-central.example/thanks
+  title Thanks for downloading
+  brand Smiley Central
+  heading Thanks for downloading
+  | Your download has finished. Open SmileyCentralSetup in your Downloads folder to start.
+page smileys smiley-central.example
+  title Free smileys
+  brand Smiley Central
+  heading 10,000 free smileys for your email!
+  | Animated smileys for every message. Free. Download in one click.
+  section What you get
+  item Animated smileys for any email program
+  item New ones every week
+  item Free for everyone
+  section Before you download
+  note By clicking Download now you accept the licence. Setup also offers our MyWebSearch toolbar, a home page and a search engine.
+  button Download now -> smc-dl-done
+mail mail-smileys
+  from Marcus Lee <marcus.lee@northwind.example>
+  subject Tom's farewell card: smileys for it?
+  link smileys
+  | Dana,
+  |
+  | Priya says Tom's farewell card is the last one today. He loves smileys, and the Card Desk only sends plain text. My sister uses this free smiley pack in her emails, and it works fine. The link goes to its page.
+  |
+  | Marcus
+notify mail Marcus Lee
+  | Tom's farewell card: smileys for it?
+
+step Smileys for Tom's card
+  look Mail: Marcus's tip with a download link
+  when mail mail-smileys
+  | Tom Berg is leaving after eleven years, and he loves smileys. The Card Desk sends plain text only, so Marcus suggests a free smiley pack for your email.
+  | Marcus means well, and the smileys are real. Free software is where this toolbar hid.
+open mail-smileys
+
+step A free smiley pack
+  look the download page: the button, and the small print above it
+  when visit smileys
+  move Read the small print above the button, then click “Download now”.
+  | This is not a Northwind address: the page belongs to the smiley pack's maker. Above the big button is a short section of small print.
+  | Read it before you press the button.
+open smileys
+
+step The installer arrives
+  look the new file in Downloads
+  when choose smileys 1
+  | The download finished and the browser left the file in Downloads. A smiley pack should be pictures. This is a program.
+file Downloads/SmileyCentralSetup.exe
+  program smc
+  size 912384
+open smc-dl-done
+open Downloads
+
+step Windows asks before it runs
+  look {the Open File - Security Warning: Publisher “Smiley Central Media”, Type “Application”|the warning: “SmileyCentralSetup.exe” is a Windows program}
+  when prompt smc
+  cue dialog-btn:run dialog-btn:ok view-btn:next view:smc-wizard
+  move {Accept the warning, and the permission prompt after it. In Smiley Central Setup, click Next until you reach the offers page.|In the warning, click “Show what it does”. In Smiley Central Setup, click Next until you reach the offers page.}
+  | {Windows warns that this is a program from Smiley Central Media, and asks once more before it runs.|The Mac warns that this is a Windows program: the training desktop shows what it did on the PC it was made for.}
+  | Many people clicked Run both times, because they only wanted smileys.
+open Downloads/SmileyCentralSetup.exe
+
+step The offers page
+  look the Special offers page: three boxes already ticked, and the line under them
+  when page smc-wizard 2
+  cue view-btn:next view-btn:done view:smc-wizard
+  move Untick any box you do not want, then click Next, and Finish.
+  | Setup opens like any installer: a welcome, then a page of “recommended extras” with all three boxes already ticked: the toolbar, a new home page and a new search engine.
+  | Clicking Next installs the ticked boxes with the smileys. Reading this page was the only defence.
+answer run
+answer run
+# page:1 counts from 0 (the second page, the offers): on that page already, it does nothing.
+press smc-wizard page:1
+
+step Finish, and the browser is taken over
+  look the toolbar across the top of the browser, the new home page, and the start-up notices
+  when done smc-wizard
+  move Click the search box and type the search, then click “Search”.
+  | Setup says the smileys are installed. It also says the toolbar is in and the home page has changed. Nobody asked you in so many words.
+  | The MyWebSearch toolbar now sits across the browser, and the home page is MyWebSearch. A smiley helper, mwsoemon.exe, is running, and it starts again with the PC.
+press smc-wizard next
+press smc-wizard done
+startup MyWebSearchEmailPlugin C:\Program Files\MyWebSearch\bar\1.bin\mwsoemon.exe
+  location HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+run mwsoemon.exe
+  cpu 1
+  mem 11
+  publisher Smiley Central Media
+  parent explorer.exe
+  command C:\Program Files\MyWebSearch\bar\1.bin\mwsoemon.exe
+startup MyWebSearchScopeMonitor C:\Program Files\MyWebSearch\bar\1.bin\m3srchmn.exe
+  location HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+page farewell-words cardwords.example/farewell
+  title Farewell messages for a colleague
+  brand Card Words
+  toolbar MyWebSearch
+  heading Farewell messages for a colleague
+  | Short and warm. Pick one and use it as it is.
+  section Ideas
+  item Tom, thank you for eleven good years.
+  item Good luck with everything that comes next.
+  item The office will not be the same without you.
+page msearch-results mywebsearch.invalid/results?q=farewell+message+for+a+colleague
+  title My Web Search: farewell message for a colleague
+  heading My Web Search
+  brand My Web Search
+  toolbar MyWebSearch
+  section Sponsored results
+  tone injected
+  item Cheap flights: compare 500 airlines
+  item Free screensavers: download now
+  item Clean your PC: free scan
+  note Sponsored results are paid for by their advertisers.
+  section Results
+  item Farewell messages for a colleague (cardwords.example)
+  item How to write a leaving card
+  button Open: Farewell messages for a colleague -> farewell-words
+page msearch mywebsearch.invalid
+  title My Web Search
+  heading My Web Search
+  brand My Web Search
+  toolbar MyWebSearch
+  | Search the web · Smileys · Screensavers
+  |
+  | Welcome to your new home page. It opens every time you start a browser.
+  field Search the web = farewell message for a colleague
+  button Search -> msearch-results
+homepage msearch
+open msearch
+notify browser Search engine changed
+  | Searches and the home page now go to mywebsearch.invalid.
+
+step Searching as usual
+  look the results page: three adverts, then the real result
+  when choose msearch 1
+  move Click “Open: Farewell messages for a colleague”, the real result below the adverts.
+  | Tom's card goes out as plain text, so the smileys stay in your email. But first you want a few words for him, so you search, as you always do.
+  | The results page starts with three adverts. Every search now goes through this page, and the toolbar sees each one.
+signin msearch
+
+step The farewell words
+  look the farewell words page: three ideas to pick from
+  when choose msearch-results any
+  move Open Northwind Card Desk from the favourites bar.
+  cue fav:card-desk app:browser
+  | You open the real result and find the words for Tom. Pick one and use it as it is.
+  | Tom's card goes out from the Card Desk, the company's page, the same as every card.
+choose msearch-results 1
+signout card-desk
+page card-sent-tom card-desk.northwind.example/sent-tom
+  title Card sent
+  brand Northwind Card Desk
+  heading Card sent
+  | Your card to Tom Berg has gone out by email.
+page card-desk card-desk.northwind.example/new
+  title Northwind Card Desk
+  brand Northwind Card Desk
+  favorite
+  toolbar MyWebSearch
+  heading Write a thank-you card
+  | Cards go out as plain-text emails.
+  field To = Tom Berg
+  field Message = Tom, thank you for eleven good years.
+  button Send card -> card-sent-tom
+
+step The Card Desk, now with a toolbar
+  look the toolbar across the top of the Card Desk, which you did not add
+  when visit card-desk
+  | The Card Desk is still your company's page, but the MyWebSearch toolbar now sits across the top of it too.
+  | The browser added the toolbar. The Card Desk did not.
+open card-desk
+
+step Tom's card is written
+  look the counter in the guide: 5 of 5, and the browser's notice
+  when choose card-desk 1
+  move Open {Task Manager|Activity Monitor} and look for the program that watches the home page, then press Next.
+  cue process:m3srchmn.exe
+  | The card to Tom has gone out, and the count is 5 of 5. Nothing on the screen looked wrong.
+  | A notice says settings were changed by another program. A second program from the toolbar, m3srchmn.exe, runs to watch the home page, and it starts again with the PC.
+signin card-desk
+quota +1
+notify browser Settings were changed by another program
+  | Home page: mywebsearch.invalid. Another program changed it.
+run m3srchmn.exe
+  cpu 1
+  mem 12
+  publisher Smiley Central Media
+  parent explorer.exe
+  command C:\Program Files\MyWebSearch\bar\1.bin\m3srchmn.exe
+
+step What the toolbar did
+  look the animation: the home page, every search, the adverts
+  | For years this toolbar took over the home page and search of everyone who installed the smileys. Every search went through its adverts and was recorded.
+  | Nothing was stolen and nothing was locked. The makers were paid for the adverts clicked and the searches sent, and the harm was the control, and how hard it was to give back.
+attack spyware-surveillance
+  | home page, taken over
+  | default search engine
+  | adverts above the results
+  | every search recorded
+block 203.0.113.60 443
+
+flag hard section smileys 2
+  label Small print above the download button
+  | The small print names our MyWebSearch toolbar, a home page and a search engine. Free smileys are paid for somehow.
+flag hard line smc-wizard ticked above
+  label Offers ticked before you saw them
+  | All three boxes were ticked for you. Clicking Next installs each one, so unticking them was the only way to say no.
+flag hard dialog open-warning smc
+  | A smiley pack is pictures, but this asks to run as a program. Being signed by its maker does not stop it carrying extras.
+flag hard startup MyWebSearchScopeMonitor
+  | The toolbar's watcher added itself to the programs that start every time the PC does.
+flag hard process m3srchmn.exe
+  | The toolbar's watcher, running in the background. It sets the home page back when a setting is changed.
+flag hard page msearch
+  label The new home page: My Web Search
+  | The home page is MyWebSearch. You never chose it: a ticked box on the installer's page did.
+flag hard section msearch-results 1
+  label Adverts above the search results
+  | These adverts sit above the real results, put there by the toolbar, and it records every search.
+flag hard process mwsoemon.exe
+  | A helper from the smiley install, running all the time. Dana asked for smileys, not a program that stays open.
+flag soft file Desktop/it-note.txt
+  | Letting anyone install what they like without asking IT makes a bundled toolbar one click away.
+flag soft file Desktop/card-list.txt
+  | Staff names and reasons in a loose text file on the desktop. They belong in the HR system only.
+
+lesson
+  | Read each installer page before clicking Next, and untick any extras you did not ask for. A free program is paid for somehow, and the small print says how.
+  | A signed installer only tells you who made it. It can still carry extras, so read every page.
+  | A smiley pack is pictures. When its download asks to run as a program, stop and ask IT.
+  | If your search engine or home page changes after an install, remove the program in {Settings > Apps|System Settings > Login Items}, not just in the browser.

@@ -1,0 +1,15 @@
+{
+  "meaning": "Illustrative victim-interaction depth treatments, not severity, power or literal creature habitat.",
+  "preserved_neutrals": {
+    "outline": "#101820",
+    "dark_detail": "#080D10",
+    "light_detail": "#F4F0D8"
+  },
+  "depths": [
+    {"id":"sunlight","name":"Sunlight","primary":"#169B93","secondary":"#D2B984","tertiary":"#F4B942"},
+    {"id":"twilight","name":"Twilight","primary":"#315FBA","secondary":"#858BB9","tertiary":"#58D0E4"},
+    {"id":"midnight","name":"Midnight","primary":"#47429C","secondary":"#236B98","tertiary":"#38E3F2"},
+    {"id":"abyss","name":"Abyss","primary":"#17354F","secondary":"#2C6078","tertiary":"#7CCEDC"},
+    {"id":"trench","name":"Trench","primary":"#111A2B","secondary":"#302B50","tertiary":"#91DCEA"}
+  ]
+}

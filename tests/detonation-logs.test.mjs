@@ -19,7 +19,7 @@ const UPLOAD = Buffer.from('#!/usr/bin/env python3\n# Invoice 2026-0042 for Dana
 const UPLOAD_SHA256 = createHash('sha256').update(UPLOAD).digest('hex');
 const FAKE_KEY_HEX = 'c3'.repeat(32);
 const FAKE_INFERENCE_KEY = 'fake-inference-key-for-the-log-test';
-const ENV = { DETONATION_ENABLED: 'true', UPLOAD_ENCRYPTION_KEY: FAKE_KEY_HEX, VULTR_INFERENCE_API_KEY: FAKE_INFERENCE_KEY, VULTR_INFERENCE_CODE_MODEL: 'fake-model' };
+const ENV = { DETONATION_ENABLED: 'true', DETONATION_UPLOADS: 'true', UPLOAD_ENCRYPTION_KEY: FAKE_KEY_HEX, VULTR_INFERENCE_API_KEY: FAKE_INFERENCE_KEY, VULTR_INFERENCE_CODE_MODEL: 'fake-model' };
 const FORBIDDEN = {
   'file name': UPLOAD_NAME,
   'file name stem': 'invoice',
