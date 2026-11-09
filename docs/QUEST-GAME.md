@@ -138,7 +138,7 @@ flag.
 | Guide, flags, grade card, chips, per-OS wording | Built and tested on both desktops |
 | Live search and scene writer | Built (`backend/threats/`, `ui/abyss/threat-search.js`) to [threat-search/CONTRACT.md](threat-search/CONTRACT.md) and tested on mocked services. The live site reports search and create switched on (`/api/threats/config`); deployment notes: [threat-search/DEPLOY.md](threat-search/DEPLOY.md) |
 | Quests for uploaded files | Built (`quest-writer.mjs`), off by default; file upload itself is retired on the live site |
-| Deployment | Two batches of the quests above are deployed on the live site |
+| Deployment | All 59 historical quests are deployed on the live site (quests-batch4, 2026-11-09) |
 
 ## Open gaps
 
