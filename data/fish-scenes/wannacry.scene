@@ -210,7 +210,7 @@ view wana-ransom ransom
   fg #202020
   accent #b00000
   header #a40000
-  size 760x470
+  size 760x400
   heading Ooops, your files have been encrypted!
   icon lock
   | Your important files are encrypted. Many of your documents, photos, videos and databases are no longer accessible.
@@ -265,10 +265,8 @@ launch mssecsvc
 
 # The encryptor runs as soon as the list is opened in {File Explorer|Finder}: every file in Documents is locked.
 step Every file gets a new ending
-  look {File Explorer|Finder}: the Documents folder, where every file now ends in .WNCRY
+  look {File Explorer|Finder}: the Documents folder, where every file now ends in .WNCRY, with a note and a program beside them
   when open files
-  move Double-click “Clinic list - Orthopaedics.docx.WNCRY” in Documents.
-  cue file:fs-clinic-list-orthopaedics-52bea499 app:files
   | Every file in Documents gains .WNCRY and will not open.
   | The booking system is on the server, so it still works; the Word list was on this PC.
 attack ransomware-encrypt
@@ -279,8 +277,7 @@ attack ransomware-encrypt
   | ...and 6 more files in Documents
 launch tasksche
 encrypt Documents .WNCRY
-file Desktop/@Please_Read_Me@.txt
-  at 820 200
+file Documents/@Please_Read_Me@.txt
   | Q:  What's wrong with my files?
   | A:  Ooops, your important files are encrypted.
   |
@@ -289,30 +286,18 @@ file Desktop/@Please_Read_Me@.txt
   |     The price doubles after 3 days. After 7 days the files are lost for ever.
   |
   | (Fictional training copy. Nothing on this desktop is real.)
-file Desktop/@WanaDecryptor@.exe
-  at 820 300
+file Documents/@WanaDecryptor@.exe
   program wanadecryptor
   size 245760
 open Documents
 
-# The locked list will not open, and the ransom window opens by itself: the next step plays after the trainee's own attempt.
-step It will not open: a window opens by itself
-  look the Wana Decrypt0r window, the new wallpaper, and the note and program on the desktop
-  | The list will not open: the computer says it cannot open the file, because it is locked. Then a Wana Decrypt0r window opens by itself, and the wallpaper turns black.
-  | It asks for $300 in bitcoin: the price doubles after 3 days, and after 7 days the files are lost for ever.
-launch wanadecryptor
-wallpaper #0b0b0b
-  | Ooops, your important files are encrypted.
-  | If you see this text, but don't see the "Wana Decrypt0r" window,
-  | then your antivirus removed the decrypt software
-  | or you deleted it from your computer.
-  | (Training illustration)
-
+# Task Manager shows the worm's two programs, and Priya's note about the locked Word files arrives.
 step What is running
-  look {Task Manager|Activity Monitor}: mssecsvc.exe, tasksche.exe and @WanaDecryptor@.exe, all with no publisher
+  look {Task Manager|Activity Monitor}: mssecsvc.exe and tasksche.exe, both with no publisher
   when open taskmanager
-  | Three programs the worm started are running. mssecsvc.exe is the service that keeps it going, tasksche.exe is the encryptor, and @WanaDecryptor@.exe is the ransom window's program.
-  | None of them has a publisher. While you look, Priya writes again: the Word files are locked on every PC.
+  move Double-click “Clinic list - Orthopaedics.docx.WNCRY” in Documents.
+  | Two programs the worm started are running. mssecsvc.exe is the service that keeps it going, and tasksche.exe is the encryptor. Neither has a publisher.
+  | While you look, Priya writes again: the Word files are locked on every PC.
 open taskmanager
 
 # Back to work: the booking system runs on the hospital's server, not on this PC, so Priya moves the last list there.
@@ -350,6 +335,19 @@ mail mail-paper
   | Priya
 notify mail Priya Shah
   | Orthopaedics list: use the booking system
+
+# The list will not open, and the ransom window opens by itself: this step plays after the trainee's own attempt.
+step It will not open: a window opens by itself
+  look the Wana Decrypt0r window, the new wallpaper, and @WanaDecryptor@.exe in {Task Manager|Activity Monitor}
+  | The list will not open: the computer says it cannot open the file, because it is locked. Then a Wana Decrypt0r window opens by itself, and the wallpaper turns black.
+  | It asks for $300 in bitcoin: the price doubles after 3 days, and after 7 days the files are lost for ever.
+launch wanadecryptor
+wallpaper #0b0b0b
+  | Ooops, your important files are encrypted.
+  | If you see this text, but don't see the "Wana Decrypt0r" window,
+  | then your antivirus removed the decrypt software
+  | or you deleted it from your computer.
+  | (Training illustration)
 
 step Back to work, on the server
   look the message from Priya: the booking system is on the server
@@ -391,9 +389,9 @@ flag hard file Documents/Clinic list - Orthopaedics.docx.WNCRY
   | The same name, with .WNCRY on the end: the file is locked and will not open.
 flag hard view wana-ransom
   | A window that opened by itself, demands bitcoin and counts down: the ransom demand.
-flag hard file Desktop/@WanaDecryptor@.exe
+flag hard file Documents/@WanaDecryptor@.exe
   | The ransom program: no publisher, no warning, and it opens the demand by itself.
-flag hard file Desktop/@Please_Read_Me@.txt
+flag hard file Documents/@Please_Read_Me@.txt
   | The ransom note the worm leaves beside the locked files.
 flag hard notice taskmanager connection blocked
   | Port 445 to other PCs: the worm looking for its next victim.

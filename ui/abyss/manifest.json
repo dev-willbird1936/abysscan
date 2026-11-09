@@ -873,8 +873,8 @@
     {
       "path": "ui/abyss/detonation-menu.js",
       "owner": "retro-theme",
-      "sha256": "8aa9163c6e7772c2d64b84c9352612241306dfc8bda70f45fc649aefe2dcb3bd",
-      "bytes": 25707,
+      "sha256": "e7c5af82584b358aaf58f15b9b79947469aaad0bc162452665913673998b524a",
+      "bytes": 25747,
       "mime": "text/javascript; charset=utf-8"
     },
     {
@@ -2903,8 +2903,8 @@
     {
       "path": "ui/abyss/threat-search.js",
       "owner": "retro-theme",
-      "sha256": "991a71dbe7bd61a310b7663601616b400c9427bca03e1592f52ebd932dc35752",
-      "bytes": 11346,
+      "sha256": "e7d004b723f04e2af43a1e7c9e3cda3fddf49296bb958e98536524cb4b3a22eb",
+      "bytes": 11747,
       "mime": "text/javascript; charset=utf-8"
     },
     {

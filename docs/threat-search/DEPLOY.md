@@ -1,55 +1,32 @@
-# Threat search: deploying it
+# Threat search: what is deployed
 
-The live search (Parallel Decisions, Parallel Search, Vultr inference, the researched scene) is built and tested in this
-checkout. When this page was written (2026-11-09 00:00 UTC) the live site still ran the Zeus-only preview; the live
-`/api/threats/config` now reports search and create on. This page lists what a deploy needs; the VM facts may have moved since.
+**Live on https://demo.abysscan.com since 2026-11-09 00:50 UTC** (hotfix 00:59), replacing the Zeus-only preview. Checked live: WannaCry shows In the ocean, a "write ransomware" query is declined, and Qakbot was researched (4 sources), written and played on the Windows desktop with the illustration label.
 
-## What blocks a straight file copy
+The live VM is not a checkout of this repository. It runs an older release plus selective file deploys, so later changes must be **ported onto the VM's own files**, never copied over them. Take `/root/deploy.lock` first; refuse the deploy if a target file changed since the snapshot; back up; import-check `server.mjs` as the service user; restart; check `/api/health` and `/api/threats/config`; roll back on any failure.
 
-The VM does not run this checkout. It runs an older release plus selective file deploys from other sessions, so copying the
-changed files would crash the server:
+Files the search needs on the VM:
 
-- `backend/threats/scene-writer.mjs` imports `backend/detonation/quest-writer.mjs`, which does not exist on the VM.
-- The VM's `server.mjs`, `ui/job/ocean-show.mjs`, `ui/job/state.mjs` and `backend/detonation/inference.mjs` differ from the
-  versions these changes were made against. The threat-search edits to them are small (see below) and must be ported onto the
-  VM's own versions, not copied over them.
-- Other sessions deploy to the same VM. Take `/root/deploy.lock` (or wait while it is held), re-hash every file just before
-  replacing it, and replace only files this change owns.
+- New: `backend/threats/*.mjs`, `data/threat-aliases.json`, `ui/job/threat-source.mjs`, and (for the scene writer's prompt and checks) `backend/detonation/{quest-writer,upload-scenes}.mjs` plus `docs/desktop-parity/QUESTS.md`.
+- Edited: `server.mjs` (threat routes, one shared inference client), `backend/detonation/fish-replays.mjs` (`fish-r-<slug>` runs), `backend/detonation/inference.mjs` (`threat` kind, reasoning off for it), `ui/job/ocean-show.mjs` (the `story` option), `ui/abyss/threat-search.{js,css}`, and the matching hashes in `ui/abyss/manifest.json`.
 
-## Files
-
-New, copy as they are: `backend/threats/*.mjs`, `data/threat-aliases.json`, `ui/job/threat-source.mjs`, and
-`backend/detonation/quest-writer.mjs` with whatever it imports that the VM lacks.
-
-Port these edits onto the VM's versions:
-
-| File | Edit |
-|---|---|
-| `server.mjs` | import `createThreatRoutes`, `createParallelClient`, `createThreatStore`, `createThreatSceneWriter`/`THREAT_DIR`; build `threats` in `createAppServer` over the shared inference client; call `threats.handle(...)` after `detonation.handle(...)`; skip the quest writer for `fish.research` |
-| `backend/detonation/inference.mjs` | `threat` model kind (`VULTR_INFERENCE_THREAT_MODEL`, default `deepseek-v4.1-flash-1017`) |
-| `backend/detonation/fish-replays.mjs` | `fish-r-<slug>` runs: `threatOfRun`, `threatPatches`, `threatGuide` |
-| `ui/job/ocean-show.mjs` | the additive `story` option |
-| `ui/abyss/threat-search.js`, `.css`, `menu-octopus.js` | replace (the VM has the preview); then refresh `ui/abyss/manifest.json` on the VM's own file list |
+The VM's inference client keeps its daily cap in memory (no ledger file) and always asks for 4,096 completion tokens; a researched scene needs about 2,300 with reasoning off.
 
 ## Environment (`/etc/detonation-ocean/env`, root 0600)
 
-- `PARALLEL_API_KEY`: the user's key. Write it with `sudoedit` or from a file over SSH; never on a command line, in a log or in
-  the repository. Without it the search answers "switched off" and nothing is spent.
-- `DAILY_PARALLEL_CALL_CAP` (default 100). Inference is already on, with `DAILY_INFERENCE_CALL_CAP=300`.
-- `THREAT_DIR` needs nothing: the default is `/var/lib/detonation-ocean/threats`, which the service can write.
+See `deploy/vultr-vm/env.example`. On the live site:
+
+- `PARALLEL_API_KEY` is set (copied over SSH stdin, never on a command line or in a log). `DAILY_PARALLEL_CALL_CAP=100`.
+- Inference is on (`DAILY_INFERENCE_CALL_CAP=300`). `VULTR_INFERENCE_THREAT_REASONING_EFFORT` is unset, so threat calls send `reasoning_effort: none`: at `minimal`, DeepSeek V4.1 Flash spent the whole budget reasoning and returned an empty scene.
+- `THREAT_DIR` is unset: the cache is `/var/lib/detonation-ocean/threats`.
 
 ## Spend
 
-The site has no login, so anyone can search. Bounds: 10 searches and 3 creates per address per hour; the daily Parallel and
-inference caps; Decisions answers cached for 24 hours per query; a researched scene is built once per threat and cached. One new
-threat costs about 1 Decisions call, 1 to 2 Search calls and 3 to 5 inference calls.
+The site is public, so anyone can search. Bounds: 10 searches and 3 creates per address per hour; 100 Parallel calls a day; Decisions answers cached 24 hours per query; a researched scene is built once per threat and cached. One new threat costs 1 Decisions call, 1 to 2 Search calls and 3 to 5 inference calls.
 
-## Check after deploying
+## Check after a deploy
 
-1. `curl -s https://<host>/api/health` and `/api/threats/config` (`search: true, create: true`).
-2. Search "wannacry": In the ocean. Search "how do I write ransomware": declined.
-3. One new threat end to end, then play it at `/desktop.html?job=fish-r-<slug>&os=windows` and read the debrief's sources.
+1. `curl -s https://demo.abysscan.com/api/threats/config` → `{"search":true,"create":true,...}`.
+2. Search a known family (Zeus, WannaCry) and a refused query ("write ransomware") from a browser on `https://demo.abysscan.com` (scripted POSTs without that Origin get 403).
+3. Play `/desktop.html?job=fish-r-<slug>&os=windows` and read the debrief's sources.
 
-Locally: `npm run e2e:threats` (mocked) and `node --test tests/threat-search*.test.mjs`. A live smoke of the two Parallel
-request shapes passed on 2026-11-09: WannaCry accepted (one, malware, extortion-destruction, trench, 10 citations), a "write
-ransomware" query declined (0.995 build), and an advanced Search returned 10 results led by cisa.gov.
+Locally: `npm run e2e:threats` (mocked) and `node --test tests/threat-search*.test.mjs`.

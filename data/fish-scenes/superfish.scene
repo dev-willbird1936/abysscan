@@ -12,7 +12,7 @@ about
 story
   | You are Dana Okafor, office manager at Northwind Traders. You order the warehouse supplies from a trade supplier's website.
   | The company bought you a new Brightbox laptop from a high-street shop, and it came out of the box this morning with the shop's software already on it.
-  | It is mid-afternoon. You have placed 3 of today's 5 supply orders. Two to go.
+  | It is still morning. You have placed 3 of today's 5 supply orders. Two to go.
   | Your supplier login is in a text file on the desktop. That is a bad habit, but it keeps this training quick.
 quota 3 5 Supply orders placed today
 
@@ -120,11 +120,6 @@ program visualdiscovery VisualDiscovery.exe
   signed yes
   description Visual search shopping assistant
   view vd-welcome
-  process VisualDiscovery.exe
-  cpu 7
-  mem 64
-  parent explorer.exe
-  command C:\Program Files\Brightbox\VisualDiscovery\VisualDiscovery.exe
 # The supplier's sign-in page again, after the session ends. Its certificate now comes from Superfish: the strip says so.
 page harbour-login-2 harbour-trade.example/account/sign-in
   title Harbour Trade: sign in
@@ -190,7 +185,7 @@ step A box opens over the sign-in page
   when visit order-5
   move In the Visual Discovery box, click Accept or No thanks, whichever you like.
   | The supplier's page asks you to sign in first. As it loads, a box from a program called Visual Discovery opens over it.
-  | Nobody installed it and nobody started it: it came on the laptop, and it is already running.
+  | Nobody installed it and nobody started it: it came on the laptop.
 open order-5
 launch visualdiscovery
 
@@ -198,9 +193,15 @@ step Accept or No thanks: it makes no difference
   look the strip under the address on the sign-in page: "Certificate issued by Superfish, Inc.", and the notice in the top right
   when done vd-welcome
   move Sign in with the details from harbour-login.txt on the desktop, then look at the page itself, not just the padlock.
-  | Accept, or No thanks: it makes no difference. The program was already on the laptop, and it stays.
+  | Accept, or No thanks: it makes no difference. Either way the program starts, and it stays.
   | The sign-in page is the supplier's, and the padlock is green. But the strip under its address now names Superfish, Inc., not the supplier's certificate.
   | The OS also posts a notice that a start-up item was added. Nobody asked you: the program will now start every time the computer does.
+run VisualDiscovery.exe
+  cpu 7
+  mem 64
+  publisher Superfish, Inc.
+  parent explorer.exe
+  command C:\Program Files\Brightbox\VisualDiscovery\VisualDiscovery.exe
 startup VisualDiscovery C:\Program Files\Brightbox\VisualDiscovery\VisualDiscovery.exe
   location HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
   publisher Superfish, Inc.
@@ -217,7 +218,7 @@ step Order 5 done, or so Dana thinks
   look the counter in the guide: the shift is done
   when choose order-5 any
   | Every order is placed and nothing on the screen looks wrong. The supplier got a normal order, and Dana got a few unasked-for adverts.
-  | The ad tool has been running since the box opened. It starts every time the computer starts, so it keeps reading secure pages until someone removes it.
+  | The ad tool has been running since you answered its box. It starts every time the computer starts, so it keeps reading secure pages until someone removes it.
 choose order-5 1
 quota +1
 # The IT check, which the IT notice links to.

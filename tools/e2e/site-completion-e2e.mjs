@@ -1,4 +1,6 @@
 // Regression checks for the site-review fixes. UI fixtures below are synthetic; no upload or cloud call is made.
+// File upload is retired: the main menu opens on the threat search, and nothing on the page may post to /api/jobs.
+// Run: E2E_SCENE_STUDIO=true node tools/e2e/site-completion-e2e.mjs (the Studio checks need Scene Studio on).
 import assert from 'node:assert/strict';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -9,57 +11,45 @@ const out = process.env.SITE_REVIEW_OUT || join(tmpdir(), 'abysscan-site-complet
 mkdirSync(out, { recursive: true });
 const { ctx, external, stop } = await start();
 const errors = [], results = [];
-let expectedRefusal = false;
 const check = (name, detail = '') => { results.push({ name, detail }); console.log('PASS', name, detail); };
 const observe = page => {
   page.on('pageerror', e => errors.push(e.message));
-  page.on('console', e => { if ((e.type() === 'error' && !(expectedRefusal && e.text().includes('status of 503'))) || e.text().includes('pixel-lit: no normal map')) errors.push(e.text()); });
+  page.on('console', e => { if (e.type() === 'error' || e.text().includes('pixel-lit: no normal map')) errors.push(e.text()); });
 };
 const shot = (page, name) => page.screenshot({ path: join(out, `${name}.png`), timeout: 60000 });
 const ready = page => page.waitForFunction(() => window.__boot?.done === true, null, { timeout: 60000 });
 const atSurface = async page => {
-  await page.waitForFunction(() => scrollY < 4 && getComputedStyle(document.querySelector('#upload')).visibility === 'visible' && Number(getComputedStyle(document.querySelector('#upload')).opacity) > .95, null, { timeout: 10000 });
-  assert.equal(await page.locator('.drop-go').isVisible(), true);
-  assert.ok(await page.locator('#upload').evaluate(node => Number(getComputedStyle(node).opacity) > .95), 'upload form must be opaque, not merely visibility:visible');
+  await page.waitForFunction(() => { const form = document.querySelector('#threat-search'); return scrollY < 4 && form && getComputedStyle(form).visibility === 'visible' && Number(getComputedStyle(form).opacity) > .95; }, null, { timeout: 10000 });
+  assert.equal(await page.locator('#threat-search input[type=search]').isVisible(), true);
+  assert.ok(await page.locator('#threat-search').evaluate(node => Number(getComputedStyle(node).opacity) > .95), 'search form must be opaque, not merely visibility:visible');
+  assert.equal(await page.locator('#upload, .drop-file, #drop-consent').count(), 0, 'the retired upload panel must not be on the page');
 };
 try {
   const page = await ctx.newPage(); observe(page);
-  // This suite stubs upload refusal; availability is explicitly synthetic too.
-  await page.route('**/api/health', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, acceptingJobs: true }) }));
-  await page.goto(PARENT + '/#upload'); await ready(page); await atSurface(page);
+  // Health is synthetic; uploads are retired, so the site reports it is not accepting jobs.
+  let jobPosts = 0;
+  await page.route('**/api/health', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, acceptingJobs: false }) }));
+  await page.route('**/api/jobs', route => { if (route.request().method() === 'POST') jobPosts++; return route.fulfill({ status: 410, contentType: 'application/json', body: '{}' }); });
+  await page.goto(PARENT + '/#threat-search'); await ready(page); await atSurface(page);
   const resources = await page.evaluate(() => performance.getEntriesByType('resource').map(r => ({ name: new URL(r.name).pathname, bytes: r.transferSize, duration: r.duration })).sort((a, b) => b.bytes - a.bytes));
   writeFileSync(join(out, 'home-resources.json'), JSON.stringify(resources, null, 2));
-  check('incoming Upload hash reveals form', `${resources.reduce((sum, r) => sum + r.bytes, 0)} resource bytes`);
+  check('incoming search hash reveals the threat search', `${resources.reduce((sum, r) => sum + r.bytes, 0)} resource bytes`);
   await page.waitForTimeout(3500); await shot(page, 'desktop-home');
-  await page.goto(PARENT + '/#upload'); await page.waitForTimeout(500); await atSurface(page);
-  check('same-document Upload hash cannot reapply native anchor scrolling');
+  await page.goto(PARENT + '/#threat-search'); await page.waitForTimeout(500); await atSurface(page);
+  check('same-document search hash cannot reapply native anchor scrolling');
   await page.locator('.site-tools summary').click();
   assert.equal(await page.locator('.site-tools').evaluate(node => node.open), true);
   assert.equal(await page.locator('.site-tools a[href="/scene-studio"]').isVisible(), true);
   await page.locator('.site-tools summary').click(); check('separate operator tools remain clickable above the ocean canvas');
   for (const path of ['/about', '/bestiary']) {
-    await page.goto(PARENT + path); await page.locator('a[href="/#upload"]').click(); await ready(page); await atSurface(page);
-    check(`${path} → Upload stays at surface`);
+    await page.goto(PARENT + path); await page.locator('a[href="/#threat-search"]').first().click(); await ready(page); await atSurface(page);
+    check(`${path} → Search stays at surface`);
   }
   await page.mouse.wheel(0, 2200); await page.waitForTimeout(1300);
-  await page.locator('a.nav-upload').click(); await atSurface(page); check('Upload from a deep scroll stays at surface');
-  await page.locator('a[href="/about"]').click(); await page.goBack(); await ready(page); await atSurface(page); check('browser Back preserves a usable upload form');
-  await page.locator('.drop-example summary').click();
-  let posts = 0;
-  expectedRefusal = true;
-  await page.route('**/api/jobs', route => { posts++; return route.fulfill({ status: 503, contentType: 'application/json', body: '{}' }); });
-  await page.locator('.drop-sample').click();
-  assert.equal(await page.locator('#drop-consent').isChecked(), false);
-  const sample = await page.locator('.drop-file').evaluate(async input => ({ name: input.files[0].name, source: await input.files[0].text() }));
-  assert.match(sample.name, /harmless-sample\.py$/); assert.match(sample.source, /^#!\/usr\/bin\/env python3\nprint\(/);
-  assert.equal(posts, 0);
-  await page.locator('.drop-go').click();
-  assert.match(await page.locator('.drop-msg').innerText(), /Tick the box/); assert.equal(posts, 0);
-  await page.locator('#drop-consent').check(); await page.locator('.drop-go').click();
-  await page.waitForFunction(() => /not accepting files/.test(document.querySelector('.drop-msg').textContent));
-  assert.equal(posts, 1); check('harmless sample uses normal consent and refusal handling');
+  await page.locator('.site-skip').focus(); await page.keyboard.press('Enter'); await atSurface(page); check('search from a deep scroll stays at surface');
+  await page.locator('a[href="/about"]').first().click(); await page.goBack(); await ready(page); await atSurface(page); check('browser Back preserves a usable search form');
+  assert.equal(jobPosts, 0); check('the main menu never posts to the retired upload route');
   await page.unroute('**/api/jobs');
-  expectedRefusal = false;
   await page.goto(PARENT + '/bestiary'); await page.waitForSelector('#creatures .card');
   assert.equal(await page.locator('[data-bestiary-section]').first().getAttribute('aria-labelledby'), 'h-creatures');
   await page.locator('#bestiary-search').fill('.pdf');
@@ -121,19 +111,9 @@ try {
   await page.route('**/api/jobs/' + jobId + '**', route => route.fulfill({ status: 200,
     contentType: route.request().url().endsWith('/events') ? 'text/event-stream' : 'application/json',
     body: route.request().url().endsWith('/events') ? events.map(e => `id: ${e.id}\nevent: ${e.event}\ndata: ${JSON.stringify(e.data)}\n\n`).join('') : JSON.stringify({ status: 'done', report }) }));
+  // Uploads are retired, so the report of an earlier job is opened directly from its private link.
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto(PARENT); await ready(page);
-  await page.locator('.drop-file').setInputFiles({ name: 'test.py', mimeType: 'text/x-python', buffer: Buffer.from("print('hello')\n") });
-  await page.locator('#drop-consent').check(); await page.locator('.drop-go').click();
-  await page.locator('.os-next:not([disabled])').waitFor({ timeout: 45000 });
-  for (let i = 0; i < 2; i++) { await page.locator('.os-next:not([disabled])').click(); await page.locator('.os-next:not([disabled])').waitFor(); }
-  assert.match(await page.locator('#os-title').innerText(), /inspection/i);
-  assert.match(await page.locator('.os-text').innerText(), /inspected, not executed/i);
-  for (let i = 0; i < 3; i++) { await page.locator('.os-next:not([disabled])').click(); await page.locator('.os-next:not([disabled])').waitFor(); }
-  assert.match(await page.locator('#os-title').innerText(), /inconclusive/i);
-  assert.doesNotMatch(await page.locator('#os-title').innerText(), /safe/i);
-  await shot(page, 'inconclusive-verdict');
-  await page.locator('.os-skip').click(); await page.locator('#jv-report-download').waitFor();
+  await page.goto(`${PARENT}/job/${jobId}?seen#${token}`); await page.locator('#jv-report-download').waitFor({ timeout: 45000 });
   assert.equal(await page.locator('#jv-octopus-status').innerText(), 'Not run');
   assert.doesNotMatch(await page.locator('#jv-terminal').innerText(), /Writing analysis code/);
   assert.equal(await page.locator('.jv-stage-row[data-status=skipped]').count(), 2);
@@ -148,15 +128,15 @@ try {
 
   const mobile = await ctx.newPage(); observe(mobile);
   await mobile.setViewportSize({ width: 390, height: 844 });
-  await mobile.goto(PARENT + '/#upload'); await ready(mobile); await atSurface(mobile);
+  await mobile.goto(PARENT + '/#threat-search'); await ready(mobile); await atSurface(mobile);
   assert.equal(await mobile.locator('header nav').isVisible(), false);
   await mobile.getByRole('button', { name: 'Menu', exact: true }).click();
   assert.equal(await mobile.locator('header nav').isVisible(), true);
   assert.equal(await mobile.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
   await shot(mobile, 'mobile-menu');
   await mobile.locator('a[href="/about"]').click();
-  await mobile.getByRole('button', { name: 'Menu', exact: true }).click(); await mobile.locator('a[href="/#upload"]').click();
-  await ready(mobile); await atSurface(mobile); check('mobile menu and About → Upload have no horizontal overflow');
+  await mobile.getByRole('button', { name: 'Menu', exact: true }).click(); await mobile.locator('a[href="/#threat-search"]').first().click();
+  await ready(mobile); await atSurface(mobile); check('mobile menu and About → Search have no horizontal overflow');
   await mobile.waitForTimeout(3500); await shot(mobile, 'mobile-home');
   await mobile.goto(PARENT + '/bestiary'); await mobile.locator('#creatures .card').first().waitFor();
   assert.equal(await mobile.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);

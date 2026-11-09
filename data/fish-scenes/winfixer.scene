@@ -1,10 +1,10 @@
-# WinFixer (2004-2008). Scareware: a pop-up and a fake scan "found" errors, then a nagging program demanded payment to fix them. A US court fined the company behind it in 2008.
+# WinFixer (2004-2008). Scareware: a pop-up and a fake scan "found" errors, then a nagging program demanded payment to fix them. In 2008 US regulators took the company behind it to court.
 # A quest (QUESTS.md): the trainee places the day's office supply orders, does one safely, then meets a "your computer is infected" page on a price-checking trip.
 os windows
 user Dana Okafor
 about
-  | WinFixer pop-ups and web pages claimed a free scan had found hundreds of errors and threats, and offered to fix them for a fee.
-  | The "errors" were made up, and the program fixed nothing. It started with Windows and kept up the alerts until the victim paid. In 2008 a US court fined the company behind it.
+  | WinFixer pop-ups and web pages claimed a free scan had found over a hundred errors and threats, and offered to fix them for a fee.
+  | The "errors" were made up, and the program fixed nothing. It started with Windows and kept up the alerts until the victim paid. In 2008 US regulators took the company behind it to court.
   | WinFixer was not tied to one job; most victims met it on an ordinary web page. The office worker in this training is invented, to show how it reached people at work.
 story
   | You are Dana Okafor, office coordinator at Northwind Traders. Marcus has asked you to place five supply orders today, all in before five o'clock.
@@ -149,6 +149,7 @@ step The download
   look the new file in Downloads
   when choose scan any
   | Either button starts the same download: the browser saves WinFixerSetup.exe in Downloads. You were looking for a printer price, not software, and an advert has just put a program on the computer.
+  | Close the tab instead: on pages like this even Cancel can be a download.
 choose scan 1
 file Downloads/WinFixerSetup.exe
   program winfixer
@@ -161,7 +162,7 @@ open Downloads
 view wf-setup wizard
   title WinFixer Setup
   app WinFixer Setup
-  publisher Unknown Publisher
+  publisher Quickmend Software Ltd
   page Install WinFixer
   icon program
   | WinFixer will find and repair problems on this computer. These extras are included.
@@ -169,7 +170,6 @@ view wf-setup wizard
   check [x] Install the WinFixer toolbar
   check [x] Start WinFixer every time the computer starts
   check [x] Scan my computer for free when setup finishes
-  note All three boxes are already ticked.
   button Install -> next primary
   button Cancel -> close
   page Setup complete
@@ -177,15 +177,15 @@ view wf-setup wizard
   | WinFixer is installed. A scan will start now.
   button Finish -> done primary
 view wf-pay message
-  title WinFixer: payment (training copy)
+  title WinFixer: register
   app WinFixer
   icon money
-  | A card form would open here and ask for 49.95 USD. Nothing in this training asks for a real card.
+  | Card details are needed to buy the full version: 49.95 USD.
   button OK -> close primary
 view wf-scan scan
-  title WinFixer: system scan (training copy)
+  title WinFixer: system scan
   app WinFixer
-  publisher Unknown Publisher
+  publisher Quickmend Software Ltd
   page Scan results
   icon shield-bad
   heading 117 problems found
@@ -196,7 +196,6 @@ view wf-scan scan
   cells Registry errors | 98 | High
   cells Privacy risks | 19 | Medium
   cells Trojans | 3 | Critical
-  note No real scan took place. The same numbers appear on every computer.
   button Fix all problems -> next primary
   button Close -> close
   page Register to fix
@@ -206,10 +205,17 @@ view wf-scan scan
   section Price
   row Full version = 49.95 USD
   row Problems found = 117
-  row Problems fixed = 0
   tone bad
-  note Nothing was ever repaired. The alerts came back until the victim paid.
   button Buy full version -> view:wf-pay primary
+  button Remind me later -> done
+# The alert WinFixer.exe keeps showing once it is running: it comes back over whatever Dana is doing.
+view wf-nag message
+  title WinFixer
+  app WinFixer
+  icon shield-bad
+  heading Register now: 117 problems
+  | Your computer has 117 problems. Register WinFixer to remove them.
+  button Register now -> view:wf-pay primary
   button Remind me later -> done
 program winfixer WinFixerSetup.exe
   publisher none
@@ -227,20 +233,20 @@ program winfixer WinFixerSetup.exe
   view wf-setup
 
 step The warning
-  look Publisher "Unknown Publisher", Type "Application"
+  look {Publisher “Unknown Publisher”, Type “Application”|the warning: “is a Windows program”}
   when prompt winfixer
   | A page you did not ask for gave you a program, and the computer asks before it runs it: the publisher is unknown. Many people clicked Run anyway.
 open Downloads/WinFixerSetup.exe
 
 step Two questions, and boxes already ticked
-  look the installer window: three ticked boxes, and the banners
+  look the installer window: three ticked boxes, and the start-up notice
   when run winfixer
-  move Press “Install” in the installer window, as most people do. If another window covers it, click the installer first.
+  move Press “Install” in the installer window, as most people do.
   | The computer asked twice: to run the file, and to allow changes to the system. Both questions say the publisher is unknown. The installer offers a toolbar, start-up with the computer and a free scan, all ticked in advance.
   | WinFixer.exe is already running and has added itself to start-up, before you pressed Install.
-answer run
-answer run
 close files
+answer run
+answer run
 
 step Setup is done
   look the installer's last page
@@ -249,12 +255,10 @@ step Setup is done
 press wf-setup next
 
 step A scan that finds everything
-  look the WinFixer scan: 117 problems, and the note under the table
+  look the WinFixer scan: 117 problems, and the table of errors
   when done wf-setup
   | WinFixer "scans" the computer and finds 117 problems, the same on every computer. The scan never looked at your files.
 show wf-scan
-notify settings Your PC is at risk!
-  | 117 errors found. Click to fix now. (Fake: no scan took place.)
 
 step Fixing costs money
   look the price page: "Buy full version" and "Remind me later"
@@ -267,42 +271,43 @@ press wf-scan next
 # The payoff: the alerts return while Dana finishes the last order.
 
 step The reminders return
-  look the banner and Marcus's new message
+  look Mail: Marcus's new message
   when done wf-scan
   move Open Marcus's message and follow its link to the order.
-  | You pressed “Remind me later”, and it did not take long. WinFixer is still running, so its banner is back on the screen.
-  | Marcus has found the printer at Brightline, the shop you trust. Open his message to finish the last order.
+  | You pressed “Remind me later”, and it did not take long. WinFixer.exe is still running, and it keeps its alerts coming.
+  | Marcus has sent a reminder about the last order.
 mail mail-order
   from Marcus Lee <marcus.lee@northwind.example>
-  subject Forget the review site: order the Lumen from Brightline
+  subject Label printer: post room still waiting (order 5 of 5)
   link label-order
   | Dana,
   |
-  | Brightline have the Lumen LP-200 at 124.00, so order it there. The link goes straight to the order.
+  | The post room is still waiting for the label printer. Brightline have the Lumen LP-200 at 124.00, so order it there. The link goes straight to the order.
   |
   | Marcus
-notify settings Your PC is at risk!
-  | WinFixer: 117 problems still found. Register now to remove them.
 notify mail Marcus Lee
-  | Forget the review site: order the Lumen from Brightline
+  | Label printer: post room still waiting (order 5 of 5)
 
 step The last order
-  look the address, then the item, the price and the card
+  look the WinFixer alert over the order page, then the address, item and price
   when visit label-order
-  | The same shop and the same page you used for the toner. The alerts are a distraction, not part of the order. Check it, then place it.
+  move Press “Remind me later” in the WinFixer alert, then place the order.
+  cue view-btn:done choice:label-order-1
+  | The order page opens, and an alert from WinFixer comes up over it: “Register now: 117 problems”. The page is the Brightline one you used for the toner.
+  | Close the alert, check the order, and place it.
 open label-order
+show wf-nag
 
 step Order 5 of 5, or so Dana thinks
-  look the counter: the shift is done, and the banner again
+  look the counter: the shift is done
   when choose label-order any
-  | Every order is placed, and the computer still works. But WinFixer.exe is still running, and the alerts will keep coming. Press Next to see what it was.
+  | Every order is placed, and the computer still works. But WinFixer.exe is still running, and its alerts will keep coming. Press Next to see what it was.
 choose label-order 1
+close wf-nag
 quota +1
-notify settings Your PC is at risk!
-  | WinFixer: register now. Your computer is not protected.
 
 step What WinFixer was
-  look Task Manager: WinFixer.exe, still running
+  look {Task Manager|Activity Monitor}: WinFixer.exe, still running
   | WinFixer was never a scanner. It started from an advert, invented 117 problems, charged 49.95 USD to fix them and fixed nothing. Paying meant a card number sent to the people behind it.
   | Removing it means taking it out of the start-up list and uninstalling it, using security software you already trust.
 attack scareware
@@ -316,8 +321,10 @@ block 203.0.113.60 443
 
 flag hard section scan 1
   | A web page cannot scan your computer. These numbers are made up to frighten you.
+flag hard view wf-scan
+  | 117 problems, the same on every computer, and a price to fix them: that is how scareware works.
 flag hard choice scan 1
-  | An advert pushing you to download software you were not looking for.
+  | The button that starts the download. Cancel starts it too, so close the tab instead.
 flag hard file Downloads/WinFixerSetup.exe
   | A program that arrived from an advert, not from the maker of your security software.
 flag hard dialog open-warning winfixer
@@ -327,7 +334,7 @@ flag hard dialog elevation winfixer
 flag hard process WinFixer.exe
   | WinFixer keeps running in the background, so the alerts keep coming.
 flag hard startup WinFixer
-  | It added itself to the programs that start with the computer, whatever the ticked box says.
+  | It added itself to the programs that start with the computer when it first ran, before you pressed Install.
 flag soft file Desktop/company-card.txt
   | A card number and PIN in a text file on the desktop: any program that runs can read them. Use a password manager.
 flag soft file Desktop/shop-login.txt
@@ -335,5 +342,5 @@ flag soft file Desktop/shop-login.txt
 
 lesson
   | A web page cannot scan your computer. Alarming numbers with a price attached mean scareware: close the tab.
-  | Do not run a program an advert gave you. Untick pre-ticked extras, and use the security software that came with your system.
+  | Do not run a program an advert gave you. Pre-ticked extras are a warning sign, but WinFixer had started itself before you pressed Install.
   | If a program like this is already on the computer, remove it through the list of installed apps, and do not pay to "fix" what it invented.

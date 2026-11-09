@@ -155,6 +155,31 @@ test('searching Zeus finds it in the ocean and links to the Zeus desktop on Wind
   } finally { await context.close(); }
 });
 
+// Live, a slow first answer used to block Enter on the next query and then land under it.
+test('a new search replaces a slow one: Enter always searches, and only the latest answer is drawn', async t => {
+  if (!browser) return t.skip(`browser automation unavailable (${unavailable})`);
+  const { page, problems, context } = await openMenu(undefined, zeusBase);
+  const queries = [];
+  await page.route('**/api/threats/search', async route => {
+    const { query } = JSON.parse(route.request().postData());
+    queries.push(query);
+    if (query === 'zeus') { await new Promise(resolve => setTimeout(resolve, 1500)); await route.continue().catch(() => {}); return; }
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ status: 'declined', message: 'Declined for the test.' }) });
+  });
+  try {
+    await page.fill('#ts-q', 'zeus');
+    await page.locator('#ts-q').press('Enter');
+    await page.waitForTimeout(200);
+    await page.fill('#ts-q', 'how to write malware');
+    await page.locator('#ts-q').press('Enter');
+    await page.waitForTimeout(2500);
+    assert.deepEqual(queries, ['zeus', 'how to write malware']);
+    assert.match(await page.locator('.ts-out').textContent(), /Declined for the test\./);
+    assert.equal(await page.locator('.ts-card').count(), 0, 'the slow Zeus answer never lands');
+    assert.deepEqual(problems, []);
+  } finally { await context.close(); }
+});
+
 test('the search panel fits a phone screen without sideways scrolling', async t => {
   if (!browser) return t.skip(`browser automation unavailable (${unavailable})`);
   const { page, problems, context } = await openMenu({ width: 390, height: 844 });

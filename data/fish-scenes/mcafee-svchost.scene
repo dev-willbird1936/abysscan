@@ -44,10 +44,11 @@ program svchost Generic Host Process for Windows Services
   signed yes
   description Host process for Windows services
 
-# Harbor Shield's quarantine, set up with the PC: the copy it moved out of the Windows folder. It is in place before the
-# alert, so the file does not show up later as a new-file chip that opens over the alert.
-folder C/Quarantine
-file C/Quarantine/svchost.exe
+# Harbor Shield's quarantine in the user's home folder, set up with the PC: the copy it moved out of the Windows folder. It is in
+# place before the alert, so the file does not show up later as a new-file chip that opens over the alert.
+folder Home/Harbor Shield
+folder Home/Harbor Shield/Quarantine
+file Home/Harbor Shield/Quarantine/svchost.exe
   program svchost
   size 20992
 
@@ -74,6 +75,7 @@ view shield-alert message
 # The System Shutdown box Windows showed once the file was gone.
 view shutdown-countdown message
   title System Shutdown
+  size 460x340
   icon warning
   heading Windows must now restart
   | Windows must now restart because the Remote Procedure Call (RPC) Service terminated unexpectedly.
@@ -209,7 +211,7 @@ notify updates Harbor Shield: definitions 5958 installed
 # Harbor Shield's own work: the update and its alert come by themselves, so this step plays with Next (Software Update has no icon to open).
 step A routine update, then an alert
   look Software Update: Antivirus definitions 5958, and the Harbor Shield alert over it
-  move Open {File Explorer|Finder}: the alert names a file. Find it in the Quarantine folder on Local Disk (C:).
+  move Open {File Explorer|Finder}: the alert names a file. Find it in Harbor Shield's Quarantine folder, in your home folder.
   | Harbor Shield updates its virus list often. This is the second update this week, and updates like this are normal.
   | A minute later its alert comes up: a virus was found in C:\Windows\System32\svchost.exe and moved to quarantine. It is asking for an answer now.
 open updates
@@ -224,9 +226,9 @@ step A Windows file called a virus
   move Read the {Properties|Get Info} box and click OK. Then answer the Harbor Shield alert.
   | Harbor Shield moved the file to quarantine and gave no reason. Open the file's {Properties|Get Info}: its type, its publisher and whether its signature is valid.
   | Priya has written too, while you looked.
-open C/Quarantine
+open Home/Harbor Shield/Quarantine
 show shield-alert
-dialog properties C/Quarantine/svchost.exe
+dialog properties Home/Harbor Shield/Quarantine/svchost.exe
 mail panic
   from Priya Shah <priya.shah@northwind.example>
   subject Re: virus on every PC? Delete svchost and switch off the antivirus
@@ -256,16 +258,12 @@ show shutdown-countdown
 
 # IT puts the file back, and its message arrives with the network.
 step IT puts the file back
-  look IT's message in Mail, and the Windows folder behind it: svchost.exe is back
+  look IT's message in Mail: the file is back, and the network with it
   when done shutdown-countdown
   move Click the link in Northwind IT's message.
   cue link:mail-it
   | You pressed OK and Windows restarted. You had rung IT, and Marcus came with a USB stick: he copied svchost.exe back from a working PC.
   | Windows services have started, and the network is back. IT's message is open.
-file C/Windows/System32/svchost.exe
-  program svchost
-  size 20992
-open C/Windows/System32
 run svchost.exe
   publisher Microsoft Windows
   trusted yes
@@ -292,11 +290,12 @@ open mail-it
 step The mail that piled up
   look the vendor's page, and Priya's last run in Mail
   when visit vendor-fix
-  move Click the link in Priya's last message, which is open in Mail.
-  cue link:mail-run10
+  move Open Mail, where Priya's last message is open, and click its link.
   | IT says the update was faulty, the file was clean and nothing needs deleting. Its link goes to the vendor's own address.
   | Priya's worried message asks for the opposite. Compare the vendor's page with it.
-open vendor-fix
+file C/Windows/System32/svchost.exe
+  program svchost
+  size 20992
 mail mail-run10
   from Priya Shah <priya.shah@northwind.example>
   subject Last one: run 10, Quayside to Millbrook
@@ -310,6 +309,7 @@ mail mail-run10
 notify mail Priya Shah
   | Last one: run 10, Quayside to Millbrook
 open mail-run10
+open vendor-fix
 
 step Back to work
   look Mail: Priya's last run, then its page in Dispatch
@@ -349,7 +349,7 @@ open helpdesk
 
 flag hard view shield-alert
   | It names svchost.exe, a core Windows file, minutes after a routine update, and gives no evidence for the claim.
-flag hard file C/Quarantine/svchost.exe
+flag hard file Home/Harbor Shield/Quarantine/svchost.exe
   | The alert calls it a virus, but it is the Windows service host, moved out of the Windows folder.
 flag hard dialog properties svchost
   | Publisher Microsoft Windows, type Application, and a valid digital signature: signs that the file is genuine.

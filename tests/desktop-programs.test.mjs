@@ -359,6 +359,25 @@ test('a firewall alert is a shared OS dialog: Allow or Cancel closes it, and bot
   assert.equal(UI.appName('Spreadsheet', 'windows'), 'Excel');
 });
 
+test('a dialog names a file\'s folder as each OS writes it: home, a lettered drive, a USB stick, a share', () => {
+  const UI = createRequire(import.meta.url)('../ui/desktop/program-ui.js');
+  const w = world();
+  const short = w.user.short;
+  const top = (id, name, drive, archive) => ({ id, parentId: 'root', name, kind: 'folder', mime: 'inode/directory', size: 0, modified: '2026-11-02T09:00:00Z', trashed: false, drive, archive });
+  w.fs.nodes['d-c'] = top('d-c', 'Local Disk (C:)', 'C', 'share');
+  w.fs.nodes['d-usb'] = top('d-usb', 'Kestrel Plans', 'KESTREL', 'usb');
+  w.fs.nodes['d-net'] = top('d-net', 'Shared', 'fileserver', 'share');
+  w.fs.nodes['tools'] = { ...file('tools', 'Tools'), parentId: 'd-c', kind: 'folder', mime: 'inode/directory' };
+  const at = parentId => ({ parentId });
+  assert.equal(UI.pathOf(w, w.fs.nodes['f-pdf'], 'windows'), `C:\\Users\\${short}\\Downloads`);
+  assert.equal(UI.pathOf(w, w.fs.nodes['f-pdf'], 'macos'), `/Users/${short}/Downloads`);
+  assert.equal(UI.pathOf(w, at('tools'), 'windows'), 'C:\\Tools');
+  assert.equal(UI.pathOf(w, at('d-usb'), 'windows'), 'E:\\');
+  assert.equal(UI.pathOf(w, at('d-usb'), 'macos'), '/Volumes/Kestrel Plans');
+  assert.equal(UI.pathOf(w, at('d-net'), 'windows'), '\\\\fileserver\\');
+  assert.equal(UI.pathOf(w, at('tools'), 'macos'), '/Volumes/Local Disk (C:)/Tools');
+});
+
 test('a Settings window can open on a shared pane (startup, privacy, network); no other app takes a pane', () => {
   let r = step(world(), { kind: 'open-app', app: 'settings', payload: { pane: 'startup' } });
   assert.deepEqual(r.world.windows.at(-1).payload, { pane: 'startup' });

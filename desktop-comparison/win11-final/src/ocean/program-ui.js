@@ -421,11 +421,19 @@
 
   // ---- OS dialogs -------------------------------------------------------------------------------------------------
 
+  // The folder a file is in, as each OS writes it. Under a drive (world-model: a top folder with `drive`): C:\Tools,
+  // E:\ for a USB stick, \\fileserver\ for a share; macOS: /Volumes/<name>. Otherwise the user's home.
   const pathOf = (world, node, os) => {
     const parts = [];
-    for (let at = world.fs.nodes[node?.parentId]; at && at.id !== 'root'; at = world.fs.nodes[at.parentId]) parts.unshift(at.id === 'home' ? world.user.short : at.name);
-    if (os === 'macos') return `/Users/${parts.join('/')}`;
-    return `C:\\Users\\${parts.join('\\')}`;
+    let drive = null;
+    for (let at = world.fs.nodes[node?.parentId]; at && at.id !== 'root'; at = world.fs.nodes[at.parentId]) {
+      if (at.drive) { drive = at; break; }
+      parts.unshift(at.id === 'home' ? world.user.short : at.name);
+    }
+    if (os === 'macos') return drive ? `/Volumes/${[drive.name, ...parts].join('/')}` : `/Users/${parts.join('/')}`;
+    if (!drive) return `C:\\Users\\${parts.join('\\')}`;
+    const root = /^[A-Z]$/i.test(drive.drive) ? `${drive.drive.toUpperCase()}:` : drive.archive === 'share' ? `\\\\${drive.drive}` : drive.archive === 'cd' ? 'D:' : 'E:';
+    return [root, ...parts].join('\\') + (parts.length ? '' : '\\');
   };
   const sizeOf = bytes => (bytes >= 1048576 ? `${(bytes / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`);
   const dateOf = iso => { try { return new Date(iso).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' }); } catch { return iso; } };
@@ -466,7 +474,7 @@
         } else {
           put(root, title('Open File - Security Warning'), h('div', { class: 'opd-body' },
             h('div', { class: 'opd-question' }, 'Do you want to run this file?'),
-            h('div', { class: 'opd-split' }, fileImg(40), rows([['Name:', pathOf(world, node, os) + '\\' + name, 'opd-strong'],
+            h('div', { class: 'opd-split' }, fileImg(40), rows([['Name:', pathOf(world, node, os).replace(/\\$/, '') + '\\' + name, 'opd-strong'],
               ['Publisher:', publisher ?? 'Unknown Publisher', publisher ? '' : 'opd-link'], ['Type:', type.label], ['From:', pathOf(world, node, os)]])),
             h('div', { class: 'opd-buttons' }, button('Run', 'run'), button('Cancel', 'cancel', true)),
             h('div', { class: 'opd-check' }, h('span', { class: 'opd-box' }, '✓'), 'Always ask before opening this file'),
@@ -566,7 +574,7 @@
           put(root, title('Windows Security Alert'), h('div', { class: 'opd-body' },
             h('div', { class: 'opd-split' }, statusIcon('shield', 40), h('div', { class: 'opd-heading' }, 'Windows Defender Firewall has blocked some features of this app')),
             h('p', { class: 'opd-text' }, 'Windows Defender Firewall has blocked some features of this app on all public and private networks.'),
-            rows([['Name:', program?.name ?? name, 'opd-strong'], ['Publisher:', publisher ?? 'Unknown', publisher ? '' : 'opd-bad'], ['Path:', `${pathOf(world, node, os)}\\${name}`]]),
+            rows([['Name:', program?.name ?? name, 'opd-strong'], ['Publisher:', publisher ?? 'Unknown', publisher ? '' : 'opd-bad'], ['Path:', `${pathOf(world, node, os).replace(/[\\/]$/, '')}${mac ? '/' : '\\'}${name}`]]),
             h('p', { class: 'opd-text' }, 'Allow it to communicate on these networks:'),
             h('div', { class: 'opd-check' }, h('span', { class: 'opd-box' }, '✓'), 'Private networks, such as my home or work network'),
             h('div', { class: 'opd-buttons' }, button('Allow access', 'ok'), button('Cancel', 'cancel', true))));
@@ -807,7 +815,7 @@ button.opv-check:focus-visible .opv-box{outline:2px solid var(--opv-accent-d);ou
 .opd-os-macos.opd-properties,.opd-os-macos.opd-detected,.opd-os-macos.opd-autoplay{text-align:left;width:340px}
 .opd-message-host{min-height:120px}
 .opd-message-host .opv{height:auto}
-.opg{font-family:inherit;color:#202124}
+.opg{font-family:inherit;color:#202124;--opv-accent-d:var(--opv-accent,#0067c0)}
 .opg[data-page-part=warning]{background:#fff;min-height:100%;padding:1px 0}.opg.opg-dark[data-page-part=warning]{color:#e8eaed;background:#202124}
 .opg-macos.opg-dark[data-page-part=warning]{background:#1e1e1e}
 .opg[data-page-part=sections]{color:#1d1d1f;font-size:13.5px}
@@ -1236,7 +1244,7 @@ html[data-ocean-fx=high] .ocean-cue{animation-duration:1.1s}
     }
   }
 
-  const api = Object.freeze({ appName, fileIcon, renderView, renderDialog, dialogFrame, injectStyles, characterArt, countdown, renderPagePart, ICON_STYLE,
+  const api = Object.freeze({ appName, fileIcon, pathOf, renderView, renderDialog, dialogFrame, injectStyles, characterArt, countdown, renderPagePart, ICON_STYLE,
     mountOverlay, byText, candidateKeys, sound });
   if (typeof window !== 'undefined') window.OceanProgramUI = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

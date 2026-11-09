@@ -14,7 +14,7 @@ const mock = await import('./fixtures/threats/mock.mjs');
 const { decisionBody, readDecision, normaliseQuery } = await import('../backend/threats/decide.mjs');
 const { readResolve } = await import('../backend/threats/resolve.mjs');
 const { runResearch, searchBody } = await import('../backend/threats/research.mjs');
-const { createThreatSceneWriter, keepCitedSteps, safetyProblems, ILLUSTRATION_LABEL } = await import('../backend/threats/scene-writer.mjs');
+const { createThreatSceneWriter, keepCitedSteps, quoteLines, renameFlagsAfterEncrypt, safetyProblems, ILLUSTRATION_LABEL } = await import('../backend/threats/scene-writer.mjs');
 const { createParallelClient } = await import('../backend/threats/parallel.mjs');
 const { createThreatStore } = await import('../backend/threats/store.mjs');
 const { createThreatRoutes } = await import('../backend/threats/routes.mjs');
@@ -169,6 +169,20 @@ test('the search body never carries a code request', () => {
   assert.match(searchBody({ name: 'X', kind: 'hack' }).objective, /no code/);
 });
 
+// Live, DeepSeek V4.1 Flash spent a whole 12k budget reasoning at `minimal` and returned an empty scene.
+test('threat calls turn model reasoning off; other kinds keep the configured effort', async () => {
+  const sent = [];
+  const fetchImpl = async (url, { body }) => {
+    sent.push(JSON.parse(body));
+    return new Response(JSON.stringify({ choices: [{ message: { content: 'ok' } }] }), { status: 200 });
+  };
+  const env = { DETONATION_INFERENCE_ENABLED: 'true', VULTR_INFERENCE_API_KEY: 'test-inference-key-not-real', VULTR_INFERENCE_CODE_MODEL: 'm', VULTR_INFERENCE_REASONING_EFFORT: 'minimal' };
+  const client = createInferenceClient({ env, fetchImpl });
+  await client.complete([{ role: 'user', content: 'x' }], { model: 'threat' });
+  await client.complete([{ role: 'user', content: 'x' }], { model: 'code' });
+  assert.deepEqual(sent.map(body => body.reasoning_effort), ['none', 'minimal']);
+});
+
 // ---- the scene writer --------------------------------------------------------------------------------------------
 
 test('a step that cites no brief entry is dropped before the checks', () => {
@@ -190,20 +204,23 @@ test('content rules: fictional hosts and documentation IPs only, no hashes, no w
   assert.equal(safetyProblems('os macos').length, 1, 'researched scenes play on Windows');
 });
 
-test('the writer repairs a failing scene, gives up after 3 attempts, and caches only a passing one', async () => {
+test('the writer repairs a failing scene, gives up after 5 attempts, and caches only a passing one', async () => {
   const threatDir = mkdtempSync(join(tmpdir(), 'threats-writer-'));
   try {
     const brief = { entries: ['e1', 'e2', 'e3'].map(id => ({ id, stage: 'entry', claim: 'c', url: 'https://www.cisa.gov/x', publisher: 'cisa.gov' })), missing: [], sources: [] };
     const threat = { slug: 'qakbot', name: 'Qakbot', family: 'theft-surveillance', depth: 'abyss', kind: 'malware', brief, aliases: [] };
     writeFileSync(join(threatDir, 'qakbot.json'), JSON.stringify(threat));
     const uncited = mock.citedZeus().replace(/^# cite .*$/gm, '');
-    const failing = mock.mockFetch({ inference: { '[threat-scene]': [uncited, uncited, uncited] } });
+    const failing = mock.mockFetch({ inference: { '[threat-scene]': [uncited, uncited, uncited, uncited, uncited] } });
     const bad = await createThreatSceneWriter({ client: clients(failing, { threatDir }).inference, dir: threatDir }).write(threat);
     assert.equal(bad.ok, false);
-    assert.equal(bad.attempts, 3);
+    assert.equal(bad.attempts, 5);
     const repairs = failing.calls.filter(call => call.url.includes('vultrinference'));
-    assert.equal(repairs.length, 3);
+    assert.equal(repairs.length, 5);
     assert.match(repairs[1].body.messages.at(-1).content, /deleted because they cite no brief entry/);
+    assert.doesNotMatch(repairs[1].body.messages.at(-1).content, /same scene again/);
+    assert.match(repairs[2].body.messages.at(-1).content, /same scene again, unchanged/, 'a repeated draft is called out');
+    assert.match(repairs[0].body.messages[0].content, /"icon" is one of: .*sheet/, 'the prompt lists the names the compiler accepts');
     assert.match(repairs[0].body.messages[1].content, /<untrusted>[\s\S]*e1 \[entry\]/, 'the brief goes to the model inside <untrusted>');
     const passing = mock.mockFetch({ inference: { '[threat-scene]': [uncited, mock.citedZeus()] } });
     const writer = createThreatSceneWriter({ client: clients(passing, { threatDir }).inference, dir: threatDir });
@@ -216,6 +233,24 @@ test('the writer repairs a failing scene, gives up after 3 attempts, and caches 
   } finally {
     rmSync(threatDir, { recursive: true, force: true });
   }
+});
+
+test('a flag on a file that an earlier encrypt renamed points at its new name', () => {
+  const source = [
+    'file Desktop/payroll-login.txt', 'file Documents/q3.xlsx', 'encrypt Desktop .Ryuk',
+    'file Desktop/RyukReadMe.txt', 'flag soft file Desktop/payroll-login.txt', 'flag hard file Desktop/RyukReadMe.txt', 'flag hard file Documents/q3.xlsx',
+  ].join('\n');
+  assert.deepEqual(renameFlagsAfterEncrypt(source).split('\n').slice(4), [
+    'flag soft file Desktop/payroll-login.txt.Ryuk', 'flag hard file Desktop/RyukReadMe.txt', 'flag hard file Documents/q3.xlsx',
+  ], 'only files created before the encrypt, in its folder, are renamed');
+  assert.equal(renameFlagsAfterEncrypt('file Desktop/a.txt\nencrypt Desktop\nflag soft file Desktop/a.txt'), 'file Desktop/a.txt\nencrypt Desktop\nflag soft file Desktop/a.txt', 'no extension, no rename');
+});
+
+test('a repair quotes the block a numbered problem points at, so the model can find it', () => {
+  const source = ['title X', 'step One', '# cite e1', '  look here', '  when open excel', '', 'step Two'].join('\n');
+  const [numbered, plain] = quoteLines(['generated:2: when open <app>: apps are files', 'a scene needs about'], source);
+  assert.match(numbered, /in this block:\n {4}step One\n {4}# cite e1\n {6}look here\n {6}when open excel$/);
+  assert.equal(plain, 'a scene needs about');
 });
 
 // ---- local matching ----------------------------------------------------------------------------------------------

@@ -14,15 +14,15 @@
       "expected": 1
     },
     {
-      "description": "shortcuts: ⌃⌘Q lock is no longer shadowed by ⌘Q quit",
+      "description": "shortcuts: \u2303\u2318Q lock is no longer shadowed by \u2318Q quit",
       "expected": 1
     },
     {
-      "description": "shortcuts: ⌃⌘Space emoji is no longer shadowed by Spotlight",
+      "description": "shortcuts: \u2303\u2318Space emoji is no longer shadowed by Spotlight",
       "expected": 1
     },
     {
-      "description": "shortcuts: ⌃↑/⌃↓ Mission Control can fire (h includes ctrlKey)",
+      "description": "shortcuts: \u2303\u2191/\u2303\u2193 Mission Control can fire (h includes ctrlKey)",
       "expected": 1
     },
     {
@@ -30,7 +30,7 @@
       "expected": 1
     },
     {
-      "description": "screenshot cull: ⇧⌘3 and ⇧⌘4",
+      "description": "screenshot cull: \u21e7\u23183 and \u21e7\u23184",
       "expected": 1
     },
     {
@@ -266,7 +266,7 @@
       "expected": 1
     },
     {
-      "description": "Spotlight: ⌘Space opens the search (Files) tab, not the last-used Apps tab",
+      "description": "Spotlight: \u2318Space opens the search (Files) tab, not the last-used Apps tab",
       "expected": 1
     },
     {
@@ -278,11 +278,11 @@
       "expected": 1
     },
     {
-      "description": "updates: Settings ▸ General ▸ Software Update opens the world-driven Software Update app",
+      "description": "updates: Settings \u25b8 General \u25b8 Software Update opens the world-driven Software Update app",
       "expected": 2
     },
     {
-      "description": "updates: About This Mac ▸ Software Update… opens the world-driven Software Update app",
+      "description": "updates: About This Mac \u25b8 Software Update\u2026 opens the world-driven Software Update app",
       "expected": 1
     },
     {
@@ -342,7 +342,7 @@
       "expected": 1
     },
     {
-      "description": "programs: Finder File > Get Info and ⌘I",
+      "description": "programs: Finder File > Get Info and \u2318I",
       "expected": 1
     },
     {
@@ -389,8 +389,8 @@
     },
     {
       "file": "program-ui.js",
-      "bytes": 96673,
-      "sha256": "b6c529c01dbb7cc2d41765984d6a66c123a254fcd9dbd796bee01da312571e9e"
+      "bytes": 97390,
+      "sha256": "d523bc555f3ee65dc50c3353f9a86b217ee5cb424b1e594b0ae07fec4c84b5e5"
     },
     {
       "file": "assets/index-BqrKPhU7.css",

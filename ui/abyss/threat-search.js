@@ -67,8 +67,8 @@
   const facts = result => [KIND[result.kind] ?? 'Threat', FAMILY[result.family] ?? FAMILY.unknown, DEPTH[result.depth]].filter(Boolean).join(' · ');
   const safeUrl = url => { try { const u = new URL(url); return /^https?:$/.test(u.protocol) ? u.href : null; } catch { return null; } };
 
-  async function post(path, body) {
-    const response = await fetch(path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), credentials: 'same-origin', cache: 'no-store' });
+  async function post(path, body, signal) {
+    const response = await fetch(path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), credentials: 'same-origin', cache: 'no-store', signal });
     let data = {};
     try { data = await response.json(); } catch { /* an old server without these routes */ }
     return { status: response.status, body: data };
@@ -98,22 +98,26 @@
     return list.children.length ? list : null;
   }
 
+  // A new search replaces one still in flight: the older request is aborted and only the latest answer is drawn, so a slow
+  // reply never lands under a newer query (and Enter always searches what is in the box).
+  let searching = null;
   form.addEventListener('submit', async event => {
     event.preventDefault();
     const query = input.value.replace(/\s+/g, ' ').trim();
     if (query.length < 2) { say('Type a name, for example Zeus or WannaCry.', true); input.focus(); return; }
-    go.disabled = true;
+    searching?.abort();
+    const mine = searching = new AbortController();
     form.setAttribute('aria-busy', 'true');
     say('Checking public reporting…');
     try {
-      const { status, body } = await post('/api/threats/search', { query });
+      const { status, body } = await post('/api/threats/search', { query }, mine.signal);
+      if (mine !== searching) return;
       if (body.status === 'matched') showResults(body);
       else say(body.message ?? body.error ?? (status === 404 ? "Threat search isn't available on this server." : 'The search failed. Try again.'), true);
     } catch {
-      say("The search didn't reach the server. Try again.", true);
+      if (mine === searching) say("The search didn't reach the server. Try again.", true);
     } finally {
-      go.disabled = false;
-      form.removeAttribute('aria-busy');
+      if (mine === searching) { searching = null; form.removeAttribute('aria-busy'); }
     }
   });
 

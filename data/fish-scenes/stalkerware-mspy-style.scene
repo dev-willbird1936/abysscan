@@ -10,9 +10,9 @@ about
   | It is installed by hand, in a few minutes, by someone who has the phone and its passcode, or who knows the account password. It hides its icon and keeps a name like "Sync Service". The person being watched sees nothing on screen.
   | This scene is about noticing the signs and getting help, never about installing it. The topic can be upsetting: the help page is the last task, and the person in the story is invented.
 story
-  | You are Dana Okafor, front-desk coordinator at Northwind Traders. At lunch you use the office computer for your own errands, including your own email: it is the one screen nobody at home can see.
+  | You are Dana Okafor, front-desk coordinator at Northwind Traders. At lunch you use the office computer for your own errands, including your personal cloud account. Its alerts go to your work email, so they land in this inbox. It is the one screen nobody at home can see.
   | Lately someone at home has known things they should not: where you had lunch, who messaged you. You have not worked out how.
-  | You have done 2 of today's 4 lunch-break chores. Two to go: the alert about your new tablet, and whatever else comes up.
+  | You have done 2 of today's 4 lunch-break chores. Two to go: the alert about your new tablet, and checking why your phone keeps running hot.
   | Your cloud sign-in is in a text file on the desktop, next to your phone passcode. That is a bad habit, but it keeps this training quick.
 quota 2 4 Lunch-break chores done
 spotted signs someone was watching
@@ -21,7 +21,7 @@ spotted signs someone was watching
 file Desktop/cloud-login.txt
   at 300 520
   | Cloud Service account (phone backup)
-  | Account: dana.okafor@mail-box.example
+  | Account: dana-okafor@northwind.example
   | Password: Maple-Orchard-52!
 file Desktop/phone-passcode.txt
   at 460 520
@@ -36,7 +36,7 @@ page cloud-login account.cloud-service.example/sign-in
   favorite
   heading Sign in to your account
   | Welcome back. Sign in to see your devices and backups.
-  field Account = dana.okafor@mail-box.example
+  field Account = dana-okafor@northwind.example
   field secret Password = Maple-Orchard-52!
   button Sign in
 page tablet-ok account.cloud-service.example/devices/confirmed
@@ -52,13 +52,12 @@ page devices-ok account.cloud-service.example/devices/tablet
   | A new device signed in today. Check that you know it.
   section Signed-in devices
   columns Device | Last active | Where
-  cells Dana's phone | Today | Home
+  cells Dana's phone | Today | Mobile network
   cells Dana's tablet (new) | This morning, 8:12 | Home
   note The tablet signed in once, from your home address, when you set it up.
   button Yes, this was me -> tablet-ok
 mail tablet-alert
   from Cloud Service <no-reply@cloud-service.example>
-  to dana.okafor@mail-box.example
   subject New sign-in: Dana's tablet
   sent 2026-11-02 08:13
   link devices-ok
@@ -140,15 +139,11 @@ page weather daily-weather.example/today
   heading Weather today
   | Sunny spells, 14 degrees. This neutral page is where Quick exit goes in this training copy.
   button Back to safe help -> help
+# removed is defined twice: "Remove the app now" on the phone report opens it, and its buttons go back once the phone report is defined.
 page removed account.cloud-service.example/devices/removed
   title Device removed
   brand Cloud Service
   heading Device removed
-  | The unknown device is signed out of your account.
-  section What happens next
-  tone warn
-  note The app on your phone is still there. Whoever set it up may see that your account stopped answering, and may not know why.
-  button Get safe help first -> help
 page phone-usage account.cloud-service.example/devices/phone
   title Cloud Service: phone battery and data
   brand Cloud Service
@@ -158,18 +153,30 @@ page phone-usage account.cloud-service.example/devices/phone
   section Battery use
   row Messages = 6%
   row Maps = 9%
-  row Sync Service = 34%
+  row Sync Service = 18%
   section Mobile data uploaded
   row Browser = 85 MB
   row Messages = 40 MB
   row Sync Service = 2.1 GB
-  section Apps with special access
-  tone warn
-  row Sync Service = location always, photos, accessibility
-  row Icon = hidden from the home screen
-  row Installed = 2 days ago
+  row Sync Service, screen off = 1.9 GB
+  section Special access and safety settings
+  row Sync Service = location always, photos, notifications, accessibility
+  row Sync Service = device admin on
+  row Sync Service = installed 2 days ago
+  row Play Protect = turned off
   button Get safe help first -> help
   button Remove the app now -> removed
+page removed account.cloud-service.example/devices/removed
+  title Device removed
+  brand Cloud Service
+  heading Device removed
+  | The unknown device is signed out of your account.
+  | Your phone's battery and data report is still under Devices. Read it before you decide anything else.
+  section What happens next
+  tone warn
+  note The app on your phone is still there. Whoever set it up may see that your account stopped answering, and may not know why.
+  button See what my phone reports -> phone-usage
+  button Get safe help first -> help
 page devices account.cloud-service.example/devices
   title Your account: devices
   brand Cloud Service
@@ -178,20 +185,18 @@ page devices account.cloud-service.example/devices
   | These devices have used your account recently.
   section Signed-in devices
   columns Device | Last active | Where
-  cells Dana's phone | Today | Home
+  cells Dana's phone | Today | Mobile network
   cells Dana's tablet (new) | This morning | Home
   cells Unknown device (Linux) | 2 minutes ago | Not home: 203.0.113.44
-  section What this device did
-  tone warn
-  row Backup restored = 2 days ago
-  row Photos viewed = 2 days ago
+  section What the unknown device did
+  row Backup restored = today, 12:29
+  row Photos viewed = today, 12:29
   row Location checked = every 15 minutes
   note If you did not add a device, someone may have your password or phone passcode.
   button See what my phone reports -> phone-usage
   button Remove this device -> removed
 mail alert
   from Cloud Service <no-reply@cloud-service.example>
-  to dana.okafor@mail-box.example
   subject New device signed in to your account
   sent 2026-11-02 12:31
   link devices
@@ -215,7 +220,7 @@ step The account lists a device you never added
   move Read the list and what the unknown device did, then press “See what my phone reports”.
   cue choice:devices-1 choice:removed-1 choice:help-1 choice:weather-1
   | You are still signed in, so the list opens at once. Two devices are yours; the third is not: Linux, 203.0.113.44, active 2 minutes ago, while you are at work.
-  | It restored a backup and looked at photos two days ago, and it checks your location every 15 minutes. Someone with your password or your phone for a few minutes can set this up.
+  | It restored a backup and looked at photos at 12:29 today, and it checks your location every 15 minutes. Someone with your password or your phone for a few minutes can set this up.
 open devices
 
 step What the phone itself shows
@@ -223,9 +228,9 @@ step What the phone itself shows
   when choose devices 1
   move Read the three sections. Do not press “Remove the app now” yet: press “Get safe help first”.
   cue choice:phone-usage-1 choice:removed-1 choice:help-1 choice:weather-1
-  | The report from your phone names an app you never installed. Sync Service uses a third of the battery, uploads 2.1 GB, and has access to your location, photos and accessibility.
-  | Accessibility lets an app read everything on the screen. Sync Service was installed 2 days ago, the same day the unknown device restored your backup.
-  | It has no icon, and monitoring apps hide like this. None of these signs proves it alone; together they are worth checking.
+  | The report from your phone names an app you never installed. Sync Service uses more battery than Maps or Messages, uploads 2.1 GB, and can see your location, photos, notifications and screen.
+  | Accessibility lets an app read everything on the screen. Sync Service was installed 2 days ago, before the unknown device restored your backup today.
+  | On the phone itself, check the app list and Settings for Sync Service: monitoring apps often have no icon. None of these signs proves it alone; together they are worth checking.
 open phone-usage
 
 step Do not delete anything yet
@@ -234,20 +239,20 @@ step Do not delete anything yet
   move Read the first steps, then press “Find a helpline”.
   cue choice:help-1 choice:weather-1
   | The tempting move is “Remove the app now”. Removing stalkerware can alert the person who set it up, which can be dangerous.
-  | The safest first step is to look for help from a device the other person cannot see, such as a friend's phone or a library computer, and to ask a trusted person or a helpline for a plan.
+  | The safest first step is to look for help from a device the other person cannot see, such as a friend's phone, a library computer or this office computer, and to ask a trusted person or a helpline for a plan.
 choose phone-usage 1
 
 step 4 of 4 done
   look the helpline page and the counter in the guide
   when choose help 1
-  | A person who knows how to help with this is a phone call away. Writing down what you noticed, and when, is the next thing you do. That chore was not on your list, and it was the important one.
+  | A person who knows how to help with this is a phone call away. Writing down what you noticed, and when, is the next thing you do. The phone check was the last chore on your list, and the important one.
 choose help 1
 quota +1
 
 step What the app was passing on
   look the animation: what someone else could read, and from where
   | Two ways in: the hidden app on Dana's phone, or the cloud backup read with her account password. Both sent her messages, calls, photos and location to someone else.
-  | Dana saw none of it. The signs were all outside the app: an alert, a device she never added, and a phone that was working too hard.
+  | Dana saw none of it. The signs were all outside the app: an alert, a device she never added, and a phone that kept running hot.
 attack spyware-surveillance
   | account alert
   | unknown device
@@ -265,15 +270,15 @@ flag hard section devices 1
 flag hard section devices 2
   | The unknown device restored a backup, viewed photos and checks your location every 15 minutes: watching, not signing in by mistake.
 flag hard section phone-usage 1
-  | An app you never open uses a third of the battery. A hidden app that always runs drains it.
+  | An app you never installed uses more battery than Maps or Messages. A hidden app that always runs drains it.
 flag hard section phone-usage 2
-  | 2.1 GB uploaded by one app in a week, even with the screen off: the copies of your messages and photos on their way.
+  | 2.1 GB uploaded by one app in a week, 1.9 GB of it with the screen off: the copies of your messages and photos on their way.
 flag hard section phone-usage 3
-  | An app with a bland name, no icon, and access to location, photos and accessibility, which lets it read everything on screen. It was installed the same day the unknown device restored your backup.
+  | An app called Sync Service, which you never installed, with location, photo, notification and accessibility access and device admin rights. Play Protect, which checks apps, is turned off.
 flag soft file Desktop/cloud-login.txt
   | A password in a text file: anyone who reaches this computer can read it. A password manager is safer.
 flag soft file Desktop/phone-passcode.txt
-  | A phone passcode and a recovery answer belong in no file at all. Someone who knows the passcode can install a monitoring app in minutes.
+  | A phone passcode and a recovery answer belong in no file at all. Anyone with the passcode can reach the phone.
 
 lesson
   | Stalkerware needs a few minutes with your phone or your account password. Watch for account alerts, unknown devices, a fast-draining battery and unexplained data use.

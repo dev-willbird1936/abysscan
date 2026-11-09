@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -41,6 +41,7 @@ const CHECKED_SOURCES = [
   'data/ocean-taxonomy.json',
   'data/ocean-menu-taxonomy.json',
   'tools/build-ocean-taxonomy.mjs',
+  'tools/retrodiffusion-family-depth-study.py',
   'docs/ocean-taxonomy.md',
   'docs/ocean-menu-taxonomy.md',
   'docs/VISION.md',
@@ -50,10 +51,13 @@ const CHECKED_SOURCES = [
 ];
 
 function assertNoOldLadderWording(path) {
-  const text = readFileSync(join(root, path), 'utf8').toLowerCase();
+  const file = join(root, path);
+  const text = readFileSync(file, 'utf8').toLowerCase();
   for (const phrase of OLD_LADDER_PHRASES) assert.ok(!text.includes(phrase), `${path} contains old ladder wording "${phrase}"`);
 }
 
 for (const path of CHECKED_SOURCES) {
-  test(`${path} has no old victim-action ladder wording`, () => assertNoOldLadderWording(path));
+  const file = join(root, path);
+  // Public clones withhold bulk art-generation material (README); skip those files rather than fail the suite.
+  test(`${path} has no old victim-action ladder wording`, { skip: existsSync(file) ? false : 'not in this checkout' }, () => assertNoOldLadderWording(path));
 }

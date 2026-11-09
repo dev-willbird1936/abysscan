@@ -55,6 +55,9 @@ export function createInferenceClient({ env = process.env, fetchImpl = globalThi
   // threat: threat search (backend/threats): naming a match, the research brief and the researched scene.
   const models = { code: env.VULTR_INFERENCE_CODE_MODEL, vision: env.VULTR_INFERENCE_VISION_MODEL, threat: env.VULTR_INFERENCE_THREAT_MODEL || 'deepseek-v4.1-flash-1017' };
   const reasoningEffort = env.VULTR_INFERENCE_REASONING_EFFORT;
+  // Threat search writes long structured replies: DeepSeek V4.1 Flash spends a whole budget on reasoning even at `minimal`
+  // and answers with nothing, so the threat kind turns reasoning off unless VULTR_INFERENCE_THREAT_REASONING_EFFORT says otherwise.
+  const efforts = { threat: env.VULTR_INFERENCE_THREAT_REASONING_EFFORT || 'none' };
   let day = '';
   let used = 0;
   let ledgerOk = true;
@@ -86,7 +89,8 @@ export function createInferenceClient({ env = process.env, fetchImpl = globalThi
   async function complete(messages, { model = 'code', maxTokens = MAX_COMPLETION_TOKENS } = {}) {
     if (!available(model)) throw new InferenceError(!ledgerOk ? 'request-failed' : enabled && used >= dailyCap ? 'cap-reached' : 'disabled');
     const payload = { model: models[model], temperature: 0.2, max_tokens: Math.min(MAX_COMPLETION_TOKENS_CEILING, Math.max(256, Math.floor(Number(maxTokens) || MAX_COMPLETION_TOKENS))), messages };
-    if (reasoningEffort) payload.reasoning_effort = reasoningEffort;
+    const effort = efforts[model] ?? reasoningEffort;
+    if (effort) payload.reasoning_effort = effort;
     const body = JSON.stringify(payload);
     if (Buffer.byteLength(body, 'utf8') > MAX_REQUEST_BYTES) throw new InferenceError('request-too-large');
     if (capFile) {

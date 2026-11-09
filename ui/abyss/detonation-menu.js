@@ -260,9 +260,9 @@
       card.closest('.zone')?.setAttribute('aria-label', `${name} ${word}`);
     }
     const found = state.records.filter((a) => a.kind === 'creature').length;
-    // The base fish (data/ocean-base.json) are named history; uploads join them without names.
-    document.querySelector('.end-line').textContent = found ? 'Explore historical illustrations and anonymous results from analysed uploads.' : 'The ocean is waiting for its first file.';
-    document.querySelector('.end-sub').textContent = 'It began with 60 well-known files and attacks, named. Uploads join them anonymously: only counts, and the type and day of the files creatures ate, in batches.';
+    // The base fish (data/ocean-base.json) are named history; files analysed before uploads were retired joined them without names.
+    document.querySelector('.end-line').textContent = found ? 'Explore historical illustrations and anonymous results from files analysed earlier.' : 'Search a threat to begin.';
+    document.querySelector('.end-sub').textContent = 'It began with 60 well-known files and attacks, named. Files analysed in the sandbox joined them anonymously: only counts, and the type and day of the files creatures ate.';
     document.querySelector('.legend-lede').textContent = 'Depth is the tier: the deeper the water, the more harm the file did. Each form is a creature family.';
   }
 
