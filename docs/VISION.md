@@ -2,9 +2,11 @@
 
 This file preserves the scripted-scene project's earlier intent. [`DETONATION-DESIGN.md`](DETONATION-DESIGN.md) is the current product source of truth; [`SPEC.md`](SPEC.md) defines its implementation and acceptance criteria. This legacy document overrides neither.
 
-> **Product change.** The product is now a file detonation sandbox: users upload a file, the Vultr sandbox runs or emulates it, and the result becomes a creature at a depth. Depth now means **how harmful the file proved to be**. [`DETONATION-DESIGN.md`](DETONATION-DESIGN.md) holds the agreed design (file types, depth tiers, families, creatures, per-upload fish, containment) and wins over sections 1 to 4 below, which describe the scripted-scene build. Safety rules in [`safety.md`](safety.md) apply to everything below and are not relaxed by it.
+> **Product change.** What shipped for the hackathon is **search and quests**, not public file upload. Visitors search a known threat and play it as a training game on a simulated desktop. `POST /api/jobs` answers 410 unless `DETONATION_UPLOADS=true`. The sandbox pipeline below is still in the code as the containment story.
+>
+> An earlier change made the product a file detonation sandbox: users uploaded a file, the Vultr sandbox ran or emulated it, and the result became a creature at a depth. Depth meant **how harmful the file proved to be**. [`DETONATION-DESIGN.md`](DETONATION-DESIGN.md) holds that design (file types, depth tiers, families, creatures, per-upload fish, containment) and wins over sections 1 to 4 below, which describe the still-earlier scripted-scene build. Safety rules in [`safety.md`](safety.md) apply to everything below and are not relaxed by it.
 
-**Current product:** upload a file to an isolated analysis job, inspect its rule-engine evidence and watch a fictional desktop replay; a pixel ocean represents the observed behaviour. The implementation is partial, safety approval is pending, and no public Vultr deployment is claimed. No tests or runtime probes run in the current session.
+**Current product:** search a threat, play the quest. Live at https://demo.abysscan.com (public, no login). The sections below describe earlier builds and their historical evidence, not the live menu.
 
 The sections below describe the earlier scripted-scene build and its historical evidence, not acceptance of the current detonation product.
 
