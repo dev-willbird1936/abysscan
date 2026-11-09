@@ -1,8 +1,8 @@
 # Threat search: deploying it
 
 The live search (Parallel Decisions, Parallel Search, Vultr inference, the researched scene) is built and tested in this
-checkout but **not deployed**. The live site still runs the Zeus-only preview. This page lists what a deploy needs; the VM facts
-were read on 2026-11-09 00:00 UTC and may have moved since.
+checkout. When this page was written (2026-11-09 00:00 UTC) the live site still ran the Zeus-only preview; the live
+`/api/threats/config` now reports search and create on. This page lists what a deploy needs; the VM facts may have moved since.
 
 ## What blocks a straight file copy
 

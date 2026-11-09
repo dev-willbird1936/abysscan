@@ -28,8 +28,8 @@ so they cannot recognise it. A quest puts them in the victim's chair at the mome
 ### 1. Search
 
 The main menu has a search bar: "Try: Zeus, WannaCry, recent Binance hack". The visitor names a malware family, an exploit or a
-hacking incident. (The live site runs a preview that knows Zeus only; the flow below is the search built in this repository, not
-yet deployed. See [Status](#status-2026-11-08).)
+hacking incident. (The flow below is the search built in this repository; the live site reports it switched on. See
+[Status](#status-2026-11-08).)
 
 - **Already in the ocean.** The result is badged **In the ocean** and opens its quest.
 - **New.** The result shows the threat's name, date, kind, family, depth and a short summary with its sources, and asks
@@ -107,7 +107,7 @@ both desktops use, so a quest that passes the checks plays on both.
 |---|---|---|
 | Historical quests | `data/fish-scenes/*.scene` (59) | Written by a writer agent, reviewed by an independent advisor, fixed, then replayed on both OSes |
 | Uploaded files | `data/generated-quests/<behaviour>-<type>.scene` | `backend/detonation/quest-writer.mjs` asks Vultr Serverless Inference for a quest for that kind of file, checks it and sends problems back up to three times. Off unless `QUEST_WRITER_ENABLED=true` |
-| Searched threats (built, not deployed) | `${THREAT_DIR}/<slug>.scene` | Parallel Decisions confirms the threat; Parallel Search researches it; DeepSeek V4.1 Flash on Vultr Serverless Inference writes the scene from that research. Every step must cite a research entry, or the checker drops it |
+| Searched threats | `${THREAT_DIR}/<slug>.scene` | Parallel Decisions confirms the threat; Parallel Search researches it; DeepSeek V4.1 Flash on Vultr Serverless Inference writes the scene from that research. Every step must cite a research entry, or the checker drops it |
 
 A generated quest passes the same checks as a hand-written one:
 
@@ -136,8 +136,7 @@ flag.
 |---|---|
 | 59 historical quests | All are quests that compile and pass the quest rules. About half have been through review and fixes; the rest are in progress. Every one replayed so far plays through on both OSes with every hard flag placed |
 | Guide, flags, grade card, chips, per-OS wording | Built and tested on both desktops |
-| Search bar on the live site | **Preview only.** It indexes Zeus and stages the build steps; it makes no live call |
-| Live search and scene writer | Built (`backend/threats/`, `ui/abyss/threat-search.js`) to [threat-search/CONTRACT.md](threat-search/CONTRACT.md) and tested on mocked services; **not deployed**, see [threat-search/DEPLOY.md](threat-search/DEPLOY.md) |
+| Live search and scene writer | Built (`backend/threats/`, `ui/abyss/threat-search.js`) to [threat-search/CONTRACT.md](threat-search/CONTRACT.md) and tested on mocked services. The live site reports search and create switched on (`/api/threats/config`); deployment notes: [threat-search/DEPLOY.md](threat-search/DEPLOY.md) |
 | Quests for uploaded files | Built (`quest-writer.mjs`), off by default; file upload itself is retired on the live site |
 | Deployment | Two batches of the quests above are deployed on the live site |
 
